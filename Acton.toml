@@ -21,6 +21,17 @@ name = "notcoin_wallet"
 src = "notcoin/contracts/jetton-wallet-contract.tolk"
 depends = []
 
+# Acton Jetton
+[contracts.acton_jetton_minter]
+name = "acton_jetton_minter"
+src = "acton-jetton/contracts/jetton-minter-contract.tolk"
+depends = []
+
+[contracts.acton_jetton_wallet]
+name = "acton_jetton_wallet"
+src = "acton-jetton/contracts/jetton-wallet-contract.tolk"
+depends = []
+
 [test]
 
 [fmt]
@@ -30,6 +41,7 @@ ignore = []
 [scripts]
 test-counter = "acton test counter/tests"
 test-notcoin = "acton test notcoin/tests"
+test-acton-jetton = "acton test acton-jetton/tests"
 
 [mappings]
 acton = ".acton"
