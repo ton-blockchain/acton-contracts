@@ -22,8 +22,6 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
-fun onBouncedMessage(in: InMessageBounced) {}
-
 get fun currentCounter(): int {
     val storage = lazy Storage.load();
     return storage.counter;
