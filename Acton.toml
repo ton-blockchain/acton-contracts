@@ -1,0 +1,39 @@
+[package]
+name = "acton-contracts"
+description = "Rewritten Acton contracts monorepo"
+version = "0.1.0"
+license = "MIT"
+
+# Counter
+[contracts.counter]
+name = "counter"
+src = "counter/contracts/counter.tolk"
+depends = []
+
+# Notcoin 
+[contracts.notcoin_minter]
+name = "notcoin_minter"
+src = "notcoin/contracts/jetton-minter-contract.tolk"
+depends = []
+
+[contracts.notcoin_wallet]
+name = "notcoin_wallet"
+src = "notcoin/contracts/jetton-wallet-contract.tolk"
+depends = []
+
+[test]
+
+[fmt]
+width = 100
+ignore = []
+
+[scripts]
+deploy-emulation = "acton script scripts/deploy.tolk"
+deploy-testnet = "acton script scripts/deploy.tolk --broadcast --net testnet"
+
+[mappings]
+acton = ".acton"
+contracts = "contracts"
+gen = "gen"
+tests = "tests"
+wrappers = "tests/wrappers"
