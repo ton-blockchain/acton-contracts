@@ -107,7 +107,7 @@ fun JettonMinter.sendDropAdmin(self, from: address) {
     return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
 }
 
-fun JettonMinter.sendChangeMetadata(self, from: address, new_metadata: SnakeString) {
+fun JettonMinter.sendChangeMetadata(self, from: address, new_metadata: string) {
     val msg = createMessage({
         bounce: false,
         value: ton("0.05"),

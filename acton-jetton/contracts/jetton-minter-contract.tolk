@@ -143,7 +143,7 @@ fun onInternalMessage(in: InMessage) {
         ChangeMinterMetadataUri => {
             var storage = lazy MinterStorage.load();
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
-            storage.metadataUri = msg.newMetadataUri.toCell();
+            storage.metadataUri = msg.newMetadataUri;
             storage.save();
         }
 
@@ -177,7 +177,7 @@ struct (0x00) OnchainMetadataReply {
 }
 
 struct (0x00) SnakeDataReply {
-    string: SnakeString
+    string: string
 }
 
 get fun get_jetton_data(): JettonDataReply {
@@ -186,10 +186,10 @@ get fun get_jetton_data(): JettonDataReply {
     var metadata: OnchainMetadataReply = {
         contentDict: createEmptyMap()
     };
-    metadata.contentDict.set(stringSha256("uri"), SnakeDataReply{string: storage.metadataUri.load()}.toCell());
+    metadata.contentDict.set(stringSha256("uri"), SnakeDataReply{string: storage.metadataUri}.toCell());
     metadata.contentDict.set(
         stringSha256("decimals"),
-        SnakeDataReply { string: beginCell().storeUint(0x39, 8).endCell().beginParse() }.toCell(),
+        SnakeDataReply { string: "9" }.toCell(),
     );
 
     return {

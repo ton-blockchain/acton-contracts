@@ -72,10 +72,6 @@ fun sendRawTransferPayload(
     return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
 }
 
-fun slice.toSnakeString(self): Cell<SnakeString> {
-    return self.toCell();
-}
-
 fun userWallet(minter: JettonMinter, userAddress: address): JettonWallet {
     val address = minter.getWalletAddress(userAddress);
     return JettonWallet { address };
@@ -88,7 +84,7 @@ fun setup_test(initial_supply: int = 0): (JettonMinter, Treasury, Treasury) {
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: initial_supply,
         adminAddress: deployer.address,
-        metadataUri: beginCell().storeUint(0x6c696e6b, 32).endCell() as Cell<SnakeString>,
+        metadataUri: "link",
         nextAdminAddress: null,
     });
 

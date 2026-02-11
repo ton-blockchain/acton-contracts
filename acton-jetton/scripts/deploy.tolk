@@ -5,10 +5,6 @@ import "@acton/io"
 import "../contracts/storage"
 import "../tests/wrappers/JettonMinter"
 
-fun string.toSnakeCell(self) {
-    return beginCell().storeSlice(self.beginParse()).endCell() as Cell<SnakeString>;
-}
-
 fun main() {
     val supply = envOr<int>("JETTON_SUPPLY", 1000000000);
     val metadataUri = "https://ton.org/download/ton_symbol.svg";
@@ -24,7 +20,7 @@ fun main() {
     val minter = JettonMinter.fromStorage({
         totalSupply: supply,
         adminAddress: deployer.address,
-        metadataUri: metadataUri.toSnakeCell(),
+        metadataUri,
         nextAdminAddress: null,
     });
     println1("Prepared minter address: {}", minter.address);
