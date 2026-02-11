@@ -1,16 +1,9 @@
-import "@acton/build/build"
-import "@acton/emulation/network"
 import "@acton/env"
 import "@acton/fmt"
 import "@acton/io"
-import "@contract/storage"
-import "@tests/wrappers/JettonMinter"
-
-const SNAKE_PREFIX = 0x00
-
-fun slice.toSnakeString(self) {
-    return beginCell().storeUint(SNAKE_PREFIX, 8).storeSlice(self).endCell() as Cell<SnakeString>;
-}
+import "@acton/build/build"
+import "@acton/emulation/network"
+import "../tests/wrappers/JettonMinter"
 
 fun main() {
     val supply = envOr<int>("JETTON_SUPPLY", 1000000000);
@@ -20,8 +13,8 @@ fun main() {
     val minter = JettonMinter.fromStorage({
         totalSupply: supply,
         adminAddress: deployer.address,
-        jettonWalletCode: build("jetton_wallet"),
-        metadataUri: "https://ton.org/download/ton_symbol.svg".toSnakeString(),
+        jettonWalletCode: build("notcoin_wallet"),
+        metadataUri: "https://ton.org/download/ton_symbol.svg",
         nextAdminAddress: null,
     });
 
@@ -35,7 +28,7 @@ fun main() {
         deployer.address,
         supply,
         ton("0.01"),
-        ton("0.02"),
+        ton("0.02")
     );
     if (!mintRes.wait()) {
         return;

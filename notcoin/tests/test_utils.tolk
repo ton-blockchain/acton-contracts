@@ -73,10 +73,6 @@ fun sendRawTransferPayload(
     return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
 }
 
-fun slice.toSnakeString(self): Cell<SnakeString> {
-    return self.toCell();
-}
-
 fun userWallet(minter: JettonMinter, userAddress: address): JettonWallet {
     val address = minter.getWalletAddress(userAddress);
     return JettonWallet { address };
