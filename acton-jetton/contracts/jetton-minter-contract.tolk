@@ -4,6 +4,7 @@ import "jetton-utils"
 import "fees-management"
 import "storage"
 import "messages"
+import "@gen/acton_jetton_wallet_code"
 
 type AllowedMessageToMinter =
     | MintNewJettons
@@ -43,7 +44,8 @@ fun onInternalMessage(in: InMessage) {
     match (msg) {
         BurnNotificationForMinter => {
             var storage = lazy MinterStorage.load();
-            assert (in.senderAddress == calcAddressOfJettonWallet(msg.burnInitiator, contract.getAddress(), storage.jettonWalletCode)) throw ERROR_NOT_VALID_WALLET;
+            val jettonWalletCode = acton_jetton_walletCompiledCode();
+            assert (in.senderAddress == calcAddressOfJettonWallet(msg.burnInitiator, contract.getAddress(), jettonWalletCode)) throw ERROR_NOT_VALID_WALLET;
             storage.totalSupply -= msg.jettonAmount;
             storage.save();
 
@@ -69,8 +71,8 @@ fun onInternalMessage(in: InMessage) {
 
             var walletAddress: address? = null;
             if (msg.ownerAddress.getWorkchain() == MY_WORKCHAIN) {
-                val storage = lazy MinterStorage.load();
-                walletAddress = calcAddressOfJettonWallet(msg.ownerAddress, contract.getAddress(), storage.jettonWalletCode);
+                val jettonWalletCode = acton_jetton_walletCompiledCode();
+                walletAddress = calcAddressOfJettonWallet(msg.ownerAddress, contract.getAddress(), jettonWalletCode);
             }
 
             val respondMsg = createMessage({
@@ -105,9 +107,10 @@ fun onInternalMessage(in: InMessage) {
 
             reserveToncoinsOnBalance(ton("0.01"), RESERVE_MODE_EXACT_AMOUNT); // reserve for storage fees
 
+            val jettonWalletCode = acton_jetton_walletCompiledCode();
             val deployMsg = createMessage({
                 bounce: BounceMode.Only256BitsOfBody,
-                dest: calcDeployedJettonWallet(msg.mintRecipient, contract.getAddress(), storage.jettonWalletCode),
+                dest: calcDeployedJettonWallet(msg.mintRecipient, contract.getAddress(), jettonWalletCode),
                 value: msg.tonAmount,
                 body: msg.internalTransferMsg,
             });
@@ -179,6 +182,7 @@ struct (0x00) SnakeDataReply {
 
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
+    val jettonWalletCode = acton_jetton_walletCompiledCode();
     var metadata: OnchainMetadataReply = {
         contentDict: createEmptyMap()
     };
@@ -193,13 +197,13 @@ get fun get_jetton_data(): JettonDataReply {
         mintable: true,
         adminAddress: storage.adminAddress,
         jettonContent: metadata.toCell(),
-        jettonWalletCode: storage.jettonWalletCode,
+        jettonWalletCode,
     }
 }
 
 get fun get_wallet_address(ownerAddress: address): address {
-    val storage = lazy MinterStorage.load();
-    return calcAddressOfJettonWallet(ownerAddress, contract.getAddress(), storage.jettonWalletCode);
+    val jettonWalletCode = acton_jetton_walletCompiledCode();
+    return calcAddressOfJettonWallet(ownerAddress, contract.getAddress(), jettonWalletCode);
 }
 
 get fun get_next_admin_address(): address? {

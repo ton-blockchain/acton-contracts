@@ -1,6 +1,5 @@
 import "wrappers/JettonMinter"
 import "wrappers/JettonWallet"
-import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
@@ -89,7 +88,6 @@ fun setup_test(initial_supply: int = 0): (JettonMinter, Treasury, Treasury) {
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: initial_supply,
         adminAddress: deployer.address,
-        jettonWalletCode: build("acton_jetton_wallet"),
         metadataUri: beginCell().storeUint(0x6c696e6b, 32).endCell() as Cell<SnakeString>,
         nextAdminAddress: null,
     });

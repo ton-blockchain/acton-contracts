@@ -25,7 +25,7 @@ depends = []
 [contracts.acton_jetton_minter]
 name = "acton_jetton_minter"
 src = "acton-jetton/contracts/jetton-minter-contract.tolk"
-depends = []
+depends = ["acton_jetton_wallet"]
 
 [contracts.acton_jetton_wallet]
 name = "acton_jetton_wallet"

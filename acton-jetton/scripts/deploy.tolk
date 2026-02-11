@@ -1,4 +1,3 @@
-import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/env"
 import "@acton/fmt"
@@ -25,7 +24,6 @@ fun main() {
     val minter = JettonMinter.fromStorage({
         totalSupply: supply,
         adminAddress: deployer.address,
-        jettonWalletCode: build("acton_jetton_wallet"),
         metadataUri: metadataUri.toSnakeCell(),
         nextAdminAddress: null,
     });
