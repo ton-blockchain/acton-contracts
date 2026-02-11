@@ -28,8 +28,8 @@ width = 100
 ignore = []
 
 [scripts]
-deploy-emulation = "acton script scripts/deploy.tolk"
-deploy-testnet = "acton script scripts/deploy.tolk --broadcast --net testnet"
+test-counter = "acton test counter/tests"
+test-notcoin = "acton test notcoin/tests"
 
 [mappings]
 acton = ".acton"

@@ -24,3 +24,4 @@ jobs:
 
       - name: Test
         run: acton test
+        # TODO: add linter here
