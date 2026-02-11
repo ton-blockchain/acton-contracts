@@ -1,6 +1,8 @@
+import "@stdlib/gas-payments"
 import "test_utils"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/ffi/ffi"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
@@ -56,7 +58,7 @@ get fun `test gas: transfer minimal value is message-size aware`() {
         10,
         dest,
         dest,
-        beginCell().storeUint(10, 100).toSlice(),
+        beginCell().storeUint(10, 100).toSlice()
     );
     val feeBig = estimateBodyForwardFee(bodyBig);
     val minBig = calcMinimalTransferAmount(10, feeBig) + MIN_EDGE_DELTA;
@@ -74,7 +76,7 @@ get fun `test gas: transfer with forward amount requires second forward fee`() {
         DEFAULT_FORWARD_TON_AMOUNT,
         dest,
         dest,
-        makeRichForwardPayload(),
+        makeRichForwardPayload()
     );
 
     val fwdFee = estimateBodyForwardFee(body);
@@ -134,7 +136,7 @@ get fun `test gas: transfer forward fees should follow config`() {
         DEFAULT_FORWARD_TON_AMOUNT,
         dest,
         dest,
-        makeRichForwardPayload(),
+        makeRichForwardPayload()
     );
 
     val fwdFeeBefore = estimateBodyForwardFee(body);
@@ -217,7 +219,7 @@ get fun `test gas: transfer gas fee should follow config`() {
         DEFAULT_FORWARD_TON_AMOUNT,
         dest,
         dest,
-        makeRichForwardPayload(),
+        makeRichForwardPayload()
     );
 
     val fwdFee = estimateBodyForwardFee(body);
@@ -272,7 +274,7 @@ get fun `test gas: transfer storage fee should follow config`() {
         DEFAULT_FORWARD_TON_AMOUNT,
         dest,
         dest,
-        makeRichForwardPayload(),
+        makeRichForwardPayload()
     );
 
     val fwdFee = estimateBodyForwardFee(body);
@@ -330,7 +332,7 @@ get fun `test gas: forward ton transfer should fail when fees are insufficient`(
         deployer.address,
         null,
         ton("0.5"),
-        null,
+        null
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
@@ -350,7 +352,7 @@ get fun `test gas: burn minimal value edge`() {
         minimalTonValue,
         TEST_JETTON_UNIT,
         deployer.address,
-        null,
+        null
     );
     expect(enough).toHaveSuccessfulTx<AskToBurn>({ from: deployer.address, to: wallet.address });
 
@@ -359,7 +361,7 @@ get fun `test gas: burn minimal value edge`() {
         minimalTonValue - MIN_EDGE_DELTA,
         TEST_JETTON_UNIT,
         deployer.address,
-        null,
+        null
     );
     expect(fail).toHaveFailedTx<AskToBurn>({
         from: deployer.address,
@@ -372,9 +374,9 @@ get fun `test gas: burn custom payload should not affect minimal value`() {
     val (minter, deployer, _) = setup_test();
     val wallet = mintTo(minter, deployer, deployer.address, DEFAULT_MINTED_JETTONS);
 
-    val customPayload = beginCell().storeMaybeRef(
-        beginCell().storeUint(0x123456789abcdef, 128).endCell(),
-    ).endCell();
+    val customPayload = beginCell().storeMaybeRef(beginCell().storeUint(0x123456789abcdef, 128)
+        .endCell())
+        .endCell();
 
     val minimalTonValue = calcMinimalBurnAmount() + MIN_EDGE_DELTA;
 
@@ -383,7 +385,7 @@ get fun `test gas: burn custom payload should not affect minimal value`() {
         minimalTonValue,
         TEST_JETTON_UNIT,
         deployer.address,
-        customPayload,
+        customPayload
     );
     expect(enough).toHaveSuccessfulTx<AskToBurn>({ from: deployer.address, to: wallet.address });
 
@@ -392,7 +394,7 @@ get fun `test gas: burn custom payload should not affect minimal value`() {
         minimalTonValue - MIN_EDGE_DELTA,
         TEST_JETTON_UNIT,
         deployer.address,
-        customPayload,
+        customPayload
     );
     expect(fail).toHaveFailedTx<AskToBurn>({
         from: deployer.address,
@@ -412,7 +414,7 @@ get fun `test gas: burn forward fee should follow config`() {
         minimalBefore,
         TEST_JETTON_UNIT,
         deployer.address,
-        null,
+        null
     );
     expect(enoughBefore).toHaveSuccessfulTx<AskToBurn>({
         from: deployer.address,
@@ -434,19 +436,16 @@ get fun `test gas: burn forward fee should follow config`() {
         minimalAfter,
         TEST_JETTON_UNIT,
         deployer.address,
-        null,
+        null
     );
-    expect(enoughAfter).toHaveSuccessfulTx<AskToBurn>({
-        from: deployer.address,
-        to: wallet.address,
-    });
+    expect(enoughAfter).toHaveSuccessfulTx<AskToBurn>({ from: deployer.address, to: wallet.address });
 
     val failAfter = wallet.sendBurn(
         deployer.address,
         minimalAfter - MIN_EDGE_DELTA,
         TEST_JETTON_UNIT,
         deployer.address,
-        null,
+        null
     );
     expect(failAfter).toHaveFailedTx<AskToBurn>({
         from: deployer.address,
@@ -466,7 +465,7 @@ get fun `test gas: burn gas fee should follow config`() {
         minimalBefore,
         TEST_JETTON_UNIT,
         deployer.address,
-        null,
+        null
     );
     expect(enoughBefore).toHaveSuccessfulTx<AskToBurn>({
         from: deployer.address,
@@ -489,19 +488,16 @@ get fun `test gas: burn gas fee should follow config`() {
         minimalAfter,
         TEST_JETTON_UNIT,
         deployer.address,
-        null,
+        null
     );
-    expect(enoughAfter).toHaveSuccessfulTx<AskToBurn>({
-        from: deployer.address,
-        to: wallet.address,
-    });
+    expect(enoughAfter).toHaveSuccessfulTx<AskToBurn>({ from: deployer.address, to: wallet.address });
 
     val failAfter = wallet.sendBurn(
         deployer.address,
         minimalAfter - MIN_EDGE_DELTA,
         TEST_JETTON_UNIT,
         deployer.address,
-        null,
+        null
     );
     expect(failAfter).toHaveFailedTx<AskToBurn>({
         from: deployer.address,
@@ -526,17 +522,14 @@ get fun `test gas: wallet storage fee should be measurable`() {
     val (minter, deployer, _) = setup_test();
     val wallet = mintTo(minter, deployer, deployer.address, ton("1"));
 
-    val state = net.getAccountState(wallet.address);
-    expect(state).toBeNotNull();
-    if (state == null) {
+    val stateCell = ffi.getAccountState(wallet.address.toCell());
+    expect(stateCell).toBeNotNull();
+    if (stateCell == null) {
         return;
     }
 
-    val storageFee = net.getAccountStorageFee(wallet.address, MIN_STORAGE_DURATION);
-    expect(storageFee).toBeNotNull();
-    if (storageFee == null) {
-        return;
-    }
+    val (cells, bits, _) = stateCell.calculateSizeStrict(4096);
+    val storageFee = calculateStorageFee(BASECHAIN, MIN_STORAGE_DURATION, bits, cells);
 
     expect(storageFee).toBeGreater(0);
     expect(calculateJettonWalletMinStorageFee()).toBeGreater(0);
