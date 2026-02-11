@@ -15,7 +15,7 @@ get fun `test admin: deploy should create minter without bounce`() {
         totalSupply: 0,
         adminAddress: deployer.address,
         jettonWalletCode: build("notcoin_wallet"),
-        metadataUri: "link".toSnakeString(),
+        metadataUri: "link",
         nextAdminAddress: null,
     });
 
@@ -134,7 +134,7 @@ get fun `test admin: admin can change metadata`() {
 
     val changeResult = minter.sendChangeMetadata(
         deployer.address,
-        "https://new.meta".toSnakeString()
+        "https://new.meta"
     );
     expect(changeResult).toHaveSuccessfulTx<ChangeMinterMetadataUri>({
         from: deployer.address,
@@ -148,7 +148,7 @@ get fun `test admin: non-admin cannot change metadata`() {
 
     val changeResult = minter.sendChangeMetadata(
         not_deployer.address,
-        "https://evil.meta".toSnakeString()
+        "https://evil.meta"
     );
     expect(changeResult).toHaveFailedTx<ChangeMinterMetadataUri>({
         from: not_deployer.address,
@@ -193,7 +193,7 @@ get fun `test admin: non-admin should not be able to upgrade minter`() {
         adminAddress: deployer.address,
         nextAdminAddress: null,
         jettonWalletCode: build("notcoin_wallet"),
-        metadataUri: "meta".toSnakeString(),
+        metadataUri: "meta",
     }.toCell();
     val newCode = build("notcoin_minter");
 
@@ -212,7 +212,7 @@ get fun `test admin: admin should be able to upgrade minter`() {
         adminAddress: deployer.address,
         nextAdminAddress: null,
         jettonWalletCode: build("notcoin_wallet"),
-        metadataUri: "meta2".toSnakeString(),
+        metadataUri: "meta2",
     }.toCell();
     val newCode = build("notcoin_minter");
 

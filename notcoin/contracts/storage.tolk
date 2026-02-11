@@ -29,7 +29,7 @@ struct MinterStorage {
     adminAddress: address?
     nextAdminAddress: address?
     jettonWalletCode: cell
-    metadataUri: Cell<SnakeString>
+    metadataUri: string
 }
 
 fun MinterStorage.load() {

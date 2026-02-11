@@ -68,7 +68,7 @@ fun onInternalMessage(in: InMessage) {
         }
 
         RequestWalletAddress => {
-            var ownerAddress: Cell<address>? = msg.includeOwnerAddress
+            val ownerAddress: Cell<address>? = msg.includeOwnerAddress
                 ? msg.ownerAddress.toCell()
                 : null;
 
@@ -105,7 +105,7 @@ fun onInternalMessage(in: InMessage) {
             val internalTransferMsg = lazy msg.internalTransferMsg.load({
                 throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP,
             });
-            var forwardTonAmount = internalTransferMsg.forwardTonAmount;
+            val forwardTonAmount = internalTransferMsg.forwardTonAmount;
             internalTransferMsg.forwardPayload.checkIsCorrectTLBEither();
 
             // a little more than needed, it’s ok since it’s sent by the admin and excesses will return back
@@ -158,12 +158,12 @@ fun onInternalMessage(in: InMessage) {
         ChangeMinterMetadataUri => {
             var storage = lazy MinterStorage.load();
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
-            storage.metadataUri = msg.newMetadataUri.toCell();
+            storage.metadataUri = msg.newMetadataUri;
             storage.save();
         }
 
         UpgradeMinterCode => {
-            var storage = lazy MinterStorage.load();
+            val storage = lazy MinterStorage.load();
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
             contract.setData(msg.newData);
             contract.setCodePostponed(msg.newCode);
@@ -182,7 +182,7 @@ get fun get_jetton_data(): JettonDataReply {
     var metadata: OnchainMetadataReply = { contentDict: createEmptyMap() };
     metadata.contentDict.set(
         stringSha256("uri"),
-        SnakeDataReply { string: storage.metadataUri.load() }.toCell(),
+        SnakeDataReply { string: storage.metadataUri }.toCell(),
     );
     metadata.contentDict.set(stringSha256("decimals"), SnakeDataReply { string: "9" }.toCell());
 

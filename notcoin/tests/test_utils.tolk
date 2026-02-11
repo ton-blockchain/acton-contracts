@@ -90,7 +90,7 @@ fun setup_test(initial_supply: int = 0): (JettonMinter, Treasury, Treasury) {
         totalSupply: initial_supply,
         adminAddress: deployer.address,
         jettonWalletCode: build("notcoin_wallet"),
-        metadataUri: "link".toSnakeString(),
+        metadataUri: "link",
         nextAdminAddress: null,
     });
 

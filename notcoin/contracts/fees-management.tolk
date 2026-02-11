@@ -49,13 +49,13 @@ fun forwardInitStateOverhead() {
 
 // this is the function that we would want to check
 fun calcMinimalTransferAmount(forwardTonAmount: int, fwdFee: int) {
-    var fwdCount = forwardTonAmount ? 2 : 1; // second sending (forward) will be cheaper that first
+    val fwdCount = forwardTonAmount ? 2 : 1; // second sending (forward) will be cheaper that first
 
-    var jettonWalletGasConsumption = getPrecompiledGasConsumption();
-    var sendTransferGasConsumption = (jettonWalletGasConsumption == null)
+    val jettonWalletGasConsumption = getPrecompiledGasConsumption();
+    val sendTransferGasConsumption = (jettonWalletGasConsumption == null)
         ? GAS_CONSUMPTION_JettonTransfer
         : jettonWalletGasConsumption;
-    var receiveTransferGasConsumption = (jettonWalletGasConsumption == null)
+    val receiveTransferGasConsumption = (jettonWalletGasConsumption == null)
         ? GAS_CONSUMPTION_JettonReceive
         : jettonWalletGasConsumption;
 
@@ -76,8 +76,8 @@ fun checkAmountIsEnoughToTransfer(msgValue: int, forwardTonAmount: int, fwdFee: 
 }
 
 fun calcMinimalBurnAmount() {
-    var jettonWalletGasConsumption = getPrecompiledGasConsumption();
-    var sendBurnGasConsumption = (jettonWalletGasConsumption == null)
+    val jettonWalletGasConsumption = getPrecompiledGasConsumption();
+    val sendBurnGasConsumption = (jettonWalletGasConsumption == null)
         ? GAS_CONSUMPTION_BurnRequest
         : jettonWalletGasConsumption;
 

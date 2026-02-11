@@ -1,4 +1,3 @@
-import "@stdlib/gas-payments"
 import "errors"
 import "jetton-utils"
 import "fees-management"
@@ -61,7 +60,7 @@ fun onInternalMessage(in: InMessage) {
             }
 
             if (msg.sendExcessesTo != null) {
-                var toLeaveOnBalance = contract.getOriginalBalance() - in.valueCoins +
+                val toLeaveOnBalance = contract.getOriginalBalance() - in.valueCoins +
                 contract.getStorageDuePayment();
                 reserveToncoinsOnBalance(
                     max(toLeaveOnBalance, calculateJettonWalletMinStorageFee()),
@@ -151,7 +150,7 @@ fun onInternalMessage(in: InMessage) {
 }
 
 get fun get_wallet_data(): JettonWalletDataReply {
-    var storage = lazy WalletStorage.load();
+    val storage = lazy WalletStorage.load();
 
     return {
         jettonBalance: storage.jettonBalance,
@@ -162,6 +161,6 @@ get fun get_wallet_data(): JettonWalletDataReply {
 }
 
 get fun get_status(): int {
-    var storage = lazy WalletStorage.load();
+    val storage = lazy WalletStorage.load();
     return storage.status;
 }

@@ -1,8 +1,6 @@
 // Auto-generated types file
 // Move your Storage struct and message types here
 
-import "storage"
-
 struct JettonWalletDataReply {
     jettonBalance: coins
     ownerAddress: address
@@ -23,5 +21,5 @@ struct (0x00) OnchainMetadataReply {
 }
 
 struct (0x00) SnakeDataReply {
-    string: SnakeString
+    string: string
 }
