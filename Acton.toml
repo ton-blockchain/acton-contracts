@@ -32,6 +32,22 @@ name = "acton_jetton_wallet"
 src = "acton-jetton/contracts/jetton-wallet-contract.tolk"
 depends = []
 
+# DNS
+[contracts.dns_collection]
+name = "dns_collection"
+src = "dns/contracts/nft-collection-contract.tolk"
+depends = []
+
+[contracts.dns_item]
+name = "dns_item"
+src = "dns/contracts/nft-item-contract.tolk"
+depends = []
+
+[contracts.dns_root]
+name = "dns_root"
+src = "dns/contracts/root-dns-contract.tolk"
+depends = []
+
 [test]
 
 [fmt]
@@ -42,6 +58,7 @@ ignore = []
 test-counter = "acton test counter/tests"
 test-notcoin = "acton test notcoin/tests"
 test-acton-jetton = "acton test acton-jetton/tests"
+test-dns = "acton test dns/tests"
 
 [mappings]
 acton = ".acton"
