@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -11,17 +12,27 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    if: false # ton/setup-acton is not yet available
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Acton
-        uses: ton/setup-acton@v2
+        uses: i582/setup-acton@v0.0.1
+        with:
+          github-token: ${{ secrets.ACTON_TOKEN }}
+
+      - name: Version
+        run: acton --version
 
       - name: Build
         run: acton build
 
       - name: Test
         run: acton test
-        # TODO: add linter here
+
+      - name: Linter
+        run: acton check
+
+      - name: Formatter
+        if: false
+        run: acton fmt --check
