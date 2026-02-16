@@ -1,10 +1,9 @@
 import "storage"
 
-type DomainPayload = RemainingBitsAndRefs
 type TransferForwardPayload = RemainingBitsAndRefs
 
 struct (0x00000000) DeployDnsDomain {
-    payload: DomainPayload
+    payload: string
 }
 
 struct (0x370fec51) FillUp {
@@ -54,7 +53,7 @@ struct (0x5fcc3d14) TransferOwnership {
 
 struct (0x1a0b9d51) EditContent {
     queryId: uint64
-    newContent: Cell<DnsContent>
+    newContent: Cell<DnsRecords>
 }
 
 struct (0x4eb1f0f9) ChangeDnsRecord {
@@ -67,39 +66,27 @@ struct (0x44beae41) ProcessGovernanceDecision {
     queryId: uint64
 }
 
-struct (0x4ed14b65) DnsBalanceRelease {
+struct (0x4ed14b65) DnsRecordRelease {
     queryId: uint64
 }
 
 struct ItemInitData {
     fromAddress: address
-    domain: Cell<DomainName>
+    domain: Cell<slice>
 }
 
 struct (0x00) GovernanceTransfer {
     transferData: TransferOwnershipData
 }
 
-struct (0x01) GovernanceRelease {
-}
-
-struct (0x00000000) ItemBidOrTopUp {
-    payload: RemainingBitsAndRefs
-}
+struct (0x01) GovernanceRelease {}
 
 struct (0x00000000) Op0WithQuery {
     queryId: uint64
 }
 
-type AllowedCollectionMessage = DeployDnsDomain | FillUp
-
-type AllowedItemMessage =
-    | ItemBidOrTopUp
-    | TransferOwnership
-    | EditContent
-    | ChangeDnsRecord
-    | ProcessGovernanceDecision
-    | DnsBalanceRelease
-    | GetStaticData
-
-type GovernanceDecision = GovernanceTransfer | GovernanceRelease
+struct MessageHeader {
+    op: uint32
+    queryId: uint64
+    rest: RemainingBitsAndRefs
+}

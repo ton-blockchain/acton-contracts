@@ -1,63 +1,89 @@
-import "constants"
 import "errors"
 import "storage"
-import "messages"
+import "dns-utils"
 
-fun makeNextResolver(addr: address): cell {
-    return DnsNextResolver { resolver: addr }.toCell();
+fun getPrefixLengthByDomain(domainLength: int, startsWithZeroByte: bool) {
+    return (domainLength - 1) * BYTE_SIZE + (startsWithZeroByte ? BYTE_SIZE : 0);
+}
+
+struct RootDnsStorage {
+    tonAddress: address
+    tMeAddress: address
+    tonWwwAddress: address
 }
 
 fun onInternalMessage(in: InMessage) {
-    // Root contract accepts internal messages as top-ups and keeps storage untouched.
+    // do nothing
 }
 
-fun onBouncedMessage(in: InMessageBounced) {
-    // Ignore bounced messages.
-}
+get fun dnsresolve(subdomain: slice, _category: int): DnsResolveResponse {
+    assert (subdomain.remainingBitsCount() % BYTE_SIZE == 0) throw ERROR_DNS_INVALID_SUBDOMAIN_BITS;
 
-get fun dnsresolve(subdomain: slice, category: int): (int, cell?) {
-    assert (subdomain.remainingBitsCount() % 8 == 0) throw ERROR_DNS_INVALID_SUBDOMAIN_BITS;
+    val startsWithZeroByte = subdomain.preloadInt(BYTE_SIZE) == 0;
+    val subdomainLengthInBits = subdomain.remainingBitsCount();
 
-    val startsWithZeroByte = subdomain.preloadInt(8) == 0;
-    val subdomainLen = subdomain.remainingBitsCount();
-
-    if (startsWithZeroByte && subdomainLen == 8) {
-        return (8, null);
+    // "." is resolved, without dns record
+    if (startsWithZeroByte && subdomainLengthInBits == BYTE_SIZE) {
+        return {
+            resolvedPrefixLengthBits: BYTE_SIZE,
+            resolvedRecord: null,
+        };
     }
+
     if (startsWithZeroByte) {
-        subdomain.loadUint(8);
+        subdomain.skipBits(BYTE_SIZE);
     }
 
-    val st = RootDnsStorage.load();
+    val rootStorage = lazy RootDnsStorage.fromCell(contract.getData());
 
-    val tonWwwDomain = beginCell().storeSlice("ton".literalSlice()).storeUint(0, 8).storeSlice(
-        "www".literalSlice()
-    ).storeUint(0, 8).endCell().beginParse();
+    // TODO: discuss null-encoding, prefetched bytes
+    // val wwwDomainBuilder = StringBuilder.create();
+    // wwwDomainBuilder.append("ton");
 
-    if (subdomainLen >= 8 * 8) {
-        if (subdomain.preloadBits(8 * 8).hash() == tonWwwDomain.hash()) {
-            return (7 * 8 + (startsWithZeroByte ? 8 : 0), makeNextResolver(st.tonWwwAddress));
+    val tonWwwDomain = beginCell()
+        .storeSlice("ton".literalSlice()).storeUint(0, BYTE_SIZE)
+        .storeSlice("www".literalSlice()).storeUint(0, BYTE_SIZE)
+        .toSlice();
+
+    if (subdomainLengthInBits >= TON_WWW_DOMAIN_SIZE * BYTE_SIZE) {
+        if (subdomain.preloadBits(TON_WWW_DOMAIN_SIZE * BYTE_SIZE).bitsEqual(tonWwwDomain)) {
+            
+            return {
+                resolvedPrefixLengthBits: getPrefixLengthByDomain(TON_WWW_DOMAIN_SIZE, startsWithZeroByte),
+                resolvedRecord: rootStorage.tonWwwAddress.toNextResolver()
+            };
         }
     }
 
-    val tonDomain = beginCell().storeSlice("ton".literalSlice()).storeUint(0, 8).endCell()
-        .beginParse();
+    val tonDomain = beginCell()
+        .storeSlice("ton".literalSlice()).storeUint(0, BYTE_SIZE)
+        .toSlice();
 
-    if (subdomainLen >= 4 * 8) {
-        if (subdomain.preloadBits(4 * 8).hash() == tonDomain.hash()) {
-            return (3 * 8 + (startsWithZeroByte ? 8 : 0), makeNextResolver(st.tonAddress));
+    if (subdomainLengthInBits >= TON_DOMAIN_SIZE * BYTE_SIZE) {
+        if (subdomain.preloadBits(TON_DOMAIN_SIZE * BYTE_SIZE).bitsEqual(tonDomain)) {
+            return {
+                resolvedPrefixLengthBits: getPrefixLengthByDomain(TON_DOMAIN_SIZE, startsWithZeroByte),
+                resolvedRecord: rootStorage.tonAddress.toNextResolver(),
+            };
         }
     }
 
-    val tMeDomain = beginCell().storeSlice("me".literalSlice()).storeUint(0, 8).storeSlice(
-        "t".literalSlice()
-    ).storeUint(0, 8).endCell().beginParse();
+    val tMeDomain = beginCell()
+        .storeSlice("me".literalSlice()).storeUint(0, BYTE_SIZE)
+        .storeSlice("t".literalSlice()).storeUint(0, BYTE_SIZE)
+        .toSlice();
 
-    if (subdomainLen >= 5 * 8) {
-        if (subdomain.preloadBits(5 * 8).hash() == tMeDomain.hash()) {
-            return (4 * 8 + (startsWithZeroByte ? 8 : 0), makeNextResolver(st.tMeAddress));
+    if (subdomainLengthInBits >= TELEGRAM_DOMAIN_SIZE * BYTE_SIZE) {
+        if (subdomain.preloadBits(TELEGRAM_DOMAIN_SIZE * BYTE_SIZE).bitsEqual(tMeDomain)) {
+            return {
+                resolvedPrefixLengthBits: getPrefixLengthByDomain(TELEGRAM_DOMAIN_SIZE, startsWithZeroByte),
+                resolvedRecord: rootStorage.tMeAddress.toNextResolver(),
+            };
         }
     }
 
-    return (0, null);
+    return {
+        resolvedPrefixLengthBits: 0,
+        resolvedRecord: null,
+    };
 }
