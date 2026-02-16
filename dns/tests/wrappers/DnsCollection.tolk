@@ -7,6 +7,12 @@ import "@acton/types/message"
 import "../../contracts/storage"
 import "../../contracts/messages"
 
+struct CollectionDataReply {
+    nextItemIndex: int
+    content: cell
+    ownerAddress: address?
+}
+
 struct NftCollectionContract {
     address: address
     stateInit: ContractState? = null
@@ -44,6 +50,30 @@ fun NftCollectionContract.deploy(self, from: address, config: SendParams = {}): 
     return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
 }
 
+fun NftCollectionContract.sendDeployDnsDomain(self, from: address, payload: RemainingBitsAndRefs, config: SendParams = {}): SendResultList {
+    val msg = createMessage({
+        bounce: config.bounce,
+        value: config.value,
+        dest: self.address,
+        body: DeployDnsDomain {
+            payload,
+        },
+    });
+    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+}
+
+fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
+    val msg = createMessage({
+        bounce: config.bounce,
+        value: config.value,
+        dest: self.address,
+        body: FillUp {
+            queryId,
+        },
+    });
+    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+}
+
 /// Send message to the contract with a custom body cell
 fun NftCollectionContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
     val msg = createMessage({
@@ -55,7 +85,7 @@ fun NftCollectionContract.sendAny(self, from: address, body: cell, config: SendP
     return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
 }
 
-fun NftCollectionContract.get_collection_data(self): tuple {
+fun NftCollectionContract.get_collection_data(self): CollectionDataReply {
     return net.runGetMethod(self.address, "get_collection_data")
 }
 
@@ -63,10 +93,10 @@ fun NftCollectionContract.get_nft_address_by_index(self, index: int): address {
     return net.runGetMethod(self.address, "get_nft_address_by_index", index)
 }
 
-fun NftCollectionContract.get_nft_content(self, index: int, individualNftContent: cell): cell {
-    return net.runGetMethod(self.address, "get_nft_content", [index, individualNftContent] as tuple)
+fun NftCollectionContract.get_nft_content(self, _index: int, individualNftContent: cell): cell {
+    return net.runGetMethod(self.address, "get_nft_content", [_index, individualNftContent] as tuple)
 }
 
-fun NftCollectionContract.dnsresolve(self, subdomain: slice, category: int): (int, cell?) {
-    return net.runGetMethod(self.address, "dnsresolve", [subdomain, category] as tuple)
+fun NftCollectionContract.dnsresolve(self, subdomain: slice, _category: int): DnsResolveResponse {
+    return net.runGetMethod(self.address, "dnsresolve", [subdomain, _category] as tuple)
 }

@@ -29,6 +29,12 @@ fun CollectionStorage.load() {
     return CollectionStorage.fromCell(contract.getData());
 }
 
+struct RootDnsStorage {
+    tonAddress: address
+    tMeAddress: address
+    tonWwwAddress: address
+}
+
 struct DnsResolveResponse {
     resolvedPrefixLengthBits: int
     resolvedRecord: cell?

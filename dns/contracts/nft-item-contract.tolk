@@ -158,6 +158,7 @@ fun onInternalMessage(in: InMessage) {
 
             var dnsRecords = storage.content.load();
 
+            // TODO: use unpack here
             if (msg.value.remainingRefsCount() > 0) {
                 dnsRecords.set(msg.key, msg.value.loadRef());
             } else {

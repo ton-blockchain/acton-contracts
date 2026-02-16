@@ -6,12 +6,6 @@ fun getPrefixLengthByDomain(domainLength: int, startsWithZeroByte: bool) {
     return (domainLength - 1) * BYTE_SIZE + (startsWithZeroByte ? BYTE_SIZE : 0);
 }
 
-struct RootDnsStorage {
-    tonAddress: address
-    tMeAddress: address
-    tonWwwAddress: address
-}
-
 fun onInternalMessage(_in: InMessage) {
     // do nothing
 }

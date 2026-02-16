@@ -54,6 +54,6 @@ fun RootDnsContract.sendAny(self, from: address, body: cell, config: SendParams 
     return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
 }
 
-fun RootDnsContract.dnsresolve(self, subdomain: slice, category: int): (int, cell?) {
-    return net.runGetMethod(self.address, "dnsresolve", [subdomain, category] as tuple)
+fun RootDnsContract.dnsresolve(self, subdomain: slice, _category: int): DnsResolveResponse {
+    return net.runGetMethod(self.address, "dnsresolve", [subdomain, _category] as tuple)
 }

@@ -30,7 +30,7 @@ fun onInternalMessage(in: InMessage) {
 
             val configCell = blockchain.configParam(DNS_CONFIG_ID);
             if (configCell != null) {
-                val configDict = loadDnsConfigMap(configCell!!);
+                val configDict = loadDnsConfigMap(configCell!);
                 val found = configDict.exists(itemIndex);
                 assert (!found) throw ERROR_DOMAIN_IS_BLACKLISTED;
             }
