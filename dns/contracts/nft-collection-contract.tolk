@@ -72,11 +72,11 @@ get fun get_nft_address_by_index(index: int): address {
     return calcDeployedNftItem(index, st.nftItemCode).calculateAddress();
 }
 
-get fun get_nft_content(index: int, individualNftContent: cell): cell {
+get fun get_nft_content(_index: int, individualNftContent: cell): cell {
     return individualNftContent;
 }
 
-get fun dnsresolve(subdomain: slice, category: int): DnsResolveResponse {
+get fun dnsresolve(subdomain: slice, _category: int): DnsResolveResponse {
     assert (subdomain.remainingBitsCount() % BYTE_SIZE == 0) throw ERROR_DNS_INVALID_SUBDOMAIN_BITS;
 
     val startsWithZeroByte = subdomain.preloadInt(BYTE_SIZE) == 0;

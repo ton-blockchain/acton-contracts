@@ -12,7 +12,7 @@ struct RootDnsStorage {
     tonWwwAddress: address
 }
 
-fun onInternalMessage(in: InMessage) {
+fun onInternalMessage(_in: InMessage) {
     // do nothing
 }
 

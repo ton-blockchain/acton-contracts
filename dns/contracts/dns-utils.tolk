@@ -22,19 +22,6 @@ const TELEGRAM_DOMAIN_SIZE = 5 // "t.me" (3) + 2 null-encoding symbols
 const MIN_DOMAIN_SIZE = 3
 const MAX_DOMAIN_SIZE = 126
 
-const OP_FILL_UP = 0x370fec51
-const OP_OUTBID_NOTIFICATION = 0x557cea20
-const OP_CHANGE_DNS_RECORD = 0x4eb1f0f9
-const OP_PROCESS_GOVERNANCE_DECISION = 0x44beae41
-const OP_DNS_BALANCE_RELEASE = 0x4ed14b65
-
-const OP_TRANSFER = 0x5fcc3d14
-const OP_OWNERSHIP_ASSIGNED = 0x05138d91
-const OP_EXCESSES = 0xd53276db
-const OP_GET_STATIC_DATA = 0x2fcb26a2
-const OP_REPORT_STATIC_DATA = 0x8b771735
-const OP_EDIT_CONTENT = 0x1a0b9d51
-
 fun address.toNextResolver(self) {
     return beginCell().storeUint(DNS_NEXT_RESOLVER_PREFIX, 16).storeAddress(self).endCell();
 }
