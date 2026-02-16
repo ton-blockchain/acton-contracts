@@ -15,7 +15,7 @@ fun onInternalMessage(in: InMessage) {
             val nowTime = blockchain.now();
             assert (nowTime > AUCTION_START_TIME) throw ERROR_AUCTION_NOT_STARTED;
 
-            val domain = msg.payload.flatten();
+            val domain = readDomainFromComment(mutate msg.payload);
             val len = domain.remainingBitsCount();
 
             assert (len > MIN_DOMAIN_SIZE * BYTE_SIZE) throw ERROR_DOMAIN_TOO_SHORT;

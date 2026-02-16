@@ -126,7 +126,7 @@ fun onInternalMessage(in: InMessage) {
         storage.save();
     }
 
-    val msg = lazy AllowedItemMessage.fromSlice(in.body);
+    var msg = lazy AllowedItemMessage.fromSlice(in.body);
 
     match (msg) {
         TransferOwnership => {
@@ -158,8 +158,8 @@ fun onInternalMessage(in: InMessage) {
 
             var dnsRecords = storage.content.load();
 
-            if (msg.value != null) {
-                dnsRecords.set(msg.key, msg.value);
+            if (msg.value.remainingRefsCount() > 0) {
+                dnsRecords.set(msg.key, msg.value.loadRef());
             } else {
                 dnsRecords.delete(msg.key);
             }

@@ -2,8 +2,14 @@ import "storage"
 
 type TransferForwardPayload = RemainingBitsAndRefs
 
+// type InlineString = string
+
+// fun InlineString.unpackFromSlice(mutate s: slice): InlineString {
+//     return s.loadRef().beginParse() as InlineString;
+// }
+
 struct (0x00000000) DeployDnsDomain {
-    payload: string
+    payload: RemainingBitsAndRefs
 }
 
 struct (0x370fec51) FillUp {
@@ -59,7 +65,9 @@ struct (0x1a0b9d51) EditContent {
 struct (0x4eb1f0f9) ChangeDnsRecord {
     queryId: uint64
     key: uint256
-    value: cell?
+    // func impl uses imperative parsing here
+    // value: cell?
+    value: RemainingBitsAndRefs
 }
 
 struct (0x44beae41) ProcessGovernanceDecision {
