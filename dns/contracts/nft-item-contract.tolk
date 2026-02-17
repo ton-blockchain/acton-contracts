@@ -73,7 +73,9 @@ fun onInternalMessage(in: InMessage) {
         return;
     }
 
-    var (isAuctionNull, auction) = storage.unpackAuction();
+    val unpackedAuction = storage.unpackAuction();
+    val isAuctionNull = unpackedAuction.0;
+    var auction = unpackedAuction.1;
     val isAuctionComplete = blockchain.now() > auction.auctionEndTime;
 
     // TODO: unite with second usage somehow

@@ -30,25 +30,25 @@ fun RootDnsContract.deploy(self, from: address, config: SendParams = {}): SendRe
     if (self.stateInit == null) {
         Assert.fail("Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment");
     }
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: {
             stateInit: self.stateInit,
         },
     });
-    return net.send(from, msg)
+    return net.send(from, outMessage)
 }
 
-/// Send message to the contract with a custom body cell
+/// Send outMessage to the contract with a custom body cell
 fun RootDnsContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body,
     });
-    return net.send(from, msg)
+    return net.send(from, outMessage)
 }
 
 fun RootDnsContract.dnsresolve(self, subdomain: slice, category: int): DnsResolveResponse {

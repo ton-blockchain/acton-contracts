@@ -28,6 +28,7 @@ const GAS_CONSUMPTION_BURN_REQUEST       = 4254
 const GAS_CONSUMPTION_BURN_NOTIFICATION  = 4071
 
 
+// SAFETY: Uses TVM's read-only GETPRECOMPILEDGAS primitive; callers handle `null` fallback safely.
 fun getPrecompiledGasConsumption(): int?
     asm "GETPRECOMPILEDGAS"
 

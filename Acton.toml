@@ -25,7 +25,7 @@ depends = []
 [contracts.acton_jetton_minter]
 name = "acton_jetton_minter"
 src = "acton-jetton/contracts/jetton-minter-contract.tolk"
-depends = ["acton_jetton_wallet"]
+depends = [{ name = "acton_jetton_wallet", function = "actonJettonWalletCompiledCode" }]
 
 [contracts.acton_jetton_wallet]
 name = "acton_jetton_wallet"
@@ -47,6 +47,9 @@ depends = []
 name = "dns_root"
 src = "dns/contracts/root-dns-contract.tolk"
 depends = []
+
+[lint.acton_jetton_minter]
+asm-function-missing-safety-comment = "allow"
 
 [test]
 

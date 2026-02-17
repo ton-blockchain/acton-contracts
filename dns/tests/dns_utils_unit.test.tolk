@@ -7,8 +7,9 @@ get fun `test dns-utils: readDomainFromComment concatenates snake-like chunks`()
     val tail = beginCell().storeSlice("ce".beginParse()).endCell();
     var payload = beginCell().storeSlice("ali".beginParse()).storeRef(tail).endCell().beginParse();
 
-    val parsed = readDomainFromComment(mutate payload);
-    expect(parsed.bitsEqual("alice".beginParse())).toEqual(true);
+    val parsedDomain = readDomainFromComment(mutate payload);
+    expect(parsedDomain.bitsEqual("alice".beginParse())).toEqual(true);
+    expect(payload.remainingBitsCount()).toEqual(0);
 }
 
 get fun `test dns-utils: checkDomainString validates charset and hyphen placement`() {

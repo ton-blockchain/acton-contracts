@@ -179,12 +179,12 @@ fun onInternalMessage(in: InMessage) {
 
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
-    var metadata: OnchainMetadataReply = { contentDict: createEmptyMap() };
+    var metadata: OnchainMetadataReply = { contentDict: [] };
     metadata.contentDict.set(
-        stringSha256("uri"),
+        "uri".sha256(),
         SnakeDataReply { string: storage.metadataUri }.toCell(),
     );
-    metadata.contentDict.set(stringSha256("decimals"), SnakeDataReply { string: "9" }.toCell());
+    metadata.contentDict.set("decimals".sha256(), SnakeDataReply { string: "9" }.toCell());
 
     return {
         totalSupply: storage.totalSupply,

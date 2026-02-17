@@ -64,13 +64,13 @@ fun sendRawTransferPayload(
     body: cell,
     value: int = DEFAULT_TRANSFER_MSG_VALUE,
 ) {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: true,
         value,
         dest: wallet,
         body,
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
 fun userWallet(minter: JettonMinter, userAddress: address): JettonWallet {

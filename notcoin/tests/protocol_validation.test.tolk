@@ -13,13 +13,13 @@ get fun `test validation: malformed forward payload should be rejected`() {
     val badPayload = beginCell().storeUint(1, 1).storeRef(payloadRef).storeUint(1, 1).endCell()
         .beginParse();
 
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: true,
         value: DEFAULT_TRANSFER_MSG_VALUE,
         dest: wallet.address,
         body: buildTransferBody(ton("1"), 0, deployer.address, deployer.address, badPayload),
     });
-    val res = net.send(deployer.address, msg);
+    val res = net.send(deployer.address, outMessage);
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -100,7 +100,7 @@ get fun `test validation: wallet should reject internal transfer from unauthoriz
     val wallet = mintTo(minter, deployer, deployer.address, ton("2"));
     val balanceBefore = wallet.getJettonBalance();
 
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: true,
         value: DEFAULT_TRANSFER_MSG_VALUE,
         dest: wallet.address,
@@ -113,7 +113,7 @@ get fun `test validation: wallet should reject internal transfer from unauthoriz
             forwardPayload: makeTinyForwardPayload(),
         },
     });
-    val res = net.send(notDeployer.address, msg);
+    val res = net.send(notDeployer.address, outMessage);
     expect(res).toHaveFailedTx<InternalTransferStep>({
         from: notDeployer.address,
         to: wallet.address,

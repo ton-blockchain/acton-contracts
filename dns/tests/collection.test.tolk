@@ -1,10 +1,10 @@
 import "test_utils"
+import "wrappers/DnsCollection"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "../contracts/dns-utils"
 import "../contracts/errors"
-import "wrappers/DnsCollection"
 
 get fun `test collection: validates domain format and minimum bid rules`() {
     val (collection, _, user) = deployCollectionContract();
@@ -29,10 +29,9 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     );
     expect(tooShort).toHaveFailedTx({ to: collection.address, exitCode: ERROR_DOMAIN_TOO_SHORT });
 
-    var tooLongDomain = repeatAsciiChar(97, 127);
     val tooLong = collection.sendAny(
         user.address,
-        makeDeployBodyFromDomain(mutate tooLongDomain),
+        makeDeployBodyFromDomain(repeatAsciiChar(97, 127)),
         { value: ton("1000"), bounce: true }
     );
     expect(tooLong).toHaveFailedTx({ to: collection.address, exitCode: ERROR_DOMAIN_TOO_LONG });

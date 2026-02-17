@@ -13,7 +13,7 @@ import "../contracts/types"
 
 fun extractUriString(contentCell: cell): string? {
     val metadata = OnchainMetadataReply.fromCell(contentCell);
-    val uriCell = metadata.contentDict.get(stringSha256("uri"));
+    val uriCell = metadata.contentDict.get("uri".sha256());
     if (!uriCell.isFound) {
         return null;
     }

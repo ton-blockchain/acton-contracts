@@ -44,7 +44,7 @@ fun onInternalMessage(in: InMessage) {
     match (msg) {
         BurnNotificationForMinter => {
             var storage = lazy MinterStorage.load();
-            val jettonWalletCode = acton_jetton_walletCompiledCode();
+            val jettonWalletCode = actonJettonWalletCompiledCode();
             assert (
                 in.senderAddress ==
                 calcAddressOfJettonWallet(
@@ -76,7 +76,7 @@ fun onInternalMessage(in: InMessage) {
 
             var walletAddress: address? = null;
             if (msg.ownerAddress.getWorkchain() == MY_WORKCHAIN) {
-                val jettonWalletCode = acton_jetton_walletCompiledCode();
+                val jettonWalletCode = actonJettonWalletCompiledCode();
                 walletAddress = calcAddressOfJettonWallet(
                     msg.ownerAddress,
                     contract.getAddress(),
@@ -117,7 +117,7 @@ fun onInternalMessage(in: InMessage) {
 
             reserveToncoinsOnBalance(ton("0.01"), RESERVE_MODE_EXACT_AMOUNT); // reserve for storage fees
 
-            val jettonWalletCode = acton_jetton_walletCompiledCode();
+            val jettonWalletCode = actonJettonWalletCompiledCode();
             val deployMsg = createMessage({
                 bounce: BounceMode.Only256BitsOfBody,
                 dest: calcDeployedJettonWallet(
@@ -194,7 +194,7 @@ struct (0x00) SnakeDataReply {
 
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
-    val jettonWalletCode = acton_jetton_walletCompiledCode();
+    val jettonWalletCode = actonJettonWalletCompiledCode();
     var metadata: OnchainMetadataReply = { contentDict: [] };
     metadata.contentDict.set(
         "uri".sha256(),
@@ -212,7 +212,7 @@ get fun get_jetton_data(): JettonDataReply {
 }
 
 get fun get_wallet_address(ownerAddress: address): address {
-    val jettonWalletCode = acton_jetton_walletCompiledCode();
+    val jettonWalletCode = actonJettonWalletCompiledCode();
     return calcAddressOfJettonWallet(ownerAddress, contract.getAddress(), jettonWalletCode);
 }
 

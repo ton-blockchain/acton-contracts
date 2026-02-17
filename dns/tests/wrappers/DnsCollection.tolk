@@ -37,12 +37,12 @@ fun NftCollectionContract.deploy(self, from: address, config: SendParams = {}): 
     if (self.stateInit == null) {
         Assert.fail("Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment");
     }
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: { stateInit: self.stateInit },
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
 fun NftCollectionContract.sendDeployDnsDomain(
@@ -51,34 +51,34 @@ fun NftCollectionContract.sendDeployDnsDomain(
     payload: RemainingBitsAndRefs,
     config: SendParams = {},
 ): SendResultList {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body: DeployDnsDomain { payload },
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
 fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body: FillUp { queryId },
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
-/// Send message to the contract with a custom body cell
+/// Send outMessage to the contract with a custom body cell
 fun NftCollectionContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body,
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
 fun NftCollectionContract.getCollectionData(self): CollectionDataReply {

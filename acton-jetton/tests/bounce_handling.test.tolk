@@ -67,7 +67,7 @@ get fun `test wallet restores balance on internal_transfer bounce`() {
             sendExcessesTo: deployer.address,
             customPayload: null,
             forwardTonAmount: 0,
-            forwardPayload: forwardPayload,
+            forwardPayload,
         },
     });
 

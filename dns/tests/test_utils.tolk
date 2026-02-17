@@ -61,7 +61,7 @@ fun makeDnsTextRecord(value: string): cell {
 }
 
 fun makeRecordMapWithName(value: string = "alice.ton"): DnsRecords {
-    var records = createEmptyMap<uint256, cell>();
+    var records: map<uint256, cell> = [];
     records.set(DNS_NAME_CATEGORY, makeDnsTextRecord(value));
     return records;
 }
@@ -101,20 +101,22 @@ fun makeSnakeTail(mutate remainder: slice): cell {
     return beginCell().storeSlice(head).storeRef(tail).endCell();
 }
 
-fun makeDeployBodyFromDomain(mutate domain: slice): cell {
-    val firstChunkBits = domain.remainingBitsCount() > 991 ? 991 : domain.remainingBitsCount();
-    var body = beginCell().storeUint(0, 32).storeSlice(domain.loadBits(firstChunkBits));
+fun makeDeployBodyFromDomain(domain: slice): cell {
+    var remainingDomain = domain;
+    val firstChunkBits = remainingDomain.remainingBitsCount() > 991
+        ? 991
+        : remainingDomain.remainingBitsCount();
+    var body = beginCell().storeUint(0, 32).storeSlice(remainingDomain.loadBits(firstChunkBits));
 
-    if (domain.remainingBitsCount() > 0) {
-        body.storeRef(makeSnakeTail(mutate domain));
+    if (remainingDomain.remainingBitsCount() > 0) {
+        body.storeRef(makeSnakeTail(mutate remainingDomain));
     }
 
     return body.endCell();
 }
 
 fun makeDeployBody(domain: string): cell {
-    var parsed = domain.beginParse();
-    return makeDeployBodyFromDomain(mutate parsed);
+    return makeDeployBodyFromDomain(domain.beginParse());
 }
 
 fun makeDotSlice(): slice {
@@ -168,7 +170,7 @@ fun makeTMeDomainSlice(): slice {
 
 fun setDnsBlacklist(index: uint256) {
     var config = net.getConfig();
-    var blacklist = createEmptyMap<uint256, RemainingBitsAndRefs>();
+    var blacklist: map<uint256, RemainingBitsAndRefs> = [];
     blacklist.set(index, beginCell().storeUint(1, BYTE_SIZE).endCell().beginParse());
 
     val paramCell = beginCell().storeDict(blacklist.toLowLevelDict()).endCell();

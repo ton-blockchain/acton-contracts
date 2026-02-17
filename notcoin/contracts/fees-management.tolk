@@ -4,6 +4,7 @@ import "errors"
 // we're working in basechain, but theoretically, a jetton might even work in masterchain
 const MY_WORKCHAIN = BASECHAIN
 
+// SAFETY: Uses TVM's read-only GETPRECOMPILEDGAS primitive; callers handle `null` fallback safely.
 fun getPrecompiledGasConsumption(): int?
     asm "GETPRECOMPILEDGAS"
 

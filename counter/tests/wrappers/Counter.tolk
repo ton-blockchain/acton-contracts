@@ -16,12 +16,12 @@ fun Counter.fromStorage(storage: Storage) {
 
 /// Deploys the contract to the blockchain
 fun Counter.deploy(self, from: address, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: { stateInit: self.init },
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
 fun Counter.sendIncreaseCounter(
@@ -30,33 +30,33 @@ fun Counter.sendIncreaseCounter(
     increaseBy: uint32,
     config: SendParams = {},
 ): SendResultList {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body: IncreaseCounter { increaseBy },
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
 fun Counter.sendResetCounter(self, from: address, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body: ResetCounter {},
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
 fun Counter.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body,
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
 fun Counter.currentCounter(self): int {

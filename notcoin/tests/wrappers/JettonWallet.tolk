@@ -26,7 +26,7 @@ fun JettonWallet.sendTransfer(
     forwardTonAmount: int,
     forwardPayload: cell?,
 ) {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: true,
         value,
         dest: self.address,
@@ -41,7 +41,7 @@ fun JettonWallet.sendTransfer(
                 .beginParse(),
         },
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
 
 fun JettonWallet.sendBurn(
@@ -52,7 +52,7 @@ fun JettonWallet.sendBurn(
     responseAddress: address,
     customPayload: cell?,
 ) {
-    val msg = createMessage({
+    val outMessage = createMessage({
         bounce: false,
         value,
         dest: self.address,
@@ -63,5 +63,5 @@ fun JettonWallet.sendBurn(
             customPayload,
         },
     });
-    return net.send(from, msg);
+    return net.send(from, outMessage);
 }
