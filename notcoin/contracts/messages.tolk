@@ -91,7 +91,7 @@ struct (0xd372158c) TopUpTons {}
 
 // "forward payload" is TL/B `(Either Cell ^Cell)`;
 // we want to test, that if ^Cell, no other data exists in a slice
-fun ForwardPayloadRemainder.checkIsCorrectTLBEither(self) {
+fun ForwardPayloadRemainder.checkIsCorrectTlbEither(self) {
     var mutableCopy = self;
     if (mutableCopy.loadMaybeRef() != null) {
         // throw "cell underflow" if there is data besides a ref

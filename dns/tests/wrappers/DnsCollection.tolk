@@ -1,11 +1,8 @@
-import "@stdlib/gas-payments"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "@acton/testing/expect"
-import "@acton/types/message"
-import "../../contracts/storage"
 import "../../contracts/messages"
+import "../../contracts/storage"
 
 struct CollectionDataReply {
     nextItemIndex: int
@@ -19,20 +16,20 @@ struct NftCollectionContract {
 }
 
 /// Creates a contract wrapper instance from the storage data
-fun NftCollectionContract.fromStorage(storage: CollectionStorage, toShard: AddressShardingOptions? = null) {
-    val stateInit = ContractState {
-        code: build("dns_collection"),
-        data: storage.toCell(),
-    };
+fun NftCollectionContract.fromStorage(
+    storage: CollectionStorage,
+    toShard: AddressShardingOptions? = null,
+) {
+    val stateInit = ContractState { code: build("dns_collection"), data: storage.toCell() };
     val address = toShard == null
         ? AutoDeployAddress { stateInit }.calculateAddress()
         : AutoDeployAddress { stateInit, toShard }.calculateAddress();
-    return NftCollectionContract { address, stateInit }
+    return NftCollectionContract { address, stateInit };
 }
 
 /// Creates a contract wrapper instance from the address
 fun NftCollectionContract.fromAddress(address: address) {
-    return NftCollectionContract { address }
+    return NftCollectionContract { address };
 }
 
 /// Deploys the contract to the blockchain
@@ -43,23 +40,24 @@ fun NftCollectionContract.deploy(self, from: address, config: SendParams = {}): 
     val msg = createMessage({
         bounce: config.bounce,
         value: config.value,
-        dest: {
-            stateInit: self.stateInit,
-        },
+        dest: { stateInit: self.stateInit },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
-fun NftCollectionContract.sendDeployDnsDomain(self, from: address, payload: RemainingBitsAndRefs, config: SendParams = {}): SendResultList {
+fun NftCollectionContract.sendDeployDnsDomain(
+    self,
+    from: address,
+    payload: RemainingBitsAndRefs,
+    config: SendParams = {},
+): SendResultList {
     val msg = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: DeployDnsDomain {
-            payload,
-        },
+        body: DeployDnsDomain { payload },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
 fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
@@ -67,11 +65,9 @@ fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, confi
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: FillUp {
-            queryId,
-        },
+        body: FillUp { queryId },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
 /// Send message to the contract with a custom body cell
@@ -82,21 +78,21 @@ fun NftCollectionContract.sendAny(self, from: address, body: cell, config: SendP
         dest: self.address,
         body,
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
-fun NftCollectionContract.get_collection_data(self): CollectionDataReply {
-    return net.runGetMethod(self.address, "get_collection_data")
+fun NftCollectionContract.getCollectionData(self): CollectionDataReply {
+    return net.runGetMethod(self.address, "get_collection_data");
 }
 
-fun NftCollectionContract.get_nft_address_by_index(self, index: int): address {
-    return net.runGetMethod(self.address, "get_nft_address_by_index", index)
+fun NftCollectionContract.getNftAddressByIndex(self, index: int): address {
+    return net.runGetMethod(self.address, "get_nft_address_by_index", index);
 }
 
-fun NftCollectionContract.get_nft_content(self, _index: int, individualNftContent: cell): cell {
-    return net.runGetMethod(self.address, "get_nft_content", [_index, individualNftContent] as tuple)
+fun NftCollectionContract.getNftContent(self, index: int, individualNftContent: cell): cell {
+    return net.runGetMethod(self.address, "get_nft_content", [index, individualNftContent] as tuple);
 }
 
-fun NftCollectionContract.dnsresolve(self, subdomain: slice, _category: int): DnsResolveResponse {
-    return net.runGetMethod(self.address, "dnsresolve", [subdomain, _category] as tuple)
+fun NftCollectionContract.dnsresolve(self, subdomain: slice, category: int): DnsResolveResponse {
+    return net.runGetMethod(self.address, "dnsresolve", [subdomain, category] as tuple);
 }

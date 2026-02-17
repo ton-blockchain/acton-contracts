@@ -37,8 +37,7 @@ fun onInternalMessage(in: InMessage) {
         (AUCTION_START_DURATION - AUCTION_END_DURATION) * months / 12;
 
         val auctionEndTime = now + duration;
-        // val initialContent: DnsRecords = [];
-        val initialContent: DnsRecords = createEmptyMap();
+        val initialContent: DnsRecords = [];
 
         val initStorage = ItemStorageInitialized {
             index: uninitStorage.index,

@@ -70,11 +70,11 @@ fun getTopDomainBits(domain: slice): int {
 }
 
 enum DomainChar {
-    hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.,,,
-    digitZero = 48 // ASCII '0': lower bound for allowed digits,,,
-    digitNine = 57 // ASCII '9': upper bound for allowed digits,,,
-    lowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters,,,
-    lowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters,,,
+    Hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.,,,
+    DigitZero = 48 // ASCII '0': lower bound for allowed digits,,,
+    DigitNine = 57 // ASCII '9': upper bound for allowed digits,,,
+    LowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters,,,
+    LowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters,,,
 }
 
 fun checkDomainString(domain: slice, len: int): bool {
@@ -85,11 +85,11 @@ fun checkDomainString(domain: slice, len: int): bool {
         val ch = bytes.loadUint(BYTE_SIZE);
 
         // it is safe to use casts, since we are only casting to compare
-        val isHyphen = ch == (DomainChar.hyphen as int);
-        val isDigit = ch >= (DomainChar.digitZero as int) && ch <= (DomainChar.digitNine as int);
+        val isHyphen = ch == (DomainChar.Hyphen as int);
+        val isDigit = ch >= (DomainChar.DigitZero as int) && ch <= (DomainChar.DigitNine as int);
 
-        val isLowercaseLetter = ch >= (DomainChar.lowercaseA as int) &&
-        ch <= (DomainChar.lowercaseZ as int);
+        val isLowercaseLetter = ch >= (DomainChar.LowercaseA as int) &&
+        ch <= (DomainChar.LowercaseZ as int);
         val isInnerHyphen = isHyphen && i > 0 && i < len - BYTE_SIZE;
 
         val valid = isInnerHyphen || isDigit || isLowercaseLetter;

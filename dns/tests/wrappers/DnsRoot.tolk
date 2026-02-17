@@ -1,9 +1,6 @@
-import "@stdlib/gas-payments"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "@acton/testing/expect"
-import "@acton/types/message"
 import "../../contracts/storage"
 
 struct RootDnsContract {
@@ -54,6 +51,6 @@ fun RootDnsContract.sendAny(self, from: address, body: cell, config: SendParams 
     return net.send(from, msg)
 }
 
-fun RootDnsContract.dnsresolve(self, subdomain: slice, _category: int): DnsResolveResponse {
-    return net.runGetMethod(self.address, "dnsresolve", [subdomain, _category] as tuple)
+fun RootDnsContract.dnsresolve(self, subdomain: slice, category: int): DnsResolveResponse {
+    return net.runGetMethod(self.address, "dnsresolve", [subdomain, category] as tuple)
 }

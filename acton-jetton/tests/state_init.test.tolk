@@ -12,7 +12,7 @@ import "../contracts/storage"
 const MAX_JETTON_VALUE = 0xffffffffffffffffffffffffffffff
 
 get fun `test state: should mint max jetton value`() {
-    val (minter, deployer, _) = setup_test();
+    val (minter, deployer, _) = setupTest();
     val wallet = userWallet(minter, deployer.address);
 
     val mintResult = minter.sendMint(
@@ -36,7 +36,7 @@ get fun `test state: should mint max jetton value`() {
 }
 
 get fun `test state: wallet storage and init-state bounds should match fee constants`() {
-    val (minter, deployer, _) = setup_test();
+    val (minter, deployer, _) = setupTest();
     val recipient = net.randomAddress();
     val recipientWallet = userWallet(minter, recipient);
 

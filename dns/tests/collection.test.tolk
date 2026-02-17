@@ -4,6 +4,7 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "../contracts/dns-utils"
 import "../contracts/errors"
+import "wrappers/DnsCollection"
 
 get fun `test collection: validates domain format and minimum bid rules`() {
     val (collection, _, user) = deployCollectionContract();
@@ -75,7 +76,7 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val deployedItem = atMinBid.findTransaction({ from: collection.address, deploy: true });
     expect(deployedItem).toBeDefined();
 
-    val expectedAddress = collection.get_nft_address_by_index(domainIndex("appl") as int);
+    val expectedAddress = collection.getNftAddressByIndex(domainIndex("appl") as int);
     expect(deployedItem.unwrap().getAccountAddress()).toEqual(expectedAddress);
 }
 
@@ -101,7 +102,7 @@ get fun `test collection: dnsresolve returns next-resolver for top label and dot
     expect(dotResolved.resolvedPrefixLengthBits).toEqual(BYTE_SIZE);
     expect(dotResolved.resolvedRecord).toBeNull();
 
-    val expectedItem = collection.get_nft_address_by_index(domainIndex("alice") as int);
+    val expectedItem = collection.getNftAddressByIndex(domainIndex("alice") as int);
 
     val aliceResolved = collection.dnsresolve(makeLabelDomainSlice("alice"), 1234);
     expect(aliceResolved.resolvedPrefixLengthBits).toEqual(5 * BYTE_SIZE);
@@ -122,17 +123,17 @@ get fun `test collection: dnsresolve returns next-resolver for top label and dot
 get fun `test collection: getters are stable and content getter is pass-through`() {
     val (collection, _, _) = deployCollectionContract();
 
-    val data = collection.get_collection_data();
+    val data = collection.getCollectionData();
     expect(data.nextItemIndex).toEqual(-1);
     expect(data.ownerAddress).toBeNull();
     expect(data.content.hash()).toEqual(makeCollectionContentCell().hash());
 
     val idx = domainIndex("alice") as int;
-    val addr1 = collection.get_nft_address_by_index(idx);
-    val addr2 = collection.get_nft_address_by_index(idx);
+    val addr1 = collection.getNftAddressByIndex(idx);
+    val addr2 = collection.getNftAddressByIndex(idx);
     expect(addr1).toEqual(addr2);
 
     val sampleContent = makeDnsTextRecord("pass-through");
-    val passthrough = collection.get_nft_content(0, sampleContent);
+    val passthrough = collection.getNftContent(0, sampleContent);
     expect(passthrough.hash()).toEqual(sampleContent.hash());
 }

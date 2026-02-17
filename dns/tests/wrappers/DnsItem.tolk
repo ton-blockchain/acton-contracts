@@ -1,11 +1,8 @@
-import "@stdlib/gas-payments"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "@acton/testing/expect"
-import "@acton/types/message"
-import "../../contracts/storage"
 import "../../contracts/messages"
+import "../../contracts/storage"
 
 struct NftDataReply {
     isInitialized: bool
@@ -21,20 +18,20 @@ struct NftItemContract {
 }
 
 /// Creates a contract wrapper instance from the storage data
-fun NftItemContract.fromStorage(storage: ItemStorageNotInitialized, toShard: AddressShardingOptions? = null) {
-    val stateInit = ContractState {
-        code: build("dns_item"),
-        data: storage.toCell(),
-    };
+fun NftItemContract.fromStorage(
+    storage: ItemStorageNotInitialized,
+    toShard: AddressShardingOptions? = null,
+) {
+    val stateInit = ContractState { code: build("dns_item"), data: storage.toCell() };
     val address = toShard == null
         ? AutoDeployAddress { stateInit }.calculateAddress()
         : AutoDeployAddress { stateInit, toShard }.calculateAddress();
-    return NftItemContract { address, stateInit }
+    return NftItemContract { address, stateInit };
 }
 
 /// Creates a contract wrapper instance from the address
 fun NftItemContract.fromAddress(address: address) {
-    return NftItemContract { address }
+    return NftItemContract { address };
 }
 
 /// Deploys the contract to the blockchain
@@ -45,40 +42,51 @@ fun NftItemContract.deploy(self, from: address, config: SendParams = {}): SendRe
     val msg = createMessage({
         bounce: config.bounce,
         value: config.value,
-        dest: {
-            stateInit: self.stateInit,
-        },
+        dest: { stateInit: self.stateInit },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
-fun NftItemContract.sendTransferOwnership(self, from: address, queryId: uint64, transferData: TransferOwnershipData, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendTransferOwnership(
+    self,
+    from: address,
+    queryId: uint64,
+    transferData: TransferOwnershipData,
+    config: SendParams = {},
+): SendResultList {
     val msg = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: TransferOwnership {
-            queryId,
-            transferData,
-        },
+        body: TransferOwnership { queryId, transferData },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
-fun NftItemContract.sendEditContent(self, from: address, queryId: uint64, newContent: DnsRecords, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendEditContent(
+    self,
+    from: address,
+    queryId: uint64,
+    newContent: DnsRecords,
+    config: SendParams = {},
+): SendResultList {
     val msg = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: EditContent {
-            queryId,
-            newContent: newContent.toCell(),
-        },
+        body: EditContent { queryId, newContent: newContent.toCell() },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
-fun NftItemContract.sendChangeDnsRecord(self, from: address, queryId: uint64, key: uint256, value: RemainingBitsAndRefs, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendChangeDnsRecord(
+    self,
+    from: address,
+    queryId: uint64,
+    key: uint256,
+    value: RemainingBitsAndRefs,
+    config: SendParams = {},
+): SendResultList {
     val msg = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -89,31 +97,37 @@ fun NftItemContract.sendChangeDnsRecord(self, from: address, queryId: uint64, ke
             value,
         },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
-fun NftItemContract.sendProcessGovernanceDecision(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendProcessGovernanceDecision(
+    self,
+    from: address,
+    queryId: uint64,
+    config: SendParams = {},
+): SendResultList {
     val msg = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: ProcessGovernanceDecision {
-            queryId,
-        },
+        body: ProcessGovernanceDecision { queryId },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
-fun NftItemContract.sendDnsRecordRelease(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendDnsRecordRelease(
+    self,
+    from: address,
+    queryId: uint64,
+    config: SendParams = {},
+): SendResultList {
     val msg = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: DnsRecordRelease {
-            queryId,
-        },
+        body: DnsRecordRelease { queryId },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
 fun NftItemContract.sendGetStaticData(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
@@ -121,23 +135,24 @@ fun NftItemContract.sendGetStaticData(self, from: address, queryId: uint64, conf
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: GetStaticData {
-            queryId,
-        },
+        body: GetStaticData { queryId },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
-fun NftItemContract.sendGovernanceTransfer(self, from: address, transferData: TransferOwnershipData, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendGovernanceTransfer(
+    self,
+    from: address,
+    transferData: TransferOwnershipData,
+    config: SendParams = {},
+): SendResultList {
     val msg = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: GovernanceTransfer {
-            transferData,
-        },
+        body: GovernanceTransfer { transferData },
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
 fun NftItemContract.sendGovernanceRelease(self, from: address, config: SendParams = {}): SendResultList {
@@ -147,7 +162,7 @@ fun NftItemContract.sendGovernanceRelease(self, from: address, config: SendParam
         dest: self.address,
         body: GovernanceRelease {},
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
 /// Send message to the contract with a custom body cell
@@ -158,29 +173,29 @@ fun NftItemContract.sendAny(self, from: address, body: cell, config: SendParams 
         dest: self.address,
         body,
     });
-    return net.send(from, msg)
+    return net.send(from, msg);
 }
 
-fun NftItemContract.get_nft_data(self): NftDataReply {
-    return net.runGetMethod(self.address, "get_nft_data")
+fun NftItemContract.getNftData(self): NftDataReply {
+    return net.runGetMethod(self.address, "get_nft_data");
 }
 
-fun NftItemContract.get_editor(self): address? {
-    return net.runGetMethod(self.address, "get_editor")
+fun NftItemContract.getEditor(self): address? {
+    return net.runGetMethod(self.address, "get_editor");
 }
 
-fun NftItemContract.get_domain(self): slice {
-    return net.runGetMethod(self.address, "get_domain")
+fun NftItemContract.getDomain(self): slice {
+    return net.runGetMethod(self.address, "get_domain");
 }
 
-fun NftItemContract.get_auction_info(self): AuctionState {
-    return net.runGetMethod(self.address, "get_auction_info")
+fun NftItemContract.getAuctionInfo(self): AuctionState {
+    return net.runGetMethod(self.address, "get_auction_info");
 }
 
-fun NftItemContract.get_last_fill_up_time(self): int {
-    return net.runGetMethod(self.address, "get_last_fill_up_time")
+fun NftItemContract.getLastFillUpTime(self): int {
+    return net.runGetMethod(self.address, "get_last_fill_up_time");
 }
 
 fun NftItemContract.dnsresolve(self, subdomain: slice, category: uint256): DnsResolveResponse {
-    return net.runGetMethod(self.address, "dnsresolve", [subdomain, category] as tuple)
+    return net.runGetMethod(self.address, "dnsresolve", [subdomain, category] as tuple);
 }

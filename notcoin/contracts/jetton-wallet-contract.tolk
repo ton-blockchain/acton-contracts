@@ -78,7 +78,7 @@ fun onInternalMessage(in: InMessage) {
         }
 
         AskToTransfer => {
-            msg.forwardPayload.checkIsCorrectTLBEither();
+            msg.forwardPayload.checkIsCorrectTlbEither();
             assert (
                 msg.transferRecipient.getWorkchain() == MY_WORKCHAIN
             ) throw ERROR_WRONG_WORKCHAIN;

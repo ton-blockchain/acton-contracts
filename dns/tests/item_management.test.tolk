@@ -30,7 +30,7 @@ get fun `test item management: ownership transfer updates editor and blocks old 
         to: newOwner.address,
     });
 
-    expect(item.get_editor()).toEqual(newOwner.address);
+    expect(item.getEditor()).toEqual(newOwner.address);
 
     val oldOwnerAttempt = item.sendTransferOwnership(
         owner.address,
@@ -52,7 +52,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
     val editTx = item.sendEditContent(owner.address, 1, edited, { value: ton("1"), bounce: true });
     expect(editTx).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
-    val nftData = item.get_nft_data();
+    val nftData = item.getNftData();
     expect(nftData.content).toBeNotNull();
     expect(nftData.content!.hash()).toEqual(edited.toCell().hash());
 
@@ -139,7 +139,7 @@ get fun `test item management: dnsresolve follows TEP-81 category and next-resol
 }
 
 get fun `test item management: static data, governance guard, and release flow invariants`() {
-    val (item, _, owner, _) = setupCompletedItem();
+    val (item, _, _owner, _) = setupCompletedItem();
     val requester = newActor("item_static_requester");
 
     val staticData = item.sendGetStaticData(
@@ -161,7 +161,7 @@ get fun `test item management: static data, governance guard, and release flow i
     expect(reportTx).toBeDefined();
 
     val reportBody = reportTx.unwrap().loadBody<ReportStaticData>();
-    val nftData = item.get_nft_data();
+    val nftData = item.getNftData();
     expect(reportBody.itemIndex).toEqual(nftData.index);
     expect(reportBody.collectionAddress).toEqual(nftData.collectionAddress);
 
@@ -189,7 +189,7 @@ get fun `test item management: static data, governance guard, and release flow i
         exitCode: ERROR_DNS_BALANCE_RELEASE_FORBIDDEN,
     });
 
-    val lastFillUp = item.get_last_fill_up_time();
+    val lastFillUp = item.getLastFillUpTime();
     net.setNow((lastFillUp + ONE_YEAR + 1) as uint32);
 
     val release = item.sendDnsRecordRelease(
@@ -199,9 +199,9 @@ get fun `test item management: static data, governance guard, and release flow i
     );
     expect(release).toHaveSuccessfulTx<DnsRecordRelease>({ from: bidder.address, to: item.address });
 
-    expect(item.get_editor()).toBeNull();
+    expect(item.getEditor()).toBeNull();
 
-    val restartedAuction = item.get_auction_info();
+    val restartedAuction = item.getAuctionInfo();
     expect(restartedAuction.maxBidAddress).toEqual(bidder.address);
     expect(restartedAuction.maxBidAmount).toEqual(ton("20000"));
     expect(restartedAuction.auctionEndTime).toEqual((net.now() + AUCTION_START_DURATION) as uint64);

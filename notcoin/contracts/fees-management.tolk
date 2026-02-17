@@ -10,13 +10,13 @@ fun getPrecompiledGasConsumption(): int?
 // Storage costs
 // these constants are used to estimate storage fee (how much we should pay for storing a wallet contract)
 
-const STORAGE_SIZE_MaxWallet_bits = 1033
-const STORAGE_SIZE_MaxWallet_cells = 3
-const STORAGE_SIZE_InitStateWallet_bits = 931
-const STORAGE_SIZE_InitStateWallet_cells = 3
+const STORAGE_SIZE_MAX_WALLET_BITS = 1033
+const STORAGE_SIZE_MAX_WALLET_CELLS = 3
+const STORAGE_SIZE_INIT_STATE_WALLET_BITS = 931
+const STORAGE_SIZE_INIT_STATE_WALLET_CELLS = 3
 
-const MESSAGE_SIZE_BurnNotification_bits = 754 // body = 32+64+124+(3+8+256)+(3+8+256)
-const MESSAGE_SIZE_BurnNotification_cells = 1 // body always in ref
+const MESSAGE_SIZE_BURN_NOTIFICATION_BITS = 754 // body = 32+64+124+(3+8+256)+(3+8+256)
+const MESSAGE_SIZE_BURN_NOTIFICATION_CELLS = 1 // body always in ref
 
 const MIN_STORAGE_DURATION = 5 * 365 * 24 * 3600 // 5 years
 
@@ -25,25 +25,25 @@ const MIN_STORAGE_DURATION = 5 * 365 * 24 * 3600 // 5 years
 // they must be absolutely equal to consumed gas; if not, tests fail;
 // actual consumed gas (desired value of these constants) are printed to console after tests run
 
-const GAS_CONSUMPTION_JettonTransfer = 6153
-const GAS_CONSUMPTION_JettonReceive = 7253
-const GAS_CONSUMPTION_BurnRequest = 4368
-const GAS_CONSUMPTION_BurnNotification = 3855
+const GAS_CONSUMPTION_JETTON_TRANSFER = 6153
+const GAS_CONSUMPTION_JETTON_RECEIVE = 7253
+const GAS_CONSUMPTION_BURN_REQUEST = 4368
+const GAS_CONSUMPTION_BURN_NOTIFICATION = 3855
 
 fun calculateJettonWalletMinStorageFee() {
     return calculateStorageFee(
         MY_WORKCHAIN,
         MIN_STORAGE_DURATION,
-        STORAGE_SIZE_MaxWallet_bits,
-        STORAGE_SIZE_MaxWallet_cells,
+        STORAGE_SIZE_MAX_WALLET_BITS,
+        STORAGE_SIZE_MAX_WALLET_CELLS,
     );
 }
 
 fun forwardInitStateOverhead() {
     return calculateForwardFeeWithoutLumpPrice(
         MY_WORKCHAIN,
-        STORAGE_SIZE_InitStateWallet_bits,
-        STORAGE_SIZE_InitStateWallet_cells,
+        STORAGE_SIZE_INIT_STATE_WALLET_BITS,
+        STORAGE_SIZE_INIT_STATE_WALLET_CELLS,
     );
 }
 
@@ -53,10 +53,10 @@ fun calcMinimalTransferAmount(forwardTonAmount: int, fwdFee: int) {
 
     val jettonWalletGasConsumption = getPrecompiledGasConsumption();
     val sendTransferGasConsumption = (jettonWalletGasConsumption == null)
-        ? GAS_CONSUMPTION_JettonTransfer
+        ? GAS_CONSUMPTION_JETTON_TRANSFER
         : jettonWalletGasConsumption;
     val receiveTransferGasConsumption = (jettonWalletGasConsumption == null)
-        ? GAS_CONSUMPTION_JettonReceive
+        ? GAS_CONSUMPTION_JETTON_RECEIVE
         : jettonWalletGasConsumption;
 
     return forwardTonAmount +
@@ -78,16 +78,16 @@ fun checkAmountIsEnoughToTransfer(msgValue: int, forwardTonAmount: int, fwdFee: 
 fun calcMinimalBurnAmount() {
     val jettonWalletGasConsumption = getPrecompiledGasConsumption();
     val sendBurnGasConsumption = (jettonWalletGasConsumption == null)
-        ? GAS_CONSUMPTION_BurnRequest
+        ? GAS_CONSUMPTION_BURN_REQUEST
         : jettonWalletGasConsumption;
 
     return calculateForwardFee(
         MY_WORKCHAIN,
-        MESSAGE_SIZE_BurnNotification_bits,
-        MESSAGE_SIZE_BurnNotification_cells,
+        MESSAGE_SIZE_BURN_NOTIFICATION_BITS,
+        MESSAGE_SIZE_BURN_NOTIFICATION_CELLS,
     ) +
     calculateGasFee(MY_WORKCHAIN, sendBurnGasConsumption) +
-    calculateGasFee(MY_WORKCHAIN, GAS_CONSUMPTION_BurnNotification);
+    calculateGasFee(MY_WORKCHAIN, GAS_CONSUMPTION_BURN_NOTIFICATION);
 }
 
 fun checkAmountIsEnoughToBurn(msgValue: int) {

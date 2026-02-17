@@ -24,7 +24,8 @@ fun makeTinyForwardPayload() {
 
 fun makeRichForwardPayload() {
     return beginCell().storeMaybeRef(beginCell().storeUint(0x123456789abcdef, 128).endCell())
-        .endCell().beginParse();
+        .endCell()
+        .beginParse();
 }
 
 fun buildTransferBody(
@@ -77,12 +78,12 @@ fun userWallet(minter: JettonMinter, userAddress: address): JettonWallet {
     return JettonWallet { address };
 }
 
-fun setup_test(initial_supply: int = 0): (JettonMinter, Treasury, Treasury) {
+fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
     val deployer = net.treasury("deployer");
-    val not_deployer = net.treasury("not_deployer");
+    val notDeployer = net.treasury("not_deployer");
 
     val minter = JettonMinter.fromStorage(MinterStorage {
-        totalSupply: initial_supply,
+        totalSupply: initialSupply,
         adminAddress: deployer.address,
         metadataUri: "link",
         nextAdminAddress: null,
@@ -91,11 +92,11 @@ fun setup_test(initial_supply: int = 0): (JettonMinter, Treasury, Treasury) {
     val transactions = minter.sendDeploy(deployer.address, { value: ton("10") });
     expect(transactions).toHaveSuccessfulDeploy({ to: minter.address });
 
-    return (minter, deployer, not_deployer);
+    return (minter, deployer, notDeployer);
 }
 
 fun mintTo(minter: JettonMinter, admin: Treasury, recipient: address, amount: coins): JettonWallet {
-    val supply_before = minter.getTotalSupply();
+    val supplyBefore = minter.getTotalSupply();
     val wallet = userWallet(minter, recipient);
 
     val mintResult = minter.sendMint(admin.address, recipient, amount, ton("0.05"), ton("0.3"));
@@ -105,6 +106,6 @@ fun mintTo(minter: JettonMinter, admin: Treasury, recipient: address, amount: co
     });
 
     expect(wallet.getJettonBalance()).toEqual(amount);
-    expect(minter.getTotalSupply()).toEqual(supply_before + amount);
+    expect(minter.getTotalSupply()).toEqual(supplyBefore + amount);
     return wallet;
 }

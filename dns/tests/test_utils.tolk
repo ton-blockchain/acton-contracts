@@ -232,7 +232,7 @@ fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = 
 }
 
 fun completeAuction(item: NftItemContract, sender: address, queryId: int = 1): SendResultList {
-    val auction = item.get_auction_info();
+    val auction = item.getAuctionInfo();
     net.setNow((auction.auctionEndTime + 1) as uint32);
 
     return item.sendGetStaticData(sender, queryId as uint64, { value: ton("1"), bounce: true });

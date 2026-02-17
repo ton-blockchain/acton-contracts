@@ -1,9 +1,9 @@
 import "errors"
-import "sharding"
-import "jetton-utils"
 import "fees-management"
-import "storage"
+import "jetton-utils"
 import "messages"
+import "sharding"
+import "storage"
 import "@gen/acton_jetton_wallet_code"
 
 type AllowedMessageToMinter =
@@ -33,9 +33,9 @@ fun assertSenderIsAdmin(senderAddress: address, adminAddress: address?) {
     // assert (adminAddress != null) throw ERROR_NOT_OWNER;
     // ```
     // but in practice, the above assertion is reduntant, we just bypass the nullability check:
-    assert (senderAddress == adminAddress!) throw ERROR_NOT_OWNER;
-    // then, if admin is `null`, error code 7 will be thrown (while executing operator `==`),
-    // it's suitable for current implementation
+    assert (
+        senderAddress == adminAddress!
+    ) throw ERROR_NOT_OWNER; // then, if admin is `null`, error code 7 will be thrown (while executing operator `==`),// it's suitable for current implementation
 }
 
 fun onInternalMessage(in: InMessage) {
@@ -45,7 +45,14 @@ fun onInternalMessage(in: InMessage) {
         BurnNotificationForMinter => {
             var storage = lazy MinterStorage.load();
             val jettonWalletCode = acton_jetton_walletCompiledCode();
-            assert (in.senderAddress == calcAddressOfJettonWallet(msg.burnInitiator, contract.getAddress(), jettonWalletCode)) throw ERROR_NOT_VALID_WALLET;
+            assert (
+                in.senderAddress ==
+                calcAddressOfJettonWallet(
+                    msg.burnInitiator,
+                    contract.getAddress(),
+                    jettonWalletCode
+                )
+            ) throw ERROR_NOT_VALID_WALLET;
             storage.totalSupply -= msg.jettonAmount;
             storage.save();
 
@@ -57,9 +64,7 @@ fun onInternalMessage(in: InMessage) {
                 bounce: BounceMode.NoBounce,
                 dest: msg.sendExcessesTo,
                 value: 0,
-                body: ReturnExcessesBack {
-                    queryId: msg.queryId
-                }
+                body: ReturnExcessesBack { queryId: msg.queryId },
             });
             excessesMsg.send(SEND_MODE_IGNORE_ERRORS | SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
         }
@@ -72,7 +77,11 @@ fun onInternalMessage(in: InMessage) {
             var walletAddress: address? = null;
             if (msg.ownerAddress.getWorkchain() == MY_WORKCHAIN) {
                 val jettonWalletCode = acton_jetton_walletCompiledCode();
-                walletAddress = calcAddressOfJettonWallet(msg.ownerAddress, contract.getAddress(), jettonWalletCode);
+                walletAddress = calcAddressOfJettonWallet(
+                    msg.ownerAddress,
+                    contract.getAddress(),
+                    jettonWalletCode
+                );
             }
 
             val respondMsg = createMessage({
@@ -82,10 +91,11 @@ fun onInternalMessage(in: InMessage) {
                 body: ResponseWalletAddress {
                     queryId: msg.queryId,
                     jettonWalletAddress: walletAddress,
-                    ownerAddress: ownerAddress,
-                }
+                    ownerAddress,
+                },
             });
-            respondMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+            respondMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
+            SEND_MODE_BOUNCE_ON_ACTION_FAIL);
         }
 
         MintNewJettons => {
@@ -94,10 +104,10 @@ fun onInternalMessage(in: InMessage) {
             assert (msg.mintRecipient.getWorkchain() == MY_WORKCHAIN) throw ERROR_WRONG_WORKCHAIN;
 
             val internalTransferMsg = lazy msg.internalTransferMsg.load({
-                throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP
+                throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP,
             });
             val forwardTonAmount = internalTransferMsg.forwardTonAmount;
-            internalTransferMsg.forwardPayload.checkIsCorrectTLBEither();
+            internalTransferMsg.forwardPayload.checkIsCorrectTlbEither();
 
             // a little more than needed, it’s ok since it’s sent by the admin and excesses will return back
             checkAmountIsEnoughToTransfer(msg.tonAmount, forwardTonAmount, in.originalForwardFee);
@@ -110,7 +120,11 @@ fun onInternalMessage(in: InMessage) {
             val jettonWalletCode = acton_jetton_walletCompiledCode();
             val deployMsg = createMessage({
                 bounce: BounceMode.Only256BitsOfBody,
-                dest: calcDeployedJettonWallet(msg.mintRecipient, contract.getAddress(), jettonWalletCode),
+                dest: calcDeployedJettonWallet(
+                    msg.mintRecipient,
+                    contract.getAddress(),
+                    jettonWalletCode
+                ),
                 value: msg.tonAmount,
                 body: msg.internalTransferMsg,
             });
@@ -158,11 +172,9 @@ fun onInternalMessage(in: InMessage) {
             // just accept tons
         }
 
-        else => throw 0xFFFF
+        else => throw 0xFFFF,
     }
 }
-
-
 
 struct JettonDataReply {
     totalSupply: int
@@ -183,14 +195,12 @@ struct (0x00) SnakeDataReply {
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
     val jettonWalletCode = acton_jetton_walletCompiledCode();
-    var metadata: OnchainMetadataReply = {
-        contentDict: createEmptyMap()
-    };
-    metadata.contentDict.set(stringSha256("uri"), SnakeDataReply{string: storage.metadataUri}.toCell());
+    var metadata: OnchainMetadataReply = { contentDict: [] };
     metadata.contentDict.set(
-        stringSha256("decimals"),
-        SnakeDataReply { string: "9" }.toCell(),
+        "uri".sha256(),
+        SnakeDataReply { string: storage.metadataUri }.toCell()
     );
+    metadata.contentDict.set("decimals".sha256(), SnakeDataReply { string: "9" }.toCell());
 
     return {
         totalSupply: storage.totalSupply,
@@ -198,7 +208,7 @@ get fun get_jetton_data(): JettonDataReply {
         adminAddress: storage.adminAddress,
         jettonContent: metadata.toCell(),
         jettonWalletCode,
-    }
+    };
 }
 
 get fun get_wallet_address(ownerAddress: address): address {

@@ -1,6 +1,5 @@
 import "@acton/build/build"
 import "@acton/emulation/network"
-import "@acton/testing/expect"
 import "../../contracts/messages"
 import "../../contracts/storage"
 import "../../contracts/types"
@@ -50,26 +49,26 @@ fun JettonMinter.sendMint(
     self,
     from: address,
     recipient: address,
-    jetton_amount: int,
-    forward_ton_amount: int,
-    total_ton_amount: int,
-    custom_payload: cell? = null,
+    jettonAmount: int,
+    forwardTonAmount: int,
+    totalTonAmount: int,
+    customPayload: cell? = null,
 ) {
-    val forwardPayload = beginCell().storeMaybeRef(custom_payload).endCell().beginParse();
+    val forwardPayload = beginCell().storeMaybeRef(customPayload).endCell().beginParse();
     val msg = createMessage({
         bounce: false,
-        value: total_ton_amount + ton("0.015"),
+        value: totalTonAmount + ton("0.015"),
         dest: self.address,
         body: MintNewJettons {
             queryId: 0,
             mintRecipient: recipient,
-            tonAmount: total_ton_amount,
+            tonAmount: totalTonAmount,
             internalTransferMsg: InternalTransferStep {
                 queryId: 0,
-                jettonAmount: jetton_amount,
+                jettonAmount: jettonAmount,
                 transferInitiator: null,
                 sendExcessesTo: self.address,
-                forwardTonAmount: forward_ton_amount,
+                forwardTonAmount: forwardTonAmount,
                 forwardPayload,
             }.toCell(),
         },
@@ -77,12 +76,12 @@ fun JettonMinter.sendMint(
     return net.send(from, msg);
 }
 
-fun JettonMinter.sendChangeAdmin(self, from: address, new_owner: address) {
+fun JettonMinter.sendChangeAdmin(self, from: address, newOwner: address) {
     val msg = createMessage({
         bounce: false,
         value: ton("0.05"),
         dest: self.address,
-        body: ChangeMinterAdmin { queryId: 0, newAdminAddress: new_owner },
+        body: ChangeMinterAdmin { queryId: 0, newAdminAddress: newOwner },
     });
     return net.send(from, msg);
 }
@@ -107,25 +106,25 @@ fun JettonMinter.sendDropAdmin(self, from: address) {
     return net.send(from, msg);
 }
 
-fun JettonMinter.sendChangeMetadata(self, from: address, new_metadata: string) {
+fun JettonMinter.sendChangeMetadata(self, from: address, newMetadata: string) {
     val msg = createMessage({
         bounce: false,
         value: ton("0.05"),
         dest: self.address,
-        body: ChangeMinterMetadataUri { queryId: 0, newMetadataUri: new_metadata },
+        body: ChangeMinterMetadataUri { queryId: 0, newMetadataUri: newMetadata },
     });
     return net.send(from, msg);
 }
 
-fun JettonMinter.sendUpgrade(self, from: address, new_code: cell, new_data: cell) {
+fun JettonMinter.sendUpgrade(self, from: address, newCode: cell, newData: cell) {
     val msg = createMessage({
         bounce: false,
         value: ton("0.2"),
         dest: self.address,
         body: UpgradeMinterCode {
             queryId: 0,
-            newData: new_data,
-            newCode: new_code,
+            newData: newData,
+            newCode: newCode,
         },
     });
     return net.send(from, msg);

@@ -43,12 +43,12 @@ get fun `test item auction: initializes only from collection and handles repeate
 
     val item = NftItemContract.fromAddress(itemTemplate.address);
 
-    val nftData = item.get_nft_data();
+    val nftData = item.getNftData();
     expect(nftData.isInitialized).toEqual(true);
     expect(nftData.index).toEqual(domainIndex(DEFAULT_DOMAIN));
-    expect(item.get_editor()).toBeNull();
+    expect(item.getEditor()).toBeNull();
 
-    val auctionInfo = item.get_auction_info();
+    val auctionInfo = item.getAuctionInfo();
     expect(auctionInfo.maxBidAddress).toEqual(owner.address);
     expect(auctionInfo.maxBidAmount).toEqual(ton("1000"));
     expect(auctionInfo.auctionEndTime).toEqual((AUCTION_START_TIME + 1 +
@@ -57,7 +57,7 @@ get fun `test item auction: initializes only from collection and handles repeate
     val repeatedInit = item.sendAny(collection.address, initBody, { value: ton("1"), bounce: true });
     expect(repeatedInit).toHaveSuccessfulTx({ from: collection.address, to: item.address });
 
-    val auctionAfterRepeat = item.get_auction_info();
+    val auctionAfterRepeat = item.getAuctionInfo();
     expect(auctionAfterRepeat.maxBidAddress).toEqual(owner.address);
     expect(auctionAfterRepeat.maxBidAmount).toEqual(ton("1000"));
 }
@@ -86,7 +86,7 @@ get fun `test item auction: bids require +5 percent and notify previous bidder`(
         to: owner.address,
     });
 
-    val auctionAfterBid = item.get_auction_info();
+    val auctionAfterBid = item.getAuctionInfo();
     expect(auctionAfterBid.maxBidAddress).toEqual(bidder.address);
     expect(auctionAfterBid.maxBidAmount).toEqual(ton("1050"));
 }
@@ -94,14 +94,14 @@ get fun `test item auction: bids require +5 percent and notify previous bidder`(
 get fun `test item auction: prolongs end time when bid arrives in prolongation window`() {
     val (item, _, owner, bidder) = deployItemThroughCollection();
 
-    val auctionBefore = item.get_auction_info();
+    val auctionBefore = item.getAuctionInfo();
     val nowAt = auctionBefore.auctionEndTime - AUCTION_PROLONGATION / 2;
     net.setNow(nowAt as uint32);
 
     val bid = item.sendAny(bidder.address, createEmptyCell(), { value: ton("2000"), bounce: true });
     expect(bid).toHaveSuccessfulTx<OutbidNotification>({ from: item.address, to: owner.address });
 
-    val auctionAfter = item.get_auction_info();
+    val auctionAfter = item.getAuctionInfo();
     expect(auctionAfter.auctionEndTime).toEqual((net.now() + AUCTION_PROLONGATION) as uint64);
 }
 
@@ -111,7 +111,7 @@ get fun `test item auction: completion sets owner and enforces top-up permission
     val complete = completeAuction(item, owner.address, 77);
     expect(complete).toHaveSuccessfulTx<FillUp>({ from: item.address, to: collection.address });
 
-    expect(item.get_editor()).toEqual(owner.address);
+    expect(item.getEditor()).toEqual(owner.address);
 
     val ownerTopUp = item.sendAny(
         owner.address,

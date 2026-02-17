@@ -106,7 +106,7 @@ fun onInternalMessage(in: InMessage) {
                 throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP,
             });
             val forwardTonAmount = internalTransferMsg.forwardTonAmount;
-            internalTransferMsg.forwardPayload.checkIsCorrectTLBEither();
+            internalTransferMsg.forwardPayload.checkIsCorrectTlbEither();
 
             // a little more than needed, it’s ok since it’s sent by the admin and excesses will return back
             checkAmountIsEnoughToTransfer(msg.tonAmount, forwardTonAmount, in.originalForwardFee);
