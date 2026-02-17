@@ -44,7 +44,7 @@ fun JettonWallet.sendTransfer(
                 .beginParse(),
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun JettonWallet.sendBurn(
@@ -66,5 +66,5 @@ fun JettonWallet.sendBurn(
             customPayload,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }

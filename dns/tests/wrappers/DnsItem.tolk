@@ -49,7 +49,7 @@ fun NftItemContract.deploy(self, from: address, config: SendParams = {}): SendRe
             stateInit: self.stateInit,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftItemContract.sendTransferOwnership(self, from: address, queryId: uint64, transferData: TransferOwnershipData, config: SendParams = {}): SendResultList {
@@ -62,7 +62,7 @@ fun NftItemContract.sendTransferOwnership(self, from: address, queryId: uint64, 
             transferData,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftItemContract.sendEditContent(self, from: address, queryId: uint64, newContent: DnsRecords, config: SendParams = {}): SendResultList {
@@ -75,7 +75,7 @@ fun NftItemContract.sendEditContent(self, from: address, queryId: uint64, newCon
             newContent: newContent.toCell(),
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftItemContract.sendChangeDnsRecord(self, from: address, queryId: uint64, key: uint256, value: RemainingBitsAndRefs, config: SendParams = {}): SendResultList {
@@ -89,7 +89,7 @@ fun NftItemContract.sendChangeDnsRecord(self, from: address, queryId: uint64, ke
             value,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftItemContract.sendProcessGovernanceDecision(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
@@ -101,7 +101,7 @@ fun NftItemContract.sendProcessGovernanceDecision(self, from: address, queryId: 
             queryId,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftItemContract.sendDnsRecordRelease(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
@@ -113,7 +113,7 @@ fun NftItemContract.sendDnsRecordRelease(self, from: address, queryId: uint64, c
             queryId,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftItemContract.sendGetStaticData(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
@@ -125,7 +125,7 @@ fun NftItemContract.sendGetStaticData(self, from: address, queryId: uint64, conf
             queryId,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftItemContract.sendGovernanceTransfer(self, from: address, transferData: TransferOwnershipData, config: SendParams = {}): SendResultList {
@@ -137,7 +137,7 @@ fun NftItemContract.sendGovernanceTransfer(self, from: address, transferData: Tr
             transferData,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftItemContract.sendGovernanceRelease(self, from: address, config: SendParams = {}): SendResultList {
@@ -147,7 +147,7 @@ fun NftItemContract.sendGovernanceRelease(self, from: address, config: SendParam
         dest: self.address,
         body: GovernanceRelease {},
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 /// Send message to the contract with a custom body cell
@@ -158,7 +158,7 @@ fun NftItemContract.sendAny(self, from: address, body: cell, config: SendParams 
         dest: self.address,
         body,
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftItemContract.get_nft_data(self): NftDataReply {

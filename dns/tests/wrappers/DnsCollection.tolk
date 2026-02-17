@@ -47,7 +47,7 @@ fun NftCollectionContract.deploy(self, from: address, config: SendParams = {}): 
             stateInit: self.stateInit,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftCollectionContract.sendDeployDnsDomain(self, from: address, payload: RemainingBitsAndRefs, config: SendParams = {}): SendResultList {
@@ -59,7 +59,7 @@ fun NftCollectionContract.sendDeployDnsDomain(self, from: address, payload: Rema
             payload,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
@@ -71,7 +71,7 @@ fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, confi
             queryId,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 /// Send message to the contract with a custom body cell
@@ -82,7 +82,7 @@ fun NftCollectionContract.sendAny(self, from: address, body: cell, config: SendP
         dest: self.address,
         body,
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun NftCollectionContract.get_collection_data(self): CollectionDataReply {

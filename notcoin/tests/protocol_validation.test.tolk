@@ -19,7 +19,7 @@ get fun `test validation: malformed forward payload should be rejected`() {
         dest: wallet.address,
         body: buildTransferBody(ton("1"), 0, deployer.address, deployer.address, badPayload),
     });
-    val res = net.send(deployer.address, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val res = net.send(deployer.address, msg);
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -113,7 +113,7 @@ get fun `test validation: wallet should reject internal transfer from unauthoriz
             forwardPayload: makeTinyForwardPayload(),
         },
     });
-    val res = net.send(not_deployer.address, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val res = net.send(not_deployer.address, msg);
     expect(res).toHaveFailedTx<InternalTransferStep>({
         from: not_deployer.address,
         to: wallet.address,
@@ -138,7 +138,7 @@ get fun `test validation: minter accepts burn notification only from wallet`() {
             sendExcessesTo: not_deployer.address,
         },
     });
-    val res = net.send(wrongSender.address, badBurnNotify, SEND_MODE_PAY_FEES_SEPARATELY);
+    val res = net.send(wrongSender.address, badBurnNotify);
     expect(res).toHaveFailedTx<BurnNotificationForMinter>({
         from: wrongSender.address,
         to: minter.address,
@@ -165,7 +165,7 @@ get fun `test validation: minter cannot force burn tokens`() {
             customPayload: null,
         },
     });
-    val res = net.send(minter.address, burnMsg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val res = net.send(minter.address, burnMsg);
     expect(res).toHaveFailedTx<AskToBurn>({
         from: minter.address,
         to: wallet.address,
@@ -203,7 +203,7 @@ get fun `test validation: minter cannot force transfer tokens`() {
             forwardPayload: beginCell().storeMaybeRef(null).endCell().beginParse(),
         },
     });
-    val res = net.send(minter.address, transferMsg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val res = net.send(minter.address, transferMsg);
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: minter.address,
         to: wallet.address,

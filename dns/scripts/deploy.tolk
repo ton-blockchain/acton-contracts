@@ -24,7 +24,7 @@ fun deployCollection(deployer: Wallet) {
         dest: { stateInit },
     });
 
-    return net.send(deployer.address, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(deployer.address, msg);
 }
 
 fun deployRoot(deployer: Wallet, tonResolver: address, tMeResolver: address, tonWwwResolver: address) {
@@ -45,7 +45,7 @@ fun deployRoot(deployer: Wallet, tonResolver: address, tMeResolver: address, ton
         dest: { stateInit },
     });
 
-    return net.send(deployer.address, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(deployer.address, msg);
 }
 
 fun main() {

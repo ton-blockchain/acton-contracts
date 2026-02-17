@@ -69,7 +69,7 @@ fun sendRawTransferPayload(
         dest: wallet,
         body,
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun userWallet(minter: JettonMinter, userAddress: address): JettonWallet {

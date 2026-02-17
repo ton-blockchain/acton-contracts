@@ -26,7 +26,7 @@ get fun `test gas: transfer minimal value edge`() {
         dest: wallet.address,
         value: minimalTonValue,
     });
-    val enoughRes = net.send(deployer.address, enough, SEND_MODE_PAY_FEES_SEPARATELY);
+    val enoughRes = net.send(deployer.address, enough);
     expect(enoughRes).toHaveSuccessfulTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -38,7 +38,7 @@ get fun `test gas: transfer minimal value edge`() {
         dest: wallet.address,
         value: minimalTonValue - MIN_EDGE_DELTA,
     });
-    val notEnoughRes = net.send(deployer.address, notEnough, SEND_MODE_PAY_FEES_SEPARATELY);
+    val notEnoughRes = net.send(deployer.address, notEnough);
     expect(notEnoughRes).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -93,7 +93,7 @@ get fun `test gas: transfer with forward amount requires second forward fee`() {
         dest: wallet.address,
         value: minMissingSecondFee,
     });
-    val missingFeeRes = net.send(deployer.address, missingFeeMsg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val missingFeeRes = net.send(deployer.address, missingFeeMsg);
     expect(missingFeeRes).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -106,7 +106,7 @@ get fun `test gas: transfer with forward amount requires second forward fee`() {
         dest: wallet.address,
         value: minWithForward,
     });
-    val enoughRes = net.send(deployer.address, enoughMsg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val enoughRes = net.send(deployer.address, enoughMsg);
     expect(enoughRes).toHaveSuccessfulTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -118,7 +118,7 @@ get fun `test gas: transfer with forward amount requires second forward fee`() {
         dest: wallet.address,
         value: minWithForward - MIN_EDGE_DELTA,
     });
-    val edgeFailRes = net.send(deployer.address, edgeFailMsg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val edgeFailRes = net.send(deployer.address, edgeFailMsg);
     expect(edgeFailRes).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -166,7 +166,7 @@ get fun `test gas: transfer forward fees should follow config`() {
             dest: wallet.address,
             value: minimalAfter,
         });
-        val probeRes = net.send(deployer.address, probe, SEND_MODE_PAY_FEES_SEPARATELY);
+        val probeRes = net.send(deployer.address, probe);
         val okTx = probeRes.findTransaction<AskToTransfer>({
             from: deployer.address,
             to: wallet.address,
@@ -189,7 +189,7 @@ get fun `test gas: transfer forward fees should follow config`() {
         dest: wallet.address,
         value: minimalAfter,
     });
-    val enoughRes = net.send(deployer.address, enoughMsg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val enoughRes = net.send(deployer.address, enoughMsg);
     expect(enoughRes).toHaveSuccessfulTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -201,7 +201,7 @@ get fun `test gas: transfer forward fees should follow config`() {
         dest: wallet.address,
         value: minimalAfter - MIN_EDGE_DELTA,
     });
-    val failRes = net.send(deployer.address, failMsg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val failRes = net.send(deployer.address, failMsg);
     expect(failRes).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -244,7 +244,7 @@ get fun `test gas: transfer gas fee should follow config`() {
         dest: wallet.address,
         value: minimalAfter,
     });
-    val enoughRes = net.send(deployer.address, enough, SEND_MODE_PAY_FEES_SEPARATELY);
+    val enoughRes = net.send(deployer.address, enough);
     expect(enoughRes).toHaveSuccessfulTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -256,7 +256,7 @@ get fun `test gas: transfer gas fee should follow config`() {
         dest: wallet.address,
         value: minimalAfter - MIN_EDGE_DELTA,
     });
-    val failRes = net.send(deployer.address, fail, SEND_MODE_PAY_FEES_SEPARATELY);
+    val failRes = net.send(deployer.address, fail);
     expect(failRes).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -300,7 +300,7 @@ get fun `test gas: transfer storage fee should follow config`() {
         dest: wallet.address,
         value: minimalAfter,
     });
-    val enoughRes = net.send(deployer.address, enough, SEND_MODE_PAY_FEES_SEPARATELY);
+    val enoughRes = net.send(deployer.address, enough);
     expect(enoughRes).toHaveSuccessfulTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
@@ -312,7 +312,7 @@ get fun `test gas: transfer storage fee should follow config`() {
         dest: wallet.address,
         value: minimalAfter - MIN_EDGE_DELTA,
     });
-    val failRes = net.send(deployer.address, fail, SEND_MODE_PAY_FEES_SEPARATELY);
+    val failRes = net.send(deployer.address, fail);
     expect(failRes).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,

@@ -27,7 +27,7 @@ fun JettonMinter.sendDiscovery(
             includeOwnerAddress,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun JettonMinter.fromStorage(storage: MinterStorage) {
@@ -43,7 +43,7 @@ fun JettonMinter.sendDeploy(self, from: address, params: SendParams) {
         dest: { workchain: 0, stateInit: self.init },
         body: TopUpTons {},
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun JettonMinter.sendMint(
@@ -74,7 +74,7 @@ fun JettonMinter.sendMint(
             }.toCell(),
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun JettonMinter.sendChangeAdmin(self, from: address, new_owner: address) {
@@ -84,7 +84,7 @@ fun JettonMinter.sendChangeAdmin(self, from: address, new_owner: address) {
         dest: self.address,
         body: ChangeMinterAdmin { queryId: 0, newAdminAddress: new_owner },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun JettonMinter.sendClaimAdmin(self, from: address) {
@@ -94,7 +94,7 @@ fun JettonMinter.sendClaimAdmin(self, from: address) {
         dest: self.address,
         body: ClaimMinterAdmin { queryId: 0 },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun JettonMinter.sendDropAdmin(self, from: address) {
@@ -104,7 +104,7 @@ fun JettonMinter.sendDropAdmin(self, from: address) {
         dest: self.address,
         body: DropMinterAdmin { queryId: 0 },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun JettonMinter.sendChangeMetadata(self, from: address, new_metadata: string) {
@@ -114,7 +114,7 @@ fun JettonMinter.sendChangeMetadata(self, from: address, new_metadata: string) {
         dest: self.address,
         body: ChangeMinterMetadataUri { queryId: 0, newMetadataUri: new_metadata },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun JettonMinter.sendUpgrade(self, from: address, new_code: cell, new_data: cell) {
@@ -128,7 +128,7 @@ fun JettonMinter.sendUpgrade(self, from: address, new_code: cell, new_data: cell
             newCode: new_code,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY);
+    return net.send(from, msg);
 }
 
 fun JettonMinter.getJettonData(self): JettonDataReply {

@@ -202,7 +202,7 @@ fun deployCollectionContract() {
         dest: { stateInit: collection.stateInit! },
         body: FillUp { queryId: 0 },
     });
-    val res = net.send(deployer.address, deployMsg, SEND_MODE_PAY_FEES_SEPARATELY);
+    val res = net.send(deployer.address, deployMsg);
 
     expect(res).toHaveSuccessfulDeploy<FillUp>({ to: collection.address });
     expect(res).toHaveSuccessfulTx<FillUp>({ from: deployer.address, to: collection.address });

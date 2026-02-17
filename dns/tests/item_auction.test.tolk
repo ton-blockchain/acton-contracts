@@ -24,9 +24,7 @@ get fun `test item auction: initializes only from collection and handles repeate
             value: ton("1000"),
             dest: { stateInit: itemTemplate.stateInit! },
             body: initBody,
-        }),
-        SEND_MODE_PAY_FEES_SEPARATELY
-    );
+        }));
     expect(invalidDeploy).toHaveFailedTx({
         from: outsider.address,
         to: itemTemplate.address,
@@ -40,9 +38,7 @@ get fun `test item auction: initializes only from collection and handles repeate
             value: ton("1000"),
             dest: { stateInit: itemTemplate.stateInit! },
             body: initBody,
-        }),
-        SEND_MODE_PAY_FEES_SEPARATELY
-    );
+        }));
     expect(okDeploy).toHaveSuccessfulTx({ from: collection.address, to: itemTemplate.address });
 
     val item = NftItemContract.fromAddress(itemTemplate.address);

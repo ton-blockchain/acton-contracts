@@ -40,7 +40,7 @@ fun RootDnsContract.deploy(self, from: address, config: SendParams = {}): SendRe
             stateInit: self.stateInit,
         },
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 /// Send message to the contract with a custom body cell
@@ -51,7 +51,7 @@ fun RootDnsContract.sendAny(self, from: address, body: cell, config: SendParams 
         dest: self.address,
         body,
     });
-    return net.send(from, msg, SEND_MODE_PAY_FEES_SEPARATELY)
+    return net.send(from, msg)
 }
 
 fun RootDnsContract.dnsresolve(self, subdomain: slice, _category: int): DnsResolveResponse {
