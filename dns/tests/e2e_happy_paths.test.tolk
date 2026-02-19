@@ -71,12 +71,7 @@ fun applyOwnershipStage(item: NftItemContract, collectionAddress: address, expec
 }
 
 fun processGovernanceDecisionStage(item: NftItemContract, callerAddress: address, newOwner: address) {
-    val transferData = makeTransferData(
-        newOwner,
-        null,
-        0,
-        createEmptyCell().beginParse()
-    );
+    val transferData = makeTransferData(newOwner, null, 0, createEmptyCell().beginParse());
 
     val nftDataBefore = item.getNftData();
     setGovernanceDecision(

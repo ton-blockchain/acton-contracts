@@ -62,7 +62,7 @@ get fun `test item auction: initializes only from collection and handles repeate
     expect(auctionAfterRepeat.maxBidAmount).toEqual(ton("1000"));
 }
 
-get fun `test item auction: bids require +5 percent and notify previous bidder`() {
+get fun `test item auction: bids require 5 percent and notify previous bidder`() {
     val (item, _, owner, bidder) = deployItemThroughCollection();
 
     val lowBid = item.sendAny(

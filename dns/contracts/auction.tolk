@@ -10,50 +10,46 @@ fun processBidOrTopUp(
     mutate auction: AuctionState,
     auctionComplete: bool,
 ) {
-    // TODO: load storage in-place?
     if (auctionComplete) {
         assert (senderAddress == st.ownerAddress!) throw ERROR_ONLY_OWNER_CAN_FILL_UP_AFTER_AUCTION;
 
         st.lastFillUpTime = blockchain.now();
         st.save();
+    } else {
+        // 5% greater than previous bid
+        assert (valueCoins >= mulDivFloor(auction.maxBidAmount, 105, 100)) throw ERROR_BID_TOO_LOW;
 
-        // TODO: else instead of return?
-        return;
+        val myBalance = contract.getOriginalBalance();
+
+        var amountToSend = auction.maxBidAmount;
+        val available = myBalance - MIN_TONS_FOR_STORAGE;
+
+        if (amountToSend > available) {
+            amountToSend = available;
+        }
+
+        if (amountToSend > 0) {
+            val outbidMsg = createMessage({
+                body: OutbidNotification { queryId: blockchain.logicalTime() },
+                bounce: false,
+                dest: auction.maxBidAddress!, // safe null cast since previous bid exists
+                value: amountToSend,
+            });
+            outbidMsg.send(SEND_MODE_PAY_FEES_SEPARATELY);
+        }
+
+        auction.maxBidAmount = valueCoins;
+        auction.maxBidAddress = senderAddress;
+
+        val deltaTime = AUCTION_PROLONGATION - (auction.auctionEndTime - blockchain.now());
+        if (deltaTime > 0) {
+            auction.auctionEndTime += deltaTime;
+        }
+
+        st.auction = auction.toCell();
+        st.lastFillUpTime = blockchain.now();
+        st.save();
     }
-
-    // 5% greater than previous bid
-    assert (valueCoins >= mulDivFloor(auction.maxBidAmount, 105, 100)) throw ERROR_BID_TOO_LOW;
-
-    val myBalance = contract.getOriginalBalance();
-
-    var amountToSend = auction.maxBidAmount;
-    val available = myBalance - MIN_TONS_FOR_STORAGE;
-
-    if (amountToSend > available) {
-        amountToSend = available;
-    }
-
-    if (amountToSend > 0) {
-        val outbidMsg = createMessage({
-            body: OutbidNotification { queryId: blockchain.logicalTime() },
-            bounce: false,
-            dest: auction.maxBidAddress!, // safe null cast since auction is complete
-            value: amountToSend,
-        });
-        outbidMsg.send(SEND_MODE_PAY_FEES_SEPARATELY);
-    }
-
-    auction.maxBidAmount = valueCoins;
-    auction.maxBidAddress = senderAddress;
-
-    val deltaTime = AUCTION_PROLONGATION - (auction.auctionEndTime - blockchain.now());
-    if (deltaTime > 0) {
-        auction.auctionEndTime += deltaTime;
-    }
-
-    st.auction = auction.toCell();
-    st.lastFillUpTime = blockchain.now();
-    st.save();
 }
 
 fun address.forceBasechain(self) {

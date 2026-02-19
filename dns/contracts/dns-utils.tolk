@@ -30,17 +30,14 @@ fun address.toNextResolver(self) {
 // "ab".ref("cd").ref("ef") -> "abcdef"
 fun readDomainFromComment(mutate inMsgBody: slice): slice {
     var result = beginCell();
-    var shouldStop = false;
 
-    while (!shouldStop) {
-        result.storeSlice(inMsgBody.loadBits(inMsgBody.remainingBitsCount()));
+    result.storeSlice(inMsgBody.loadBits(inMsgBody.remainingBitsCount()));
+
+    repeat (inMsgBody.depth()) {
         val refsLen = inMsgBody.remainingRefsCount();
-        shouldStop = refsLen == 0;
-
-        if (!shouldStop) {
-            assert (refsLen == 1) throw ERROR_DOMAIN_FORMAT_INVALID;
-            inMsgBody = inMsgBody.loadRef().beginParse();
-        }
+        assert (refsLen == 1) throw ERROR_DOMAIN_FORMAT_INVALID;
+        inMsgBody = inMsgBody.loadRef().beginParse();
+        result.storeSlice(inMsgBody.loadBits(inMsgBody.remainingBitsCount()));
     }
 
     return result.toSlice();
@@ -70,11 +67,11 @@ fun getTopDomainBits(domain: slice): int {
 }
 
 enum DomainChar {
-    Hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.,,,
-    DigitZero = 48 // ASCII '0': lower bound for allowed digits,,,
-    DigitNine = 57 // ASCII '9': upper bound for allowed digits,,,
-    LowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters,,,
-    LowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters,,,
+    Hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.,,,,
+    DigitZero = 48 // ASCII '0': lower bound for allowed digits,,,,
+    DigitNine = 57 // ASCII '9': upper bound for allowed digits,,,,
+    LowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters,,,,
+    LowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters,,,,
 }
 
 fun checkDomainString(domain: slice, len: int): bool {
