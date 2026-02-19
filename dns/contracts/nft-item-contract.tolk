@@ -78,7 +78,6 @@ fun onInternalMessage(in: InMessage) {
     var auction = unpackedAuction.1;
     val isAuctionComplete = blockchain.now() > auction.auctionEndTime;
 
-    // TODO: unite with second usage somehow
     if (in.body.isEmpty() || in.body.preloadUint(32) == 0) {
         processBidOrTopUp(
             in.senderAddress,
@@ -93,11 +92,7 @@ fun onInternalMessage(in: InMessage) {
     var myBalance = contract.getOriginalBalance();
 
     if (isAuctionComplete && !isAuctionNull) {
-        // TODO: use message header struct?
-        // copy slice to extract queryId before main match
-        var rawBody = in.body;
-        rawBody.skipBits(32); // skip op
-        val queryId = rawBody.loadUint(64);
+        val parsedHeader = lazy MessageHeader.fromSlice(in.body);
 
         val balanceBeforeMsg = myBalance - in.valueCoins;
 
@@ -110,7 +105,7 @@ fun onInternalMessage(in: InMessage) {
 
         if (amountToSend > 0) {
             val refundMsg = createMessage({
-                body: FillUp { queryId },
+                body: FillUp { queryId: parsedHeader.queryId },
                 bounce: false,
                 dest: storage.collectionAddress,
                 value: amountToSend,

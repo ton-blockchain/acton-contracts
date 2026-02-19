@@ -56,6 +56,7 @@ fun address.forceBasechain(self) {
     assert (self.getWorkchain() == BASECHAIN) throw ERROR_WRONG_WORKCHAIN;
 }
 
+@inline
 fun applyOwnershipTransfer(
     myBalance: coins,
     mutate storage: ItemStorageInitialized,
@@ -63,7 +64,6 @@ fun applyOwnershipTransfer(
     transferData: TransferOwnershipData,
     fwdFees: coins,
 ) {
-    // TODO: load storage in-place
     val newOwnerAddress = transferData.newOwnerAddress;
     newOwnerAddress.forceBasechain();
 

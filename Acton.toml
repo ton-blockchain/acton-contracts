@@ -53,6 +53,9 @@ asm-function-missing-safety-comment = "allow"
 
 [test]
 
+[build]
+output-fift = "build/fift"
+
 [fmt]
 width = 100
 ignore = []

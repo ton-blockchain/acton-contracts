@@ -65,10 +65,11 @@ fun ItemStorageInitialized.save(self) {
     contract.setData(self.toCell());
 }
 
-// TODO: not mutable
 fun ItemStorageInitialized.unpackAuction(self): (bool, AuctionState) {
+    var res: (bool, AuctionState);
+
     if (self.auction == null) {
-        return (
+        res = (
             true,
             {
                 auctionEndTime: 0,
@@ -76,9 +77,11 @@ fun ItemStorageInitialized.unpackAuction(self): (bool, AuctionState) {
                 maxBidAddress: null,
             }
         );
+    } else {
+        res = (false, self.auction.load());
     }
 
-    return (false, self.auction.load());
+    return res;
 }
 
 struct ItemStorageMaybeNotInitialized {
