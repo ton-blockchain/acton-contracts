@@ -67,21 +67,23 @@ fun getTopDomainBits(domain: slice): int {
 }
 
 enum DomainChar {
-    Hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.,,,,
-    DigitZero = 48 // ASCII '0': lower bound for allowed digits,,,,
-    DigitNine = 57 // ASCII '9': upper bound for allowed digits,,,,
-    LowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters,,,,
-    LowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters,,,,
+    Hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.,,,,,,,,,,,,,,
+    DigitZero = 48 // ASCII '0': lower bound for allowed digits,,,,,,,,,,,,,,
+    DigitNine = 57 // ASCII '9': upper bound for allowed digits,,,,,,,,,,,,,,
+    LowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters,,,,,,,,,,,,,,
+    LowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters,,,,,,,,,,,,,,
 }
 
+@inline_ref
 fun checkDomainString(domain: slice, len: int): bool {
     var bytes = domain;
     var i = 0;
 
-    while (i < len) {
+    val tries = len / BYTE_SIZE;
+
+    repeat (tries) {
         val ch = bytes.loadUint(BYTE_SIZE);
 
-        // it is safe to use casts, since we are only casting to compare
         val isHyphen = ch == (DomainChar.Hyphen as int);
         val isDigit = ch >= (DomainChar.DigitZero as int) && ch <= (DomainChar.DigitNine as int);
 
@@ -106,29 +108,31 @@ struct MinPriceConfig {
 }
 
 fun getMinPriceConfig(domainCharCount: int): MinPriceConfig {
+    var res = MinPriceConfig { startMinPrice: 10, endMinPrice: 1 };
+
     if (domainCharCount == 4) {
-        return { startMinPrice: 1000, endMinPrice: 100 };
+        res = { startMinPrice: 1000, endMinPrice: 100 };
     }
     if (domainCharCount == 5) {
-        return { startMinPrice: 500, endMinPrice: 50 };
+        res = { startMinPrice: 500, endMinPrice: 50 };
     }
     if (domainCharCount == 6) {
-        return { startMinPrice: 400, endMinPrice: 40 };
+        res = { startMinPrice: 400, endMinPrice: 40 };
     }
     if (domainCharCount == 7) {
-        return { startMinPrice: 300, endMinPrice: 30 };
+        res = { startMinPrice: 300, endMinPrice: 30 };
     }
     if (domainCharCount == 8) {
-        return { startMinPrice: 200, endMinPrice: 20 };
+        res = { startMinPrice: 200, endMinPrice: 20 };
     }
     if (domainCharCount == 9) {
-        return { startMinPrice: 100, endMinPrice: 10 };
+        res = { startMinPrice: 100, endMinPrice: 10 };
     }
     if (domainCharCount == 10) {
-        return { startMinPrice: 50, endMinPrice: 5 };
+        res = { startMinPrice: 50, endMinPrice: 5 };
     }
 
-    return { startMinPrice: 10, endMinPrice: 1 };
+    return res;
 }
 
 fun getMinPrice(domainBitsLength: int, nowTime: int): int {
@@ -139,14 +143,18 @@ fun getMinPrice(domainBitsLength: int, nowTime: int): int {
     val seconds = nowTime - AUCTION_START_TIME;
     val months = seconds / ONE_MONTH;
 
+    var res: int;
+
     if (months > 21) {
-        return endMinPrice;
+        res = endMinPrice;
+    } else {
+        repeat (months) {
+            // -10% each passing month
+            startMinPrice = startMinPrice * 90 / 100;
+        }
+
+        res = startMinPrice;
     }
 
-    repeat (months) {
-        // -10% each passing month
-        startMinPrice = startMinPrice * 90 / 100;
-    }
-
-    return startMinPrice;
+    return res;
 }
