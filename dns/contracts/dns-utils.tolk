@@ -79,24 +79,26 @@ fun checkDomainString(domain: slice, len: int): bool {
     var bytes = domain;
     var i = 0;
 
-    val tries = len / BYTE_SIZE;
+    val charCount = len / BYTE_SIZE;
+    val lastChar = charCount - 1;
 
-    repeat (tries) {
+    repeat (charCount) {
         val ch = bytes.loadUint(BYTE_SIZE);
 
-        val isHyphen = ch == (DomainChar.Hyphen as int);
         val isDigit = ch >= (DomainChar.DigitZero as int) && ch <= (DomainChar.DigitNine as int);
-
         val isLowercaseLetter = ch >= (DomainChar.LowercaseA as int) &&
         ch <= (DomainChar.LowercaseZ as int);
-        val isInnerHyphen = isHyphen && i > 0 && i < len - BYTE_SIZE;
 
-        val valid = isInnerHyphen || isDigit || isLowercaseLetter;
+        var valid = isDigit || isLowercaseLetter;
+        if (!valid) {
+            valid = ch == (DomainChar.Hyphen as int) && i > 0 && i < lastChar;
+        }
+
         if (!valid) {
             return false;
         }
 
-        i += BYTE_SIZE;
+        i += 1;
     }
 
     return true;
