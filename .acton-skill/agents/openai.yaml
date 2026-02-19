@@ -1,0 +1,4 @@
+interface:
+  display_name: "Acton"
+  short_description: "Build, test, deploy TON contracts with Acton CLI"
+  default_prompt: "Use $acton to implement and validate this Acton smart contract workflow."
