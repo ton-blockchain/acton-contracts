@@ -37,7 +37,6 @@ fun onExternalMessage(inBody: slice) {
     val now = blockchain.now();
     storage.cleanupQueryWindows(now);
 
-    // TODO: type alias
     assert (
         isSignatureValid(msgInner.hash(), signature as slice, storage.publicKey)
     ) throw ERROR_INVALID_SIGNATURE;
@@ -51,7 +50,6 @@ fun onExternalMessage(inBody: slice) {
 
     assert (request.subwalletId == storage.subwalletId) throw ERROR_INVALID_SUBWALLET_ID;
     assert (request.timeout == storage.timeout) throw ERROR_INVALID_TIMEOUT;
-    // assert (bitNumber < CELL_BITS_SIZE) throw ERROR_INVALID_MESSAGE_TO_SEND;
     assert (createdAt > (now - timeout)) throw ERROR_INVALID_CREATED_AT;
     assert (createdAt <= now) throw ERROR_INVALID_CREATED_AT;
 
@@ -59,15 +57,11 @@ fun onExternalMessage(inBody: slice) {
         !storage.oldQueries.isProcessedInQueryMap(shift, bitNumber)
     ) throw ERROR_ALREADY_EXECUTED;
 
-    assert (
-        !storage.queries.isProcessedInQueryMap(shift, bitNumber)
-    ) throw ERROR_ALREADY_EXECUTED;
+    val updatedBitmap = storage.queries.markProcessed(shift, bitNumber);
 
     acceptExternalMessage();
 
-    val (newQueries, wasMarked) = storage.queries.markProcessedInQueryMap(shift, bitNumber);
-    assert (wasMarked) throw ERROR_ALREADY_EXECUTED;
-    storage.queries = newQueries;
+    storage.queries.set(shift, updatedBitmap);
 
     storage.save();
     commitContractDataAndActions();

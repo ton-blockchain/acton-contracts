@@ -1,3 +1,5 @@
+import "errors"
+
 const CELL_BITS_SIZE = 1023
 const BIT_NUMBER_SIZE = 10
 
@@ -28,28 +30,20 @@ fun QueryBitmapMap.isProcessedInQueryMap(self, shift: uint13, bitNumber: int): b
     return valueSlice.preloadInt(1) != 0;
 }
 
-fun QueryBitmapMap.markProcessedInQueryMap(self, shift: uint13, bitNumber: int): (
-    QueryBitmapMap, bool
-) {
+fun QueryBitmapMap.markProcessed(self, shift: uint13, bitNumber: int): Bitmap {
     var nextQueries = self;
     val lookup = nextQueries.get(shift);
 
-    if (!lookup.isFound) {
-        nextQueries.set(shift, Bitmap.build(bitNumber));
-        return (nextQueries, true);
+    var res: Bitmap;
+
+    if (lookup.isFound) {
+        var tail = lookup.loadValue().beginParse();
+        val head = tail.loadBits(bitNumber);
+        assert (!tail.loadBool()) throw ERROR_ALREADY_EXECUTED;
+        res = beginCell().storeSlice(head).storeBool(true).storeSlice(tail).endCell();
+    } else {
+        res = Bitmap.build(bitNumber);
     }
 
-    var valueSlice = lookup.loadValue().beginParse();
-    val prefix = valueSlice.loadBits(bitNumber);
-
-    if (valueSlice.preloadInt(1) != 0) {
-        return (nextQueries, false);
-    }
-
-    valueSlice.skipBits(1);
-
-    val newValue = beginCell().storeSlice(prefix).storeBool(true).storeSlice(valueSlice).endCell();
-
-    nextQueries.set(shift, newValue);
-    return (nextQueries, true);
+    return res;
 }
