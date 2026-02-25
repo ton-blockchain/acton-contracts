@@ -116,6 +116,6 @@ fun NftCollectionContract.royaltyParams(self): RoyaltyParams {
     return net.runGetMethod(self.address, "royalty_params")
 }
 
-fun NftCollectionContract.getNftContent(self, itemIndex: int, individualNftContent: SnakeString): Cell<OffchainMetadataReply> {
-    return net.runGetMethod(self.address, "get_nft_content", [itemIndex, individualNftContent.toCell()] as tuple)
+fun NftCollectionContract.getNftContent(self, itemIndex: int, individualNftContent: string): Cell<OffchainMetadataReply> {
+    return net.runGetMethod(self.address, "get_nft_content", [itemIndex, individualNftContent] as tuple)
 }

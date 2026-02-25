@@ -86,7 +86,7 @@ fun nftFixture(nftCollection: NftCollectionContract, nftOwnerAddress: address) {
         ton("0.02"),
         {
             ownerAddress: nftOwnerAddress,
-            content: createEmptyCell() as Cell<SnakeString>,
+            content: "",
         },
         {
             value: ton("0.05"),
@@ -126,7 +126,7 @@ fun setupTest() {
         nextItemIndex: 0,
         content: CollectionContent {
             collectionMetadata: createEmptyCell(),
-            commonContent: createEmptySlice().toCell()
+            commonContent: "",
         }.toCell(),
         nftItemCode: build("nft-item"),
         royaltyParams: royaltyParams.toCell(),
@@ -148,7 +148,7 @@ get fun `test nft: should deploy nft`() {
     val (nftCollection, deployer, _) = setupTest();
     val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     val nftOwnerAddress = net.randomAddress();
-    val content: Cell<SnakeString> = beginCell().storeString("Content").endCell() as Cell<SnakeString>;
+    val content: string = "Content";
 
     val nftDeployResult = nftCollection.sendDeployNft(
         deployer.address,
@@ -200,7 +200,7 @@ get fun `test nft: should not deploy nft with invalid item index`() {
         ton("0.02"),
         {
             ownerAddress: deployer.address,
-            content: createEmptyCell() as Cell<SnakeString>,
+            content: "",
         },
         {
             value: ton("0.05"),
@@ -226,7 +226,7 @@ get fun `test nft: should increment item index if last`() {
         ton("0.02"),
         {
             ownerAddress: deployer.address,
-            content: createEmptyCell() as Cell<SnakeString>,
+            content: "",
         },
         {
             value: ton("0.05"),
@@ -255,7 +255,7 @@ get fun `test nft: should not increment item index if not last`() {
         ton("0.02"),
         {
             ownerAddress: deployer.address,
-            content: createEmptyCell() as Cell<SnakeString>,
+            content: "",
         },
         {
             value: ton("0.05"),
@@ -274,7 +274,7 @@ get fun `test nft: should not increment item index if not last`() {
         ton("0.02"),
         {
             ownerAddress: deployer.address,
-            content: createEmptyCell() as Cell<SnakeString>,
+            content: "",
         },
         {
             value: ton("0.05"),
@@ -296,7 +296,7 @@ get fun `test nft: should deploy some nfts via batch deploy`() {
     val (nftCollection, deployer, _) = setupTest();
     val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     val nftOwnerAddress = net.randomAddress();
-    val content: Cell<SnakeString> = beginCell().storeString("Content").endCell() as Cell<SnakeString>;
+    val content: string = "Content";
 
     var deployList: map<uint64, BatchDeployDictItem> = [];
     val indexes: array<int> = [nextItemIndex, nextItemIndex + 1, nextItemIndex + 2];
@@ -784,7 +784,7 @@ get fun `test nft: should fail with incomplete transfer body`() {
 get fun `test nft: bench should deploy 100 nfts via batch deploy`() {
     val (nftCollection, deployer, _) = setupTest();
     val nftOwnerAddress = net.randomAddress();
-    val content: Cell<SnakeString> = beginCell().storeString("Content").endCell() as Cell<SnakeString>;
+    val content: string = "Content";
 
     var deployList: map<uint64, BatchDeployDictItem> = [];
 
