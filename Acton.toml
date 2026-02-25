@@ -48,6 +48,17 @@ name = "dns_root"
 src = "dns/contracts/root-dns-contract.tolk"
 depends = []
 
+# NFT
+[contracts.nft-collection]
+name = "Collection"
+src = "nft/contracts/nft-collection-contract.tolk"
+depends = ["nft-item"]
+
+[contracts.nft-item]
+name = "Item"
+src = "nft/contracts/nft-item-contract.tolk"
+depends = []
+
 [lint.acton_jetton_minter]
 asm-function-missing-safety-comment = "allow"
 
@@ -62,6 +73,7 @@ ignore = []
 
 [scripts]
 test-counter = "acton test counter/tests"
+test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
 test-acton-jetton = "acton test acton-jetton/tests"
 test-dns = "acton test dns/tests"
