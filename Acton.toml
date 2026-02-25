@@ -71,6 +71,7 @@ test-counter = "acton test counter/tests"
 test-notcoin = "acton test notcoin/tests"
 test-acton-jetton = "acton test acton-jetton/tests"
 test-dns = "acton test dns/tests"
+test-highload = "acton test highload-v3/tests"
 
 [mappings]
 acton = ".acton"
