@@ -48,6 +48,12 @@ name = "dns_root"
 src = "dns/contracts/root-dns-contract.tolk"
 depends = []
 
+# Highload V3
+[contracts.highload_wallet_v3]
+name = "highload_wallet_v3"
+src = "highload-v3/contracts/highload-wallet.tolk"
+depends = []
+
 [lint.acton_jetton_minter]
 asm-function-missing-safety-comment = "allow"
 
