@@ -30,18 +30,18 @@ fun NftItemContract.deploy(self, from: address, config: SendParams = {}): SendRe
     if (self.init == null) {
         Assert.fail("Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment");
     }
-    val msg = createMessage({
+    val deployMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: {
             stateInit: self.init,
         },
     });
-    return net.send(from, msg);
+    return net.send(from, deployMessage);
 }
 
 fun NftItemContract.sendAskToChangeOwnership(self, from: address, queryId: uint64, newOwnerAddress: address, sendExcessesTo: address?, customPayload: dict, forwardTonAmount: coins, forwardPayload: RemainingBitsAndRefs, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val askToChangeOwnershipMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -54,11 +54,11 @@ fun NftItemContract.sendAskToChangeOwnership(self, from: address, queryId: uint6
             forwardPayload,
         },
     });
-    return net.send(from, msg);
+    return net.send(from, askToChangeOwnershipMessage);
 }
 
 fun NftItemContract.sendRequestStaticData(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val requestStaticDataMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -66,20 +66,20 @@ fun NftItemContract.sendRequestStaticData(self, from: address, queryId: uint64, 
             queryId,
         },
     });
-    return net.send(from, msg);
+    return net.send(from, requestStaticDataMessage);
 }
 
 /// Send message to the contract with a custom body cell
 fun NftItemContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val outgoingMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body,
     });
-    return net.send(from, msg);
+    return net.send(from, outgoingMessage);
 }
 
-fun NftItemContract.get_nft_data(self): NftDataReply {
+fun NftItemContract.getNftData(self): NftDataReply {
     return net.runGetMethod(self.address, "get_nft_data")
 }

@@ -1,8 +1,6 @@
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "@acton/testing/expect"
-import "@acton/types/message"
 import "../../contracts/types"
 import "../../contracts/messages"
 import "../../contracts/types"
@@ -32,18 +30,18 @@ fun NftCollectionContract.deploy(self, from: address, config: SendParams = {}): 
     if (self.init == null) {
         Assert.fail("Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment");
     }
-    val msg = createMessage({
+    val deployMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: {
             stateInit: self.init,
         },
     });
-    return net.send(from, msg)
+    return net.send(from, deployMessage)
 }
 
 fun NftCollectionContract.sendDeployNft(self, from: address, queryId: uint64, itemIndex: uint64, attachTonAmount: coins, initParams: NftItemInitAtDeployment, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val deployNftMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -54,11 +52,11 @@ fun NftCollectionContract.sendDeployNft(self, from: address, queryId: uint64, it
             initParams: initParams.toCell(),
         },
     });
-    return net.send(from, msg)
+    return net.send(from, deployNftMessage)
 }
 
 fun NftCollectionContract.sendRequestRoyaltyParams(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val requestRoyaltyParamsMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -66,11 +64,11 @@ fun NftCollectionContract.sendRequestRoyaltyParams(self, from: address, queryId:
             queryId,
         },
     });
-    return net.send(from, msg);
+    return net.send(from, requestRoyaltyParamsMessage);
 }
 
 fun NftCollectionContract.sendBatchDeployNfts(self, from: address, queryId: uint64, deployList: map<uint64, BatchDeployDictItem>, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val batchDeployNftsMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -79,11 +77,11 @@ fun NftCollectionContract.sendBatchDeployNfts(self, from: address, queryId: uint
             deployList,
         },
     });
-    return net.send(from, msg);
+    return net.send(from, batchDeployNftsMessage);
 }
 
 fun NftCollectionContract.sendChangeCollectionAdmin(self, from: address, queryId: uint64, newAdminAddress: address, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val changeCollectionAdminMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -92,32 +90,32 @@ fun NftCollectionContract.sendChangeCollectionAdmin(self, from: address, queryId
             newAdminAddress,
         },
     });
-    return net.send(from, msg);
+    return net.send(from, changeCollectionAdminMessage);
 }
 
 /// Send message to the contract with a custom body cell
 fun NftCollectionContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
-    val msg = createMessage({
+    val outgoingMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body,
     });
-    return net.send(from, msg);
+    return net.send(from, outgoingMessage);
 }
 
-fun NftCollectionContract.get_collection_data(self): CollectionDataReply {
+fun NftCollectionContract.getCollectionData(self): CollectionDataReply {
     return net.runGetMethod(self.address, "get_collection_data")
 }
 
-fun NftCollectionContract.get_nft_address_by_index(self, itemIndex: int): address {
+fun NftCollectionContract.getNftAddressByIndex(self, itemIndex: int): address {
     return net.runGetMethod(self.address, "get_nft_address_by_index", itemIndex)
 }
 
-fun NftCollectionContract.royalty_params(self): RoyaltyParams {
+fun NftCollectionContract.royaltyParams(self): RoyaltyParams {
     return net.runGetMethod(self.address, "royalty_params")
 }
 
-fun NftCollectionContract.get_nft_content(self, itemIndex: int, individualNftContent: SnakeString): Cell<OffchainMetadataReply> {
+fun NftCollectionContract.getNftContent(self, itemIndex: int, individualNftContent: SnakeString): Cell<OffchainMetadataReply> {
     return net.runGetMethod(self.address, "get_nft_content", [itemIndex, individualNftContent.toCell()] as tuple)
 }

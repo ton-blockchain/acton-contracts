@@ -27,7 +27,7 @@ fun onInternalMessage(in: InMessage) {
             assert (in.senderAddress == storage.adminAddress) throw ERROR_NOT_FROM_ADMIN;
             assert (msg.itemIndex <= storage.nextItemIndex) throw ERROR_INVALID_ITEM_INDEX;
 
-            var isLast = msg.itemIndex == storage.nextItemIndex;
+            val isLast = msg.itemIndex == storage.nextItemIndex;
             deployNftItem(msg.itemIndex, storage.nftItemCode, msg.attachTonAmount, msg.initParams);
             if (isLast) {
                 storage.nextItemIndex += 1;
@@ -87,7 +87,9 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
-
+fun onBouncedMessage(_in: InMessageBounced) {
+    // For receiving funds from possibly bounced deployment of NFT
+}
 
 
 
@@ -113,7 +115,7 @@ get fun royalty_params(): RoyaltyParams {
     return storage.royaltyParams.load();
 }
 
-get fun get_nft_content(itemIndex: int, individualNftContent: Cell<SnakeString>): Cell<OffchainMetadataReply> {
+get fun get_nft_content(_itemIndex: int, individualNftContent: Cell<SnakeString>): Cell<OffchainMetadataReply> {
     val storage = lazy NftCollectionStorage.load();
     val content = lazy storage.content.load();
 

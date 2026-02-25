@@ -1,4 +1,3 @@
-import "@stdlib/gas-payments"
 import "errors"
 import "types"
 import "messages"

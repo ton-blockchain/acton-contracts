@@ -78,7 +78,7 @@ get fun `test nft: should not allow any other opcode not from owner`() {
 
 fun nftFixture(nftCollection: NftCollectionContract, nftOwnerAddress: address) {
     val deployer = net.treasury("deployer");
-    val nextItemIndex = nftCollection.get_collection_data().nextItemIndex;
+    val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     val nftDeployResult = nftCollection.sendDeployNft(
         deployer.address,
         0,
@@ -99,7 +99,7 @@ fun nftFixture(nftCollection: NftCollectionContract, nftOwnerAddress: address) {
         to: nftCollection.address,
     });
 
-    val nftAddress = nftCollection.get_nft_address_by_index(nextItemIndex);
+    val nftAddress = nftCollection.getNftAddressByIndex(nextItemIndex);
 
     expect(nftDeployResult).toHaveSuccessfulDeploy({
         from: nftCollection.address,
@@ -146,7 +146,7 @@ fun setupTest() {
 
 get fun `test nft: should deploy nft`() {
     val (nftCollection, deployer, _) = setupTest();
-    val nextItemIndex = nftCollection.get_collection_data().nextItemIndex;
+    val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     val nftOwnerAddress = net.randomAddress();
     val content: Cell<SnakeString> = beginCell().storeString("Content").endCell() as Cell<SnakeString>;
 
@@ -170,7 +170,7 @@ get fun `test nft: should deploy nft`() {
         to: nftCollection.address,
     });
 
-    val nftAddress = nftCollection.get_nft_address_by_index(nextItemIndex);
+    val nftAddress = nftCollection.getNftAddressByIndex(nextItemIndex);
 
     expect(nftDeployResult).toHaveSuccessfulDeploy({
         from: nftCollection.address,
@@ -179,7 +179,7 @@ get fun `test nft: should deploy nft`() {
     });
 
     val nftItem = NftItemContract.fromAddress(nftAddress);
-    val data = nftItem.get_nft_data();
+    val data = nftItem.getNftData();
 
     expect(data.isInitialized).toBeTrue();
     expect(data.itemIndex).toEqual(nextItemIndex);
@@ -190,7 +190,7 @@ get fun `test nft: should deploy nft`() {
 
 get fun `test nft: should not deploy nft with invalid item index`() {
     val (nftCollection, deployer, _) = setupTest();
-    val nextItemIndex = nftCollection.get_collection_data().nextItemIndex;
+    val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
 
     // Trying to deploy with invalid index (nextItemIndex + 1 instead of nextItemIndex)
     val nftDeployResult = nftCollection.sendDeployNft(
@@ -217,7 +217,7 @@ get fun `test nft: should not deploy nft with invalid item index`() {
 
 get fun `test nft: should increment item index if last`() {
     val (nftCollection, deployer, _) = setupTest();
-    val nextItemIndex = nftCollection.get_collection_data().nextItemIndex;
+    val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
 
     val nftDeployResult = nftCollection.sendDeployNft(
         deployer.address,
@@ -239,13 +239,13 @@ get fun `test nft: should increment item index if last`() {
         to: nftCollection.address,
     });
 
-    val newNextItemIndex = nftCollection.get_collection_data().nextItemIndex;
+    val newNextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     expect(newNextItemIndex).toEqual(nextItemIndex + 1);
 }
 
 get fun `test nft: should not increment item index if not last`() {
     val (nftCollection, deployer, _) = setupTest();
-    val nextItemIndex = nftCollection.get_collection_data().nextItemIndex;
+    val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
 
     // Deploy first NFT at index 0
     nftCollection.sendDeployNft(
@@ -263,7 +263,7 @@ get fun `test nft: should not increment item index if not last`() {
         }
     );
 
-    val newNextItemIndex = nftCollection.get_collection_data().nextItemIndex;
+    val newNextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     expect(newNextItemIndex).toEqual(nextItemIndex + 1);
 
     // Deploy again at index 0 (re-deploy, not last)
@@ -288,13 +288,13 @@ get fun `test nft: should not increment item index if not last`() {
     });
 
     // Index should NOT have changed
-    val newNextItemIndexAfterSecondDeploy = nftCollection.get_collection_data().nextItemIndex;
+    val newNextItemIndexAfterSecondDeploy = nftCollection.getCollectionData().nextItemIndex;
     expect(newNextItemIndexAfterSecondDeploy).toEqual(newNextItemIndex);
 }
 
 get fun `test nft: should deploy some nfts via batch deploy`() {
     val (nftCollection, deployer, _) = setupTest();
-    val nextItemIndex = nftCollection.get_collection_data().nextItemIndex;
+    val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     val nftOwnerAddress = net.randomAddress();
     val content: Cell<SnakeString> = beginCell().storeString("Content").endCell() as Cell<SnakeString>;
 
@@ -332,7 +332,7 @@ get fun `test nft: should deploy some nfts via batch deploy`() {
     i = 0;
     while (i < 3) {
         val index = indexes.get(i);
-        val nftAddress = nftCollection.get_nft_address_by_index(index);
+        val nftAddress = nftCollection.getNftAddressByIndex(index);
 
         expect(nftDeployResult).toHaveSuccessfulDeploy({
             from: nftCollection.address,
@@ -340,11 +340,11 @@ get fun `test nft: should deploy some nfts via batch deploy`() {
         });
 
         val nftItem = NftItemContract.fromAddress(nftAddress);
-        val data = nftItem.get_nft_data();
+        val data = nftItem.getNftData();
 
         expect(data.isInitialized).toBeTrue();
         expect(data.itemIndex).toEqual(index);
-        expect(data.ownerAddress!!).toEqual(nftOwnerAddress);
+        expect(data.ownerAddress!).toEqual(nftOwnerAddress);
         expect(data.collectionAddress).toEqual(nftCollection.address);
         expect(data.content).toEqual(content);
 
@@ -354,7 +354,7 @@ get fun `test nft: should deploy some nfts via batch deploy`() {
 
 get fun `test nft: should change owner`() {
     val (nftCollection, deployer, _) = setupTest();
-    val oldOwnerAddress = nftCollection.get_collection_data().adminAddress;
+    val oldOwnerAddress = nftCollection.getCollectionData().adminAddress;
     val newOwner = net.treasury("new-owner");
 
     val result = nftCollection.sendChangeCollectionAdmin(
@@ -372,7 +372,7 @@ get fun `test nft: should change owner`() {
         to: nftCollection.address,
     });
 
-    val newOwnerAddress = nftCollection.get_collection_data().adminAddress;
+    val newOwnerAddress = nftCollection.getCollectionData().adminAddress;
 
     expect(oldOwnerAddress).toNotEqual(newOwnerAddress);
     expect(newOwnerAddress).toEqual(newOwner.address);
@@ -387,8 +387,8 @@ get fun `test nft: should transfer ownership`() {
 
     val nftItem = nftFixture(nftCollection, nftOwner.address);
 
-    val ownerBeforeTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerBeforeTransfer!!).toEqual(nftOwner.address);
+    val ownerBeforeTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerBeforeTransfer!).toEqual(nftOwner.address);
 
     val result = nftItem.sendAskToChangeOwnership(
         nftOwner.address,
@@ -415,8 +415,8 @@ get fun `test nft: should transfer ownership`() {
         to: nftReceiverAddress,
     });
 
-    val ownerAfterTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerAfterTransfer!!).toEqual(nftReceiverAddress);
+    val ownerAfterTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerAfterTransfer!).toEqual(nftReceiverAddress);
 }
 
 get fun `test nft: should transfer ownership and return excesses`() {
@@ -428,8 +428,8 @@ get fun `test nft: should transfer ownership and return excesses`() {
 
     val nftItem = nftFixture(nftCollection, nftOwner.address);
 
-    val ownerBeforeTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerBeforeTransfer!!).toEqual(nftOwner.address);
+    val ownerBeforeTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerBeforeTransfer!).toEqual(nftOwner.address);
 
     val result = nftItem.sendAskToChangeOwnership(
         nftOwner.address,
@@ -456,8 +456,8 @@ get fun `test nft: should transfer ownership and return excesses`() {
         bounce: false,
     });
 
-    val ownerAfterTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerAfterTransfer!!).toEqual(nftReceiverAddress);
+    val ownerAfterTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerAfterTransfer!).toEqual(nftReceiverAddress);
 }
 
 get fun `test nft: should not transfer ownership not from owner`() {
@@ -468,8 +468,8 @@ get fun `test nft: should not transfer ownership not from owner`() {
 
     val nftItem = nftFixture(nftCollection, nftOwner.address);
 
-    val ownerBeforeTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerBeforeTransfer!!).toEqual(nftOwner.address);
+    val ownerBeforeTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerBeforeTransfer!).toEqual(nftOwner.address);
 
     val result = nftItem.sendAskToChangeOwnership(
         notOwner.address,  // NOT the owner!
@@ -492,8 +492,8 @@ get fun `test nft: should not transfer ownership not from owner`() {
     });
 
     // Owner should NOT have changed
-    val ownerAfterTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerAfterTransfer!!).toEqual(ownerBeforeTransfer!!);
+    val ownerAfterTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerAfterTransfer!).toEqual(ownerBeforeTransfer!);
 }
 
 get fun `test nft: should transfer ownership with notification`() {
@@ -503,7 +503,7 @@ get fun `test nft: should transfer ownership with notification`() {
 
     val nftItem = nftFixture(nftCollection, nftOwner.address);
 
-    val ownerBeforeTransfer = nftItem.get_nft_data().ownerAddress;
+    val ownerBeforeTransfer = nftItem.getNftData().ownerAddress;
     expect(ownerBeforeTransfer!).toEqual(nftOwner.address);
 
     val forwardAmount = ton("0.01");
@@ -537,7 +537,7 @@ get fun `test nft: should transfer ownership with notification`() {
         // TODO check body content
     });
 
-    val ownerAfterTransfer = nftItem.get_nft_data().ownerAddress;
+    val ownerAfterTransfer = nftItem.getNftData().ownerAddress;
     expect(ownerAfterTransfer!).toEqual(nftReceiverAddress);
 }
 
@@ -549,7 +549,7 @@ get fun `test nft: should get static data`() {
     val nftItem = nftFixture(nftCollection, nftOwner.address);
 
     val queryId = 42;
-    val nftData = nftItem.get_nft_data();
+    val nftData = nftItem.getNftData();
 
     val result = nftItem.sendRequestStaticData(
         randomTreasury.address,
@@ -570,7 +570,7 @@ get fun `test nft: should get static data`() {
         to: randomTreasury.address,
         bounce: false,
         body: ResponseStaticData {
-            queryId: queryId,
+            queryId,
             itemIndex: nftData.itemIndex,
             collectionAddress: nftData.collectionAddress,
         }.toCell(),
@@ -668,8 +668,8 @@ get fun `test nft: should fail with no fwd payload provided`() {
 
     val nftItem = nftFixture(nftCollection, nftOwner.address);
 
-    val ownerBeforeTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerBeforeTransfer!!).toEqual(nftOwner.address);
+    val ownerBeforeTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerBeforeTransfer!).toEqual(nftOwner.address);
 
     val body = beginCell()
         .storeUint(0x5fcc3d14, 32)  // op::transfer
@@ -693,12 +693,12 @@ get fun `test nft: should fail with no fwd payload provided`() {
     expect(result).toHaveFailedTx({
         from: nftOwner.address,
         to: nftItem.address,
-        body: body,
+        body,
         exitCode: 708,  // No forward payload provided
     });
 
-    val ownerAfterTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerAfterTransfer!!).toEqual(ownerBeforeTransfer!!);
+    val ownerAfterTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerAfterTransfer!).toEqual(ownerBeforeTransfer!);
 }
 
 get fun `test nft: should transfer ownership with forward payload in slice`() {
@@ -741,8 +741,8 @@ get fun `test nft: should transfer ownership with forward payload in slice`() {
         bounce: false,
     });
 
-    val ownerAfterTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerAfterTransfer!!).toEqual(nftReceiverAddress);
+    val ownerAfterTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerAfterTransfer!).toEqual(nftReceiverAddress);
 }
 
 get fun `test nft: should fail with incomplete transfer body`() {
@@ -751,8 +751,8 @@ get fun `test nft: should fail with incomplete transfer body`() {
 
     val nftItem = nftFixture(nftCollection, nftOwner.address);
 
-    val ownerBeforeTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerBeforeTransfer!!).toEqual(nftOwner.address);
+    val ownerBeforeTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerBeforeTransfer!).toEqual(nftOwner.address);
 
     // Send transfer op with only queryId (missing new_owner and rest)
     val body = beginCell()
@@ -777,8 +777,8 @@ get fun `test nft: should fail with incomplete transfer body`() {
         exitCode: 9,  // cell underflow
     });
 
-    val ownerAfterTransfer = nftItem.get_nft_data().ownerAddress;
-    expect(ownerAfterTransfer!!).toEqual(ownerBeforeTransfer!!);
+    val ownerAfterTransfer = nftItem.getNftData().ownerAddress;
+    expect(ownerAfterTransfer!).toEqual(ownerBeforeTransfer!);
 }
 
 get fun `test nft: bench should deploy 100 nfts via batch deploy`() {
@@ -816,19 +816,19 @@ get fun `test nft: bench should deploy 100 nfts via batch deploy`() {
     });
 
     // Check first and last NFT were deployed
-    val firstNftAddress = nftCollection.get_nft_address_by_index(0);
+    val firstNftAddress = nftCollection.getNftAddressByIndex(0);
     expect(nftDeployResult).toHaveSuccessfulDeploy({
         from: nftCollection.address,
         to: firstNftAddress,
     });
 
-    val lastNftAddress = nftCollection.get_nft_address_by_index(99);
+    val lastNftAddress = nftCollection.getNftAddressByIndex(99);
     expect(nftDeployResult).toHaveSuccessfulDeploy({
         from: nftCollection.address,
         to: lastNftAddress,
     });
 
     // Verify collection state
-    val newNextItemIndex = nftCollection.get_collection_data().nextItemIndex;
+    val newNextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     expect(newNextItemIndex).toEqual(100);
 }
