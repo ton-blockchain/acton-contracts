@@ -45,7 +45,7 @@ get fun `test nft: report royalty params`() {
 fun shouldNotAllowAnyOtherOpcodeNotFromOwner(opcode: int) {
     val randomTreasury = net.treasury("random-treasury");
 
-    val (nftCollection, _deployer, _royaltyParams) = setupTest();
+    val (nftCollection, _, _) = setupTest();
 
     val result = nftCollection.sendAny(
         randomTreasury.address,
