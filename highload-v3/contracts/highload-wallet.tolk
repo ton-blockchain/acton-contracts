@@ -3,39 +3,7 @@ import "bitmap"
 import "errors"
 import "messages"
 import "storage"
-
-fun setActions(actions: cell): void
-    asm "c5 POP"
-
-fun validateMessageToSend(messageToSend: cell) {
-    var messageSlice = messageToSend.beginParse();
-
-    assert (messageSlice.loadUint(1) == 0) throw ERROR_INVALID_MESSAGE_TO_SEND; // int_msg_info$0
-
-    val msgFlags = messageSlice.loadUint(3); // ihr_disabled, bounce, bounced
-    if ((msgFlags & 1) != 0) {
-        return;
-    }
-
-    val sourceAddress = messageSlice.loadAddressAny();
-    assert (sourceAddress.isNone()) throw ERROR_INVALID_MESSAGE_TO_SEND;
-
-    messageSlice.loadAddressAny(); // dest
-    messageSlice.loadCoins(); // value.coins
-    messageSlice.skipDict(); // value.other
-    messageSlice.loadCoins(); // ihr_fee
-    messageSlice.loadCoins(); // fwd_fee
-    messageSlice.skipBits(64 + 32); // created_lt + created_at
-
-    val maybeStateInit = messageSlice.loadUint(1);
-    assert (maybeStateInit == 0) throw ERROR_INVALID_MESSAGE_TO_SEND;
-
-    val eitherBody = messageSlice.loadUint(1);
-    if (eitherBody != 0) {
-        messageSlice.loadRef();
-        messageSlice.assertEnd();
-    }
-}
+import "validate-c5"
 
 fun onInternalMessage(in: InMessage) {
     val (bodyBits, bodyRefs) = in.body.remainingBitsAndRefsCount();
@@ -55,12 +23,12 @@ fun onInternalMessage(in: InMessage) {
     val msg = lazy InternalTransfer.fromSlice(in.body);
 
     val oldCode = contract.getCode();
-    setActions(msg.actions);
+    setTvmRegisterC5(msg.actions);
     contract.setCodePostponed(oldCode); // prevent actions from changing code
 }
 
-fun onExternalMessage(in: InMessage) {
-    val msg = lazy ExternalTransferRequest.fromSlice(in.body);
+fun onExternalMessage(inBody: slice) {
+    val msg = lazy ExternalTransferRequest.fromSlice(inBody);
 
     val msgInner = msg.inner;
     val signature = msg.signature;
@@ -83,23 +51,31 @@ fun onExternalMessage(in: InMessage) {
 
     assert (request.subwalletId == storage.subwalletId) throw ERROR_INVALID_SUBWALLET_ID;
     assert (request.timeout == storage.timeout) throw ERROR_INVALID_TIMEOUT;
+    // assert (bitNumber < CELL_BITS_SIZE) throw ERROR_INVALID_MESSAGE_TO_SEND;
     assert (createdAt > (now - timeout)) throw ERROR_INVALID_CREATED_AT;
     assert (createdAt <= now) throw ERROR_INVALID_CREATED_AT;
 
     assert (
-        !isProcessedInQueryMap(storage.oldQueries, shift, bitNumber)
+        !storage.oldQueries.isProcessedInQueryMap(shift, bitNumber)
     ) throw ERROR_ALREADY_EXECUTED;
 
-    val (newQueries, wasMarked) = markProcessedInQueryMap(storage.queries, shift, bitNumber);
-    assert (wasMarked) throw ERROR_ALREADY_EXECUTED;
-    storage.queries = newQueries;
+    assert (
+        !storage.queries.isProcessedInQueryMap(shift, bitNumber)
+    ) throw ERROR_ALREADY_EXECUTED;
 
     acceptExternalMessage();
+
+    val (newQueries, wasMarked) = storage.queries.markProcessedInQueryMap(shift, bitNumber);
+    assert (wasMarked) throw ERROR_ALREADY_EXECUTED;
+    storage.queries = newQueries;
 
     storage.save();
     commitContractDataAndActions();
 
-    validateMessageToSend(request.messageToSend);
+    if (!validateMessageToSend(request.messageToSend)) {
+        return;
+    }
+
     sendRawMessage(request.messageToSend, request.sendMode + SEND_MODE_IGNORE_ERRORS);
 }
 
@@ -140,10 +116,10 @@ get fun `processed?`(queryId: int, needClean: int): bool {
         storage.cleanupQueryWindows(blockchain.now());
     }
 
-    if (isProcessedInQueryMap(storage.oldQueries, shift, bitNumber)) {
+    if (storage.oldQueries.isProcessedInQueryMap(shift, bitNumber)) {
         return true;
     }
-    if (isProcessedInQueryMap(storage.queries, shift, bitNumber)) {
+    if (storage.queries.isProcessedInQueryMap(shift, bitNumber)) {
         return true;
     }
 

@@ -1,12 +1,13 @@
-fun builder.storeZeroes(mutate self, len: int): self
-    asm "STZEROES"
-
-type QueryBitmapMap = map<uint13, cell>
-
 const CELL_BITS_SIZE = 1023
 const BIT_NUMBER_SIZE = 10
 
-fun buildProcessedBitmapCell(bitNumber: int): cell {
+// SAFETY: single safe builder mutation
+fun builder.storeZeroes(mutate self, len: int): self
+    asm "STZEROES"
+
+type Bitmap = cell
+
+fun Bitmap.build(bitNumber: int): Bitmap {
     var b = beginCell();
     b.storeZeroes(bitNumber);
     b.storeBool(true);
@@ -14,8 +15,10 @@ fun buildProcessedBitmapCell(bitNumber: int): cell {
     return b.endCell();
 }
 
-fun isProcessedInQueryMap(queries: QueryBitmapMap, shift: uint13, bitNumber: int): bool {
-    val lookup = queries.get(shift);
+type QueryBitmapMap = map<uint13, Bitmap>
+
+fun QueryBitmapMap.isProcessedInQueryMap(self, shift: uint13, bitNumber: int): bool {
+    val lookup = self.get(shift);
     if (!lookup.isFound) {
         return false;
     }
@@ -25,14 +28,14 @@ fun isProcessedInQueryMap(queries: QueryBitmapMap, shift: uint13, bitNumber: int
     return valueSlice.preloadInt(1) != 0;
 }
 
-fun markProcessedInQueryMap(queries: QueryBitmapMap, shift: uint13, bitNumber: int): (
+fun QueryBitmapMap.markProcessedInQueryMap(self, shift: uint13, bitNumber: int): (
     QueryBitmapMap, bool
 ) {
-    var nextQueries = queries;
+    var nextQueries = self;
     val lookup = nextQueries.get(shift);
 
     if (!lookup.isFound) {
-        nextQueries.set(shift, buildProcessedBitmapCell(bitNumber));
+        nextQueries.set(shift, Bitmap.build(bitNumber));
         return (nextQueries, true);
     }
 
