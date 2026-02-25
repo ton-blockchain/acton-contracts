@@ -1,8 +1,17 @@
+import "@stdlib/strings"
 import "types"
+
+// Warning - this is an expensive function. It is used only in get-methods
+fun string.concat(self, other: string): string {
+    var b: StringBuilder = StringBuilder.create();
+    b.append(self);
+    b.append(other);
+    return b.build();
+}
 
 struct NftItemInitAtDeployment {
     ownerAddress: address
-    content: Cell<SnakeString>
+    content: string
 }
 
 struct (0x693d3950) RequestRoyaltyParams {

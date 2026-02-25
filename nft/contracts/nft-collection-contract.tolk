@@ -115,7 +115,7 @@ get fun royalty_params(): RoyaltyParams {
     return storage.royaltyParams.load();
 }
 
-get fun get_nft_content(_itemIndex: int, individualNftContent: Cell<SnakeString>): Cell<OffchainMetadataReply> {
+get fun get_nft_content(_itemIndex: int, individualNftContent: string): Cell<OffchainMetadataReply> {
     val storage = lazy NftCollectionStorage.load();
     val content = lazy storage.content.load();
 
@@ -125,9 +125,6 @@ get fun get_nft_content(_itemIndex: int, individualNftContent: Cell<SnakeString>
     // individual nft = "my-picture-123.png"  (probably, a long string, snake-encoded)
     // result         = concatenation
     return OffchainMetadataReply {
-        string: beginCell()
-            .storeSlice(content.commonContent.load())   // assume it's short (no refs)
-            .storeRef(individualNftContent)             // so, it's the first ref (snake encoding)
-            .endCell().beginParse()
+        string: content.commonContent.concat(individualNftContent)
     }.toCell()
 }
