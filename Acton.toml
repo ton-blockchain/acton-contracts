@@ -48,6 +48,12 @@ name = "dns_root"
 src = "dns/contracts/root-dns-contract.tolk"
 depends = []
 
+# Highload V3
+[contracts.highload_wallet_v3]
+name = "highload_wallet_v3"
+src = "highload-v3/contracts/highload-wallet.tolk"
+depends = []
+
 # NFT
 [contracts.nft-collection]
 name = "Collection"
@@ -80,6 +86,7 @@ test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
 test-acton-jetton = "acton test acton-jetton/tests"
 test-dns = "acton test dns/tests"
+test-highload = "acton test highload-v3/tests"
 
 [mappings]
 acton = ".acton"
