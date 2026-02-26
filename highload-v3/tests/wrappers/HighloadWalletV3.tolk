@@ -80,12 +80,12 @@ fun HighloadWalletV3.deploy(self, from: address, config: SendParams = {}): SendR
     if (self.stateInit == null) {
         Assert.fail("Cannot deploy contract created from address only");
     }
-    val msg = createMessage({
+    val deployMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: { stateInit: self.stateInit! },
     });
-    return net.send(from, msg);
+    return net.send(from, deployMessage);
 }
 
 fun HighloadWalletV3.getPublicKey(self): int {
@@ -145,14 +145,14 @@ fun packSendActionsToCell(messages: array<OutActionSendMessage>, start: int, cou
     return head;
 }
 
-fun HighloadWalletV3.createInternalTransferBody(self, queryId: int, actions: array<OutAction>) {
+fun HighloadWalletV3.createInternalTransferBody(queryId: int, actions: array<OutAction>) {
     return InternalTransfer {
         queryId: queryId as uint64,
         actions: packOutActions(actions),
     }.toCell();
 }
 
-fun HighloadWalletV3.createInternalTransferBodyFromActionsCell(self, queryId: int, actionsCell: cell) {
+fun HighloadWalletV3.createInternalTransferBodyFromActionsCell(queryId: int, actionsCell: cell) {
     return InternalTransfer {
         queryId: queryId as uint64,
         actions: actionsCell,
@@ -165,7 +165,7 @@ fun HighloadWalletV3.createInternalTransferMessage(
     actions: array<OutAction>,
     value: coins = 0,
 ): OutMessage {
-    val body = self.createInternalTransferBody(queryId, actions);
+    val body = HighloadWalletV3.createInternalTransferBody(queryId, actions);
     return createMessage({
         bounce: false,
         value,
@@ -180,7 +180,7 @@ fun HighloadWalletV3.createInternalTransferMessageFromActionsCell(
     actionsCell: cell,
     value: coins = 0,
 ): OutMessage {
-    val body = self.createInternalTransferBodyFromActionsCell(queryId, actionsCell);
+    val body = HighloadWalletV3.createInternalTransferBodyFromActionsCell(queryId, actionsCell);
     return createMessage({
         bounce: false,
         value,
@@ -232,7 +232,7 @@ fun HighloadWalletV3.packActionsRange(
     return self.createInternalTransferMessageFromActionsCell(queryId, actionsCell, value);
 }
 
-fun HighloadWalletV3.buildExternalRequestBody(self, keyPair: KeyPair, req: HighloadExternalRequest): cell {
+fun HighloadWalletV3.buildExternalRequestBody(keyPair: KeyPair, req: HighloadExternalRequest): cell {
     val inner = MsgInner {
         subwalletId: req.subwalletId as uint32,
         messageToSend: req.messageToSend,
@@ -248,7 +248,7 @@ fun HighloadWalletV3.buildExternalRequestBody(self, keyPair: KeyPair, req: Highl
 }
 
 fun HighloadWalletV3.sendExternalRequest(self, keyPair: KeyPair, req: HighloadExternalRequest): SendResultList {
-    val body = self.buildExternalRequestBody(keyPair, req);
+    val body = HighloadWalletV3.buildExternalRequestBody(keyPair, req);
     return self.sendRawExternalBody(body);
 }
 
@@ -295,11 +295,11 @@ fun HighloadWalletV3.sendBatch(
 }
 
 fun HighloadWalletV3.trySendExternalRequest(self, keyPair: KeyPair, req: HighloadExternalRequest): SendResultList? {
-    val body = self.buildExternalRequestBody(keyPair, req);
+    val body = HighloadWalletV3.buildExternalRequestBody(keyPair, req);
     return self.trySendRawExternalBody(body);
 }
 
 fun HighloadWalletV3.trySendExternalRequestSingle(self, keyPair: KeyPair, req: HighloadExternalRequest): SendResult? {
-    val body = self.buildExternalRequestBody(keyPair, req);
+    val body = HighloadWalletV3.buildExternalRequestBody(keyPair, req);
     return self.trySendRawExternalBodySingle(body);
 }

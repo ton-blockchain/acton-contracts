@@ -3,12 +3,10 @@ import "@acton/emulation/network"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "@acton/types/message"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
 import "wrappers/HighloadWalletV3"
 import "../contracts/bitmap"
-import "../contracts/errors"
 import "../contracts/storage"
 
 const SUBWALLET_ID = 239
@@ -175,7 +173,7 @@ fun storedIsProcessed(wallet: HighloadWalletV3, queryId: int): bool {
 }
 
 fun setActiveDataCell(addr: address, newData: cell) {
-    var account = net.getAccount(addr);
+    val account = net.getAccount(addr);
     if (!(account is AccountInfo)) {
         Assert.fail("Expected AccountInfo when setting data");
     }
@@ -197,7 +195,7 @@ fun emptyInternalTransferMessage(wallet: HighloadWalletV3, queryId: int = 0, val
 }
 
 fun buildSignedExternalBody(
-    wallet: HighloadWalletV3,
+    _wallet: HighloadWalletV3,
     keyPair: KeyPair,
     messageToSend: cell,
     mode: int,
@@ -206,7 +204,7 @@ fun buildSignedExternalBody(
     subwalletId: int = SUBWALLET_ID,
     timeout: int = DEFAULT_TIMEOUT,
 ): cell {
-    return wallet.buildExternalRequestBody(keyPair, HighloadExternalRequest {
+    return HighloadWalletV3.buildExternalRequestBody(keyPair, HighloadExternalRequest {
         messageToSend,
         mode,
         queryId,

@@ -1,8 +1,8 @@
 import "test_utils"
+import "wrappers/HighloadWalletV3"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "wrappers/HighloadWalletV3"
 
 get fun `test timeout replay attack`() {
     val ctx = setupHighloadTest();
@@ -18,7 +18,8 @@ get fun `test timeout replay attack`() {
         bounce: false,
         value: ton("10"),
         dest: attacker.address,
-    }).messageCell;
+    })
+        .messageCell;
 
     val extBody = buildSignedExternalBody(
         ctx.wallet,
@@ -28,7 +29,7 @@ get fun `test timeout replay attack`() {
         queryId,
         1000,
         SUBWALLET_ID,
-        DEFAULT_TIMEOUT,
+        DEFAULT_TIMEOUT
     );
 
     val legitRes = ctx.wallet.sendRawExternalBody(extBody);

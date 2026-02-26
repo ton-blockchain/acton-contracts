@@ -15,9 +15,12 @@ get fun `test queries hashmaps are cleared`() {
         msg,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        1000,
+        1000
     );
-    expect(res1).toHaveSuccessfulTx<InternalTransfer>({ from: ctx.wallet.address, to: ctx.wallet.address });
+    expect(res1).toHaveSuccessfulTx<InternalTransfer>({
+        from: ctx.wallet.address,
+        to: ctx.wallet.address,
+    });
     expect(ctx.wallet.isProcessed(queryId, false)).toBeTrue();
 
     net.setNow(1260);
@@ -31,9 +34,12 @@ get fun `test queries hashmaps are cleared`() {
         msg,
         SEND_MODE_CARRY_ALL_BALANCE,
         newQueryId,
-        1200,
+        1200
     );
-    expect(res2).toHaveSuccessfulTx<InternalTransfer>({ from: ctx.wallet.address, to: ctx.wallet.address });
+    expect(res2).toHaveSuccessfulTx<InternalTransfer>({
+        from: ctx.wallet.address,
+        to: ctx.wallet.address,
+    });
 
     expect(ctx.wallet.isProcessed(queryId)).toBeFalse();
     expect(ctx.wallet.isProcessed(newQueryId, false)).toBeTrue();
@@ -55,7 +61,7 @@ get fun `test queries dictionary with max keys fits credit limit`() {
         msg,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        1000,
+        1000
     );
 
     expect(res).toHaveSuccessfulTx({ to: ctx.wallet.address });

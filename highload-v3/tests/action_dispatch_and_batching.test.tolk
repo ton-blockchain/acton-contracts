@@ -16,7 +16,8 @@ get fun `test send internal message`() {
         value: ton("123"),
         dest: testAddr,
         body: testBody,
-    }).messageCell;
+    })
+        .messageCell;
 
     val res = sendSignedExternal(
         ctx.wallet,
@@ -24,7 +25,7 @@ get fun `test send internal message`() {
         outMsg,
         SEND_MODE_PAY_FEES_SEPARATELY,
         queryId,
-        1000,
+        1000
     );
 
     expect(res).toHaveSuccessfulTx({
@@ -41,7 +42,7 @@ get fun `test send internal message`() {
         outMsg,
         SEND_MODE_PAY_FEES_SEPARATELY,
         queryId,
-        1000,
+        1000
     );
     expect(replay).toBeNull();
 }
@@ -68,7 +69,7 @@ get fun `test ignore set_code action`() {
         message,
         SEND_MODE_CARRY_ALL_BALANCE,
         extQueryId,
-        1000,
+        1000
     );
 
     expect(activeCode(ctx.wallet.address)).toEqual(ctx.wallet.code());
@@ -95,7 +96,7 @@ get fun `test send external message`() {
         message,
         SEND_MODE_CARRY_ALL_BALANCE,
         extQueryId,
-        1000,
+        1000
     );
 
     val ext = res.findExternalOutMessage<TestExternalOutBody>({ from: ctx.wallet.address });
@@ -119,17 +120,25 @@ get fun `test handle 254 actions in one go`() {
         i += 1;
     }
 
-    val batchMessage = ctx.wallet.createInternalTransferMessageFromActionsCell(queryId, actionsCell, 0).messageCell;
+    val batchMessage = ctx.wallet.createInternalTransferMessageFromActionsCell(
+        queryId,
+        actionsCell,
+        0
+    )
+        .messageCell;
     val res = sendSignedExternal(
         ctx.wallet,
         ctx.keyPair,
         batchMessage,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        1000,
+        1000
     );
 
-    expect(res).toHaveSuccessfulTx<InternalTransfer>({ from: ctx.wallet.address, to: ctx.wallet.address });
+    expect(res).toHaveSuccessfulTx<InternalTransfer>({
+        from: ctx.wallet.address,
+        to: ctx.wallet.address,
+    });
 
     var j = 0;
     while (j < 254) {
@@ -155,7 +164,7 @@ get fun `test go beyond 255 messages via chained internal_transfer`() {
             net.randomAddress(null),
             ton("0.015"),
             body,
-            SEND_MODE_PAY_FEES_SEPARATELY,
+            SEND_MODE_PAY_FEES_SEPARATELY
         );
         if (i < 253) {
             rootActionsCell = OutList { prev: rootActionsCell, action: action as OutAction }.toCell();
@@ -165,24 +174,36 @@ get fun `test go beyond 255 messages via chained internal_transfer`() {
         i += 1;
     }
 
-    val tailTransfer = ctx.wallet.createInternalTransferMessageFromActionsCell(queryId, tailActionsCell, 0);
+    val tailTransfer = ctx.wallet.createInternalTransferMessageFromActionsCell(
+        queryId,
+        tailActionsCell,
+        0
+    );
     val chainAction = OutActionSendMessage {
         mode: SEND_MODE_CARRY_ALL_BALANCE as uint8,
         outMsg: tailTransfer.messageCell,
     };
     rootActionsCell = OutList { prev: rootActionsCell, action: chainAction as OutAction }.toCell();
 
-    val rootTransfer = ctx.wallet.createInternalTransferMessageFromActionsCell(queryId, rootActionsCell, 0).messageCell;
+    val rootTransfer = ctx.wallet.createInternalTransferMessageFromActionsCell(
+        queryId,
+        rootActionsCell,
+        0
+    )
+        .messageCell;
     val res = sendSignedExternal(
         ctx.wallet,
         ctx.keyPair,
         rootTransfer,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        1000,
+        1000
     );
 
-    expect(res).toHaveSuccessfulTx<InternalTransfer>({ from: ctx.wallet.address, to: ctx.wallet.address });
+    expect(res).toHaveSuccessfulTx<InternalTransfer>({
+        from: ctx.wallet.address,
+        to: ctx.wallet.address,
+    });
 
     var j = 0;
     while (j < msgCount) {

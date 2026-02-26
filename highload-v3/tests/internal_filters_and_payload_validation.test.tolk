@@ -1,9 +1,9 @@
 import "test_utils"
+import "wrappers/HighloadWalletV3"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/out_actions"
-import "../contracts/messages"
 
 get fun `test ignore internal transfer from non-self address`() {
     val ctx = setupHighloadTest();
@@ -12,7 +12,7 @@ get fun `test ignore internal transfer from non-self address`() {
 
     var actions = array<OutAction> [];
     actions.push(sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY) as OutAction);
-    val transferBody = ctx.wallet.createInternalTransferBody(queryId, actions);
+    val transferBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
 
     val outsider = net.treasury("outsider");
     val res1 = net.send(outsider.address, createMessage({
@@ -47,7 +47,7 @@ get fun `test ignore bounced messages`() {
 
     var actions = array<OutAction> [];
     actions.push(sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY) as OutAction);
-    val transferBody = ctx.wallet.createInternalTransferBody(queryId, actions);
+    val transferBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
 
     val bounced = createMessage({
         bounce: false,
