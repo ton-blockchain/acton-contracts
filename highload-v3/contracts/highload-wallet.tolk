@@ -49,7 +49,7 @@ fun onExternalMessage(inBody: slice) {
     val bitNumber = request.bitNumber;
 
     assert (request.subwalletId == storage.subwalletId) throw ERROR_INVALID_SUBWALLET_ID;
-    assert (request.timeout == storage.timeout) throw ERROR_INVALID_TIMEOUT;
+    assert (request.timeout == timeout) throw ERROR_INVALID_TIMEOUT;
     assert (createdAt > (now - timeout)) throw ERROR_INVALID_CREATED_AT;
     assert (createdAt <= now) throw ERROR_INVALID_CREATED_AT;
 
@@ -70,7 +70,7 @@ fun onExternalMessage(inBody: slice) {
         return;
     }
 
-    sendRawMessage(request.messageToSend, request.sendMode + SEND_MODE_IGNORE_ERRORS);
+    sendRawMessage(request.messageToSend, request.sendMode | SEND_MODE_IGNORE_ERRORS);
 }
 
 get fun get_public_key(): int {
