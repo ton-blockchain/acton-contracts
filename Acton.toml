@@ -54,6 +54,17 @@ name = "highload_wallet_v3"
 src = "highload-v3/contracts/highload-wallet.tolk"
 depends = []
 
+# NFT
+[contracts.nft-collection]
+name = "Collection"
+src = "nft/contracts/nft-collection-contract.tolk"
+depends = ["nft-item"]
+
+[contracts.nft-item]
+name = "Item"
+src = "nft/contracts/nft-item-contract.tolk"
+depends = []
+
 [lint.acton_jetton_minter]
 asm-function-missing-safety-comment = "allow"
 
@@ -62,12 +73,16 @@ asm-function-missing-safety-comment = "allow"
 [build]
 output-fift = "build/fift"
 
+[lint.rules]
+unused-import = "allow"
+
 [fmt]
 width = 100
 ignore = []
 
 [scripts]
 test-counter = "acton test counter/tests"
+test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
 test-acton-jetton = "acton test acton-jetton/tests"
 test-dns = "acton test dns/tests"
