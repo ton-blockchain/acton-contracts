@@ -46,13 +46,17 @@ fun validateMessageToSend(messageToSend: cell) {
         { throwIfOpcodeDoesNotMatch: ERROR_INVALID_MESSAGE_TO_SEND }
     );
 
+    var res: bool;
+
     if (msg.info.bounced) {
-        return false;
+        res = false;
+    } else {
+        assert (msg.info.src.isNone()) throw ERROR_INVALID_MESSAGE_TO_SEND;
+        assert (!msg.maybeStateInit) throw ERROR_INVALID_MESSAGE_TO_SEND;
+        msg.body.checkIsCorrectTlbEither();
+
+        res = true;
     }
 
-    assert (msg.info.src.isNone()) throw ERROR_INVALID_MESSAGE_TO_SEND;
-    assert (!msg.maybeStateInit) throw ERROR_INVALID_MESSAGE_TO_SEND;
-    msg.body.checkIsCorrectTlbEither();
-
-    return true;
+    return res;
 }

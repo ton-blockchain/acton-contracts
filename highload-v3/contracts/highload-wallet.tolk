@@ -22,8 +22,8 @@ fun onInternalMessage(in: InMessage) {
 
     val msg = lazy InternalTransfer.fromSlice(in.body);
 
-    val oldCode = contract.getCode();
     setTvmRegisterC5(msg.actions);
+    val oldCode = contract.getCode();
     contract.setCodePostponed(oldCode); // prevent actions from changing code
 }
 
@@ -33,8 +33,8 @@ fun onExternalMessage(inBody: slice) {
     val msgInner = msg.inner;
     val signature = msg.signature;
 
-    var storage = lazy HighloadWalletStorage.load();
     val now = blockchain.now();
+    var storage = lazy HighloadWalletStorage.load();
     storage.cleanupQueryWindows(now);
 
     assert (

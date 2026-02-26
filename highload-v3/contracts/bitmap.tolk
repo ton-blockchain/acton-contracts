@@ -21,13 +21,19 @@ type QueryBitmapMap = map<uint13, Bitmap>
 
 fun QueryBitmapMap.isProcessedInQueryMap(self, shift: uint13, bitNumber: int): bool {
     val lookup = self.get(shift);
+
+    var res: bool;
+
     if (!lookup.isFound) {
-        return false;
+        res = false;
+    } else {
+        var valueSlice = lookup.loadValue().beginParse();
+        valueSlice.skipBits(bitNumber);
+
+        res = valueSlice.preloadInt(1) != 0;
     }
 
-    var valueSlice = lookup.loadValue().beginParse();
-    valueSlice.skipBits(bitNumber);
-    return valueSlice.preloadInt(1) != 0;
+    return res;
 }
 
 fun QueryBitmapMap.markProcessed(self, shift: uint13, bitNumber: int): Bitmap {
