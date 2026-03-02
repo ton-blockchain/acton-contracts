@@ -51,7 +51,7 @@ fun getTopDomainBits(domain: slice): int {
     var shouldStop = false;
 
     while (!shouldStop) {
-        // we do not check domain.length because it MUST contains \0 character
+        // we do not check domain.length because it MUST contain \0 character
         val ch = bytes.loadUint(BYTE_SIZE);
 
         shouldStop = ch == 0;
@@ -67,11 +67,11 @@ fun getTopDomainBits(domain: slice): int {
 }
 
 enum DomainChar {
-    Hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.,,,,,,,,,,,,,,
-    DigitZero = 48 // ASCII '0': lower bound for allowed digits,,,,,,,,,,,,,,
-    DigitNine = 57 // ASCII '9': upper bound for allowed digits,,,,,,,,,,,,,,
-    LowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters,,,,,,,,,,,,,,
-    LowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters,,,,,,,,,,,,,,
+    Hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.
+    DigitZero = 48 // ASCII '0': lower bound for allowed digits
+    DigitNine = 57 // ASCII '9': upper bound for allowed digits
+    LowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters
+    LowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters
 }
 
 @inline_ref

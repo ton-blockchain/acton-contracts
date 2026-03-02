@@ -305,7 +305,7 @@ get fun get_editor(): address? {
 }
 
 get fun get_domain(): slice {
-    // this will panic if storage is not init, but so do FunC impl
+    // this will panic if storage is not init, but so does FunC impl
     val st = startLoadingDnsItemStorage().parseInitialized();
     return st.domain.beginParse();
 }
