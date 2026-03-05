@@ -3,7 +3,7 @@ import "types"
 struct MultisigStorage {
     nextOrderSeqno: uint256
     threshold: uint8
-    signers: NonEmptyIndexedAddressMap
+    signers: DirectIndexedAddressMap
     signersNum: uint8
     proposers: IndexedAddressMap
     allowArbitraryOrderSeqno: bool
@@ -26,11 +26,11 @@ struct OrderStorageInitialized {
 struct OrderStorageRemaining {
     threshold: uint8
     sentForExecution: bool
-    signers: NonEmptyIndexedAddressMap
+    signers: DirectIndexedAddressMap
     approvalsMask: uint256
     approvalsNum: uint8
     expirationDate: uint48
-    order: NonEmptyOrderActionsMap
+    order: DirectOrderActionsMap
 }
 
 fun OrderStorageInitialized.save(self) {

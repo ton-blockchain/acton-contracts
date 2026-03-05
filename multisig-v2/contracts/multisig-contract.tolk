@@ -13,7 +13,7 @@ type AllowedMessageToMultisig =
     | ExecuteInternalRequest
     | Op0WithRemainder
 
-fun executeOrder(mutate storage: MultisigStorage, orderBody: NonEmptyOrderActionsMap) {
+fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsMap) {
     setGasLimitToMaximum();
 
     var actionLookup = orderBody.findFirst();

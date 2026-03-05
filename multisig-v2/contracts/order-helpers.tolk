@@ -42,8 +42,8 @@ fun calculateOrderAddress(multisigAddress: address, orderSeqno: uint256): addres
 }
 
 fun calculateOrderProcessingCost(
-    orderBody: NonEmptyOrderActionsMap,
-    signers: NonEmptyIndexedAddressMap,
+    orderBody: DirectOrderActionsMap,
+    signers: DirectIndexedAddressMap,
     duration: int,
 ): coins {
     val orderDict = orderBody.toLowLevelDict()!;
@@ -82,40 +82,33 @@ fun calculateOrderProcessingCost(
     return gasFees + forwardFees + storageFees;
 }
 
+// TODO: optimize short-return?
 fun getTextComment(inMsgBody: RemainingBitsAndRefs): slice {
-    if (inMsgBody.remainingRefsCount() == 0) {
-        return inMsgBody;
+    var result = beginCell();
+
+    result.storeSlice(inMsgBody.preloadBits(inMsgBody.remainingBitsCount()));
+
+    repeat (inMsgBody.depth()) {
+        inMsgBody = inMsgBody.preloadRef().beginParse();
+        result.storeSlice(inMsgBody.preloadBits(inMsgBody.remainingBitsCount()));
     }
 
-    var combined = beginCell();
-    var current = inMsgBody;
-
-    var needExit = false;
-    while (!needExit) {
-        combined.storeSlice(current.preloadBits(current.remainingBitsCount()));
-
-        if (current.remainingRefsCount() > 0) {
-            current = current.preloadRef().beginParse();
-        } else {
-            needExit = true;
-        }
-    }
-
-    return combined.endCell().beginParse();
+    return result.toSlice();
 }
 
-fun findSignerByAddress(signers: NonEmptyIndexedAddressMap, signerAddress: address): (uint8, bool) {
+// TODO: remove while?
+fun DirectIndexedAddressMap.findSignerByAddress(self, signerAddress: address): (uint8, bool) {
     var signerIndex: uint8 = 0;
     var foundSigner = false;
 
-    var item = signers.findFirst();
+    var item = self.findFirst();
     while (item.isFound && !foundSigner) {
         val currentAddress = item.loadValue();
         if (currentAddress == signerAddress) {
             signerIndex = item.getKey();
             foundSigner = true;
         } else {
-            item = signers.iterateNext(item);
+            item = self.iterateNext(item);
         }
     }
 
@@ -123,7 +116,7 @@ fun findSignerByAddress(signers: NonEmptyIndexedAddressMap, signerAddress: addre
 }
 
 fun OrderStorageInitialized.addApproval(mutate self, signerIndex: uint8) {
-    val mask = (1 << signerIndex) as uint256;
+    val mask = (1 << signerIndex);
 
     assert ((self.remaining.approvalsMask & mask) == 0) throw ERROR_ALREADY_APPROVED;
 
@@ -131,7 +124,7 @@ fun OrderStorageInitialized.addApproval(mutate self, signerIndex: uint8) {
     self.remaining.approvalsMask |= mask;
 }
 
-fun OrderStorageInitialized.tryExecute(mutate self, queryId: int) {
+fun OrderStorageInitialized.tryExecute(mutate self, queryId: uint64) {
     if (self.remaining.approvalsNum == self.remaining.threshold) {
         val executeMsg = createMessage({
             bounce: false,
@@ -146,6 +139,7 @@ fun OrderStorageInitialized.tryExecute(mutate self, queryId: int) {
                 order: self.remaining.order,
             },
         });
+        // SAFETY: if we execute, we want order to be drained empty
         executeMsg.send(SEND_MODE_CARRY_ALL_BALANCE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
 
         self.remaining.sentForExecution = true;
@@ -156,22 +150,23 @@ fun OrderStorageInitialized.approve(
     mutate self,
     signerIndex: uint8,
     responseAddress: address,
-    queryId: int,
+    queryId: uint64,
 ) {
+    // TODO: can we remove try-catch?
     try {
         assert (!self.remaining.sentForExecution) throw ERROR_ALREADY_EXECUTED;
 
         self.addApproval(signerIndex);
 
-        val acceptedMsg = createMessage({
+        val acceptMsg = createMessage({
             bounce: false,
             dest: responseAddress,
             value: 0,
             body: ApproveAccepted { queryId },
         });
-        acceptedMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
-        SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+        acceptMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
 
+        // we can throw only if this signer has already approved this order
         self.tryExecute(queryId);
         self.save();
     } catch (exitCode) {

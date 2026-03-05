@@ -17,7 +17,7 @@ struct (0xf1381e5b) SendMessageAction {
 
 struct (0x1d0cfbd3) UpdateMultisigParamsAction {
     threshold: uint8
-    signers: NonEmptyIndexedAddressMap
+    signers: DirectIndexedAddressMap
     proposers: IndexedAddressMap
 }
 
@@ -27,7 +27,7 @@ struct (0xf718510f) NewOrderRequest {
     signer: bool
     index: uint8
     expirationDate: uint48
-    order: NonEmptyOrderActionsMap
+    order: DirectOrderActionsMap
 }
 
 struct (0x75097f5d) ExecuteOrderRequest {
@@ -36,20 +36,20 @@ struct (0x75097f5d) ExecuteOrderRequest {
     expirationDate: uint48
     approvalsNum: uint8
     signersHash: uint256
-    order: NonEmptyOrderActionsMap
+    order: DirectOrderActionsMap
 }
 
 struct (0xa32c59bf) ExecuteInternalRequest {
     queryId: uint64
-    order: NonEmptyOrderActionsMap
+    order: DirectOrderActionsMap
 }
 
 struct (0x9c73fba2) InitOrderRequest {
     queryId: uint64
     threshold: uint8
-    signers: NonEmptyIndexedAddressMap
+    signers: DirectIndexedAddressMap
     expirationDate: uint48
-    order: NonEmptyOrderActionsMap
+    order: DirectOrderActionsMap
     signerIndexOnInit: SignerIndexOnInit
 }
 
