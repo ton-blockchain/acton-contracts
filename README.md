@@ -50,24 +50,24 @@ Legend: `[ ]` planned, `(*)` stretch/if time.
   - https://github.com/ton-blockchain/ton/blob/master/crypto/smartcont/config-with-ownable-params.fc
 - [ ] Elector contract rewrite
   - https://github.com/ton-blockchain/ton/blob/master/crypto/smartcont/elector-code.fc
-- [ ] Wallet V5
+- [x] Wallet V5
   - https://github.com/ton-blockchain/wallet-contract-v5
-- [ ] Highload Wallet V3
+- [x] Highload Wallet V3
   - https://github.com/ton-blockchain/highload-wallet-contract-v3
 - [ ] Multisig V2
   - https://github.com/ton-blockchain/multisig-contract-v2
-- [ ] DNS contract
+- [x] DNS contract
   - https://github.com/ton-blockchain/dns-contract
 
 ### P1 - Token standards and modern token infra
 
-- [ ] NFT reference contracts (collection + item + royalty-compatible flow)
+- [x] NFT reference contracts (collection + item + royalty-compatible flow)
   - https://github.com/ton-blockchain/nft-contract
   - TON Docs: https://docs.ton.org/standard/tokens/nft/reference
 - [ ] SBT implementation (TEP-85 compliant)
   - https://github.com/ton-blockchain/TEPs/blob/master/text/0085-sbt-standard.md
   - TON Docs: https://docs.ton.org/standard/tokens/nft/sbt
-- [ ] Jetton 2.0 branch parity (latest recommended jetton line)
+- [x] Jetton 2.0 branch parity (latest recommended jetton line)
   - https://github.com/ton-blockchain/jetton-contract/tree/jetton-2.0
   - TON Docs: https://docs.ton.org/standard/tokens/jettons/comparison
 - [ ] Mintless jetton (large-scale airdrop pattern)

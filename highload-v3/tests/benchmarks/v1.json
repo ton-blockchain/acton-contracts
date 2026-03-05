@@ -1,0 +1,181 @@
+{
+  "timestamp": 1772117345,
+  "opcodes": {
+    "InternalTransfer": {
+      "min_gas": 1564,
+      "max_gas": 1564,
+      "avg_gas": 1564,
+      "samples": 4,
+      "all_values": [
+        1564,
+        1564,
+        1564,
+        1564
+      ]
+    }
+  },
+  "trace_chains": {
+    "test highload e2e bench: stage 2 send single signed transfer::trace#1": {
+      "test_name": "test highload e2e bench: stage 2 send single signed transfer",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test highload e2e bench: stage 4 full flow with chained batch and cleanup::trace#5": {
+      "test_name": "test highload e2e bench: stage 4 full flow with chained batch and cleanup",
+      "trace_name": "Trace 5",
+      "tx_count": 256,
+      "total_gas_used": 8025,
+      "total_gas_fees": 3210000,
+      "total_forward_fees": 129852732,
+      "total_fees": 148439268
+    },
+    "test highload e2e bench: stage 2 send single signed transfer::trace#3": {
+      "test_name": "test highload e2e bench: stage 2 send single signed transfer",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 662,
+      "total_gas_fees": 264800,
+      "total_forward_fees": 2009883,
+      "total_fees": 264800
+    },
+    "test highload e2e bench: stage 1 deploy wallet::trace#2": {
+      "test_name": "test highload e2e bench: stage 1 deploy wallet",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test highload e2e bench: stage 4 full flow with chained batch and cleanup::trace#3": {
+      "test_name": "test highload e2e bench: stage 4 full flow with chained batch and cleanup",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 662,
+      "total_gas_fees": 264800,
+      "total_forward_fees": 2009883,
+      "total_fees": 264800
+    },
+    "test highload e2e bench: stage 4 full flow with chained batch and cleanup::trace#1": {
+      "test_name": "test highload e2e bench: stage 4 full flow with chained batch and cleanup",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test highload e2e bench: stage 2 send single signed transfer::trace#4": {
+      "test_name": "test highload e2e bench: stage 2 send single signed transfer",
+      "trace_name": "Trace 4",
+      "tx_count": 2,
+      "total_gas_used": 6481,
+      "total_gas_fees": 2592400,
+      "total_forward_fees": 301869,
+      "total_fees": 3746931
+    },
+    "test highload e2e bench: stage 4 full flow with chained batch and cleanup::trace#2": {
+      "test_name": "test highload e2e bench: stage 4 full flow with chained batch and cleanup",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test highload e2e bench: stage 3 send max inline batch::trace#2": {
+      "test_name": "test highload e2e bench: stage 3 send max inline batch",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test highload e2e bench: stage 1 deploy wallet::trace#1": {
+      "test_name": "test highload e2e bench: stage 1 deploy wallet",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test highload e2e bench: stage 2 send single signed transfer::trace#2": {
+      "test_name": "test highload e2e bench: stage 2 send single signed transfer",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test highload e2e bench: stage 3 send max inline batch::trace#3": {
+      "test_name": "test highload e2e bench: stage 3 send max inline batch",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 662,
+      "total_gas_fees": 264800,
+      "total_forward_fees": 2009883,
+      "total_fees": 264800
+    },
+    "test highload e2e bench: stage 4 full flow with chained batch and cleanup::trace#6": {
+      "test_name": "test highload e2e bench: stage 4 full flow with chained batch and cleanup",
+      "trace_name": "Trace 6",
+      "tx_count": 303,
+      "total_gas_used": 9609,
+      "total_gas_fees": 3843600,
+      "total_forward_fees": 163647126,
+      "total_fees": 180649741
+    },
+    "test highload e2e bench: stage 3 send max inline batch::trace#1": {
+      "test_name": "test highload e2e bench: stage 3 send max inline batch",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test highload e2e bench: stage 1 deploy wallet::trace#3": {
+      "test_name": "test highload e2e bench: stage 1 deploy wallet",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 662,
+      "total_gas_fees": 264800,
+      "total_forward_fees": 2009883,
+      "total_fees": 264800
+    },
+    "test highload e2e bench: stage 3 send max inline batch::trace#4": {
+      "test_name": "test highload e2e bench: stage 3 send max inline batch",
+      "trace_name": "Trace 4",
+      "tx_count": 2,
+      "total_gas_used": 6481,
+      "total_gas_fees": 2592400,
+      "total_forward_fees": 301869,
+      "total_fees": 3746931
+    },
+    "test highload e2e bench: stage 4 full flow with chained batch and cleanup::trace#4": {
+      "test_name": "test highload e2e bench: stage 4 full flow with chained batch and cleanup",
+      "trace_name": "Trace 4",
+      "tx_count": 2,
+      "total_gas_used": 6481,
+      "total_gas_fees": 2592400,
+      "total_forward_fees": 301869,
+      "total_fees": 3746931
+    },
+    "test highload e2e bench: stage 3 send max inline batch::trace#5": {
+      "test_name": "test highload e2e bench: stage 3 send max inline batch",
+      "trace_name": "Trace 5",
+      "tx_count": 256,
+      "total_gas_used": 8025,
+      "total_gas_fees": 3210000,
+      "total_forward_fees": 129852732,
+      "total_fees": 148439268
+    }
+  }
+}
