@@ -2,8 +2,8 @@ import "types"
 
 const COMMENT_APPROVE = "approve".literalSlice()
 
-struct (0x00000000) Op0WithRemainder {
-    remainder: RemainingBitsAndRefs
+struct (0x00000000) TextComment {
+    comment: RemainingBitsAndRefs
 }
 
 // if signer wants to approve, he will provide his index;
@@ -24,7 +24,7 @@ struct (0x1d0cfbd3) UpdateMultisigParamsAction {
 struct (0xf718510f) NewOrderRequest {
     queryId: uint64
     orderSeqno: uint256
-    signer: bool
+    isAutoApprove: bool
     index: uint8
     expirationDate: uint48
     order: DirectOrderActionsMap

@@ -4,15 +4,15 @@ import "order-helpers"
 import "storage"
 import "types"
 
-type AllowedMessageToOrder = InitOrderRequest | ApproveRequest | Op0WithRemainder
+type AllowedMessageToOrder = InitOrderRequest | ApproveRequest | TextComment
 
 fun onInternalMessage(in: InMessage) {
     val storageLoader = startLoadingOrderStorage();
     val msg = lazy AllowedMessageToOrder.fromSlice(in.body);
 
     match (msg) {
-        Op0WithRemainder => {
-            val textComment = getTextComment(msg.remainder);
+        TextComment => {
+            val textComment = getTextComment(msg.comment);
             assert (textComment.bitsEqual(COMMENT_APPROVE)) throw ERROR_UNKNOWN_OP;
 
             val header = storageLoader.loadHeader();
@@ -59,12 +59,15 @@ fun onInternalMessage(in: InMessage) {
             var storage = header.loadInitialized();
 
             assert (msg.threshold == storage.remaining.threshold) throw ERROR_ALREADY_INITED;
+
             assert (
                 msg.signers.hashCell() == storage.remaining.signers.hashCell()
             ) throw ERROR_ALREADY_INITED;
+
             assert (
                 msg.expirationDate == storage.remaining.expirationDate
             ) throw ERROR_ALREADY_INITED;
+
             assert (
                 msg.order.hashCell() == storage.remaining.order.hashCell()
             ) throw ERROR_ALREADY_INITED;
@@ -80,10 +83,8 @@ fun onInternalMessage(in: InMessage) {
 
         ApproveRequest => {
             val header = storageLoader.loadHeader();
-            if (!header.isInitialized()) {
-                throw ERROR_UNAUTHORIZED_SIGN;
-            }
 
+            assert (header.isInitialized()) throw ERROR_UNAUTHORIZED_SIGN;
             var storage = header.loadInitialized();
 
             val signerAddress = storage.remaining.signers.get(msg.signerIndex);
@@ -97,6 +98,7 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
+// TODO: dict to map
 struct OrderDataReply {
     multisigAddress: address
     orderSeqno: int

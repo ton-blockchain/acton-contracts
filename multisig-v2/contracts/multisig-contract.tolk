@@ -7,15 +7,12 @@ import "types"
 
 type AllowedOrderAction = SendMessageAction | UpdateMultisigParamsAction
 
-type AllowedMessageToMultisig =
-    | NewOrderRequest
-    | ExecuteOrderRequest
-    | ExecuteInternalRequest
-    | Op0WithRemainder
-
 fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsMap) {
+    // rare use of ACCEPT outside of external msg,
+    // goal is to assure we have exactly max gas amount to process actions
     setGasLimitToMaximum();
 
+    // TODO: load storage in-place
     var actionLookup = orderBody.findFirst();
     while (actionLookup.isFound) {
         val actionCell = actionLookup.loadValue();
@@ -37,7 +34,7 @@ fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsM
 
                 storage.threshold = action.threshold;
                 storage.signers = action.signers;
-                storage.signersNum = signersNum as uint8;
+                storage.signersNum = signersNum;
                 storage.proposers = action.proposers;
             }
 
@@ -50,6 +47,12 @@ fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsM
     }
 }
 
+type AllowedMessageToMultisig =
+    | NewOrderRequest
+    | ExecuteOrderRequest
+    | ExecuteInternalRequest
+    | TextComment
+
 fun onInternalMessage(in: InMessage) {
     if (in.body.isEmpty()) {
         return;
@@ -57,10 +60,7 @@ fun onInternalMessage(in: InMessage) {
 
     val msg = lazy AllowedMessageToMultisig.fromSlice(in.body);
     match (msg) {
-        Op0WithRemainder => {
-            // simple comment message: just accept tons
-            return;
-        }
+        TextComment => {}
 
         NewOrderRequest => {
             var storage = lazy MultisigStorage.load();
@@ -75,23 +75,28 @@ fun onInternalMessage(in: InMessage) {
                 storage.nextOrderSeqno += 1;
             }
 
-            val signerOrProposer = msg.signer ? storage.signers : storage.proposers;
+            val signerOrProposer = msg.isAutoApprove ? storage.signers : storage.proposers;
             val expectedSender = signerOrProposer.get(msg.index);
 
+            // TODO: group?
             assert (expectedSender.isFound) throw ERROR_UNAUTHORIZED_NEW_ORDER;
             assert (
                 in.senderAddress == expectedSender.loadValue()
             ) throw ERROR_UNAUTHORIZED_NEW_ORDER;
-            assert (msg.expirationDate >= blockchain.now()) throw ERROR_EXPIRED;
+
+            // TODO: bench
+            val now = blockchain.now();
+
+            assert (msg.expirationDate >= now) throw ERROR_EXPIRED;
 
             val minimalValue = calculateOrderProcessingCost(
                 msg.order,
                 storage.signers,
-                msg.expirationDate - blockchain.now()
+                msg.expirationDate - now
             );
             assert (in.valueCoins >= minimalValue) throw ERROR_NOT_ENOUGH_TON;
 
-            val signerIndexOnInit: SignerIndexOnInit = msg.signer ? msg.index : null;
+            val signerIndexOnInit: SignerIndexOnInit = msg.isAutoApprove ? msg.index : null;
 
             val deployOrderMsg = createMessage({
                 bounce: true,
@@ -141,6 +146,7 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
+// TODO: dict to map
 struct MultisigDataReply {
     nextOrderSeqno: int
     threshold: int
@@ -161,14 +167,14 @@ get fun get_multisig_data(): MultisigDataReply {
     assert (storage.threshold <= signersNum) throw ERROR_INVALID_THRESHOLD;
 
     return {
-        nextOrderSeqno: storage.allowArbitraryOrderSeqno ? -1 : storage.nextOrderSeqno as int,
-        threshold: storage.threshold as int,
+        nextOrderSeqno: storage.allowArbitraryOrderSeqno ? -1 : storage.nextOrderSeqno,
+        threshold: storage.threshold,
         signers: storage.signers.toLowLevelDict()!,
         proposers: storage.proposers.toLowLevelDict(),
     };
 }
 
-get fun get_order_estimate(order: cell, expirationDate: int): coins {
+get fun get_order_estimate(order: cell, expirationDate: int): int {
     val storage = lazy MultisigStorage.load();
     val orderBody = createMapFromLowLevelDict<uint8, cell>(order);
 
