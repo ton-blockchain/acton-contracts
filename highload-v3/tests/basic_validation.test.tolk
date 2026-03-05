@@ -33,7 +33,7 @@ get fun `test pass check sign`() {
 
 get fun `test fail check sign`() {
     val ctx = setupHighloadTest();
-    val badKey = crypto.createMnemonic().toKeyPair();
+    val badKey = crypto.generateKeyPair();
     val msg = emptyInternalTransferMessage(ctx.wallet, 0, 0);
     val queryId = HighloadQueryId.fromShiftAndBitNumber(5, 42).toInt();
 

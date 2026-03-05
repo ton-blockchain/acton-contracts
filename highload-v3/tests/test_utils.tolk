@@ -74,7 +74,7 @@ fun HighloadQueryId.getNext(self) {
 fun setupHighloadTest(timeout: int = DEFAULT_TIMEOUT): TestContext {
     net.setNow(1000);
 
-    val keyPair = crypto.createMnemonic().toKeyPair();
+    val keyPair = crypto.generateKeyPair();
     val deployer = net.treasury("deployer");
     val notDeployer = net.treasury("not_deployer");
 
