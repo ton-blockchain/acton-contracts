@@ -59,6 +59,12 @@ name = "Item"
 src = "nft/contracts/nft-item-contract.tolk"
 depends = []
 
+# W5
+[contracts.w5]
+name = "Wallet W5"
+src = "w5/contracts/wallet-v5-contract.tolk"
+depends = []
+
 [lint.acton_jetton_minter]
 asm-function-missing-safety-comment = "allow"
 
@@ -80,6 +86,7 @@ test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
 test-acton-jetton = "acton test acton-jetton/tests"
 test-dns = "acton test dns/tests"
+test-w5 = "acton test w5/tests"
 
 [mappings]
 acton = ".acton"
