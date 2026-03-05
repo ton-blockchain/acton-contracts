@@ -5,6 +5,14 @@ import "order-helpers"
 import "storage"
 import "types"
 
+type AllowedOrderAction = SendMessageAction | UpdateMultisigParamsAction
+
+type AllowedMessageToMultisig =
+    | NewOrderRequest
+    | ExecuteOrderRequest
+    | ExecuteInternalRequest
+    | Op0WithRemainder
+
 fun executeOrder(mutate storage: MultisigStorage, orderBody: NonEmptyOrderActionsMap) {
     setGasLimitToMaximum();
 

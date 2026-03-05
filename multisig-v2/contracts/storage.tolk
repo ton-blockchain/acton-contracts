@@ -20,6 +20,10 @@ fun MultisigStorage.save(self) {
 struct OrderStorageInitialized {
     multisigAddress: address
     orderSeqno: uint256
+    remaining: OrderStorageRemaining
+}
+
+struct OrderStorageRemaining {
     threshold: uint8
     sentForExecution: bool
     signers: NonEmptyIndexedAddressMap
@@ -37,28 +41,31 @@ struct OrderStorageMaybeNotInitialized {
     contractData: slice
 }
 
+// TODO: load in place?
 fun startLoadingOrderStorage(): OrderStorageMaybeNotInitialized {
     return { contractData: contract.getData().beginParse() };
 }
 
-fun OrderStorageMaybeNotInitialized.parseBase(self): (address, uint256, slice) {
-    var s = self.contractData;
-    val multisigAddress = s.loadAddress();
-    val orderSeqno = s.loadUint(ORDER_SEQNO_SIZE) as uint256;
-    return (multisigAddress, orderSeqno, s);
+struct OrderStorageHeader {
+    multisigAddress: address
+    orderSeqno: uint256
+    remaining: RemainingBitsAndRefs
 }
 
-fun OrderStorageMaybeNotInitialized.isInitialized(self): bool {
-    val (_, _, s) = self.parseBase();
-    return s.remainingBitsCount() > 0;
+fun OrderStorageMaybeNotInitialized.loadHeader(self): OrderStorageHeader {
+    return OrderStorageHeader.fromSlice(self.contractData);
 }
 
-fun OrderStorageMaybeNotInitialized.parseNotInitialized(self): (address, uint256) {
-    val (multisigAddress, orderSeqno, s) = self.parseBase();
-    s.assertEnd();
-    return (multisigAddress, orderSeqno);
+fun OrderStorageHeader.isInitialized(self): bool {
+    return self.remaining.remainingBitsCount() > 0;
 }
 
-fun OrderStorageMaybeNotInitialized.parseInitialized(self): OrderStorageInitialized {
-    return OrderStorageInitialized.fromSlice(self.contractData);
+fun OrderStorageHeader.loadInitialized(self): OrderStorageInitialized {
+    val remaining = OrderStorageRemaining.fromSlice(self.remaining);
+
+    return {
+        multisigAddress: self.multisigAddress,
+        orderSeqno: self.orderSeqno,
+        remaining,
+    };
 }

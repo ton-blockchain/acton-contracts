@@ -1,5 +1,8 @@
 import "@stdlib/exotic-cells"
 import "@stdlib/gas-payments"
+import "errors"
+import "messages"
+import "storage"
 import "types"
 import "@gen/multisig_v2_order_code"
 
@@ -77,4 +80,108 @@ fun calculateOrderProcessingCost(
     );
 
     return gasFees + forwardFees + storageFees;
+}
+
+fun getTextComment(inMsgBody: RemainingBitsAndRefs): slice {
+    if (inMsgBody.remainingRefsCount() == 0) {
+        return inMsgBody;
+    }
+
+    var combined = beginCell();
+    var current = inMsgBody;
+
+    var needExit = false;
+    while (!needExit) {
+        combined.storeSlice(current.preloadBits(current.remainingBitsCount()));
+
+        if (current.remainingRefsCount() > 0) {
+            current = current.preloadRef().beginParse();
+        } else {
+            needExit = true;
+        }
+    }
+
+    return combined.endCell().beginParse();
+}
+
+fun findSignerByAddress(signers: NonEmptyIndexedAddressMap, signerAddress: address): (uint8, bool) {
+    var signerIndex: uint8 = 0;
+    var foundSigner = false;
+
+    var item = signers.findFirst();
+    while (item.isFound && !foundSigner) {
+        val currentAddress = item.loadValue();
+        if (currentAddress == signerAddress) {
+            signerIndex = item.getKey();
+            foundSigner = true;
+        } else {
+            item = signers.iterateNext(item);
+        }
+    }
+
+    return (signerIndex, foundSigner);
+}
+
+fun OrderStorageInitialized.addApproval(mutate self, signerIndex: uint8) {
+    val mask = (1 << signerIndex) as uint256;
+
+    assert ((self.remaining.approvalsMask & mask) == 0) throw ERROR_ALREADY_APPROVED;
+
+    self.remaining.approvalsNum += 1;
+    self.remaining.approvalsMask |= mask;
+}
+
+fun OrderStorageInitialized.tryExecute(mutate self, queryId: int) {
+    if (self.remaining.approvalsNum == self.remaining.threshold) {
+        val executeMsg = createMessage({
+            bounce: false,
+            dest: self.multisigAddress,
+            value: 0,
+            body: ExecuteOrderRequest {
+                queryId,
+                orderSeqno: self.orderSeqno,
+                expirationDate: self.remaining.expirationDate,
+                approvalsNum: self.remaining.approvalsNum,
+                signersHash: self.remaining.signers.hashCell(),
+                order: self.remaining.order,
+            },
+        });
+        executeMsg.send(SEND_MODE_CARRY_ALL_BALANCE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+
+        self.remaining.sentForExecution = true;
+    }
+}
+
+fun OrderStorageInitialized.approve(
+    mutate self,
+    signerIndex: uint8,
+    responseAddress: address,
+    queryId: int,
+) {
+    try {
+        assert (!self.remaining.sentForExecution) throw ERROR_ALREADY_EXECUTED;
+
+        self.addApproval(signerIndex);
+
+        val acceptedMsg = createMessage({
+            bounce: false,
+            dest: responseAddress,
+            value: 0,
+            body: ApproveAccepted { queryId },
+        });
+        acceptedMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
+        SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+
+        self.tryExecute(queryId);
+        self.save();
+    } catch (exitCode) {
+        val rejectedMsg = createMessage({
+            bounce: false,
+            dest: responseAddress,
+            value: 0,
+            body: ApproveRejected { queryId, exitCode },
+        });
+        rejectedMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
+        SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+    }
 }

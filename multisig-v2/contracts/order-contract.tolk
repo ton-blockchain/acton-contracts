@@ -1,111 +1,10 @@
 import "errors"
 import "messages"
+import "order-helpers"
 import "storage"
 import "types"
 
-fun getTextComment(inMsgBody: RemainingBitsAndRefs): slice {
-    if (inMsgBody.remainingRefsCount() == 0) {
-        return inMsgBody;
-    }
-
-    var combined = beginCell();
-    var current = inMsgBody;
-
-    var needExit = false;
-    while (!needExit) {
-        combined.storeSlice(current.preloadBits(current.remainingBitsCount()));
-
-        if (current.remainingRefsCount() > 0) {
-            current = current.preloadRef().beginParse();
-        } else {
-            needExit = true;
-        }
-    }
-
-    return combined.endCell().beginParse();
-}
-
-fun findSignerByAddress(signers: NonEmptyIndexedAddressMap, signerAddress: address): (uint8, bool) {
-    var signerIndex: uint8 = 0;
-    var foundSigner = false;
-
-    var item = signers.findFirst();
-    while (item.isFound && !foundSigner) {
-        val currentAddress = item.loadValue();
-        if (currentAddress == signerAddress) {
-            signerIndex = item.getKey();
-            foundSigner = true;
-        } else {
-            item = signers.iterateNext(item);
-        }
-    }
-
-    return (signerIndex, foundSigner);
-}
-
-fun OrderStorageInitialized.addApproval(mutate self, signerIndex: uint8) {
-    val mask = (1 << signerIndex) as uint256;
-
-    assert ((self.approvalsMask & mask) == 0) throw ERROR_ALREADY_APPROVED;
-
-    self.approvalsNum += 1;
-    self.approvalsMask |= mask;
-}
-
-fun OrderStorageInitialized.tryExecute(mutate self, queryId: int) {
-    if (self.approvalsNum == self.threshold) {
-        val executeMsg = createMessage({
-            bounce: false,
-            dest: self.multisigAddress,
-            value: 0,
-            body: ExecuteOrderRequest {
-                queryId,
-                orderSeqno: self.orderSeqno,
-                expirationDate: self.expirationDate,
-                approvalsNum: self.approvalsNum,
-                signersHash: self.signers.hashCell(),
-                order: self.order,
-            },
-        });
-        executeMsg.send(SEND_MODE_CARRY_ALL_BALANCE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
-
-        self.sentForExecution = true;
-    }
-}
-
-fun OrderStorageInitialized.approve(
-    mutate self,
-    signerIndex: uint8,
-    responseAddress: address,
-    queryId: int,
-) {
-    try {
-        assert (!self.sentForExecution) throw ERROR_ALREADY_EXECUTED;
-
-        self.addApproval(signerIndex);
-
-        val acceptedMsg = createMessage({
-            bounce: false,
-            dest: responseAddress,
-            value: 0,
-            body: ApproveAccepted { queryId },
-        });
-        acceptedMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
-        SEND_MODE_BOUNCE_ON_ACTION_FAIL);
-
-        self.tryExecute(queryId);
-        self.save();
-    } catch (exitCode) {
-        val rejectedMsg = createMessage({
-            bounce: false,
-            dest: responseAddress,
-            value: 0,
-            body: ApproveRejected { queryId, exitCode },
-        });
-        rejectedMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
-        SEND_MODE_BOUNCE_ON_ACTION_FAIL);
-    }
-}
+type AllowedMessageToOrder = InitOrderRequest | ApproveRequest | Op0WithRemainder
 
 fun onInternalMessage(in: InMessage) {
     val storageLoader = startLoadingOrderStorage();
@@ -116,39 +15,39 @@ fun onInternalMessage(in: InMessage) {
             val textComment = getTextComment(msg.remainder);
             assert (textComment.bitsEqual(COMMENT_APPROVE)) throw ERROR_UNKNOWN_OP;
 
-            var signerIndex: uint8 = 0;
-            var foundSigner = false;
+            val header = storageLoader.loadHeader();
+            assert (header.isInitialized()) throw ERROR_UNAUTHORIZED_SIGN;
 
-            if (storageLoader.isInitialized()) {
-                var storage = storageLoader.parseInitialized();
-                (signerIndex, foundSigner) = findSignerByAddress(storage.signers, in.senderAddress);
-                assert (foundSigner) throw ERROR_UNAUTHORIZED_SIGN;
-
-                storage.approve(signerIndex, in.senderAddress, blockchain.logicalTime());
-                return;
-            }
+            var storage = header.loadInitialized();
+            val (signerIndex, foundSigner) = findSignerByAddress(
+                storage.remaining.signers,
+                in.senderAddress
+            );
 
             assert (foundSigner) throw ERROR_UNAUTHORIZED_SIGN;
+            storage.approve(signerIndex, in.senderAddress, blockchain.logicalTime());
         }
 
         InitOrderRequest => {
-            val (multisigAddress, orderSeqno, _) = storageLoader.parseBase();
-            assert (in.senderAddress == multisigAddress) throw ERROR_UNAUTHORIZED_INIT;
+            val header = storageLoader.loadHeader();
+            assert (in.senderAddress == header.multisigAddress) throw ERROR_UNAUTHORIZED_INIT;
 
-            if (!storageLoader.isInitialized()) {
+            if (!header.isInitialized()) {
                 var storage: OrderStorageInitialized = {
-                    multisigAddress,
-                    orderSeqno,
-                    threshold: msg.threshold,
-                    sentForExecution: false,
-                    signers: msg.signers,
-                    approvalsMask: 0,
-                    approvalsNum: 0,
-                    expirationDate: msg.expirationDate,
-                    order: msg.order,
+                    multisigAddress: header.multisigAddress,
+                    orderSeqno: header.orderSeqno,
+                    remaining: {
+                        threshold: msg.threshold,
+                        sentForExecution: false,
+                        signers: msg.signers,
+                        approvalsMask: 0,
+                        approvalsNum: 0,
+                        expirationDate: msg.expirationDate,
+                        order: msg.order,
+                    },
                 };
 
-                assert (storage.expirationDate >= blockchain.now()) throw ERROR_EXPIRED;
+                assert (storage.remaining.expirationDate >= blockchain.now()) throw ERROR_EXPIRED;
 
                 if (msg.signerIndexOnInit != null) {
                     storage.addApproval(msg.signerIndexOnInit);
@@ -159,46 +58,45 @@ fun onInternalMessage(in: InMessage) {
                 return;
             }
 
-            var storage = storageLoader.parseInitialized();
+            var storage = header.loadInitialized();
 
-            assert (msg.threshold == storage.threshold) throw ERROR_ALREADY_INITED;
+            assert (msg.threshold == storage.remaining.threshold) throw ERROR_ALREADY_INITED;
             assert (
-                msg.signers.hashCell() == storage.signers.hashCell()
+                msg.signers.hashCell() == storage.remaining.signers.hashCell()
             ) throw ERROR_ALREADY_INITED;
-            assert (msg.expirationDate == storage.expirationDate) throw ERROR_ALREADY_INITED;
-            assert (msg.order.hashCell() == storage.order.hashCell()) throw ERROR_ALREADY_INITED;
+            assert (
+                msg.expirationDate == storage.remaining.expirationDate
+            ) throw ERROR_ALREADY_INITED;
+            assert (
+                msg.order.hashCell() == storage.remaining.order.hashCell()
+            ) throw ERROR_ALREADY_INITED;
 
             assert (msg.signerIndexOnInit != null) throw ERROR_ALREADY_INITED;
 
             val signerIndex = msg.signerIndexOnInit!;
-            val signerAddress = storage.signers.get(signerIndex);
+            val signerAddress = storage.remaining.signers.get(signerIndex);
             assert (signerAddress.isFound) throw ERROR_UNAUTHORIZED_SIGN;
 
-            storage.approve(signerIndex, signerAddress.loadValue(), msg.queryId as int);
-            return;
+            storage.approve(signerIndex, signerAddress.loadValue(), msg.queryId);
         }
 
         ApproveRequest => {
-            if (!storageLoader.isInitialized()) {
+            val header = storageLoader.loadHeader();
+            if (!header.isInitialized()) {
                 throw ERROR_UNAUTHORIZED_SIGN;
             }
 
-            var storage = storageLoader.parseInitialized();
+            var storage = header.loadInitialized();
 
-            val signerAddress = storage.signers.get(msg.signerIndex);
+            val signerAddress = storage.remaining.signers.get(msg.signerIndex);
             assert (signerAddress.isFound) throw ERROR_UNAUTHORIZED_SIGN;
             assert (in.senderAddress == signerAddress.loadValue()) throw ERROR_UNAUTHORIZED_SIGN;
 
-            storage.approve(msg.signerIndex, in.senderAddress, msg.queryId as int);
-            return;
+            storage.approve(msg.signerIndex, in.senderAddress, msg.queryId);
         }
 
         else => throw ERROR_UNKNOWN_OP,
     }
-}
-
-fun onBouncedMessage(_in: InMessageBounced) {
-    // ignore bounced messages
 }
 
 struct OrderDataReply {
@@ -215,12 +113,12 @@ struct OrderDataReply {
 
 get fun get_order_data(): OrderDataReply {
     val storageLoader = startLoadingOrderStorage();
-    val (multisigAddress, orderSeqno, _) = storageLoader.parseBase();
+    val header = storageLoader.loadHeader();
 
-    if (!storageLoader.isInitialized()) {
+    if (!header.isInitialized()) {
         return {
-            multisigAddress,
-            orderSeqno: orderSeqno as int,
+            multisigAddress: header.multisigAddress,
+            orderSeqno: header.orderSeqno,
             threshold: null,
             sentForExecution: null,
             signers: null,
@@ -231,16 +129,17 @@ get fun get_order_data(): OrderDataReply {
         };
     }
 
-    val storage = storageLoader.parseInitialized();
+    val storage = header.loadInitialized();
+
     return {
         multisigAddress: storage.multisigAddress,
-        orderSeqno: storage.orderSeqno as int,
-        threshold: storage.threshold as int,
-        sentForExecution: storage.sentForExecution,
-        signers: storage.signers.toLowLevelDict(),
-        approvalsMask: storage.approvalsMask as int,
-        approvalsNum: storage.approvalsNum as int,
-        expirationDate: storage.expirationDate as int,
-        order: storage.order.toLowLevelDict(),
+        orderSeqno: storage.orderSeqno,
+        threshold: storage.remaining.threshold,
+        sentForExecution: storage.remaining.sentForExecution,
+        signers: storage.remaining.signers.toLowLevelDict(),
+        approvalsMask: storage.remaining.approvalsMask,
+        approvalsNum: storage.remaining.approvalsNum,
+        expirationDate: storage.remaining.expirationDate,
+        order: storage.remaining.order.toLowLevelDict(),
     };
 }

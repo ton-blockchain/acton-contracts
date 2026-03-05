@@ -73,6 +73,7 @@ fun onInternalMessage(in: InMessage) {
                     value: 0,
                     body: ReturnExcessesBack { queryId: msg.queryId },
                 });
+                // SAFETY: asdasd
                 excessesMsg.send(SEND_MODE_CARRY_ALL_BALANCE | SEND_MODE_IGNORE_ERRORS);
             }
         }
