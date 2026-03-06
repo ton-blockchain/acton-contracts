@@ -148,6 +148,17 @@ fun OrderStorageInitialized.tryExecute(mutate self, queryId: uint64) {
     }
 }
 
+@inline
+fun sendApproveRejected(responseAddress: address, queryId: uint64, exitCode: uint32) {
+    val rejectedMsg = createMessage({
+        bounce: false,
+        dest: responseAddress,
+        value: 0,
+        body: ApproveRejected { queryId, exitCode },
+    });
+    rejectedMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+}
+
 // TODO: bug with inline
 @inline_ref
 fun OrderStorageInitialized.approve(
@@ -156,30 +167,28 @@ fun OrderStorageInitialized.approve(
     responseAddress: address,
     queryId: uint64,
 ) {
-    try {
-        assert (!self.remaining.sentForExecution) throw ERROR_ALREADY_EXECUTED;
-
-        self.addApproval(signerIndex);
-
-        val acceptMsg = createMessage({
-            bounce: false,
-            dest: responseAddress,
-            value: 0,
-            body: ApproveAccepted { queryId },
-        });
-        acceptMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
-
-        // we can throw only if this signer has already approved this order
-        self.tryExecute(queryId);
-        self.save();
-    } catch (exitCode) {
-        val rejectedMsg = createMessage({
-            bounce: false,
-            dest: responseAddress,
-            value: 0,
-            body: ApproveRejected { queryId, exitCode },
-        });
-        rejectedMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
-        SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+    if (self.remaining.sentForExecution) {
+        sendApproveRejected(responseAddress, queryId, ERROR_ALREADY_EXECUTED);
+        return;
     }
+
+    val mask = (1 << signerIndex);
+    if ((self.remaining.approvalsMask & mask) != 0) {
+        sendApproveRejected(responseAddress, queryId, ERROR_ALREADY_APPROVED);
+        return;
+    }
+
+    self.remaining.approvalsNum += 1;
+    self.remaining.approvalsMask |= mask;
+
+    val acceptMsg = createMessage({
+        bounce: false,
+        dest: responseAddress,
+        value: 0,
+        body: ApproveAccepted { queryId },
+    });
+    acceptMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+
+    self.tryExecute(queryId);
+    self.save();
 }

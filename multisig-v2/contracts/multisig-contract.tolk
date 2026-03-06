@@ -8,10 +8,12 @@ import "types"
 type AllowedOrderAction = SendMessageAction | UpdateMultisigParamsAction
 
 @inline
-fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsMap) {
+fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsMap): bool {
     // rare use of ACCEPT outside of external msg,
     // goal is to assure we have exactly max gas amount to process actions
     setGasLimitToMaximum();
+
+    var isStorageUpdated = false;
 
     var actionLookup = orderBody.findFirst();
     while (actionLookup.isFound) {
@@ -36,6 +38,7 @@ fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsM
                 storage.signers = action.signers;
                 storage.signersNum = signersNum;
                 storage.proposers = action.proposers;
+                isStorageUpdated = true;
             }
 
             else => {
@@ -45,6 +48,8 @@ fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsM
 
         actionLookup = orderBody.iterateNext(actionLookup);
     }
+
+    return isStorageUpdated;
 }
 
 type AllowedMessageToMultisig =
@@ -121,15 +126,17 @@ fun onInternalMessage(in: InMessage) {
             ) throw ERROR_SIGNERS_OUTDATED;
             assert (msg.expirationDate >= blockchain.now()) throw ERROR_EXPIRED;
 
-            executeOrder(mutate storage, msg.order);
-            storage.save();
+            if (executeOrder(mutate storage, msg.order)) {
+                storage.save();
+            }
         }
 
         ExecuteInternalRequest => {
             var storage = lazy MultisigStorage.load();
             assert (in.senderAddress == contract.getAddress()) throw ERROR_UNAUTHORIZED_EXECUTE;
-            executeOrder(mutate storage, msg.order);
-            storage.save();
+            if (executeOrder(mutate storage, msg.order)) {
+                storage.save();
+            }
         }
 
         TextComment => {}
