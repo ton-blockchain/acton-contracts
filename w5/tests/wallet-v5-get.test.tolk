@@ -48,7 +48,7 @@ get fun `test w5: get extensions dict`() {
     val plugin1 = net.randomAddress("plugin1");
     val plugin2 = net.randomAddress("plugin2");
 
-    var extensions: ExtensionsDict = createEmptyMap();
+    var extensions: ExtensionsDict = [];
     val (_, plugin1Hash) = plugin1.getWorkchainAndHash();
     val (_, plugin2Hash) = plugin2.getWorkchainAndHash();
     extensions.set(plugin1Hash, true);

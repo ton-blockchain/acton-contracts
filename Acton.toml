@@ -79,6 +79,9 @@ asm-function-missing-safety-comment = "allow"
 [build]
 output-fift = "build/fift"
 
+[lint]
+max-warnings = 0
+
 [lint.rules]
 unused-import = "allow"
 

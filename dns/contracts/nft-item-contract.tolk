@@ -32,8 +32,8 @@ fun onInternalMessage(in: InMessage) {
         if (months > 12) {
             months = 12;
         }
-
         val duration = AUCTION_START_DURATION -
+        // acton-disable-next-line divide-before-multiply
         (AUCTION_START_DURATION - AUCTION_END_DURATION) * months / 12;
 
         val auctionEndTime = now + duration;
@@ -203,6 +203,7 @@ fun onInternalMessage(in: InMessage) {
                         dest: storage.collectionAddress,
                         value: 0,
                     });
+                    // SAFETY: Governance-only branch
                     fillMsg.send(SEND_MODE_CARRY_ALL_BALANCE + SEND_MODE_DESTROY);
                 }
             }
