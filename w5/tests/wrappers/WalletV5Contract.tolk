@@ -305,7 +305,7 @@ fun createExternalSignedBody(keyPair: KeyPair, subwalletId: int, seqno: int, act
 fun WalletV5Contract.sendExternalSigned(
     self, body: ExternalSignedBody
 ): SendResultList? {
-    val msg = createExternalMessage(self.address, body.toCell());
+    val msg = createExternalMessage(self.address, body);
     return net.sendExternal(msg);
 }
 
