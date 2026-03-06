@@ -120,7 +120,7 @@ fun makeTransferAction(
     mode: int = SEND_MODE_PAY_FEES_SEPARATELY,
     bounce: bool = true,
 ): SendMessageAction {
-    val msg = createMessage({
+    val transferMessage = createMessage({
         bounce,
         value,
         dest: to,
@@ -128,7 +128,7 @@ fun makeTransferAction(
     });
     return {
         mode: mode as uint8,
-        message: msg.messageCell,
+        message: transferMessage.messageCell,
     };
 }
 
@@ -139,7 +139,7 @@ fun makeTransferActionWithBody(
     mode: int = SEND_MODE_PAY_FEES_SEPARATELY,
     bounce: bool = true,
 ): SendMessageAction {
-    val msg = createMessage({
+    val transferMessage = createMessage({
         bounce,
         value,
         dest: to,
@@ -147,7 +147,7 @@ fun makeTransferActionWithBody(
     });
     return {
         mode: mode as uint8,
-        message: msg.messageCell,
+        message: transferMessage.messageCell,
     };
 }
 

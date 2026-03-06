@@ -33,8 +33,11 @@ fun onInternalMessage(in: InMessage) {
             months = 12;
         }
 
-        val duration = AUCTION_START_DURATION -
-        (AUCTION_START_DURATION - AUCTION_END_DURATION) * months / 12;
+        val durationStep = (AUCTION_START_DURATION - AUCTION_END_DURATION) / 12;
+        var duration = AUCTION_START_DURATION;
+        repeat (months) {
+            duration -= durationStep;
+        }
 
         val auctionEndTime = now + duration;
         val initialContent: DnsRecords = [];
@@ -203,6 +206,7 @@ fun onInternalMessage(in: InMessage) {
                         dest: storage.collectionAddress,
                         value: 0,
                     });
+                    // SAFETY: governance release intentionally sends all remaining balance to the collection and destroys this item contract.
                     fillMsg.send(SEND_MODE_CARRY_ALL_BALANCE + SEND_MODE_DESTROY);
                 }
             }

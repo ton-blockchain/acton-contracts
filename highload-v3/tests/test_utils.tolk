@@ -174,12 +174,12 @@ fun storedIsProcessed(wallet: HighloadWalletV3, queryId: int): bool {
 
 fun setActiveDataCell(addr: address, newData: cell) {
     val account = net.getAccount(addr);
-    if (!(account is AccountInfo)) {
+    if (account !is AccountInfo) {
         Assert.fail("Expected AccountInfo when setting data");
     }
 
     var info = account;
-    if (!(info.storage.state is AccountStateActive)) {
+    if (info.storage.state !is AccountStateActive) {
         Assert.fail("Expected active AccountState when setting data");
     }
 

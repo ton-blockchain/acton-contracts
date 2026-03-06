@@ -38,13 +38,13 @@ fun createFundedAddressLocal(): address {
 }
 
 fun makeTransferActionLocal(to: address, marker: int): SendMessageAction {
-    val msg = createMessage({
+    val transferMessage = createMessage({
         bounce: true,
         value: ton("0.01"),
         dest: to,
         body: beginCell().storeUint(marker, 32).endCell(),
     });
-    return { mode: SEND_MODE_PAY_FEES_SEPARATELY as uint8, message: msg.messageCell };
+    return { mode: SEND_MODE_PAY_FEES_SEPARATELY as uint8, message: transferMessage.messageCell };
 }
 
 fun makeProbeOrder(): DirectOrderActionsMap {
@@ -56,7 +56,7 @@ fun makeProbeOrder(): DirectOrderActionsMap {
 
 fun getStorageCollected(tx: Transaction): coins {
     val desc = tx.description.load();
-    if (!(desc is TransOrd)) {
+    if (desc !is TransOrd) {
         return 0;
     }
 

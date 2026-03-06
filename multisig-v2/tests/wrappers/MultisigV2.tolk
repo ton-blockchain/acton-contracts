@@ -91,13 +91,13 @@ fun MultisigV2.deploy(self, from: address, config: SendParams = {}): SendResultL
 }
 
 fun MultisigV2.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
-    val message = createMessage({
+    val customBodyMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body,
     });
-    return net.send(from, message);
+    return net.send(from, customBodyMessage);
 }
 
 fun MultisigV2.sendNewOrder(
@@ -111,7 +111,7 @@ fun MultisigV2.sendNewOrder(
     queryId: uint64 = 0,
     config: SendParams = {},
 ): SendResultList {
-    val message = createMessage({
+    val newOrderMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -124,7 +124,7 @@ fun MultisigV2.sendNewOrder(
             order,
         },
     });
-    return net.send(from, message);
+    return net.send(from, newOrderMessage);
 }
 
 fun MultisigV2.sendExecuteInternal(
@@ -134,7 +134,7 @@ fun MultisigV2.sendExecuteInternal(
     queryId: uint64 = 0,
     config: SendParams = {},
 ): SendResultList {
-    val message = createMessage({
+    val executeInternalMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -143,7 +143,7 @@ fun MultisigV2.sendExecuteInternal(
             order,
         },
     });
-    return net.send(from, message);
+    return net.send(from, executeInternalMessage);
 }
 
 fun MultisigV2.getData(self): MultisigDataReply {

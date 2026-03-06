@@ -636,7 +636,7 @@ get fun `test multisig: multisig should not execute orders deployed by other mul
     );
 
     val evilOrder = singleActionOrder(trigger as GenericOrderAction);
-    val evilOrderAddress = hackerMultisig.getOrderAddress(0);
+    val _evilOrderAddress = hackerMultisig.getOrderAddress(0);
 
     val res = hackerMultisig.sendNewOrder(
         hackerSigners.get(0),

@@ -93,7 +93,7 @@ get fun `test multisig: should allow to create orders with arbitrary seqno`() {
     val data = ctx.multisig.getData();
     expect(data.nextOrderSeqno).toEqual(-1);
 
-    var seqnos = array<int> [101, 707, 9999, 15000, 20001];
+    val seqnos = array<int> [101, 707, 9999, 15000, 20001];
 
     var i = 0;
     while (i < seqnos.size()) {

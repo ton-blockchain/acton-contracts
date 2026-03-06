@@ -62,7 +62,7 @@ fun MultisigV2Order.deployWithInit(
         Assert.fail("Cannot deploy contract created from address only");
     }
 
-    val message = createMessage({
+    val initOrderDeployMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: { stateInit: self.stateInit! },
@@ -75,7 +75,7 @@ fun MultisigV2Order.deployWithInit(
             signerIndexOnInit,
         },
     });
-    return net.send(from, message);
+    return net.send(from, initOrderDeployMessage);
 }
 
 fun MultisigV2Order.sendInit(
@@ -89,7 +89,7 @@ fun MultisigV2Order.sendInit(
     queryId: uint64 = 0,
     config: SendParams = {},
 ): SendResultList {
-    val message = createMessage({
+    val initOrderMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -102,7 +102,7 @@ fun MultisigV2Order.sendInit(
             signerIndexOnInit,
         },
     });
-    return net.send(from, message);
+    return net.send(from, initOrderMessage);
 }
 
 fun MultisigV2Order.sendApprove(
@@ -112,7 +112,7 @@ fun MultisigV2Order.sendApprove(
     queryId: uint64 = 0,
     config: SendParams = {},
 ): SendResultList {
-    val message = createMessage({
+    val approveMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -121,7 +121,7 @@ fun MultisigV2Order.sendApprove(
             signerIndex: signerIndex as uint8,
         },
     });
-    return net.send(from, message);
+    return net.send(from, approveMessage);
 }
 
 fun MultisigV2Order.sendComment(
@@ -130,23 +130,23 @@ fun MultisigV2Order.sendComment(
     comment: RemainingBitsAndRefs,
     config: SendParams = {},
 ): SendResultList {
-    val message = createMessage({
+    val commentMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body: TextComment { comment },
     });
-    return net.send(from, message);
+    return net.send(from, commentMessage);
 }
 
 fun MultisigV2Order.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
-    val message = createMessage({
+    val customBodyMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body,
     });
-    return net.send(from, message);
+    return net.send(from, customBodyMessage);
 }
 
 fun MultisigV2Order.getData(self): OrderDataReply {
