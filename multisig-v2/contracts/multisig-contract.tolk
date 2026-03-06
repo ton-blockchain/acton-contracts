@@ -7,12 +7,12 @@ import "types"
 
 type AllowedOrderAction = SendMessageAction | UpdateMultisigParamsAction
 
+@inline
 fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsMap) {
     // rare use of ACCEPT outside of external msg,
     // goal is to assure we have exactly max gas amount to process actions
     setGasLimitToMaximum();
 
-    // TODO: load storage in-place
     var actionLookup = orderBody.findFirst();
     while (actionLookup.isFound) {
         val actionCell = actionLookup.loadValue();
@@ -54,14 +54,9 @@ type AllowedMessageToMultisig =
     | TextComment
 
 fun onInternalMessage(in: InMessage) {
-    if (in.body.isEmpty()) {
-        return;
-    }
-
     val msg = lazy AllowedMessageToMultisig.fromSlice(in.body);
-    match (msg) {
-        TextComment => {}
 
+    match (msg) {
         NewOrderRequest => {
             var storage = lazy MultisigStorage.load();
             var orderSeqno = msg.orderSeqno;
@@ -78,13 +73,11 @@ fun onInternalMessage(in: InMessage) {
             val signerOrProposer = msg.isAutoApprove ? storage.signers : storage.proposers;
             val expectedSender = signerOrProposer.get(msg.index);
 
-            // TODO: group?
             assert (expectedSender.isFound) throw ERROR_UNAUTHORIZED_NEW_ORDER;
             assert (
                 in.senderAddress == expectedSender.loadValue()
             ) throw ERROR_UNAUTHORIZED_NEW_ORDER;
 
-            // TODO: bench
             val now = blockchain.now();
 
             assert (msg.expirationDate >= now) throw ERROR_EXPIRED;
@@ -113,6 +106,7 @@ fun onInternalMessage(in: InMessage) {
             });
             deployOrderMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
             SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+
             storage.save();
         }
 
@@ -138,11 +132,9 @@ fun onInternalMessage(in: InMessage) {
             storage.save();
         }
 
-        else => {
-            // keep FunC behavior for unknown non-zero opcodes: accept and persist unchanged state
-            val storage = lazy MultisigStorage.load();
-            storage.save();
-        }
+        TextComment => {}
+
+        else => {}
     }
 }
 

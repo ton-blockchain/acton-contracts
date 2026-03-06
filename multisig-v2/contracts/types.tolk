@@ -25,7 +25,7 @@ fun DirectOrderActionsMap.unpackFromSlice(mutate s: slice): DirectOrderActionsMa
     return createMapFromLowLevelDict<uint8, cell>(s.loadRef());
 }
 
-// TODO: remove while?
+@inline
 fun validateDictionarySequence<T>(m: map<uint8, T>): int {
     var expectedIndex = 0;
 

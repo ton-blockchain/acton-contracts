@@ -84,6 +84,9 @@ fun calculateOrderProcessingCost(
 
 // TODO: optimize short-return?
 fun getTextComment(inMsgBody: RemainingBitsAndRefs): slice {
+    // if (inMsgBody.remainingRefsCount() == 0) {
+    //     return inMsgBody;
+    // }
     var result = beginCell();
 
     result.storeSlice(inMsgBody.preloadBits(inMsgBody.remainingBitsCount()));
@@ -96,7 +99,6 @@ fun getTextComment(inMsgBody: RemainingBitsAndRefs): slice {
     return result.toSlice();
 }
 
-// TODO: remove while?
 fun DirectIndexedAddressMap.findSignerByAddress(self, signerAddress: address): (uint8, bool) {
     var signerIndex: uint8 = 0;
     var foundSigner = false;
@@ -146,13 +148,14 @@ fun OrderStorageInitialized.tryExecute(mutate self, queryId: uint64) {
     }
 }
 
+// TODO: bug with inline
+@inline_ref
 fun OrderStorageInitialized.approve(
     mutate self,
     signerIndex: uint8,
     responseAddress: address,
     queryId: uint64,
 ) {
-    // TODO: can we remove try-catch?
     try {
         assert (!self.remaining.sentForExecution) throw ERROR_ALREADY_EXECUTED;
 

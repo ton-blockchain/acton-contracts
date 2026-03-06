@@ -76,6 +76,7 @@ fun onInternalMessage(in: InMessage) {
 
             val signerIndex = msg.signerIndexOnInit!;
             val signerAddress = storage.remaining.signers.get(signerIndex);
+
             assert (signerAddress.isFound) throw ERROR_UNAUTHORIZED_SIGN;
 
             storage.approve(signerIndex, signerAddress.loadValue(), msg.queryId);
