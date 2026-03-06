@@ -32,6 +32,7 @@ fun onInternalMessage(in: InMessage) {
         if (months > 12) {
             months = 12;
         }
+
         val duration = AUCTION_START_DURATION -
         // acton-disable-next-line divide-before-multiply
         (AUCTION_START_DURATION - AUCTION_END_DURATION) * months / 12;
