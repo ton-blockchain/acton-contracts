@@ -37,7 +37,7 @@ fun QueryBitmapMap.isProcessedInQueryMap(self, shift: uint13, bitNumber: int): b
 }
 
 fun QueryBitmapMap.markProcessed(self, shift: uint13, bitNumber: int): Bitmap {
-    var nextQueries = self;
+    val nextQueries = self;
     val lookup = nextQueries.get(shift);
 
     var res: Bitmap;
