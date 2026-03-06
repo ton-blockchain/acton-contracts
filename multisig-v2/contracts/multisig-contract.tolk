@@ -4,6 +4,7 @@ import "messages"
 import "order-helpers"
 import "storage"
 import "types"
+import "order-state"
 
 type AllowedOrderAction = SendMessageAction | UpdateMultisigParamsAction
 

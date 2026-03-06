@@ -1,10 +1,8 @@
-import "@stdlib/exotic-cells"
 import "@stdlib/gas-payments"
 import "errors"
 import "messages"
 import "storage"
 import "types"
-import "@gen/multisig_v2_order_code"
 
 const MULTISIG_INIT_ORDER_GAS = 10232
 const ORDER_INIT_GAS = 4614
@@ -17,29 +15,6 @@ const ORDER_STATE_BIT_OVERHEAD = 1760
 const ORDER_STATE_CELL_OVERHEAD = 6
 const EXECUTE_ORDER_BIT_OVERHEAD = 664
 const EXECUTE_ORDER_CELL_OVERHEAD = 1
-
-struct OrderInitData {
-    multisigAddress: address
-    orderSeqno: uint256
-}
-
-fun getOrderCodeAsLibraryReference(): cell {
-    return multisigV2OrderCompiledCode().toLibraryReference();
-}
-
-fun calculateOrderStateInit(multisigAddress: address, orderSeqno: uint256): AutoDeployAddress {
-    return {
-        stateInit: ContractState {
-            code: getOrderCodeAsLibraryReference(),
-            data: OrderInitData { multisigAddress, orderSeqno }.toCell(),
-        },
-        workchain: BASECHAIN,
-    };
-}
-
-fun calculateOrderAddress(multisigAddress: address, orderSeqno: uint256): address {
-    return calculateOrderStateInit(multisigAddress, orderSeqno).calculateAddress();
-}
 
 fun calculateOrderProcessingCost(
     orderBody: DirectOrderActionsMap,
