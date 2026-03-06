@@ -24,7 +24,7 @@ const MIN_STORAGE_DURATION = 5 * 365 * 24 * 3600 // 5 years
 // Gas costs
 // these constants are used to estimate gas fee (how much we should remain on balance for a swap to succeed);
 // they must be absolutely equal to consumed gas; if not, tests fail;
-// actual consumed gas (desired value of these constants) are printed to console after tests run
+// actual consumed gas (desired value of these constants) is printed to console after tests run
 
 const GAS_CONSUMPTION_JETTON_TRANSFER = 6153
 const GAS_CONSUMPTION_JETTON_RECEIVE = 7253
@@ -50,7 +50,7 @@ fun forwardInitStateOverhead() {
 
 // this is the function that we would want to check
 fun calcMinimalTransferAmount(forwardTonAmount: int, fwdFee: int) {
-    val fwdCount = forwardTonAmount ? 2 : 1; // second sending (forward) will be cheaper that first
+    val fwdCount = forwardTonAmount ? 2 : 1; // second sending (forward) will be cheaper than first
 
     val jettonWalletGasConsumption = getPrecompiledGasConsumption();
     val sendTransferGasConsumption = (jettonWalletGasConsumption == null)
@@ -64,7 +64,7 @@ fun calcMinimalTransferAmount(forwardTonAmount: int, fwdFee: int) {
     // 3 messages: wal1->wal2,  wal2->owner, wal2->response
     // but last one is optional (it is ok if it fails)
     fwdCount * fwdFee +
-    forwardInitStateOverhead() + // additional fwd fees related to initstate in iternal_transfer
+    forwardInitStateOverhead() + // additional fwd fees related to initstate in internal_transfer
     calculateGasFee(MY_WORKCHAIN, sendTransferGasConsumption) +
     calculateGasFee(MY_WORKCHAIN, receiveTransferGasConsumption) +
     calculateJettonWalletMinStorageFee();

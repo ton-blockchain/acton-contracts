@@ -31,7 +31,7 @@ fun assertSenderIsAdmin(senderAddress: address, adminAddress: address?) {
     // ```
     // assert (adminAddress != null) throw ERROR_NOT_OWNER;
     // ```
-    // but in practice, the above assertion is reduntant, we just bypass the nullability check:
+    // but in practice, the above assertion is redundant, we just bypass the nullability check:
     assert (senderAddress == adminAddress!) throw ERROR_NOT_OWNER;
     // then, if admin is `null`, error code 7 will be thrown (while executing operator `==`),
     // it's suitable for current implementation
