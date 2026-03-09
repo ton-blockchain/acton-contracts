@@ -1,10 +1,10 @@
-import "test_utils"
-import "wrappers/DnsCollection"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "../contracts/dns-utils"
 import "../contracts/errors"
+import "test_utils"
+import "wrappers/DnsCollection"
 
 get fun `test collection: validates domain format and minimum bid rules`() {
     val (collection, _, user) = deployCollectionContract();
@@ -13,7 +13,7 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val beforeStart = collection.sendAny(
         user.address,
         makeDeployBody("appl"),
-        { value: ton("1000"), bounce: true }
+        { value: ton("1000"), bounce: true },
     );
     expect(beforeStart).toHaveFailedTx({
         to: collection.address,
@@ -25,33 +25,36 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val tooShort = collection.sendAny(
         user.address,
         makeDeployBody("bob"),
-        { value: ton("1000"), bounce: true }
+        { value: ton("1000"), bounce: true },
     );
     expect(tooShort).toHaveFailedTx({ to: collection.address, exitCode: ERROR_DOMAIN_TOO_SHORT });
 
     val tooLong = collection.sendAny(
         user.address,
         makeDeployBodyFromDomain(repeatAsciiChar(97, 127)),
-        { value: ton("1000"), bounce: true }
+        { value: ton("1000"), bounce: true },
     );
     expect(tooLong).toHaveFailedTx({ to: collection.address, exitCode: ERROR_DOMAIN_TOO_LONG });
 
-    val nonByteAligned = beginCell().storeUint(0, 32).storeSlice("alice".beginParse()).storeUint(
-        1,
-        1
-    )
+    val nonByteAligned = beginCell()
+        .storeUint(0, 32)
+        .storeSlice("alice".beginParse())
+        .storeUint(1, 1)
         .endCell();
     val badBits = collection.sendAny(
         user.address,
         nonByteAligned,
-        { value: ton("1000"), bounce: true }
+        { value: ton("1000"), bounce: true },
     );
-    expect(badBits).toHaveFailedTx({ to: collection.address, exitCode: ERROR_DOMAIN_FORMAT_INVALID });
+    expect(badBits).toHaveFailedTx({
+        to: collection.address,
+        exitCode: ERROR_DOMAIN_FORMAT_INVALID,
+    });
 
     val invalidChar = collection.sendAny(
         user.address,
         makeDeployBody("aLice"),
-        { value: ton("1000"), bounce: true }
+        { value: ton("1000"), bounce: true },
     );
     expect(invalidChar).toHaveFailedTx({
         to: collection.address,
@@ -61,14 +64,14 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val lowBid = collection.sendAny(
         user.address,
         makeDeployBody("appl"),
-        { value: ton("999"), bounce: true }
+        { value: ton("999"), bounce: true },
     );
     expect(lowBid).toHaveFailedTx({ to: collection.address, exitCode: ERROR_BID_BELOW_MIN_PRICE });
 
     val atMinBid = collection.sendAny(
         user.address,
         makeDeployBody("appl"),
-        { value: ton("1000"), bounce: true }
+        { value: ton("1000"), bounce: true },
     );
     expect(atMinBid).toHaveSuccessfulTx({ to: collection.address });
 
@@ -89,7 +92,7 @@ get fun `test collection: denies deployment for blacklisted domains via config p
     val res = collection.sendAny(
         user.address,
         makeDeployBody(blockedDomain),
-        { value: ton("1000"), bounce: true }
+        { value: ton("1000"), bounce: true },
     );
     expect(res).toHaveFailedTx({ to: collection.address, exitCode: ERROR_DOMAIN_IS_BLACKLISTED });
 }

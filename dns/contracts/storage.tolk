@@ -75,7 +75,7 @@ fun ItemStorageInitialized.unpackAuction(self): (bool, AuctionState) {
                 auctionEndTime: 0,
                 maxBidAmount: 0,
                 maxBidAddress: null,
-            }
+            },
         );
     } else {
         res = (false, self.auction.load());

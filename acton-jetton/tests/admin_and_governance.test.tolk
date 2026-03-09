@@ -1,5 +1,3 @@
-import "test_utils"
-import "wrappers/JettonMinter"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
@@ -10,6 +8,8 @@ import "../contracts/messages"
 import "../contracts/sharding"
 import "../contracts/storage"
 import "../contracts/types"
+import "test_utils"
+import "wrappers/JettonMinter"
 
 fun extractUriString(contentCell: cell): string? {
     val metadata = OnchainMetadataReply.fromCell(contentCell);
@@ -73,7 +73,7 @@ get fun `test admin: non-admin should not be able to mint jettons`() {
         deployer.address,
         ton("5"),
         ton("0.05"),
-        ton("0.3")
+        ton("0.3"),
     );
     expect(mintResult).toHaveFailedTx<MintNewJettons>({
         from: notDeployer.address,
@@ -178,7 +178,7 @@ get fun `test admin: non-admin cannot change metadata uri`() {
 
     val changeResult = minter.sendChangeMetadata(
         notDeployer.address,
-        "https://evil.meta.example/jetton.json"
+        "https://evil.meta.example/jetton.json",
     );
     expect(changeResult).toHaveFailedTx<ChangeMinterMetadataUri>({
         from: notDeployer.address,

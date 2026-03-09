@@ -1,6 +1,3 @@
-import "wrappers/DnsCollection"
-import "wrappers/DnsItem"
-import "wrappers/DnsRoot"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
@@ -8,6 +5,9 @@ import "@acton/testing/transaction_expect"
 import "../contracts/dns-utils"
 import "../contracts/messages"
 import "../contracts/storage"
+import "wrappers/DnsCollection"
+import "wrappers/DnsItem"
+import "wrappers/DnsRoot"
 
 const ROOT_TON_RESOLVER_HASH = 0x348bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
 const ROOT_TME_RESOLVER_HASH = 0xa48bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
@@ -47,8 +47,9 @@ fun newActor(name: string, extraTopUp: coins = 0): Treasury {
 }
 
 fun makeCollectionContentCell(): cell {
-    return beginCell().storeUint(1, BYTE_SIZE).storeSlice("https://ton.org/collection.json"
-        .beginParse())
+    return beginCell()
+        .storeUint(1, BYTE_SIZE)
+        .storeSlice("https://ton.org/collection.json".beginParse())
         .endCell();
 }
 
@@ -124,22 +125,28 @@ fun makeDotSlice(): slice {
 }
 
 fun makeLabelDomainSlice(label: string): slice {
-    return beginCell().storeSlice(label.beginParse()).storeUint(0, BYTE_SIZE).endCell().beginParse();
+    return beginCell()
+        .storeSlice(label.beginParse())
+        .storeUint(0, BYTE_SIZE)
+        .endCell()
+        .beginParse();
 }
 
 fun makeLabelAndTailSlice(label: string, tail: string): slice {
-    return beginCell().storeSlice(label.beginParse()).storeUint(0, BYTE_SIZE).storeSlice(tail
-        .beginParse())
+    return beginCell()
+        .storeSlice(label.beginParse())
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice(tail.beginParse())
         .storeUint(0, BYTE_SIZE)
         .endCell()
         .beginParse();
 }
 
 fun makeRelativeSubdomainSlice(subdomain: string): slice {
-    return beginCell().storeUint(0, BYTE_SIZE).storeSlice(subdomain.beginParse()).storeUint(
-        0,
-        BYTE_SIZE
-    )
+    return beginCell()
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice(subdomain.beginParse())
+        .storeUint(0, BYTE_SIZE)
         .endCell()
         .beginParse();
 }
@@ -149,20 +156,28 @@ fun makeLeadingZero(domain: slice): slice {
 }
 
 fun makeTonDomainSlice(): slice {
-    return beginCell().storeSlice("ton".literalSlice()).storeUint(0, BYTE_SIZE).endCell().beginParse();
+    return beginCell()
+        .storeSlice("ton".literalSlice())
+        .storeUint(0, BYTE_SIZE)
+        .endCell()
+        .beginParse();
 }
 
 fun makeTonWwwDomainSlice(): slice {
-    return beginCell().storeSlice("ton".literalSlice()).storeUint(0, BYTE_SIZE).storeSlice("www"
-        .literalSlice())
+    return beginCell()
+        .storeSlice("ton".literalSlice())
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice("www".literalSlice())
         .storeUint(0, BYTE_SIZE)
         .endCell()
         .beginParse();
 }
 
 fun makeTMeDomainSlice(): slice {
-    return beginCell().storeSlice("me".literalSlice()).storeUint(0, BYTE_SIZE).storeSlice("t"
-        .literalSlice())
+    return beginCell()
+        .storeSlice("me".literalSlice())
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice("t".literalSlice())
         .storeUint(0, BYTE_SIZE)
         .endCell()
         .beginParse();
@@ -220,7 +235,7 @@ fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = 
     val deployRes = collection.sendAny(
         deployer.address,
         makeDeployBody(domain),
-        { value, bounce: true }
+        { value, bounce: true },
     );
     expect(deployRes).toHaveSuccessfulTx({ to: collection.address });
 

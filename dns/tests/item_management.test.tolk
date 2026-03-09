@@ -1,10 +1,10 @@
-import "test_utils"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "../contracts/dns-utils"
 import "../contracts/errors"
 import "../contracts/messages"
+import "test_utils"
 
 fun setupCompletedItem() {
     val (item, collection, owner, bidder) = deployItemThroughCollection();
@@ -23,7 +23,7 @@ get fun `test item management: ownership transfer updates editor and blocks old 
         owner.address,
         123,
         makeTransferData(newOwner.address, null, ton("0.5"), createEmptyCell().beginParse()),
-        { value: ton("5"), bounce: true }
+        { value: ton("5"), bounce: true },
     );
     expect(transfer).toHaveSuccessfulTx<OwnershipAssigned>({
         from: item.address,
@@ -36,7 +36,7 @@ get fun `test item management: ownership transfer updates editor and blocks old 
         owner.address,
         124,
         makeTransferData(outsider.address, null, 0, createEmptyCell().beginParse()),
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(oldOwnerAttempt).toHaveFailedTx({
         from: owner.address,
@@ -60,7 +60,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
         outsider.address,
         2,
         edited,
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(forbiddenEdit).toHaveFailedTx({
         from: outsider.address,
@@ -76,7 +76,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
         3,
         DNS_WALLET_CATEGORY,
         beginCell().storeRef(walletRecord).endCell().beginParse(),
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(addRecord).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
@@ -90,7 +90,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
         4,
         DNS_WALLET_CATEGORY,
         createEmptyCell().beginParse(),
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(removeRecord).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
@@ -102,7 +102,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
         5,
         DNS_WALLET_CATEGORY,
         beginCell().storeRef(walletRecord).endCell().beginParse(),
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(forbiddenChange).toHaveFailedTx({
         from: outsider.address,
@@ -121,7 +121,7 @@ get fun `test item management: dnsresolve follows TEP-81 category and next-resol
         11,
         DNS_NEXT_RESOLVER_CATEGORY,
         beginCell().storeRef(nextResolverCell).endCell().beginParse(),
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(setNextResolver).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
@@ -145,7 +145,7 @@ get fun `test item management: static data, governance guard, and release flow i
     val staticData = item.sendGetStaticData(
         requester.address,
         555,
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(staticData).toHaveSuccessfulTx<ReportStaticData>({
         from: item.address,
@@ -168,7 +168,7 @@ get fun `test item management: static data, governance guard, and release flow i
     val governance = item.sendProcessGovernanceDecision(
         requester.address,
         42,
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(governance).toHaveFailedTx({
         from: requester.address,
@@ -181,7 +181,7 @@ get fun `test item management: static data, governance guard, and release flow i
     val earlyRelease = item.sendDnsRecordRelease(
         bidder.address,
         1,
-        { value: ton("20000"), bounce: true }
+        { value: ton("20000"), bounce: true },
     );
     expect(earlyRelease).toHaveFailedTx({
         from: bidder.address,
@@ -195,9 +195,12 @@ get fun `test item management: static data, governance guard, and release flow i
     val release = item.sendDnsRecordRelease(
         bidder.address,
         2,
-        { value: ton("20000"), bounce: true }
+        { value: ton("20000"), bounce: true },
     );
-    expect(release).toHaveSuccessfulTx<DnsRecordRelease>({ from: bidder.address, to: item.address });
+    expect(release).toHaveSuccessfulTx<DnsRecordRelease>({
+        from: bidder.address,
+        to: item.address,
+    });
 
     expect(item.getEditor()).toBeNull();
 

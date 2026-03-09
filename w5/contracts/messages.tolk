@@ -13,22 +13,18 @@ struct (0x04) SetSignatureAllowedExtraAction {
 }
 
 type ExtraAction =
-    | AddExtensionExtraAction
-    | RemoveExtensionExtraAction
-    | SetSignatureAllowedExtraAction
+AddExtensionExtraAction | RemoveExtensionExtraAction | SetSignatureAllowedExtraAction
 
 // "extra actions" are represented in a snake format: "data".ref("data.ref("data"...))
 type SnakedExtraActions = RemainingBitsAndRefs
 
 fun SnakedExtraActions.hasNext(self) {
-    return self.remainingRefsCount()
+    return self.remainingRefsCount();
 }
 
 fun SnakedExtraActions.getNext(self): SnakedExtraActions {
-    return self.preloadRef().beginParse()
+    return self.preloadRef().beginParse();
 }
-
-
 
 struct (0x6578746E) ExtensionActionRequest {
     queryId: uint64

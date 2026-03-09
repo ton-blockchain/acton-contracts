@@ -1,4 +1,3 @@
-
 // these error codes are quite strange, but they are exactly the same as in FunC implementation
 
 const ERROR_NOT_FROM_ADMIN = 401

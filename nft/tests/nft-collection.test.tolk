@@ -1,18 +1,17 @@
+import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "@acton/build/build"
-import "wrappers/NftCollectionContract"
-import "wrappers/NftItemContract"
 import "../contracts/messages"
 import "../contracts/types"
+import "wrappers/NftCollectionContract"
+import "wrappers/NftItemContract"
 
 struct Royalty {
-    numerator: int,
-    denominator: int,
+    numerator: int
+    denominator: int
     royaltyAddress: address
 }
-
 
 get fun `test nft: report royalty params`() {
     val (nftCollection, _, royaltyParams) = setupTest();
@@ -21,9 +20,7 @@ get fun `test nft: report royalty params`() {
     val result = nftCollection.sendRequestRoyaltyParams(
         randomTreasury.address,
         queryId,
-        {
-            value: ton("0.05"),
-        }
+        { value: ton("0.05") },
     );
 
     expect(result).toHaveSuccessfulTx<RequestRoyaltyParams>({
@@ -35,10 +32,7 @@ get fun `test nft: report royalty params`() {
         from: nftCollection.address,
         to: randomTreasury.address,
         bounce: false,
-        body: ResponseRoyaltyParams {
-            queryId,
-            royaltyParams
-        }.toCell()
+        body: ResponseRoyaltyParams { queryId, royaltyParams }.toCell(),
     });
 }
 
@@ -50,9 +44,7 @@ fun shouldNotAllowAnyOtherOpcodeNotFromOwner(opcode: int) {
     val result = nftCollection.sendAny(
         randomTreasury.address,
         beginCell().storeUint(opcode, 32).storeUint(42, 64).endCell(),
-        {
-            value: ton("0.05"),
-        }
+        { value: ton("0.05") },
     );
 
     val exitCode = opcode == 0x042 ? 0xFFFF : 401;
@@ -82,14 +74,8 @@ fun nftFixture(nftCollection: NftCollectionContract, nftOwnerAddress: address) {
         0,
         nextItemIndex,
         ton("0.02"),
-        {
-            ownerAddress: nftOwnerAddress,
-            content: "",
-        },
-        {
-            value: ton("0.05"),
-            bounce: true,
-        }
+        { ownerAddress: nftOwnerAddress, content: "" },
+        { value: ton("0.05"), bounce: true },
     );
 
     expect(nftDeployResult).toHaveSuccessfulTx({
@@ -99,10 +85,7 @@ fun nftFixture(nftCollection: NftCollectionContract, nftOwnerAddress: address) {
 
     val nftAddress = nftCollection.getNftAddressByIndex(nextItemIndex);
 
-    expect(nftDeployResult).toHaveSuccessfulDeploy({
-        from: nftCollection.address,
-        to: nftAddress,
-    });
+    expect(nftDeployResult).toHaveSuccessfulDeploy({ from: nftCollection.address, to: nftAddress });
 
     return NftItemContract.fromAddress(nftAddress);
 }
@@ -130,16 +113,11 @@ fun setupTest() {
         royaltyParams: royaltyParams.toCell(),
     });
 
-    val deployRes = nftCollection.deploy(deployer.address, {
-        value: ton("0.05"),
-        bounce: false
-    });
+    val deployRes = nftCollection.deploy(deployer.address, { value: ton("0.05"), bounce: false });
 
-    expect(deployRes).toHaveSuccessfulDeploy({
-        to: nftCollection.address,
-    });
+    expect(deployRes).toHaveSuccessfulDeploy({ to: nftCollection.address });
 
-    return (nftCollection, deployer, royaltyParams)
+    return (nftCollection, deployer, royaltyParams);
 }
 
 get fun `test nft: should deploy nft`() {
@@ -150,17 +128,11 @@ get fun `test nft: should deploy nft`() {
 
     val nftDeployResult = nftCollection.sendDeployNft(
         deployer.address,
-        0,  // queryId
+        0, // queryId
         nextItemIndex,
         ton("0.02"),
-        {
-            ownerAddress: nftOwnerAddress,
-            content,
-        },
-        {
-            value: ton("0.05"),
-            bounce: true,
-        }
+        { ownerAddress: nftOwnerAddress, content },
+        { value: ton("0.05"), bounce: true },
     );
 
     expect(nftDeployResult).toHaveSuccessfulTx<DeployNft>({
@@ -193,17 +165,11 @@ get fun `test nft: should not deploy nft with invalid item index`() {
     // Trying to deploy with invalid index (nextItemIndex + 1 instead of nextItemIndex)
     val nftDeployResult = nftCollection.sendDeployNft(
         deployer.address,
-        0,  // queryId
-        nextItemIndex + 1,  // invalid index!
+        0,                 // queryId
+        nextItemIndex + 1, // invalid index!
         ton("0.02"),
-        {
-            ownerAddress: deployer.address,
-            content: "",
-        },
-        {
-            value: ton("0.05"),
-            bounce: true,
-        }
+        { ownerAddress: deployer.address, content: "" },
+        { value: ton("0.05"), bounce: true },
     );
 
     expect(nftDeployResult).toHaveFailedTx<DeployNft>({
@@ -219,17 +185,11 @@ get fun `test nft: should increment item index if last`() {
 
     val nftDeployResult = nftCollection.sendDeployNft(
         deployer.address,
-        0,  // queryId
+        0, // queryId
         nextItemIndex,
         ton("0.02"),
-        {
-            ownerAddress: deployer.address,
-            content: "",
-        },
-        {
-            value: ton("0.05"),
-            bounce: true,
-        }
+        { ownerAddress: deployer.address, content: "" },
+        { value: ton("0.05"), bounce: true },
     );
 
     expect(nftDeployResult).toHaveSuccessfulTx<DeployNft>({
@@ -251,14 +211,8 @@ get fun `test nft: should not increment item index if not last`() {
         0,
         nextItemIndex,
         ton("0.02"),
-        {
-            ownerAddress: deployer.address,
-            content: "",
-        },
-        {
-            value: ton("0.05"),
-            bounce: true,
-        }
+        { ownerAddress: deployer.address, content: "" },
+        { value: ton("0.05"), bounce: true },
     );
 
     val newNextItemIndex = nftCollection.getCollectionData().nextItemIndex;
@@ -268,16 +222,10 @@ get fun `test nft: should not increment item index if not last`() {
     val nftDeployResult = nftCollection.sendDeployNft(
         deployer.address,
         0,
-        0,  // index 0, not the last one
+        0, // index 0, not the last one
         ton("0.02"),
-        {
-            ownerAddress: deployer.address,
-            content: "",
-        },
-        {
-            value: ton("0.05"),
-            bounce: true,
-        }
+        { ownerAddress: deployer.address, content: "" },
+        { value: ton("0.05"), bounce: true },
     );
 
     expect(nftDeployResult).toHaveSuccessfulTx<DeployNft>({
@@ -301,24 +249,24 @@ get fun `test nft: should deploy some nfts via batch deploy`() {
 
     var i = 0;
     while (i < 3) {
-        deployList.set(indexes.get(i), BatchDeployDictItem {
-            attachTonAmount: ton("0.02"),
-            initParams: NftItemInitAtDeployment {
-                ownerAddress: nftOwnerAddress,
-                content,
-            }.toCell(),
-        });
+        deployList.set(
+            indexes.get(i),
+            BatchDeployDictItem {
+                attachTonAmount: ton("0.02"),
+                initParams: NftItemInitAtDeployment {
+                    ownerAddress: nftOwnerAddress,
+                    content,
+                }.toCell(),
+            },
+        );
         i += 1;
     }
 
     val nftDeployResult = nftCollection.sendBatchDeployNfts(
         deployer.address,
-        0,  // queryId
+        0, // queryId
         deployList,
-        {
-            value: ton("0.5"),
-            bounce: true,
-        }
+        { value: ton("0.5"), bounce: true },
     );
 
     expect(nftDeployResult).toHaveSuccessfulTx<BatchDeployNfts>({
@@ -357,12 +305,9 @@ get fun `test nft: should change owner`() {
 
     val result = nftCollection.sendChangeCollectionAdmin(
         deployer.address,
-        0,  // queryId
+        0, // queryId
         newOwner.address,
-        {
-            value: ton("0.05"),
-            bounce: true,
-        }
+        { value: ton("0.05"), bounce: true },
     );
 
     expect(result).toHaveSuccessfulTx<ChangeCollectionAdmin>({

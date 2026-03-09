@@ -1,9 +1,9 @@
-import "test_utils"
 import "@acton/crypto/crypto"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "../contracts/messages"
+import "test_utils"
 
 get fun `test deploy`() {
     val ctx = setupHighloadTest();
@@ -97,7 +97,10 @@ get fun `test fail query id in actual queries`() {
         queryId,
         1000,
     );
-    expect(res1).toHaveSuccessfulTx<InternalTransfer>({ from: ctx.wallet.address, to: ctx.wallet.address });
+    expect(res1).toHaveSuccessfulTx<InternalTransfer>({
+        from: ctx.wallet.address,
+        to: ctx.wallet.address,
+    });
     expect(storedIsProcessed(ctx.wallet, queryId)).toBeTrue();
 
     val res2 = trySendSignedExternalSingle(
@@ -120,7 +123,14 @@ get fun `test work with max bitNumber 1022`() {
         dest: net.randomAddress("max-bit-ok"),
     }).messageCell;
 
-    val res = sendSignedExternal(ctx.wallet, ctx.keyPair, msg, 0, queryId, 1000);
+    val res = sendSignedExternal(
+        ctx.wallet,
+        ctx.keyPair,
+        msg,
+        0,
+        queryId,
+        1000,
+    );
     expect(res.size()).toBeGreater(0);
 }
 
@@ -134,7 +144,14 @@ get fun `test reject bitNumber 1023`() {
         dest: net.randomAddress("max-bit-fail"),
     }).messageCell;
 
-    val res = trySendSignedExternalSingle(ctx.wallet, ctx.keyPair, msg, 0, queryId, 1000);
+    val res = trySendSignedExternalSingle(
+        ctx.wallet,
+        ctx.keyPair,
+        msg,
+        0,
+        queryId,
+        1000,
+    );
     expect(res).toBeNull();
 }
 
@@ -147,7 +164,14 @@ get fun `test work with max shift`() {
         dest: net.randomAddress("max-shift-ok"),
     }).messageCell;
 
-    val res = sendSignedExternal(ctx.wallet, ctx.keyPair, msg, 0, queryId, 1000);
+    val res = sendSignedExternal(
+        ctx.wallet,
+        ctx.keyPair,
+        msg,
+        0,
+        queryId,
+        1000,
+    );
     expect(res.size()).toBeGreater(0);
 }
 
@@ -164,7 +188,10 @@ get fun `test fail query id on replay after time change`() {
         queryId,
         1000,
     );
-    expect(res1).toHaveSuccessfulTx<InternalTransfer>({ from: ctx.wallet.address, to: ctx.wallet.address });
+    expect(res1).toHaveSuccessfulTx<InternalTransfer>({
+        from: ctx.wallet.address,
+        to: ctx.wallet.address,
+    });
 
     net.setNow(1100);
     expect(storedIsProcessed(ctx.wallet, queryId)).toBeTrue();

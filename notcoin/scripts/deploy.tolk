@@ -28,11 +28,13 @@ fun main() {
         deployer.address,
         supply,
         ton("0.01"),
-        ton("0.02")
+        ton("0.02"),
     );
     if (!mintRes.wait()) {
         return;
     }
 
-    println(format2("Successfully minted and transferred {} tokens to {}", supply, deployer.address));
+    println(
+        format2("Successfully minted and transferred {} tokens to {}", supply, deployer.address),
+    );
 }

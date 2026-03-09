@@ -67,10 +67,10 @@ fun getTopDomainBits(domain: slice): int {
 }
 
 enum DomainChar {
-    Hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.
-    DigitZero = 48 // ASCII '0': lower bound for allowed digits
-    DigitNine = 57 // ASCII '9': upper bound for allowed digits
-    LowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters
+    Hyphen = 45      // ASCII '-': allowed only inside a label, not as the first/last checked char.
+    DigitZero = 48   // ASCII '0': lower bound for allowed digits
+    DigitNine = 57   // ASCII '9': upper bound for allowed digits
+    LowercaseA = 97  // ASCII 'a': lower bound for allowed lowercase letters
     LowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters
 }
 

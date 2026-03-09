@@ -1,10 +1,10 @@
-import "test_utils"
-import "wrappers/DnsItem"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "../contracts/dns-utils"
 import "../contracts/messages"
+import "test_utils"
+import "wrappers/DnsItem"
 
 const E2E_DOMAIN = "benchflow"
 const E2E_INITIAL_BID = ton("1000")
@@ -29,7 +29,7 @@ fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL
     val deploy = collection.sendDeployDnsDomain(
         deployer.address,
         makeDomainCell(domain).beginParse(),
-        { value, bounce: true }
+        { value, bounce: true },
     );
     expect(deploy).toHaveSuccessfulTx<DeployDnsDomain>({
         from: deployer.address,
@@ -70,19 +70,23 @@ fun applyOwnershipStage(item: NftItemContract, collectionAddress: address, expec
     expect(nftData.ownerAddress).toEqual(expectedOwner);
 }
 
-fun processGovernanceDecisionStage(item: NftItemContract, callerAddress: address, newOwner: address) {
+fun processGovernanceDecisionStage(
+    item: NftItemContract,
+    callerAddress: address,
+    newOwner: address,
+) {
     val transferData = makeTransferData(newOwner, null, 0, createEmptyCell().beginParse());
 
     val nftDataBefore = item.getNftData();
     setGovernanceDecision(
         nftDataBefore.index,
-        GovernanceTransfer { transferData }.toCell().beginParse()
+        GovernanceTransfer { transferData }.toCell().beginParse(),
     );
 
     val governance = item.sendProcessGovernanceDecision(
         callerAddress,
         E2E_GOVERNANCE_QUERY_ID,
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(governance).toHaveSuccessfulTx<ProcessGovernanceDecision>({
         from: callerAddress,

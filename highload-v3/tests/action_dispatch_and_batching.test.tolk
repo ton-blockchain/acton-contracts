@@ -1,9 +1,9 @@
-import "test_utils"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/out_actions"
 import "../contracts/messages"
+import "test_utils"
 
 get fun `test send internal message`() {
     val ctx = setupHighloadTest();
@@ -16,8 +16,7 @@ get fun `test send internal message`() {
         value: ton("123"),
         dest: testAddr,
         body: testBody,
-    })
-        .messageCell;
+    }).messageCell;
 
     val res = sendSignedExternal(
         ctx.wallet,
@@ -25,7 +24,7 @@ get fun `test send internal message`() {
         outMsg,
         SEND_MODE_PAY_FEES_SEPARATELY,
         queryId,
-        1000
+        1000,
     );
 
     expect(res).toHaveSuccessfulTx({
@@ -42,7 +41,7 @@ get fun `test send internal message`() {
         outMsg,
         SEND_MODE_PAY_FEES_SEPARATELY,
         queryId,
-        1000
+        1000,
     );
     expect(replay).toBeNull();
 }
@@ -60,7 +59,9 @@ get fun `test ignore set_code action`() {
 
     var actions = array<OutAction> [];
     actions.push(setCodeAction(mockCode) as OutAction);
-    actions.push(sendAction(testAddr, ton("0.1"), testBody, SEND_MODE_PAY_FEES_SEPARATELY) as OutAction);
+    actions.push(
+        sendAction(testAddr, ton("0.1"), testBody, SEND_MODE_PAY_FEES_SEPARATELY) as OutAction,
+    );
 
     val message = ctx.wallet.createInternalTransferMessage(nestedQueryId, actions, 0).messageCell;
     val res = sendSignedExternal(
@@ -69,7 +70,7 @@ get fun `test ignore set_code action`() {
         message,
         SEND_MODE_CARRY_ALL_BALANCE,
         extQueryId,
-        1000
+        1000,
     );
 
     expect(activeCode(ctx.wallet.address)).toEqual(ctx.wallet.code());
@@ -96,7 +97,7 @@ get fun `test send external message`() {
         message,
         SEND_MODE_CARRY_ALL_BALANCE,
         extQueryId,
-        1000
+        1000,
     );
 
     val ext = res.findExternalOutMessage<TestExternalOutBody>({ from: ctx.wallet.address });
@@ -120,11 +121,9 @@ get fun `test handle 254 actions in one go`() {
         i += 1;
     }
 
-    val batchMessage = ctx.wallet.createInternalTransferMessageFromActionsCell(
-        queryId,
-        actionsCell,
-        0
-    )
+    val batchMessage = ctx
+        .wallet
+        .createInternalTransferMessageFromActionsCell(queryId, actionsCell, 0)
         .messageCell;
     val res = sendSignedExternal(
         ctx.wallet,
@@ -132,7 +131,7 @@ get fun `test handle 254 actions in one go`() {
         batchMessage,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        1000
+        1000,
     );
 
     expect(res).toHaveSuccessfulTx<InternalTransfer>({
@@ -164,32 +163,34 @@ get fun `test go beyond 255 messages via chained internal_transfer`() {
             net.randomAddress(null),
             ton("0.015"),
             body,
-            SEND_MODE_PAY_FEES_SEPARATELY
+            SEND_MODE_PAY_FEES_SEPARATELY,
         );
         if (i < 253) {
-            rootActionsCell = OutList { prev: rootActionsCell, action: action as OutAction }.toCell();
+            rootActionsCell = OutList {
+                prev: rootActionsCell,
+                action: action as OutAction,
+            }.toCell();
         } else {
-            tailActionsCell = OutList { prev: tailActionsCell, action: action as OutAction }.toCell();
+            tailActionsCell = OutList {
+                prev: tailActionsCell,
+                action: action as OutAction,
+            }.toCell();
         }
         i += 1;
     }
 
-    val tailTransfer = ctx.wallet.createInternalTransferMessageFromActionsCell(
-        queryId,
-        tailActionsCell,
-        0
-    );
+    val tailTransfer = ctx
+        .wallet
+        .createInternalTransferMessageFromActionsCell(queryId, tailActionsCell, 0);
     val chainAction = OutActionSendMessage {
         mode: SEND_MODE_CARRY_ALL_BALANCE as uint8,
         outMsg: tailTransfer.messageCell,
     };
     rootActionsCell = OutList { prev: rootActionsCell, action: chainAction as OutAction }.toCell();
 
-    val rootTransfer = ctx.wallet.createInternalTransferMessageFromActionsCell(
-        queryId,
-        rootActionsCell,
-        0
-    )
+    val rootTransfer = ctx
+        .wallet
+        .createInternalTransferMessageFromActionsCell(queryId, rootActionsCell, 0)
         .messageCell;
     val res = sendSignedExternal(
         ctx.wallet,
@@ -197,7 +198,7 @@ get fun `test go beyond 255 messages via chained internal_transfer`() {
         rootTransfer,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        1000
+        1000,
     );
 
     expect(res).toHaveSuccessfulTx<InternalTransfer>({

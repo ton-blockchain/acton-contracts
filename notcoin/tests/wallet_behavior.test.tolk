@@ -1,10 +1,10 @@
-import "test_utils"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "../contracts/errors"
 import "../contracts/messages"
+import "test_utils"
 
 get fun `test wallet: owner can send jettons`() {
     val (minter, deployer, notDeployer) = setupTest();

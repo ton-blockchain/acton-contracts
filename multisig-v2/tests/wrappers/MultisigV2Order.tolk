@@ -116,10 +116,7 @@ fun MultisigV2Order.sendApprove(
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: ApproveRequest {
-            queryId,
-            signerIndex: signerIndex as uint8,
-        },
+        body: ApproveRequest { queryId, signerIndex: signerIndex as uint8 },
     });
     return net.send(from, approveMessage);
 }
@@ -139,7 +136,12 @@ fun MultisigV2Order.sendComment(
     return net.send(from, commentMessage);
 }
 
-fun MultisigV2Order.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
+fun MultisigV2Order.sendAny(
+    self,
+    from: address,
+    body: cell,
+    config: SendParams = {},
+): SendResultList {
     val customBodyMessage = createMessage({
         bounce: config.bounce,
         value: config.value,

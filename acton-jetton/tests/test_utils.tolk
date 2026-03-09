@@ -1,10 +1,10 @@
-import "wrappers/JettonMinter"
-import "wrappers/JettonWallet"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "../contracts/messages"
 import "../contracts/storage"
+import "wrappers/JettonMinter"
+import "wrappers/JettonWallet"
 
 // Common values used across tests (nanotons for TON amounts)
 const TEST_JETTON_UNIT = 1
@@ -23,7 +23,8 @@ fun makeTinyForwardPayload() {
 }
 
 fun makeRichForwardPayload() {
-    return beginCell().storeMaybeRef(beginCell().storeUint(0x123456789abcdef, 128).endCell())
+    return beginCell()
+        .storeMaybeRef(beginCell().storeUint(0x123456789abcdef, 128).endCell())
         .endCell()
         .beginParse();
 }

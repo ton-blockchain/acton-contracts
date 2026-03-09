@@ -1,13 +1,13 @@
 import "@stdlib/exotic-cells"
 import "@acton/build/build"
-import "@acton/emulation/network"
-import "@acton/types/message"
-import "../../contracts/storage"
-import "../../contracts/messages"
 import "@acton/crypto/crypto"
+import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "@acton/types/message"
 import "@acton/vm/vm"
+import "../../contracts/messages"
+import "../../contracts/storage"
 
 fun constructAddressFromWorkchainAndHash(wc: int8, hash: uint256): address {
     return beginCell().storeUint(4, 3).storeUint(wc, 8).storeUint(hash, 256).toSlice() as address;
@@ -26,12 +26,9 @@ fun WalletV5Contract.deployCodeLib(): cell {
 }
 
 fun WalletV5Contract.fromStorage(storage: Storage) {
-    val init = ContractState {
-        code: WalletV5Contract.deployCodeLib(),
-        data: storage.toCell(),
-    };
+    val init = ContractState { code: WalletV5Contract.deployCodeLib(), data: storage.toCell() };
     val address = AutoDeployAddress { stateInit: init }.calculateAddress();
-    return WalletV5Contract { address, init }
+    return WalletV5Contract { address, init };
 }
 
 fun WalletV5Contract.deploy(self, from: address, config: SendParams = {}): SendResultList {
@@ -41,31 +38,29 @@ fun WalletV5Contract.deploy(self, from: address, config: SendParams = {}): SendR
     val msgDeploy = createMessage({
         bounce: config.bounce,
         value: config.value,
-        dest: {
-            stateInit: self.init,
-        },
+        dest: { stateInit: self.init },
     });
     return net.send(from, msgDeploy);
 }
 
 fun WalletV5Contract.getSeqno(self): int {
-    return net.runGetMethod(self.address, "seqno")
+    return net.runGetMethod(self.address, "seqno");
 }
 
 fun WalletV5Contract.getPublicKey(self): int {
-    return net.runGetMethod(self.address, "get_public_key")
+    return net.runGetMethod(self.address, "get_public_key");
 }
 
 fun WalletV5Contract.getSubwalletId(self): int {
-    return net.runGetMethod(self.address, "get_subwallet_id")
+    return net.runGetMethod(self.address, "get_subwallet_id");
 }
 
 fun WalletV5Contract.isSignatureAllowed(self): bool {
-    return net.runGetMethod(self.address, "is_signature_allowed")
+    return net.runGetMethod(self.address, "is_signature_allowed");
 }
 
 fun WalletV5Contract.getExtensions(self): map<uint256, bool> {
-    return net.runGetMethod(self.address, "get_extensions")
+    return net.runGetMethod(self.address, "get_extensions");
 }
 
 fun WalletV5Contract.getExtensionsArray(self): array<address> {
@@ -73,7 +68,7 @@ fun WalletV5Contract.getExtensionsArray(self): array<address> {
     val selfWorkchain = self.address.getWorkchain();
     var res: array<address> = [];
     var cur = ext.findFirst();
-    while(cur.isFound) {
+    while (cur.isFound) {
         val addr: address = constructAddressFromWorkchainAndHash(selfWorkchain, cur.getKey());
         res.push(addr);
         cur = ext.iterateNext(cur);
@@ -82,7 +77,11 @@ fun WalletV5Contract.getExtensionsArray(self): array<address> {
 }
 
 fun WalletV5Contract.sendExtensionActionRequest(
-    self, from: address, actionsBody: cell, queryId: uint64 = 0, config: SendParams = {}
+    self,
+    from: address,
+    actionsBody: cell,
+    queryId: uint64 = 0,
+    config: SendParams = {},
 ): SendResultList {
     val body = beginCell()
         .storeUint(0x6578746E, 32)
@@ -95,11 +94,14 @@ fun WalletV5Contract.sendExtensionActionRequest(
         dest: self.address,
         body,
     });
-    return net.send(from, msgExtActRequest)
+    return net.send(from, msgExtActRequest);
 }
 
 fun WalletV5Contract.sendSignedBody(
-    self, from: address, body: SignedBody, config: SendParams = {}
+    self,
+    from: address,
+    body: SignedBody,
+    config: SendParams = {},
 ): SendResultList {
     val msgWithSignedBody = createMessage({
         bounce: config.bounce,
@@ -107,11 +109,14 @@ fun WalletV5Contract.sendSignedBody(
         dest: self.address,
         body,
     });
-    return net.send(from, msgWithSignedBody)
+    return net.send(from, msgWithSignedBody);
 }
 
 fun WalletV5Contract.sendAny(
-    self, from: address, body: cell, config: SendParams = {}
+    self,
+    from: address,
+    body: cell,
+    config: SendParams = {},
 ): SendResultList {
     val msgAny = createMessage({
         bounce: config.bounce,
@@ -119,10 +124,10 @@ fun WalletV5Contract.sendAny(
         dest: self.address,
         body,
     });
-    return net.send(from, msgAny)
+    return net.send(from, msgAny);
 }
 
-const DEFAULT_SUBWALLET_ID = 0;
+const DEFAULT_SUBWALLET_ID = 0
 
 fun defaultStorage(): Storage {
     return Storage {
@@ -135,12 +140,12 @@ fun defaultStorage(): Storage {
 }
 
 struct SendAction {
-    mode: int;
-    messageCell: cell;
+    mode: int
+    messageCell: cell
 }
 
 struct ActionsList {
-    outActions: array<SendAction>,
+    outActions: array<SendAction>
     extraActions: array<ExtraAction>
 }
 
@@ -209,19 +214,24 @@ fun sendMsgAction(dest: address, value: coins): SendAction {
 
 // Create a signed internal message body (opcode 0x73696E74)
 
-struct(0x73696E74) SignedPayload {
-    subwalletId: int32,
-    now: uint32,
-    seqno: uint32,
+struct (0x73696E74) SignedPayload {
+    subwalletId: int32
+    now: uint32
+    seqno: uint32
     actions: ActionsList
 }
 
 struct SignedBody {
-    payload: SignedPayload,
-    signature: bytes64,
+    payload: SignedPayload
+    signature: bytes64
 }
 
-fun createSignedBody(keyPair: KeyPair, subwalletId: int, seqno: int, actions: ActionsList): SignedBody {
+fun createSignedBody(
+    keyPair: KeyPair,
+    subwalletId: int,
+    seqno: int,
+    actions: ActionsList,
+): SignedBody {
     // val payload = beginCell()
     //     .storeUint(0x73696E74, 32)
     //     .storeUint(subwalletId, 32)
@@ -239,10 +249,7 @@ fun createSignedBody(keyPair: KeyPair, subwalletId: int, seqno: int, actions: Ac
 
     val signature = crypto.sign(keyPair.privateKey, payload.toCell()) as bytes64;
 
-    return SignedBody {
-        payload,
-        signature,
-    };
+    return SignedBody { payload, signature };
 }
 
 // Deploy wallet from storage
@@ -250,16 +257,11 @@ fun deployWallet(storage: Storage): (WalletV5Contract, Treasury) {
     val deployer = net.treasury("deployer");
     val walletV5 = WalletV5Contract.fromStorage(storage);
 
-    val deployResult = walletV5.deploy(deployer.address, {
-        value: ton("5"),
-        bounce: false,
-    });
+    val deployResult = walletV5.deploy(deployer.address, { value: ton("5"), bounce: false });
 
-    expect(deployResult).toHaveSuccessfulDeploy({
-        to: walletV5.address,
-    });
+    expect(deployResult).toHaveSuccessfulDeploy({ to: walletV5.address });
 
-    return (walletV5, deployer)
+    return (walletV5, deployer);
 }
 
 // Deploy wallet with keypair, no extensions
@@ -276,19 +278,25 @@ fun deployWalletWithKey(keyPair: KeyPair): (WalletV5Contract, Treasury) {
 
 // External signed message helpers (opcode 0x7369676E)
 
-struct(0x7369676E) ExternalSignedPayload {
-    subwalletId: int32,
-    validUntil: uint32,
-    seqno: uint32,
+struct (0x7369676E) ExternalSignedPayload {
+    subwalletId: int32
+    validUntil: uint32
+    seqno: uint32
     actions: ActionsList
 }
 
 struct ExternalSignedBody {
-    payload: ExternalSignedPayload,
-    signature: bytes64,
+    payload: ExternalSignedPayload
+    signature: bytes64
 }
 
-fun createExternalSignedBody(keyPair: KeyPair, subwalletId: int, seqno: int, actions: ActionsList, validUntil: int? = null): ExternalSignedBody {
+fun createExternalSignedBody(
+    keyPair: KeyPair,
+    subwalletId: int,
+    seqno: int,
+    actions: ActionsList,
+    validUntil: int? = null,
+): ExternalSignedBody {
     if (validUntil == null) {
         validUntil = blockchain.now() + 1000;
     }
@@ -302,30 +310,27 @@ fun createExternalSignedBody(keyPair: KeyPair, subwalletId: int, seqno: int, act
     return ExternalSignedBody { payload, signature };
 }
 
-fun WalletV5Contract.sendExternalSigned(
-    self, body: ExternalSignedBody
-): SendResultList? {
+fun WalletV5Contract.sendExternalSigned(self, body: ExternalSignedBody): SendResultList? {
     val msg = createExternalMessage(self.address, body);
     return net.sendExternal(msg);
 }
 
-fun WalletV5Contract.sendExternalRaw(
-    self, body: cell
-): SendResultList? {
+fun WalletV5Contract.sendExternalRaw(self, body: cell): SendResultList? {
     val msg = createExternalMessage(self.address, body);
     return net.sendExternal(msg);
 }
-
 
 // Add extension via signed internal message (like TS beforeEach + createBody)
 fun addExtensionSigned(
-    walletV5: WalletV5Contract, sender: address, extensionAddr: address,
-    keyPair: KeyPair, seqno: int
+    walletV5: WalletV5Contract,
+    sender: address,
+    extensionAddr: address,
+    keyPair: KeyPair,
+    seqno: int,
 ): SendResultList {
     var extraActions: array<ExtraAction> = [];
     extraActions.push(AddExtensionExtraAction { addr: extensionAddr });
-    val actionsBody = ActionsList {outActions: [], extraActions};
+    val actionsBody = ActionsList { outActions: [], extraActions };
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actionsBody);
     return walletV5.sendSignedBody(sender, signedBody, { value: ton("0.1") });
 }
-

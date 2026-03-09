@@ -1,14 +1,14 @@
 import "@acton/io"
+import "@acton/crypto/crypto"
 import "@acton/emulation/network"
+import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "@acton/crypto/crypto"
-import "@acton/testing/assert"
 import "@acton/types/big_array"
-import "./wrappers/WalletV5Contract"
-import "../contracts/storage"
-import "../contracts/messages"
 import "../contracts/errors"
+import "../contracts/messages"
+import "../contracts/storage"
+import "./wrappers/WalletV5Contract"
 
 // ==================== Basic ====================
 
@@ -19,7 +19,11 @@ get fun `test w5: should receive basic transfer`() {
     val sender = net.treasury("sender");
 
     // Simple value transfer (no body)
-    val receipt1 = walletV5.sendAny(sender.address, createEmptyCell(), { value: ton("1"), bounce: false });
+    val receipt1 = walletV5.sendAny(
+        sender.address,
+        createEmptyCell(),
+        { value: ton("1"), bounce: false },
+    );
     expect(receipt1).toHaveSuccessfulTx({
         from: sender.address,
         to: walletV5.address,
@@ -28,7 +32,11 @@ get fun `test w5: should receive basic transfer`() {
 
     // Transfer with text comment
     val textBody: string = "Hey, bruh!";
-    val receipt2 = walletV5.sendAny(sender.address, textBody.toCell(), { value: ton("1"), bounce: false });
+    val receipt2 = walletV5.sendAny(
+        sender.address,
+        textBody.toCell(),
+        { value: ton("1"), bounce: false },
+    );
     expect(receipt2).toHaveSuccessfulTx({
         from: sender.address,
         to: walletV5.address,
@@ -36,7 +44,10 @@ get fun `test w5: should receive basic transfer`() {
     });
 
     // Transfer with random non-wallet opcode
-    val randomBody = beginCell().storeUint(0xdeadbeef, 32).storeUint(blockchain.now(), 64).endCell();
+    val randomBody = beginCell()
+        .storeUint(0xdeadbeef, 32)
+        .storeUint(blockchain.now(), 64)
+        .endCell();
     val receipt3 = walletV5.sendAny(sender.address, randomBody, { value: ton("1"), bounce: false });
     expect(receipt3).toHaveSuccessfulTx({
         from: sender.address,
@@ -165,9 +176,7 @@ get fun `test w5: ext only_extension_can_change_signature_mode`() {
 
     val receipt = walletV5.sendExternalSigned(body)!;
 
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE });
 
     expect(walletV5.isSignatureAllowed()).toEqual(true);
 }
@@ -182,10 +191,7 @@ get fun `test w5: ext should be able to send external-out message`() {
     // Construct external address: addr_extern$01 + len(32) + payload
     val extAddrBuilder = beginCell().storeUint(1, 2).storeUint(32, 9).storeUint(testPayload, 32);
 
-    val extOutMsg = createExternalLogMessage({
-        dest: extAddrBuilder,
-        body: testBody,
-    });
+    val extOutMsg = createExternalLogMessage({ dest: extAddrBuilder, body: testBody });
 
     var outActions: array<SendAction> = [];
     outActions.push(SendAction {
@@ -198,12 +204,11 @@ get fun `test w5: ext should be able to send external-out message`() {
 
     val receipt = walletV5.sendExternalSigned(body)!;
 
-    expect(receipt).toHaveTx({
-        exitCode: 0,
-    });
+    expect(receipt).toHaveTx({ exitCode: 0 });
 
     expect(walletV5.getSeqno()).toEqual(1);
 }
+
 get fun `test w5: ext should not be able to install extension from different chain`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, _) = deployWalletWithKey(keyPair);
@@ -213,7 +218,11 @@ get fun `test w5: ext should not be able to install extension from different cha
 
     // Fund the masterchain address so it exists
     val funder = net.treasury("funder");
-    val fundMsg = createMessage({ bounce: false, value: ton("1"), dest: mcExtension });
+    val fundMsg = createMessage({
+        bounce: false,
+        value: ton("1"),
+        dest: mcExtension,
+    });
     net.send(funder.address, fundMsg);
 
     // Try to add masterchain extension to basechain wallet via external signed
@@ -225,9 +234,7 @@ get fun `test w5: ext should not be able to install extension from different cha
 
     val receipt = walletV5.sendExternalSigned(body)!;
 
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_EXTENSION_WRONG_WORKCHAIN,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_EXTENSION_WRONG_WORKCHAIN });
 
     // Extension should NOT have been added
     val ext = walletV5.getExtensions();
@@ -282,26 +289,52 @@ get fun `test w5: int should send messages with various send modes`() {
 
     // Internal should work with IGNORE_ERRORS
     var outActions1: array<SendAction> = [];
-    val innerMsg1 = createMessage({ bounce: false, value: ton("0.001"), dest: testReceiver.address });
+    val innerMsg1 = createMessage({
+        bounce: false,
+        value: ton("0.001"),
+        dest: testReceiver.address,
+    });
     outActions1.push(SendAction {
         mode: SEND_MODE_PAY_FEES_SEPARATELY | SEND_MODE_IGNORE_ERRORS,
         messageCell: innerMsg1.messageCell,
     });
-    val body1 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, ActionsList { outActions: outActions1, extraActions: [] });
+    val body1 = createSignedBody(
+        keyPair,
+        DEFAULT_SUBWALLET_ID,
+        seqno,
+        ActionsList { outActions: outActions1, extraActions: [] },
+    );
     val receipt1 = walletV5.sendSignedBody(deployer.address, body1, { value: ton("0.1") });
-    expect(receipt1).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address, exitCode: 0 });
+    expect(receipt1).toHaveSuccessfulTx({
+        from: deployer.address,
+        to: walletV5.address,
+        exitCode: 0,
+    });
     seqno += 1;
 
     // Internal should work WITHOUT IGNORE_ERRORS (unlike external)
     var outActions2: array<SendAction> = [];
-    val innerMsg2 = createMessage({ bounce: false, value: ton("0.001"), dest: testReceiver.address });
+    val innerMsg2 = createMessage({
+        bounce: false,
+        value: ton("0.001"),
+        dest: testReceiver.address,
+    });
     outActions2.push(SendAction {
         mode: SEND_MODE_PAY_FEES_SEPARATELY,
         messageCell: innerMsg2.messageCell,
     });
-    val body2 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, ActionsList { outActions: outActions2, extraActions: [] });
+    val body2 = createSignedBody(
+        keyPair,
+        DEFAULT_SUBWALLET_ID,
+        seqno,
+        ActionsList { outActions: outActions2, extraActions: [] },
+    );
     val receipt2 = walletV5.sendSignedBody(deployer.address, body2, { value: ton("0.1") });
-    expect(receipt2).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address, exitCode: 0 });
+    expect(receipt2).toHaveSuccessfulTx({
+        from: deployer.address,
+        to: walletV5.address,
+        exitCode: 0,
+    });
     seqno += 1;
 
     expect(walletV5.getSeqno()).toEqual(seqno);
@@ -364,9 +397,7 @@ get fun `test w5: int only_extension_can_change_signature_mode`() {
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE });
 
     expect(walletV5.isSignatureAllowed()).toEqual(true);
 }
@@ -403,7 +434,10 @@ get fun `test w5: ext_action should send up to 255 messages`() {
     val actionsBody = ActionsList { outActions, extraActions: [] }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody, 0, { value: ton("10") }
+        deployer.address,
+        actionsBody,
+        0,
+        { value: ton("10") },
     );
 
     // extension->wallet tx + 255 out message txs
@@ -427,25 +461,51 @@ get fun `test w5: ext_action should send messages with various modes`() {
 
     // Extension should work with IGNORE_ERRORS
     var outActions1: array<SendAction> = [];
-    val innerMsg1 = createMessage({ bounce: false, value: ton("0.001"), dest: testReceiver.address });
+    val innerMsg1 = createMessage({
+        bounce: false,
+        value: ton("0.001"),
+        dest: testReceiver.address,
+    });
     outActions1.push(SendAction {
         mode: SEND_MODE_PAY_FEES_SEPARATELY | SEND_MODE_IGNORE_ERRORS,
         messageCell: innerMsg1.messageCell,
     });
     val actionsBody1 = ActionsList { outActions: outActions1, extraActions: [] }.toCell();
-    val receipt1 = walletV5.sendExtensionActionRequest(deployer.address, actionsBody1, 0, { value: ton("0.1") });
-    expect(receipt1).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address, exitCode: 0 });
+    val receipt1 = walletV5.sendExtensionActionRequest(
+        deployer.address,
+        actionsBody1,
+        0,
+        { value: ton("0.1") },
+    );
+    expect(receipt1).toHaveSuccessfulTx({
+        from: deployer.address,
+        to: walletV5.address,
+        exitCode: 0,
+    });
 
     // Extension should work WITHOUT IGNORE_ERRORS (like internal)
     var outActions2: array<SendAction> = [];
-    val innerMsg2 = createMessage({ bounce: false, value: ton("0.001"), dest: testReceiver.address });
+    val innerMsg2 = createMessage({
+        bounce: false,
+        value: ton("0.001"),
+        dest: testReceiver.address,
+    });
     outActions2.push(SendAction {
         mode: SEND_MODE_PAY_FEES_SEPARATELY,
         messageCell: innerMsg2.messageCell,
     });
     val actionsBody2 = ActionsList { outActions: outActions2, extraActions: [] }.toCell();
-    val receipt2 = walletV5.sendExtensionActionRequest(deployer.address, actionsBody2, 0, { value: ton("0.1") });
-    expect(receipt2).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address, exitCode: 0 });
+    val receipt2 = walletV5.sendExtensionActionRequest(
+        deployer.address,
+        actionsBody2,
+        0,
+        { value: ton("0.1") },
+    );
+    expect(receipt2).toHaveSuccessfulTx({
+        from: deployer.address,
+        to: walletV5.address,
+        exitCode: 0,
+    });
 }
 
 get fun `test w5: ext_action from wrong workchain should be ignored`() {
@@ -459,7 +519,11 @@ get fun `test w5: ext_action from wrong workchain should be ignored`() {
 
     // Create an address with same hash but different workchain (-1 = masterchain)
     val (_, deployerHash) = deployer.address.getWorkchainAndHash();
-    val mcAddress = beginCell().storeUint(4, 3).storeInt(-1, 8).storeUint(deployerHash, 256).toSlice() as address;
+    val mcAddress = beginCell()
+        .storeUint(4, 3)
+        .storeInt(-1, 8)
+        .storeUint(deployerHash, 256)
+        .toSlice() as address;
 
     // Send extension action from masterchain address (same hash, different workchain)
     val testReceiver = net.randomAddress("test-receiver");
@@ -470,7 +534,10 @@ get fun `test w5: ext_action from wrong workchain should be ignored`() {
     val actionsBody = ActionsList { outActions, extraActions: [] }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        mcAddress, actionsBody, 0, { value: ton("0.1") }
+        mcAddress,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
     );
 
     // Should be silently ignored — no transfer, no error
@@ -508,7 +575,10 @@ get fun `test w5: ext_action add remove send in one go`() {
     val actionsBody = ActionsList { outActions, extraActions }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt).toHaveTx({
@@ -564,11 +634,7 @@ get fun `test w5: action list exceeding 255 elements should be rejected`() {
         j -= 1;
     }
     // Pack as: Maybe<ref(OutActionsList)>=1 ref(c5) hasExtraActions=0
-    val bigActionsCell = beginCell()
-        .storeUint(1, 1)
-        .storeRef(c5)
-        .storeUint(0, 1)
-        .endCell();
+    val bigActionsCell = beginCell().storeUint(1, 1).storeRef(c5).storeUint(0, 1).endCell();
 
     // Via external: error after accept, tx included
     val extPayloadCell = beginCell()
@@ -587,11 +653,8 @@ get fun `test w5: action list exceeding 255 elements should be rejected`() {
     if (extReceipt == null) {
         Assert.fail("External message was not accepted");
     }
-    expect(extReceipt!).toHaveTx({
-        exitCode: ERROR_INVALID_C5,
-    });
+    expect(extReceipt!).toHaveTx({ exitCode: ERROR_INVALID_C5 });
     seqno += 1;
-
 
     // Via internal: should bounce
     val intPayloadCell = beginCell()
@@ -607,9 +670,7 @@ get fun `test w5: action list exceeding 255 elements should be rejected`() {
         .storeSlice(intSignature)
         .endCell();
     val intReceipt = walletV5.sendAny(deployer.address, intRawBody, { value: ton("10") });
-    expect(intReceipt).toHaveTx({
-        exitCode: ERROR_INVALID_C5,
-    });
+    expect(intReceipt).toHaveTx({ exitCode: ERROR_INVALID_C5 });
 
     // Via extension
     addExtensionSigned(walletV5, deployer.address, deployer.address, keyPair, seqno);
@@ -617,11 +678,12 @@ get fun `test w5: action list exceeding 255 elements should be rejected`() {
 
     val extActBody = bigActionsCell;
     val extActReceipt = walletV5.sendExtensionActionRequest(
-        deployer.address, extActBody, 0, { value: ton("10") }
+        deployer.address,
+        extActBody,
+        0,
+        { value: ton("10") },
     );
-    expect(extActReceipt).toHaveTx({
-        exitCode: ERROR_INVALID_C5,
-    });
+    expect(extActReceipt).toHaveTx({ exitCode: ERROR_INVALID_C5 });
 }
 
 // ==================== Signature auth ====================
@@ -644,9 +706,16 @@ get fun `test w5: extension should be able to set signature mode`() {
     val actionsBody1 = ActionsList { outActions: [], extraActions: extraActions1 }.toCell();
 
     val receipt1 = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody1, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody1,
+        0,
+        { value: ton("0.1") },
     );
-    expect(receipt1).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address, exitCode: 0 });
+    expect(receipt1).toHaveSuccessfulTx({
+        from: deployer.address,
+        to: walletV5.address,
+        exitCode: 0,
+    });
     expect(walletV5.isSignatureAllowed()).toEqual(false);
     expect(walletV5.getSeqno()).toEqual(seqnoBefore);
 
@@ -656,9 +725,16 @@ get fun `test w5: extension should be able to set signature mode`() {
     val actionsBody2 = ActionsList { outActions: [], extraActions: extraActions2 }.toCell();
 
     val receipt2 = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody2, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody2,
+        0,
+        { value: ton("0.1") },
     );
-    expect(receipt2).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address, exitCode: 0 });
+    expect(receipt2).toHaveSuccessfulTx({
+        from: deployer.address,
+        to: walletV5.address,
+        exitCode: 0,
+    });
     expect(walletV5.isSignatureAllowed()).toEqual(true);
     expect(walletV5.getSeqno()).toEqual(seqnoBefore);
 }
@@ -675,9 +751,7 @@ get fun `test w5: should reject sig auth change via internal signed request`() {
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE });
 
     expect(walletV5.isSignatureAllowed()).toEqual(true);
 }
@@ -736,9 +810,7 @@ get fun `test w5: should not accept signed internal when sig auth is disabled`()
 
     val receipt = walletV5.sendSignedBody(deployer.address, intBody, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_SIGNATURE_DISABLED,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_SIGNATURE_DISABLED });
 }
 
 get fun `test w5: extension should add another ext when sig auth is disabled`() {
@@ -764,10 +836,17 @@ get fun `test w5: extension should add another ext when sig auth is disabled`() 
     val actionsBody1 = ActionsList { outActions: [], extraActions: extraActions1 }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody1, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody1,
+        0,
+        { value: ton("0.1") },
     );
 
-    expect(receipt).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address, exitCode: 0 });
+    expect(receipt).toHaveSuccessfulTx({
+        from: deployer.address,
+        to: walletV5.address,
+        exitCode: 0,
+    });
 
     val ext = walletV5.getExtensions();
     val (_, newExtHash) = newExtension.getWorkchainAndHash();
@@ -802,10 +881,17 @@ get fun `test w5: should remove ext if sig disabled and at least one left`() {
     val actionsBody1 = ActionsList { outActions: [], extraActions: extraActions1 }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody1, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody1,
+        0,
+        { value: ton("0.1") },
     );
 
-    expect(receipt).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address, exitCode: 0 });
+    expect(receipt).toHaveSuccessfulTx({
+        from: deployer.address,
+        to: walletV5.address,
+        exitCode: 0,
+    });
 
     val ext2 = walletV5.getExtensions();
     expect(ext2).toHaveLength(1);
@@ -845,18 +931,13 @@ get fun `test w5: withdraw funds on deploy with sig auth disabled`() {
         to: walletV5.address,
         exitCode: 0,
     });
-    expect(intReceipt).toHaveTx({
-        from: walletV5.address,
-        to: testReceiver,
-    });
+    expect(intReceipt).toHaveTx({ from: walletV5.address, to: testReceiver });
     seqno += 1;
 
     // Via external signed
     val extBody = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions);
     val extReceipt = walletV5.sendExternalSigned(extBody)!;
-    expect(extReceipt).toHaveTx({
-        exitCode: 0,
-    });
+    expect(extReceipt).toHaveTx({ exitCode: 0 });
     seqno += 1;
 
     expect(walletV5.getSeqno()).toEqual(seqno);
@@ -865,7 +946,12 @@ get fun `test w5: withdraw funds on deploy with sig auth disabled`() {
 // ==================== Malformed action: extra data/refs ====================
 
 // Helper: build a raw signed request cell from a raw actions cell
-fun buildRawExternalRequest(keyPair: KeyPair, subwalletId: int, seqno: int, rawActionsCell: cell): cell {
+fun buildRawExternalRequest(
+    keyPair: KeyPair,
+    subwalletId: int,
+    seqno: int,
+    rawActionsCell: cell,
+): cell {
     val payloadCell = beginCell()
         .storeUint(0x7369676E, 32)
         .storeUint(subwalletId, 32)
@@ -874,13 +960,15 @@ fun buildRawExternalRequest(keyPair: KeyPair, subwalletId: int, seqno: int, rawA
         .storeSlice(rawActionsCell.beginParse())
         .endCell();
     val signature = crypto.sign(keyPair.privateKey, payloadCell);
-    return beginCell()
-        .storeSlice(payloadCell.beginParse())
-        .storeSlice(signature)
-        .endCell();
+    return beginCell().storeSlice(payloadCell.beginParse()).storeSlice(signature).endCell();
 }
 
-fun buildRawInternalRequest(keyPair: KeyPair, subwalletId: int, seqno: int, rawActionsCell: cell): cell {
+fun buildRawInternalRequest(
+    keyPair: KeyPair,
+    subwalletId: int,
+    seqno: int,
+    rawActionsCell: cell,
+): cell {
     val payloadCell = beginCell()
         .storeUint(0x73696E74, 32)
         .storeUint(subwalletId, 32)
@@ -889,10 +977,7 @@ fun buildRawInternalRequest(keyPair: KeyPair, subwalletId: int, seqno: int, rawA
         .storeSlice(rawActionsCell.beginParse())
         .endCell();
     val signature = crypto.sign(keyPair.privateKey, payloadCell);
-    return beginCell()
-        .storeSlice(payloadCell.beginParse())
-        .storeSlice(signature)
-        .endCell();
+    return beginCell().storeSlice(payloadCell.beginParse()).storeSlice(signature).endCell();
 }
 
 get fun `test w5: should reject action list with extra data or refs`() {
@@ -929,9 +1014,7 @@ get fun `test w5: should reject action list with extra data or refs`() {
     // truncated: valid action minus 1 bit
     var truncSlice = validActionCell.beginParse();
     val totalBits = truncSlice.remainingBitsCount();
-    val truncated = beginCell()
-        .storeSlice(truncSlice.loadBits(totalBits - 1))
-        .endCell();
+    val truncated = beginCell().storeSlice(truncSlice.loadBits(totalBits - 1)).endCell();
 
     // extraRef: valid action + extra ref
     val extraRef = beginCell()
@@ -961,9 +1044,7 @@ get fun `test w5: should reject action list with extra data or refs`() {
         // Via internal
         val intBody = buildRawInternalRequest(keyPair, DEFAULT_SUBWALLET_ID, seqno, rawActionsCell);
         val intReceipt = walletV5.sendAny(deployer.address, intBody, { value: ton("1") });
-        expect(intReceipt).toHaveTx({
-            exitCode: ERROR_INVALID_C5,
-        });
+        expect(intReceipt).toHaveTx({ exitCode: ERROR_INVALID_C5 });
 
         // Via external (error after accept, tx included, seqno increments)
         val extBody = buildRawExternalRequest(keyPair, DEFAULT_SUBWALLET_ID, seqno, rawActionsCell);
@@ -971,9 +1052,7 @@ get fun `test w5: should reject action list with extra data or refs`() {
         if (extReceipt == null) {
             Assert.fail("External message was not accepted");
         }
-        expect(extReceipt!).toHaveTx({
-            exitCode: ERROR_INVALID_C5,
-        });
+        expect(extReceipt!).toHaveTx({ exitCode: ERROR_INVALID_C5 });
         seqno += 1;
 
         i += 1;
@@ -999,11 +1078,12 @@ get fun `test w5: should reject action list with extra data or refs`() {
             .endCell();
 
         val extActReceipt = walletV5.sendExtensionActionRequest(
-            deployer.address, rawActionsCell, 0, { value: ton("1") }
+            deployer.address,
+            rawActionsCell,
+            0,
+            { value: ton("1") },
         );
-        expect(extActReceipt).toHaveTx({
-            exitCode: ERROR_INVALID_C5,
-        });
+        expect(extActReceipt).toHaveTx({ exitCode: ERROR_INVALID_C5 });
 
         i += 1;
     }
@@ -1013,12 +1093,13 @@ get fun `test w5: should reject action list with extra data or refs`() {
         .storeRef(createEmptyCell())
         .storeSlice(validActionCell.beginParse())
         .endCell();
-    val validRawActions = beginCell()
-        .storeUint(1, 1)
-        .storeRef(validC5)
-        .storeUint(0, 1)
-        .endCell();
-    val validIntBody = buildRawInternalRequest(keyPair, DEFAULT_SUBWALLET_ID, seqno, validRawActions);
+    val validRawActions = beginCell().storeUint(1, 1).storeRef(validC5).storeUint(0, 1).endCell();
+    val validIntBody = buildRawInternalRequest(
+        keyPair,
+        DEFAULT_SUBWALLET_ID,
+        seqno,
+        validRawActions,
+    );
     val validReceipt = walletV5.sendAny(deployer.address, validIntBody, { value: ton("1") });
     expect(validReceipt).toHaveSuccessfulTx({
         from: walletV5.address,
@@ -1047,9 +1128,7 @@ get fun `test w5: ext should be able to send message with init state`() {
     val deployMsg = createMessage({
         bounce: false,
         value: ton("1"),
-        dest: {
-            stateInit: newWallet.init!,
-        },
+        dest: { stateInit: newWallet.init! },
     });
 
     var outActions: array<SendAction> = [];
@@ -1063,9 +1142,7 @@ get fun `test w5: ext should be able to send message with init state`() {
 
     val receipt = walletV5.sendExternalSigned(body)!;
 
-    expect(receipt).toHaveTx({
-        exitCode: 0,
-    });
+    expect(receipt).toHaveTx({ exitCode: 0 });
 
     // Verify the new wallet was deployed and has correct state
     expect(newWallet.getSeqno()).toEqual(0);
@@ -1090,9 +1167,7 @@ get fun `test w5: int should not be able to install extension from different cha
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_EXTENSION_WRONG_WORKCHAIN,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_EXTENSION_WRONG_WORKCHAIN });
 
     val ext = walletV5.getExtensions();
     expect(ext).toHaveLength(0);
@@ -1115,12 +1190,13 @@ get fun `test w5: ext_action should not be able to install extension from differ
     val actionsBody = ActionsList { outActions: [], extraActions }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
     );
 
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_EXTENSION_WRONG_WORKCHAIN,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_EXTENSION_WRONG_WORKCHAIN });
 
     // Only the deployer extension should exist
     val ext = walletV5.getExtensions();
@@ -1137,16 +1213,10 @@ get fun `test w5: int should be able to send external-out message`() {
     val testBody = beginCell().storeUint(testPayload, 32).endCell();
 
     val extAddrBuilder = beginCell().storeUint(1, 2).storeUint(32, 9).storeUint(testPayload, 32);
-    val extOutMsg = createExternalLogMessage({
-        dest: extAddrBuilder,
-        body: testBody,
-    });
+    val extOutMsg = createExternalLogMessage({ dest: extAddrBuilder, body: testBody });
 
     var outActions: array<SendAction> = [];
-    outActions.push(SendAction {
-        mode: SEND_MODE_REGULAR,
-        messageCell: extOutMsg.messageCell,
-    });
+    outActions.push(SendAction { mode: SEND_MODE_REGULAR, messageCell: extOutMsg.messageCell });
 
     val actions = ActionsList { outActions, extraActions: [] };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
@@ -1174,21 +1244,18 @@ get fun `test w5: ext_action should be able to send external-out message`() {
     val testBody = beginCell().storeUint(testPayload, 32).endCell();
 
     val extAddrBuilder = beginCell().storeUint(1, 2).storeUint(32, 9).storeUint(testPayload, 32);
-    val extOutMsg = createExternalLogMessage({
-        dest: extAddrBuilder,
-        body: testBody,
-    });
+    val extOutMsg = createExternalLogMessage({ dest: extAddrBuilder, body: testBody });
 
     var outActions: array<SendAction> = [];
-    outActions.push(SendAction {
-        mode: SEND_MODE_REGULAR,
-        messageCell: extOutMsg.messageCell,
-    });
+    outActions.push(SendAction { mode: SEND_MODE_REGULAR, messageCell: extOutMsg.messageCell });
 
     val actionsBody = ActionsList { outActions, extraActions: [] }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt).toHaveSuccessfulTx({

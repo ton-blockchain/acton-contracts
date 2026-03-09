@@ -1,15 +1,11 @@
 import "errors"
-import "sharding"
-import "jetton-utils"
 import "fees-management"
-import "storage"
+import "jetton-utils"
 import "messages"
+import "sharding"
+import "storage"
 
-type AllowedMessageToWallet =
-    | AskToTransfer
-    | AskToBurn
-    | InternalTransferStep
-    | TopUpTons
+type AllowedMessageToWallet = AskToTransfer | AskToBurn | InternalTransferStep | TopUpTons
 
 type BounceOpToHandle = InternalTransferStep | BurnNotificationForMinter
 
@@ -18,8 +14,8 @@ fun onBouncedMessage(in: InMessageBounced) {
 
     val msg = lazy BounceOpToHandle.fromSlice(in.bouncedBody);
     val restoreAmount = match (msg) {
-        InternalTransferStep => msg.jettonAmount,       // safe to fetch jettonAmount, because
-        BurnNotificationForMinter => msg.jettonAmount,  // it's in the beginning of a message
+        InternalTransferStep => msg.jettonAmount,      // safe to fetch jettonAmount, because
+        BurnNotificationForMinter => msg.jettonAmount, // it's in the beginning of a message
     };
 
     var storage = lazy WalletStorage.load();
@@ -34,7 +30,14 @@ fun onInternalMessage(in: InMessage) {
         InternalTransferStep => {
             var storage = lazy WalletStorage.load();
             if (in.senderAddress != storage.minterAddress) {
-                assert (in.senderAddress == calcAddressOfJettonWallet(msg.transferInitiator!, storage.minterAddress, contract.getCode())) throw ERROR_NOT_VALID_WALLET;
+                assert (
+                    in.senderAddress ==
+                    calcAddressOfJettonWallet(
+                        msg.transferInitiator!,
+                        storage.minterAddress,
+                        contract.getCode(),
+                    )
+                ) throw ERROR_NOT_VALID_WALLET;
             }
             storage.jettonBalance += msg.jettonAmount;
             storage.save();
@@ -49,22 +52,26 @@ fun onInternalMessage(in: InMessage) {
                         jettonAmount: msg.jettonAmount,
                         transferInitiator: msg.transferInitiator,
                         forwardPayload: msg.forwardPayload,
-                    }
+                    },
                 });
-                notifyOwnerMsg.send(SEND_MODE_PAY_FEES_SEPARATELY | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+                notifyOwnerMsg.send(
+                    SEND_MODE_PAY_FEES_SEPARATELY | SEND_MODE_BOUNCE_ON_ACTION_FAIL,
+                );
             }
 
             if (msg.sendExcessesTo != null) {
-                val toLeaveOnBalance = contract.getOriginalBalance() - in.valueCoins + contract.getStorageDuePayment();
-                reserveToncoinsOnBalance(max(toLeaveOnBalance, calculateJettonWalletMinStorageFee()), RESERVE_MODE_AT_MOST);
+                val toLeaveOnBalance = contract.getOriginalBalance() - in.valueCoins +
+                contract.getStorageDuePayment();
+                reserveToncoinsOnBalance(
+                    max(toLeaveOnBalance, calculateJettonWalletMinStorageFee()),
+                    RESERVE_MODE_AT_MOST,
+                );
 
                 val excessesMsg = createMessage({
                     bounce: BounceMode.NoBounce,
                     dest: msg.sendExcessesTo,
                     value: 0,
-                    body: ReturnExcessesBack {
-                        queryId: msg.queryId
-                    }
+                    body: ReturnExcessesBack { queryId: msg.queryId },
                 });
                 // SAFETY: a prior reserve keeps required storage rent, and this optional excess refund may fail without affecting state correctness.
                 excessesMsg.send(SEND_MODE_CARRY_ALL_BALANCE | SEND_MODE_IGNORE_ERRORS);
@@ -73,8 +80,14 @@ fun onInternalMessage(in: InMessage) {
 
         AskToTransfer => {
             msg.forwardPayload.checkIsCorrectTlbEither();
-            assert (msg.transferRecipient.getWorkchain() == MY_WORKCHAIN) throw ERROR_WRONG_WORKCHAIN;
-            checkAmountIsEnoughToTransfer(in.valueCoins, msg.forwardTonAmount, in.originalForwardFee);
+            assert (
+                msg.transferRecipient.getWorkchain() == MY_WORKCHAIN
+            ) throw ERROR_WRONG_WORKCHAIN;
+            checkAmountIsEnoughToTransfer(
+                in.valueCoins,
+                msg.forwardTonAmount,
+                in.originalForwardFee,
+            );
 
             var storage = lazy WalletStorage.load();
             assert (in.senderAddress == storage.ownerAddress) throw ERROR_NOT_OWNER;
@@ -84,7 +97,11 @@ fun onInternalMessage(in: InMessage) {
 
             val deployMsg = createMessage({
                 bounce: BounceMode.Only256BitsOfBody,
-                dest: calcDeployedJettonWallet(msg.transferRecipient, storage.minterAddress, contract.getCode()),
+                dest: calcDeployedJettonWallet(
+                    msg.transferRecipient,
+                    storage.minterAddress,
+                    contract.getCode(),
+                ),
                 value: 0,
                 body: InternalTransferStep {
                     queryId: msg.queryId,
@@ -93,9 +110,11 @@ fun onInternalMessage(in: InMessage) {
                     sendExcessesTo: msg.sendExcessesTo,
                     forwardTonAmount: msg.forwardTonAmount,
                     forwardPayload: msg.forwardPayload,
-                }
+                },
             });
-            deployMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+            deployMsg.send(
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL,
+            );
         }
 
         AskToBurn => {
@@ -116,20 +135,20 @@ fun onInternalMessage(in: InMessage) {
                     jettonAmount: msg.jettonAmount,
                     burnInitiator: storage.ownerAddress,
                     sendExcessesTo: msg.sendExcessesTo,
-                }
+                },
             });
-            notifyMinterMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+            notifyMinterMsg.send(
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL,
+            );
         }
 
         TopUpTons => {
             // just accept tons
         }
 
-        else => throw 0xFFFF
+        else => throw 0xFFFF,
     }
 }
-
-
 
 struct JettonWalletDataReply {
     jettonBalance: coins
@@ -146,5 +165,5 @@ get fun get_wallet_data(): JettonWalletDataReply {
         ownerAddress: storage.ownerAddress,
         minterAddress: storage.minterAddress,
         jettonWalletCode: contract.getCode(),
-    }
+    };
 }

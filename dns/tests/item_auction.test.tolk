@@ -1,11 +1,11 @@
-import "test_utils"
-import "wrappers/DnsItem"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "../contracts/dns-utils"
 import "../contracts/errors"
 import "../contracts/messages"
+import "test_utils"
+import "wrappers/DnsItem"
 
 get fun `test item auction: initializes only from collection and handles repeated init`() {
     val collection = newActor("item_init_collection");
@@ -24,7 +24,8 @@ get fun `test item auction: initializes only from collection and handles repeate
             value: ton("1000"),
             dest: { stateInit: itemTemplate.stateInit! },
             body: initBody,
-        }));
+        }),
+    );
     expect(invalidDeploy).toHaveFailedTx({
         from: outsider.address,
         to: itemTemplate.address,
@@ -38,7 +39,8 @@ get fun `test item auction: initializes only from collection and handles repeate
             value: ton("1000"),
             dest: { stateInit: itemTemplate.stateInit! },
             body: initBody,
-        }));
+        }),
+    );
     expect(okDeploy).toHaveSuccessfulTx({ from: collection.address, to: itemTemplate.address });
 
     val item = NftItemContract.fromAddress(itemTemplate.address);
@@ -51,10 +53,15 @@ get fun `test item auction: initializes only from collection and handles repeate
     val auctionInfo = item.getAuctionInfo();
     expect(auctionInfo.maxBidAddress).toEqual(owner.address);
     expect(auctionInfo.maxBidAmount).toEqual(ton("1000"));
-    expect(auctionInfo.auctionEndTime).toEqual((AUCTION_START_TIME + 1 +
-    expectedAuctionDurationAt(AUCTION_START_TIME + 1)) as uint64);
+    expect(auctionInfo.auctionEndTime).toEqual(
+        (AUCTION_START_TIME + 1 + expectedAuctionDurationAt(AUCTION_START_TIME + 1)) as uint64,
+    );
 
-    val repeatedInit = item.sendAny(collection.address, initBody, { value: ton("1"), bounce: true });
+    val repeatedInit = item.sendAny(
+        collection.address,
+        initBody,
+        { value: ton("1"), bounce: true },
+    );
     expect(repeatedInit).toHaveSuccessfulTx({ from: collection.address, to: item.address });
 
     val auctionAfterRepeat = item.getAuctionInfo();
@@ -68,7 +75,7 @@ get fun `test item auction: bids require 5 percent and notify previous bidder`()
     val lowBid = item.sendAny(
         bidder.address,
         createEmptyCell(),
-        { value: ton("1000"), bounce: true }
+        { value: ton("1000"), bounce: true },
     );
     expect(lowBid).toHaveFailedTx({
         from: bidder.address,
@@ -79,7 +86,7 @@ get fun `test item auction: bids require 5 percent and notify previous bidder`()
     val validBid = item.sendAny(
         bidder.address,
         createEmptyCell(),
-        { value: ton("1050"), bounce: true }
+        { value: ton("1050"), bounce: true },
     );
     expect(validBid).toHaveSuccessfulTx<OutbidNotification>({
         from: item.address,
@@ -116,14 +123,14 @@ get fun `test item auction: completion sets owner and enforces top-up permission
     val ownerTopUp = item.sendAny(
         owner.address,
         createEmptyCell(),
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(ownerTopUp).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
     val outsiderTopUp = item.sendAny(
         outsider.address,
         createEmptyCell(),
-        { value: ton("1"), bounce: true }
+        { value: ton("1"), bounce: true },
     );
     expect(outsiderTopUp).toHaveFailedTx({
         from: outsider.address,

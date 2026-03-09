@@ -1,7 +1,7 @@
-import "test_utils"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "../contracts/dns-utils"
+import "test_utils"
 
 get fun `test root: accepts plain top-up messages`() {
     val (root, _) = deployRootContract();
@@ -22,12 +22,16 @@ get fun `test root: resolves ton, t.me, and ton.www according to resolver mappin
     val tonLeadingResolved = root.dnsresolve(makeLeadingZero(makeTonDomainSlice()), 777);
     expect(tonLeadingResolved.resolvedPrefixLengthBits).toEqual(4 * BYTE_SIZE);
     expect(tonLeadingResolved.resolvedRecord).toBeNotNull();
-    expect(parseNextResolverCell(tonLeadingResolved.resolvedRecord!)).toEqual(rootTonResolverAddress());
+    expect(parseNextResolverCell(tonLeadingResolved.resolvedRecord!)).toEqual(
+        rootTonResolverAddress(),
+    );
 
     val tonWithTailResolved = root.dnsresolve(makeLabelAndTailSlice("ton", "alice"), 123456);
     expect(tonWithTailResolved.resolvedPrefixLengthBits).toEqual(3 * BYTE_SIZE);
     expect(tonWithTailResolved.resolvedRecord).toBeNotNull();
-    expect(parseNextResolverCell(tonWithTailResolved.resolvedRecord!)).toEqual(rootTonResolverAddress());
+    expect(parseNextResolverCell(tonWithTailResolved.resolvedRecord!)).toEqual(
+        rootTonResolverAddress(),
+    );
 
     val tMeResolved = root.dnsresolve(makeTMeDomainSlice(), 0);
     expect(tMeResolved.resolvedPrefixLengthBits).toEqual(4 * BYTE_SIZE);
@@ -37,7 +41,9 @@ get fun `test root: resolves ton, t.me, and ton.www according to resolver mappin
     val tonWwwResolved = root.dnsresolve(makeTonWwwDomainSlice(), 0);
     expect(tonWwwResolved.resolvedPrefixLengthBits).toEqual(7 * BYTE_SIZE);
     expect(tonWwwResolved.resolvedRecord).toBeNotNull();
-    expect(parseNextResolverCell(tonWwwResolved.resolvedRecord!)).toEqual(rootTonWwwResolverAddress());
+    expect(parseNextResolverCell(tonWwwResolved.resolvedRecord!)).toEqual(
+        rootTonWwwResolverAddress(),
+    );
 }
 
 get fun `test root: resolves dot and unknown domains per TEP-81 behavior`() {

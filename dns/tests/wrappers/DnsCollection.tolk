@@ -35,7 +35,9 @@ fun NftCollectionContract.fromAddress(address: address) {
 /// Deploys the contract to the blockchain
 fun NftCollectionContract.deploy(self, from: address, config: SendParams = {}): SendResultList {
     if (self.stateInit == null) {
-        Assert.fail("Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment");
+        Assert.fail(
+            "Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment",
+        );
     }
     val outMessage = createMessage({
         bounce: config.bounce,
@@ -60,7 +62,12 @@ fun NftCollectionContract.sendDeployDnsDomain(
     return net.send(from, outMessage);
 }
 
-fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
+fun NftCollectionContract.sendFillUp(
+    self,
+    from: address,
+    queryId: uint64,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -71,7 +78,12 @@ fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, confi
 }
 
 /// Send outMessage to the contract with a custom body cell
-fun NftCollectionContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
+fun NftCollectionContract.sendAny(
+    self,
+    from: address,
+    body: cell,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -90,7 +102,11 @@ fun NftCollectionContract.getNftAddressByIndex(self, index: int): address {
 }
 
 fun NftCollectionContract.getNftContent(self, index: int, individualNftContent: cell): cell {
-    return net.runGetMethod(self.address, "get_nft_content", [index, individualNftContent] as tuple);
+    return net.runGetMethod(
+        self.address,
+        "get_nft_content",
+        [index, individualNftContent] as tuple,
+    );
 }
 
 fun NftCollectionContract.dnsresolve(self, subdomain: slice, category: int): DnsResolveResponse {

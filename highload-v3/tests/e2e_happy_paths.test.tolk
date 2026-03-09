@@ -1,10 +1,10 @@
-import "test_utils"
-import "wrappers/HighloadWalletV3"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/out_actions"
 import "../contracts/messages"
+import "test_utils"
+import "wrappers/HighloadWalletV3"
 
 const HIGHLOAD_E2E_DIRECT_SEND_VALUE = ton("1")
 const HIGHLOAD_E2E_BATCH_SEND_VALUE = ton("0.015")
@@ -34,7 +34,7 @@ fun buildBenchmarkActionListCellRange(
             net.randomAddress(null),
             HIGHLOAD_E2E_BATCH_SEND_VALUE,
             benchmarkMarkerBody(markerBase + startIndex + i),
-            actionMode
+            actionMode,
         );
         actionsCell = OutList { prev: actionsCell, action: action as OutAction }.toCell();
         i += 1;
@@ -63,8 +63,7 @@ fun processSingleTransferStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         value: HIGHLOAD_E2E_DIRECT_SEND_VALUE,
         dest: recipient,
         body,
-    })
-        .messageCell;
+    }).messageCell;
 
     val res = sendSignedExternal(
         ctx.wallet,
@@ -72,7 +71,7 @@ fun processSingleTransferStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         outMsg,
         SEND_MODE_PAY_FEES_SEPARATELY,
         queryId,
-        net.now()
+        net.now(),
     );
 
     expect(res).toHaveSuccessfulTx({
@@ -108,13 +107,11 @@ fun processMaxInlineBatchStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         0,
         HIGHLOAD_E2E_INLINE_BATCH_COUNT,
         HIGHLOAD_E2E_INLINE_MARKER_BASE,
-        0
+        0,
     );
-    val batchMessage = ctx.wallet.createInternalTransferMessageFromActionsCell(
-        queryId,
-        actionsCell,
-        0
-    )
+    val batchMessage = ctx
+        .wallet
+        .createInternalTransferMessageFromActionsCell(queryId, actionsCell, 0)
         .messageCell;
     val res = sendSignedExternal(
         ctx.wallet,
@@ -122,7 +119,7 @@ fun processMaxInlineBatchStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         batchMessage,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        net.now()
+        net.now(),
     );
 
     assertBatchStageSuccess(
@@ -130,7 +127,7 @@ fun processMaxInlineBatchStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         ctx.wallet,
         queryId,
         HIGHLOAD_E2E_INLINE_MARKER_BASE,
-        HIGHLOAD_E2E_INLINE_BATCH_COUNT
+        HIGHLOAD_E2E_INLINE_BATCH_COUNT,
     );
     expect(res).toHaveSuccessfulTx({
         from: ctx.wallet.address,
@@ -156,31 +153,27 @@ fun processChainedBatchWithCleanupStage(
     var rootActionsCell = buildBenchmarkActionListCellRange(
         0,
         HIGHLOAD_E2E_CHAIN_CUT,
-        HIGHLOAD_E2E_CHAINED_MARKER_BASE
+        HIGHLOAD_E2E_CHAINED_MARKER_BASE,
     );
     val tailOutMsgCount = HIGHLOAD_E2E_CHAINED_BATCH_COUNT - HIGHLOAD_E2E_CHAIN_CUT;
     val tailActionsCell = buildBenchmarkActionListCellRange(
         HIGHLOAD_E2E_CHAIN_CUT,
         tailOutMsgCount,
-        HIGHLOAD_E2E_CHAINED_MARKER_BASE
+        HIGHLOAD_E2E_CHAINED_MARKER_BASE,
     );
 
-    val tailTransfer = ctx.wallet.createInternalTransferMessageFromActionsCell(
-        queryId,
-        tailActionsCell,
-        0
-    );
+    val tailTransfer = ctx
+        .wallet
+        .createInternalTransferMessageFromActionsCell(queryId, tailActionsCell, 0);
     val chainAction = OutActionSendMessage {
         mode: SEND_MODE_CARRY_ALL_BALANCE as uint8,
         outMsg: tailTransfer.messageCell,
     };
     rootActionsCell = OutList { prev: rootActionsCell, action: chainAction as OutAction }.toCell();
 
-    val rootTransfer = ctx.wallet.createInternalTransferMessageFromActionsCell(
-        queryId,
-        rootActionsCell,
-        0
-    )
+    val rootTransfer = ctx
+        .wallet
+        .createInternalTransferMessageFromActionsCell(queryId, rootActionsCell, 0)
         .messageCell;
     val res = sendSignedExternal(
         ctx.wallet,
@@ -188,7 +181,7 @@ fun processChainedBatchWithCleanupStage(
         rootTransfer,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        net.now()
+        net.now(),
     );
 
     assertBatchStageSuccess(
@@ -196,7 +189,7 @@ fun processChainedBatchWithCleanupStage(
         ctx.wallet,
         queryId,
         HIGHLOAD_E2E_CHAINED_MARKER_BASE,
-        HIGHLOAD_E2E_CHAINED_BATCH_COUNT
+        HIGHLOAD_E2E_CHAINED_BATCH_COUNT,
     );
     expect(res).toHaveSuccessfulTx({
         from: ctx.wallet.address,

@@ -1,5 +1,3 @@
-import "test_utils"
-import "wrappers/JettonMinter"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
@@ -7,6 +5,8 @@ import "@acton/testing/transaction_expect"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
+import "test_utils"
+import "wrappers/JettonMinter"
 
 get fun `test admin: deploy should create minter without bounce`() {
     val deployer = net.treasury("deployer_manual_deploy");
@@ -51,7 +51,7 @@ get fun `test admin: non-admin should not be able to mint jettons`() {
         deployer.address,
         ton("5"),
         ton("0.05"),
-        ton("0.3")
+        ton("0.3"),
     );
     expect(mintResult).toHaveFailedTx<MintNewJettons>({
         from: notDeployer.address,
@@ -132,10 +132,7 @@ get fun `test admin: non-admin cannot drop admin access`() {
 get fun `test admin: admin can change metadata`() {
     val (minter, deployer, _) = setupTest();
 
-    val changeResult = minter.sendChangeMetadata(
-        deployer.address,
-        "https://new.meta"
-    );
+    val changeResult = minter.sendChangeMetadata(deployer.address, "https://new.meta");
     expect(changeResult).toHaveSuccessfulTx<ChangeMinterMetadataUri>({
         from: deployer.address,
         to: minter.address,
@@ -146,10 +143,7 @@ get fun `test admin: non-admin cannot change metadata`() {
     val (minter, _, notDeployer) = setupTest();
     val oldContentHash = minter.getContent().hash();
 
-    val changeResult = minter.sendChangeMetadata(
-        notDeployer.address,
-        "https://evil.meta"
-    );
+    val changeResult = minter.sendChangeMetadata(notDeployer.address, "https://evil.meta");
     expect(changeResult).toHaveFailedTx<ChangeMinterMetadataUri>({
         from: notDeployer.address,
         to: minter.address,
@@ -217,5 +211,8 @@ get fun `test admin: admin should be able to upgrade minter`() {
     val newCode = build("notcoin_minter");
 
     val res = minter.sendUpgrade(deployer.address, newCode, newData);
-    expect(res).toHaveSuccessfulTx<UpgradeMinterCode>({ from: deployer.address, to: minter.address });
+    expect(res).toHaveSuccessfulTx<UpgradeMinterCode>({
+        from: deployer.address,
+        to: minter.address,
+    });
 }

@@ -5,9 +5,9 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
-import "wrappers/HighloadWalletV3"
 import "../contracts/bitmap"
 import "../contracts/storage"
+import "wrappers/HighloadWalletV3"
 
 const SUBWALLET_ID = 239
 const DEFAULT_TIMEOUT = 128
@@ -79,7 +79,10 @@ fun setupHighloadTest(timeout: int = DEFAULT_TIMEOUT): TestContext {
     val notDeployer = net.treasury("not_deployer");
 
     val wallet = HighloadWalletV3.fromConfig(keyPair.publicKey, SUBWALLET_ID, timeout);
-    val deployRes = wallet.deploy(deployer.address, { value: HIGHLOAD_DEPLOY_VALUE, bounce: false });
+    val deployRes = wallet.deploy(
+        deployer.address,
+        { value: HIGHLOAD_DEPLOY_VALUE, bounce: false },
+    );
     expect(deployRes).toHaveSuccessfulDeploy({ to: wallet.address });
 
     return TestContext {
@@ -189,7 +192,11 @@ fun setActiveDataCell(addr: address, newData: cell) {
     net.setAccount(addr, info as Account);
 }
 
-fun emptyInternalTransferMessage(wallet: HighloadWalletV3, queryId: int = 0, value: coins = 0): cell {
+fun emptyInternalTransferMessage(
+    wallet: HighloadWalletV3,
+    queryId: int = 0,
+    value: coins = 0,
+): cell {
     val actions = array<OutAction> [];
     return wallet.createInternalTransferMessage(queryId, actions, value).messageCell;
 }
@@ -204,14 +211,17 @@ fun buildSignedExternalBody(
     subwalletId: int = SUBWALLET_ID,
     timeout: int = DEFAULT_TIMEOUT,
 ): cell {
-    return HighloadWalletV3.buildExternalRequestBody(keyPair, HighloadExternalRequest {
-        messageToSend,
-        mode,
-        queryId,
-        createdAt,
-        subwalletId,
-        timeout,
-    });
+    return HighloadWalletV3.buildExternalRequestBody(
+        keyPair,
+        HighloadExternalRequest {
+            messageToSend,
+            mode,
+            queryId,
+            createdAt,
+            subwalletId,
+            timeout,
+        },
+    );
 }
 
 fun sendSignedExternal(
@@ -224,14 +234,17 @@ fun sendSignedExternal(
     subwalletId: int = SUBWALLET_ID,
     timeout: int = DEFAULT_TIMEOUT,
 ): SendResultList {
-    return wallet.sendExternalRequest(keyPair, HighloadExternalRequest {
-        messageToSend,
-        mode,
-        queryId,
-        createdAt,
-        subwalletId,
-        timeout,
-    });
+    return wallet.sendExternalRequest(
+        keyPair,
+        HighloadExternalRequest {
+            messageToSend,
+            mode,
+            queryId,
+            createdAt,
+            subwalletId,
+            timeout,
+        },
+    );
 }
 
 fun trySendSignedExternal(
@@ -244,14 +257,17 @@ fun trySendSignedExternal(
     subwalletId: int = SUBWALLET_ID,
     timeout: int = DEFAULT_TIMEOUT,
 ): SendResultList? {
-    return wallet.trySendExternalRequest(keyPair, HighloadExternalRequest {
-        messageToSend,
-        mode,
-        queryId,
-        createdAt,
-        subwalletId,
-        timeout,
-    });
+    return wallet.trySendExternalRequest(
+        keyPair,
+        HighloadExternalRequest {
+            messageToSend,
+            mode,
+            queryId,
+            createdAt,
+            subwalletId,
+            timeout,
+        },
+    );
 }
 
 fun trySendSignedExternalSingle(
@@ -264,14 +280,17 @@ fun trySendSignedExternalSingle(
     subwalletId: int = SUBWALLET_ID,
     timeout: int = DEFAULT_TIMEOUT,
 ): SendResult? {
-    return wallet.trySendExternalRequestSingle(keyPair, HighloadExternalRequest {
-        messageToSend,
-        mode,
-        queryId,
-        createdAt,
-        subwalletId,
-        timeout,
-    });
+    return wallet.trySendExternalRequestSingle(
+        keyPair,
+        HighloadExternalRequest {
+            messageToSend,
+            mode,
+            queryId,
+            createdAt,
+            subwalletId,
+            timeout,
+        },
+    );
 }
 
 fun sendAction(
@@ -298,10 +317,7 @@ fun sendAction(
 fun externalOutAction(body: TestExternalOutBody, mode: int = 0): OutActionSendMessage {
     return OutActionSendMessage {
         mode: mode as uint8,
-        outMsg: createExternalLogMessage({
-            dest: createAddressNone(),
-            body,
-        }).messageCell,
+        outMsg: createExternalLogMessage({ dest: createAddressNone(), body }).messageCell,
     };
 }
 

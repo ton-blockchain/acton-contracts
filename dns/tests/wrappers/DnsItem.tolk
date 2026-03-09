@@ -37,7 +37,9 @@ fun NftItemContract.fromAddress(address: address) {
 /// Deploys the contract to the blockchain
 fun NftItemContract.deploy(self, from: address, config: SendParams = {}): SendResultList {
     if (self.stateInit == null) {
-        Assert.fail("Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment");
+        Assert.fail(
+            "Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment",
+        );
     }
     val outMessage = createMessage({
         bounce: config.bounce,
@@ -130,7 +132,12 @@ fun NftItemContract.sendDnsRecordRelease(
     return net.send(from, outMessage);
 }
 
-fun NftItemContract.sendGetStaticData(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendGetStaticData(
+    self,
+    from: address,
+    queryId: uint64,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -155,7 +162,11 @@ fun NftItemContract.sendGovernanceTransfer(
     return net.send(from, outMessage);
 }
 
-fun NftItemContract.sendGovernanceRelease(self, from: address, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendGovernanceRelease(
+    self,
+    from: address,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -166,7 +177,12 @@ fun NftItemContract.sendGovernanceRelease(self, from: address, config: SendParam
 }
 
 /// Send outMessage to the contract with a custom body cell
-fun NftItemContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendAny(
+    self,
+    from: address,
+    body: cell,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,

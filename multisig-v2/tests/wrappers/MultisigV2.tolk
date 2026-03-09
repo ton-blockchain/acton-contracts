@@ -38,10 +38,7 @@ fun toIndexedAddressMap(addresses: array<address>): IndexedAddressMap {
 }
 
 fun MultisigV2.fromStorage(storage: MultisigStorage, toShard: AddressShardingOptions? = null) {
-    val stateInit = ContractState {
-        code: build("multisig_v2"),
-        data: storage.toCell(),
-    };
+    val stateInit = ContractState { code: build("multisig_v2"), data: storage.toCell() };
 
     val address = toShard == null
         ? AutoDeployAddress { stateInit }.calculateAddress()
@@ -138,10 +135,7 @@ fun MultisigV2.sendExecuteInternal(
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: ExecuteInternalRequest {
-            queryId,
-            order,
-        },
+        body: ExecuteInternalRequest { queryId, order },
     });
     return net.send(from, executeInternalMessage);
 }

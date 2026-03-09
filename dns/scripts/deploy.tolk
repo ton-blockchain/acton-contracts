@@ -3,7 +3,9 @@ import "@acton/emulation/network"
 import "../contracts/storage"
 
 fun makeCollectionContentCell(): cell {
-    return beginCell().storeUint(1, 8).storeSlice("https://ton.org/collection.json".beginParse())
+    return beginCell()
+        .storeUint(1, 8)
+        .storeSlice("https://ton.org/collection.json".beginParse())
         .endCell();
 }
 
@@ -27,17 +29,19 @@ fun deployCollection(deployer: Wallet) {
     return net.send(deployer.address, msg);
 }
 
-fun deployRoot(deployer: Wallet, tonResolver: address, tMeResolver: address, tonWwwResolver: address) {
+fun deployRoot(
+    deployer: Wallet,
+    tonResolver: address,
+    tMeResolver: address,
+    tonWwwResolver: address,
+) {
     val rootStorage: RootDnsStorage = {
         tonAddress: tonResolver,
         tMeAddress: tMeResolver,
         tonWwwAddress: tonWwwResolver,
     };
 
-    val stateInit = ContractState {
-        code: build("dns_root"),
-        data: rootStorage.toCell(),
-    };
+    val stateInit = ContractState { code: build("dns_root"), data: rootStorage.toCell() };
 
     val msg = createMessage({
         bounce: true,
@@ -55,15 +59,16 @@ fun main() {
     println1("Collection deploy txs: {}", collectionTxs.size());
 
     // Replace these placeholders with real resolver addresses for your deployment topology.
-    val sampleTonResolver = address("0:0000000000000000000000000000000000000000000000000000000000000000");
-    val sampleTMeResolver = address("0:0000000000000000000000000000000000000000000000000000000000000000");
-    val sampleTonWwwResolver = address("0:0000000000000000000000000000000000000000000000000000000000000000");
-
-    val rootTxs = deployRoot(
-        deployer,
-        sampleTonResolver,
-        sampleTMeResolver,
-        sampleTonWwwResolver,
+    val sampleTonResolver = address(
+        "0:0000000000000000000000000000000000000000000000000000000000000000",
     );
+    val sampleTMeResolver = address(
+        "0:0000000000000000000000000000000000000000000000000000000000000000",
+    );
+    val sampleTonWwwResolver = address(
+        "0:0000000000000000000000000000000000000000000000000000000000000000",
+    );
+
+    val rootTxs = deployRoot(deployer, sampleTonResolver, sampleTMeResolver, sampleTonWwwResolver);
     println1("Root deploy txs: {}", rootTxs.size());
 }

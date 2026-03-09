@@ -1,8 +1,8 @@
-import "test_utils"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/types/message"
 import "../contracts/messages"
+import "test_utils"
 
 get fun `test minter restores supply on internal_transfer bounce`() {
     val (minter, deployer, _) = setupTest();
@@ -34,9 +34,10 @@ get fun `test minter restores supply on internal_transfer bounce`() {
 
     val outMsg = res.outMessages.at<InternalTransferStep>(0);
     val outBody = outMsg.loadBody();
-    val bouncedBody = beginCell().storeUint(0xffffffff, 32).storeSlice(
-        outBody.toCell().beginParse(),
-    ).endCell();
+    val bouncedBody = beginCell()
+        .storeUint(0xffffffff, 32)
+        .storeSlice(outBody.toCell().beginParse())
+        .endCell();
     val wallet = userWallet(minter, deployer.address);
     val bouncedMsg = createMessage({
         bounce: false,
@@ -76,9 +77,10 @@ get fun `test wallet restores balance on internal_transfer bounce`() {
 
     val outMsg = res.outMessages.at<InternalTransferStep>(0);
     val outBody = outMsg.loadBody();
-    val bouncedBody = beginCell().storeUint(0xffffffff, 32).storeSlice(
-        outBody.toCell().beginParse(),
-    ).endCell();
+    val bouncedBody = beginCell()
+        .storeUint(0xffffffff, 32)
+        .storeSlice(outBody.toCell().beginParse())
+        .endCell();
     val receiverWallet = userWallet(minter, notDeployer.address);
     val bouncedMsg = createMessage({
         bounce: false,
@@ -112,9 +114,10 @@ get fun `test wallet restores balance on burn_notification bounce`() {
 
     val outMsg = res.outMessages.at<BurnNotificationForMinter>(0);
     val outBody = outMsg.loadBody();
-    val bouncedBody = beginCell().storeUint(0xffffffff, 32).storeSlice(
-        outBody.toCell().beginParse(),
-    ).endCell();
+    val bouncedBody = beginCell()
+        .storeUint(0xffffffff, 32)
+        .storeSlice(outBody.toCell().beginParse())
+        .endCell();
     val bouncedMsg = createMessage({
         bounce: false,
         value: ton("0.95"),

@@ -1,11 +1,11 @@
 import "@acton/io"
+import "@acton/crypto/crypto"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "@acton/crypto/crypto"
-import "./wrappers/WalletV5Contract"
-import "../contracts/messages"
 import "../contracts/errors"
+import "../contracts/messages"
+import "./wrappers/WalletV5Contract"
 
 get fun `test w5: Send a simple transfer`() {
     val keyPair = crypto.generateKeyPair();
@@ -214,14 +214,11 @@ get fun `test w5: Should fail SetData action`() {
     // Pack SetData (opcode 0x1ff8ea0b) as an extra action — unsupported,
     // rejected by processExtraActions with ERROR_UNSUPPORTED_ACTION (141).
     // Can't use ActionsList wrapper: ExtraAction is a union type, no unsafe cast available.
-    val setDataAction = beginCell()
-        .storeUint(0x1ff8ea0b, 32)
-        .storeRef(createEmptyCell())
-        .endCell();
+    val setDataAction = beginCell().storeUint(0x1ff8ea0b, 32).storeRef(createEmptyCell()).endCell();
 
     val actionsCell = beginCell()
-        .storeUint(0, 1)   // no c5 actions
-        .storeUint(1, 1)   // has extra actions
+        .storeUint(0, 1) // no c5 actions
+        .storeUint(1, 1) // has extra actions
         .storeSlice(setDataAction.beginParse())
         .endCell();
 
@@ -234,17 +231,12 @@ get fun `test w5: Should fail SetData action`() {
         .endCell();
 
     val signature = crypto.sign(keyPair.privateKey, payload);
-    val body = beginCell()
-        .storeSlice(payload.beginParse())
-        .storeSlice(signature)
-        .endCell();
+    val body = beginCell().storeSlice(payload.beginParse()).storeSlice(signature).endCell();
 
     val receipt = walletV5.sendExternalRaw(body);
 
     expect(receipt != null).toBeTrue();
-    expect(receipt!).toHaveTx({
-        exitCode: ERROR_UNSUPPORTED_ACTION,
-    });
+    expect(receipt!).toHaveTx({ exitCode: ERROR_UNSUPPORTED_ACTION });
     expect(walletV5.getSeqno()).toEqual(1);
 }
 
@@ -254,16 +246,16 @@ get fun `test w5: Should fail SetCode action`() {
 
     // SetCode action (opcode 0xad4de08e) packed as C5 action
     val setCodeAction = beginCell()
-        .storeRef(createEmptyCell())    // prev action (empty)
-        .storeUint(0xad4de08e, 32)      // action_set_code
+        .storeRef(createEmptyCell()) // prev action (empty)
+        .storeUint(0xad4de08e, 32) // action_set_code
         .storeUint(SEND_MODE_IGNORE_ERRORS, 8) // sendMode to pass external check
-        .storeRef(createEmptyCell())     // code cell
+        .storeRef(createEmptyCell()) // code cell
         .endCell();
 
     val actionsCell = beginCell()
-        .storeUint(1, 1)   // has c5 actions
+        .storeUint(1, 1) // has c5 actions
         .storeRef(setCodeAction)
-        .storeUint(0, 1)   // no extra actions
+        .storeUint(0, 1) // no extra actions
         .endCell();
 
     val payload = beginCell()
@@ -275,17 +267,12 @@ get fun `test w5: Should fail SetCode action`() {
         .endCell();
 
     val signature = crypto.sign(keyPair.privateKey, payload);
-    val body = beginCell()
-        .storeSlice(payload.beginParse())
-        .storeSlice(signature)
-        .endCell();
+    val body = beginCell().storeSlice(payload.beginParse()).storeSlice(signature).endCell();
 
     val receipt = walletV5.sendExternalRaw(body);
 
     expect(receipt != null).toBeTrue();
-    expect(receipt!).toHaveTx({
-        exitCode: ERROR_INVALID_C5,
-    });
+    expect(receipt!).toHaveTx({ exitCode: ERROR_INVALID_C5 });
     expect(walletV5.getSeqno()).toEqual(1);
 }
 
@@ -319,9 +306,7 @@ get fun `test w5: Should fail adding existing extension`() {
     val receipt = walletV5.sendExternalSigned(body2)!;
 
     expect(receipt.size()).toEqual(1);
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_ADD_EXTENSION,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_ADD_EXTENSION });
 
     // Extension dict should still have 1 entry
     val ext2 = walletV5.getExtensions();
@@ -344,9 +329,7 @@ get fun `test w5: Should fail removing not existing extension`() {
     val receipt = walletV5.sendExternalSigned(body)!;
 
     expect(receipt.size()).toEqual(1);
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_REMOVE_EXTENSION,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_REMOVE_EXTENSION });
 
     val ext = walletV5.getExtensions();
     expect(ext).toBeEmpty();
@@ -531,9 +514,7 @@ get fun `test w5: only_extension_can_change_signature_mode`() {
     val receipt = walletV5.sendExternalSigned(body)!;
 
     expect(receipt.size()).toEqual(1);
-    expect(receipt).toHaveTx({
-        exitCode: ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE,
-    });
+    expect(receipt).toHaveTx({ exitCode: ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE });
 
     expect(walletV5.isSignatureAllowed()).toEqual(true);
 }

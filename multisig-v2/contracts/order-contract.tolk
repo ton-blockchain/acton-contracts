@@ -19,8 +19,10 @@ fun onInternalMessage(in: InMessage) {
             assert (header.isInitialized()) throw ERROR_UNAUTHORIZED_SIGN;
 
             var storage = header.loadInitialized();
-            val (signerIndex, foundSigner) = storage.remaining.signers.findSignerByAddress(in
-                .senderAddress);
+            val (signerIndex, foundSigner) = storage
+                .remaining
+                .signers
+                .findSignerByAddress(in.senderAddress);
 
             assert (foundSigner) throw ERROR_UNAUTHORIZED_SIGN;
             storage.approve(signerIndex, in.senderAddress, blockchain.logicalTime());
