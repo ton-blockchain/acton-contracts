@@ -1,5 +1,5 @@
 struct Storage {
-    currectElections: cell;
+    currectElections: Cell<Elections>?;
     credits: cell;
     pastElections: cell;
     grams: coins;
@@ -7,13 +7,135 @@ struct Storage {
     activeHash: uint256;
 }
 
+fun Storage.load(): Storage {
+    return Storage.fromCell(contract.getData());
+}
+
+fun Storage.save(self): void {
+    contract.setData(self.toCell());
+}
+
+struct MemberParams {
+    msgValue: coins;
+    timestamp: uint32;
+    maxFactor: uint32;
+    srcAddr: uint256;
+    adnlAddr: uint256;
+}
 
 struct Elections {
     electionsAt: uint32;
     electionsCloseAt: uint32;
     minStake: coins;
     totalStake: coins;
-    members: cell;
+    members: map<uint256, MemberParams>;
     isFailed: bool;
     isFinished: bool;
+}
+
+struct PastElection {
+    unfreezeAt: uint32;
+    stakeHeld: uint32;
+    vsetHash: uint256;
+    frozenDict: cell;
+    totalStake: coins;
+    bonuses: coins;
+    complaints: cell;
+}
+
+struct(0x2d) ComplaintStatus {
+    complaint: cell;
+    voters: cell;
+    vsetId: uint256;
+    weightRemaining: int64;
+}
+
+// TODO not sure about this opcode
+struct(0xbc) Complaint {
+    validatorPubkey: uint256;
+    description: cell;
+    createdAt: uint32;
+    severity: uint8;
+    rewardAddr: uint256;
+    paid: coins;
+    suggestedFind: coins;
+    suggestedFinePart: uint32;
+}
+
+struct(0x1a) ComplaintPrices {
+    deposit: coins;
+    bitPrice: coins;
+    cellPrice: coins;
+}
+
+fun getComplaintPrices(): ComplaintPrices {
+    val info = blockchain.configParam(13);
+    if (info == null) {
+        return ComplaintPrices {
+            deposit: 1 << 36,
+            bitPrice: 1,
+            cellPrice: 512,
+        }
+    }
+    return ComplaintPrices.fromCell(info);
+}
+
+struct ValidatorConfig {
+    electedFor: uint32;
+    electionsBeginBefore: uint32;
+    electionsEndBefore: uint32;
+    stakeHeldFor: uint32;
+}
+
+fun getValidatorConf(): ValidatorConfig {
+    // SAFETY: This param can't be null
+    val rawConf = blockchain.configParam(15)!;
+    return ValidatorConfig.fromCell(rawConf);
+}
+
+// Validator set
+struct(0x12) VSet {
+    utimeSince: uint32;
+    utimeUntil: uint32;
+    // These fields are not used
+    _total: uint16;
+    _main: uint16;
+    totalWeight: uint64;
+    dict: map<uint16, slice>;
+}
+
+fun getCurrentVset(): VSet {
+    // SAFETY: This param can't be null
+    val vset = blockchain.configParam(34)!;
+    return VSet.fromCell(vset);
+}
+
+struct ValidatorDescr {
+    totalWeight: uint64;
+    value: slice;
+}
+
+fun getValidatorDescr(idx: int): ValidatorDescr {
+    val vset = getCurrentVset();
+    val res = vset.dict.get(idx);
+    // Assume, that the value is always found
+    return ValidatorDescr {
+        totalWeight: vset.totalWeight,
+        value: res.loadValue(),
+    }
+}
+
+
+struct ReturnMsg {
+    op: uint32;
+    queryId: uint64;
+    reason: uint32;
+}
+
+fun ReturnMsg.packToBuilder(self, mutate b: builder) {
+    b.storeUint(self.op, 32);
+    b.storeUint(self.queryId, 64);
+    if (self.reason >= 0) {
+        b.storeUint(self.reason, 32);
+    }
 }

@@ -65,6 +65,11 @@ name = "Item"
 src = "nft/contracts/nft-item-contract.tolk"
 depends = []
 
+# Elector
+[contracts.elector]
+name = "Elector"
+src = "elector/elector.tolk"
+
 [lint.acton_jetton_minter]
 asm-function-missing-safety-comment = "allow"
 
