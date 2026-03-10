@@ -33,7 +33,10 @@ struct (0x7abf6c01) TestExternalOutBody {
 }
 
 fun queryIdZero() {
-    return HighloadQueryId { shift: 0, bitNumber: 0 };
+    return HighloadQueryId {
+        shift: 0,
+        bitNumber: 0,
+    };
 }
 
 fun HighloadQueryId.fromShiftAndBitNumber(shift: int, bitNumber: int) {
@@ -85,12 +88,7 @@ fun setupHighloadTest(timeout: int = DEFAULT_TIMEOUT): TestContext {
     );
     expect(deployRes).toHaveSuccessfulDeploy({ to: wallet.address });
 
-    return TestContext {
-        wallet,
-        deployer,
-        notDeployer,
-        keyPair,
-    };
+    return TestContext { wallet, deployer, notDeployer, keyPair };
 }
 
 fun setupHighloadTestWithKeyPair(
@@ -213,14 +211,7 @@ fun buildSignedExternalBody(
 ): cell {
     return HighloadWalletV3.buildExternalRequestBody(
         keyPair,
-        HighloadExternalRequest {
-            messageToSend,
-            mode,
-            queryId,
-            createdAt,
-            subwalletId,
-            timeout,
-        },
+        HighloadExternalRequest { messageToSend, mode, queryId, createdAt, subwalletId, timeout },
     );
 }
 
@@ -236,14 +227,7 @@ fun sendSignedExternal(
 ): SendResultList {
     return wallet.sendExternalRequest(
         keyPair,
-        HighloadExternalRequest {
-            messageToSend,
-            mode,
-            queryId,
-            createdAt,
-            subwalletId,
-            timeout,
-        },
+        HighloadExternalRequest { messageToSend, mode, queryId, createdAt, subwalletId, timeout },
     );
 }
 
@@ -259,14 +243,7 @@ fun trySendSignedExternal(
 ): SendResultList? {
     return wallet.trySendExternalRequest(
         keyPair,
-        HighloadExternalRequest {
-            messageToSend,
-            mode,
-            queryId,
-            createdAt,
-            subwalletId,
-            timeout,
-        },
+        HighloadExternalRequest { messageToSend, mode, queryId, createdAt, subwalletId, timeout },
     );
 }
 
@@ -282,14 +259,7 @@ fun trySendSignedExternalSingle(
 ): SendResult? {
     return wallet.trySendExternalRequestSingle(
         keyPair,
-        HighloadExternalRequest {
-            messageToSend,
-            mode,
-            queryId,
-            createdAt,
-            subwalletId,
-            timeout,
-        },
+        HighloadExternalRequest { messageToSend, mode, queryId, createdAt, subwalletId, timeout },
     );
 }
 

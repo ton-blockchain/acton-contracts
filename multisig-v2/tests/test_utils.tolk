@@ -325,7 +325,10 @@ fun buildLargeOrderRange(
         i += 1;
     }
 
-    val chainBody = ExecuteInternalRequest { queryId: 0, order: tail }.toCell();
+    val chainBody = ExecuteInternalRequest {
+        queryId: 0,
+        order: tail,
+    }.toCell();
 
     val chainMsg = createMessage({
         bounce: true,

@@ -30,9 +30,15 @@ fun JettonMinter.sendDiscovery(
 }
 
 fun JettonMinter.fromStorage(storage: MinterStorage) {
-    val init = ContractState { code: build("acton_jetton_minter"), data: storage.toCell() };
+    val init = ContractState {
+        code: build("acton_jetton_minter"),
+        data: storage.toCell(),
+    };
     val addr = AutoDeployAddress { stateInit: init }.calculateAddress();
-    return JettonMinter { address: addr, init };
+    return JettonMinter {
+        address: addr,
+        init,
+    };
 }
 
 fun JettonMinter.sendDeploy(self, from: address, params: SendParams) {
@@ -81,7 +87,10 @@ fun JettonMinter.sendChangeAdmin(self, from: address, newOwner: address) {
         bounce: false,
         value: ton("0.05"),
         dest: self.address,
-        body: ChangeMinterAdmin { queryId: 0, newAdminAddress: newOwner },
+        body: ChangeMinterAdmin {
+            queryId: 0,
+            newAdminAddress: newOwner,
+        },
     });
     return net.send(from, outMessage);
 }
@@ -111,7 +120,10 @@ fun JettonMinter.sendChangeMetadata(self, from: address, newMetadata: string) {
         bounce: false,
         value: ton("0.05"),
         dest: self.address,
-        body: ChangeMinterMetadataUri { queryId: 0, newMetadataUri: newMetadata },
+        body: ChangeMinterMetadataUri {
+            queryId: 0,
+            newMetadataUri: newMetadata,
+        },
     });
     return net.send(from, outMessage);
 }

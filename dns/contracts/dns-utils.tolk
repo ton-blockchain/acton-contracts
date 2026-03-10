@@ -110,7 +110,10 @@ struct MinPriceConfig {
 }
 
 fun getMinPriceConfig(domainCharCount: int): MinPriceConfig {
-    var res = MinPriceConfig { startMinPrice: 10, endMinPrice: 1 };
+    var res = MinPriceConfig {
+        startMinPrice: 10,
+        endMinPrice: 1,
+    };
 
     if (domainCharCount == 4) {
         res = { startMinPrice: 1000, endMinPrice: 100 };

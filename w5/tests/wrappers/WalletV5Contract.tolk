@@ -26,7 +26,10 @@ fun WalletV5Contract.deployCodeLib(): cell {
 }
 
 fun WalletV5Contract.fromStorage(storage: Storage) {
-    val init = ContractState { code: WalletV5Contract.deployCodeLib(), data: storage.toCell() };
+    val init = ContractState {
+        code: WalletV5Contract.deployCodeLib(),
+        data: storage.toCell(),
+    };
     val address = AutoDeployAddress { stateInit: init }.calculateAddress();
     return WalletV5Contract { address, init };
 }
@@ -300,12 +303,7 @@ fun createExternalSignedBody(
     if (validUntil == null) {
         validUntil = blockchain.now() + 1000;
     }
-    val payload = ExternalSignedPayload {
-        subwalletId,
-        validUntil,
-        seqno,
-        actions,
-    };
+    val payload = ExternalSignedPayload { subwalletId, validUntil, seqno, actions };
     val signature = crypto.sign(keyPair.privateKey, payload.toCell()) as bytes64;
     return ExternalSignedBody { payload, signature };
 }
@@ -330,7 +328,10 @@ fun addExtensionSigned(
 ): SendResultList {
     var extraActions: array<ExtraAction> = [];
     extraActions.push(AddExtensionExtraAction { addr: extensionAddr });
-    val actionsBody = ActionsList { outActions: [], extraActions };
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    };
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actionsBody);
     return walletV5.sendSignedBody(sender, signedBody, { value: ton("0.1") });
 }

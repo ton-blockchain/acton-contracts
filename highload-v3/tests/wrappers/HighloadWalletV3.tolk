@@ -29,11 +29,17 @@ fun HighloadWalletV3.fromStorage(
     storage: HighloadWalletStorage,
     toShard: AddressShardingOptions? = null,
 ) {
-    val stateInit = ContractState { code: build("highload_wallet_v3"), data: storage.toCell() };
+    val stateInit = ContractState {
+        code: build("highload_wallet_v3"),
+        data: storage.toCell(),
+    };
     val cAddress = toShard == null
         ? AutoDeployAddress { stateInit }.calculateAddress()
         : AutoDeployAddress { stateInit, toShard }.calculateAddress();
-    return HighloadWalletV3 { address: cAddress, stateInit };
+    return HighloadWalletV3 {
+        address: cAddress,
+        stateInit,
+    };
 }
 
 fun HighloadWalletV3.fromConfig(
@@ -119,7 +125,10 @@ fun packOutActions(actions: array<OutAction>): cell {
     var head = createEmptyCell() as Cell<OutList>;
     var i = 0;
     while (i < actions.size()) {
-        head = OutList { prev: head, action: actions.get(i) as OutAction }.toCell();
+        head = OutList {
+            prev: head,
+            action: actions.get(i) as OutAction,
+        }.toCell();
         i += 1;
     }
     return head;
@@ -130,7 +139,10 @@ fun packSendActionsToCell(messages: array<OutActionSendMessage>, start: int, cou
     var i = 0;
     while (i < count) {
         val action = messages.get(start + i);
-        head = OutList { prev: head, action: action as OutActionSendMessage as OutAction }.toCell();
+        head = OutList {
+            prev: head,
+            action: action as OutActionSendMessage as OutAction,
+        }.toCell();
         i += 1;
     }
     return head;
@@ -144,7 +156,10 @@ fun HighloadWalletV3.createInternalTransferBody(queryId: int, actions: array<Out
 }
 
 fun HighloadWalletV3.createInternalTransferBodyFromActionsCell(queryId: int, actionsCell: cell) {
-    return InternalTransfer { queryId: queryId as uint64, actions: actionsCell }.toCell();
+    return InternalTransfer {
+        queryId: queryId as uint64,
+        actions: actionsCell,
+    }.toCell();
 }
 
 fun HighloadWalletV3.createInternalTransferMessage(

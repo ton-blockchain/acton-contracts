@@ -76,12 +76,18 @@ fun domainIndex(domain: string): uint256 {
 }
 
 fun makeItemStorageNonInit(collectionAddress: address, domain: string = DEFAULT_DOMAIN) {
-    return ItemStorageNotInitialized { index: domainIndex(domain), collectionAddress };
+    return ItemStorageNotInitialized {
+        index: domainIndex(domain),
+        collectionAddress,
+    };
 }
 
 fun makeItemInitBody(fromAddress: address, domain: string): cell {
     val domainSlice = domain.beginParse();
-    return ItemInitData { fromAddress, domain: domainSlice.toCell() }.toCell();
+    return ItemInitData {
+        fromAddress,
+        domain: domainSlice.toCell(),
+    }.toCell();
 }
 
 fun repeatAsciiChar(charCode: int, count: int): slice {

@@ -41,7 +41,10 @@ fun deployRoot(
         tonWwwAddress: tonWwwResolver,
     };
 
-    val stateInit = ContractState { code: build("dns_root"), data: rootStorage.toCell() };
+    val stateInit = ContractState {
+        code: build("dns_root"),
+        data: rootStorage.toCell(),
+    };
 
     val msg = createMessage({
         bounce: true,

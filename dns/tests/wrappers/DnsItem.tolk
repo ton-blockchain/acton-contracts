@@ -22,7 +22,10 @@ fun NftItemContract.fromStorage(
     storage: ItemStorageNotInitialized,
     toShard: AddressShardingOptions? = null,
 ) {
-    val stateInit = ContractState { code: build("dns_item"), data: storage.toCell() };
+    val stateInit = ContractState {
+        code: build("dns_item"),
+        data: storage.toCell(),
+    };
     val address = toShard == null
         ? AutoDeployAddress { stateInit }.calculateAddress()
         : AutoDeployAddress { stateInit, toShard }.calculateAddress();
@@ -74,7 +77,10 @@ fun NftItemContract.sendEditContent(
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: EditContent { queryId, newContent: newContent.toCell() },
+        body: EditContent {
+            queryId,
+            newContent: newContent.toCell(),
+        },
     });
     return net.send(from, outMessage);
 }
@@ -91,11 +97,7 @@ fun NftItemContract.sendChangeDnsRecord(
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: ChangeDnsRecord {
-            queryId,
-            key,
-            value,
-        },
+        body: ChangeDnsRecord { queryId, key, value },
     });
     return net.send(from, outMessage);
 }

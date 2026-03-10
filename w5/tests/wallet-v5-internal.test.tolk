@@ -18,7 +18,10 @@ get fun `test w5: Send a simple transfer`() {
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
 
-    val actions = ActionsList { outActions, extraActions: [] };
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
@@ -43,7 +46,10 @@ get fun `test w5: Add an extension`() {
     var extraActions: array<ExtraAction> = [];
     extraActions.push(AddExtensionExtraAction { addr: testExtension });
 
-    val actions = ActionsList { outActions: [], extraActions };
+    val actions = ActionsList {
+        outActions: [],
+        extraActions,
+    };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
     walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
@@ -71,7 +77,10 @@ get fun `test w5: Send two transfers`() {
     outActions.push(sendMsgAction(testReceiver1, forwardValue1));
     outActions.push(sendMsgAction(testReceiver2.address, forwardValue2));
 
-    val actions = ActionsList { outActions, extraActions: [] };
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
@@ -148,7 +157,10 @@ get fun `test w5: Remove extension`() {
     // Add extension
     var extraActions1: array<ExtraAction> = [];
     extraActions1.push(AddExtensionExtraAction { addr: testExtension });
-    val actions1 = ActionsList { outActions: [], extraActions: extraActions1 };
+    val actions1 = ActionsList {
+        outActions: [],
+        extraActions: extraActions1,
+    };
     val body1 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions1);
     walletV5.sendSignedBody(deployer.address, body1, { value: ton("0.1") });
     seqno += 1;
@@ -161,7 +173,10 @@ get fun `test w5: Remove extension`() {
     // Remove extension
     var extraActions2: array<ExtraAction> = [];
     extraActions2.push(RemoveExtensionExtraAction { addr: testExtension });
-    val actions2 = ActionsList { outActions: [], extraActions: extraActions2 };
+    val actions2 = ActionsList {
+        outActions: [],
+        extraActions: extraActions2,
+    };
     val body2 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions2);
     walletV5.sendSignedBody(deployer.address, body2, { value: ton("0.1") });
 
@@ -242,7 +257,10 @@ get fun `test w5: Should fail adding existing extension`() {
     // Add extension first time
     var extraActions1: array<ExtraAction> = [];
     extraActions1.push(AddExtensionExtraAction { addr: testExtension });
-    val actions1 = ActionsList { outActions: [], extraActions: extraActions1 };
+    val actions1 = ActionsList {
+        outActions: [],
+        extraActions: extraActions1,
+    };
     val body1 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions1);
     walletV5.sendSignedBody(deployer.address, body1, { value: ton("0.1") });
     seqno += 1;
@@ -255,7 +273,10 @@ get fun `test w5: Should fail adding existing extension`() {
     // Try adding same extension again — should fail
     var extraActions2: array<ExtraAction> = [];
     extraActions2.push(AddExtensionExtraAction { addr: testExtension });
-    val actions2 = ActionsList { outActions: [], extraActions: extraActions2 };
+    val actions2 = ActionsList {
+        outActions: [],
+        extraActions: extraActions2,
+    };
     val body2 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions2);
 
     val receipt = walletV5.sendSignedBody(deployer.address, body2, { value: ton("0.1") });
@@ -276,7 +297,10 @@ get fun `test w5: Should fail removing not existing extension`() {
 
     var extraActions: array<ExtraAction> = [];
     extraActions.push(RemoveExtensionExtraAction { addr: testExtension });
-    val actions = ActionsList { outActions: [], extraActions };
+    val actions = ActionsList {
+        outActions: [],
+        extraActions,
+    };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
@@ -297,7 +321,10 @@ get fun `test w5: Should fail if signature is invalid wrong payload signed`() {
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actions = ActionsList { outActions, extraActions: [] };
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
 
     // Build payload with correct data
     val payload = SignedPayload {
@@ -347,7 +374,10 @@ get fun `test w5: Should fail if signature is invalid wrong private key used`() 
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actions = ActionsList { outActions, extraActions: [] };
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
 
     // Sign with a different key
     val fakeKeyPair = crypto.generateKeyPair();
@@ -381,7 +411,10 @@ get fun `test w5: Should fail if seqno is invalid`() {
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actions = ActionsList { outActions, extraActions: [] };
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
 
     // Use wrong seqno (1 instead of 0)
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 1, actions);
@@ -410,7 +443,10 @@ get fun `test w5: Should fail if valid_until is expired`() {
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actions = ActionsList { outActions, extraActions: [] };
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
 
     // Use expired validUntil (in the past)
     val payload = SignedPayload {
@@ -441,7 +477,10 @@ get fun `test w5: Should fail if walletId is wrong`() {
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actions = ActionsList { outActions, extraActions: [] };
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
 
     // Use wrong walletId (1 instead of DEFAULT_SUBWALLET_ID)
     val body = createSignedBody(keyPair, 1, 0, actions);
@@ -463,7 +502,10 @@ get fun `test w5: Should skip message if auth kind is wrong`() {
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actions = ActionsList { outActions, extraActions: [] };
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
 
     // Use external signed opcode (0x7369676E) instead of internal (0x73696E74)
     val payload = ExternalSignedPayload {
@@ -568,7 +610,10 @@ get fun `test w5: Should fail disallowing signature auth with no exts`() {
     var extraActions: array<ExtraAction> = [];
     extraActions.push(RemoveExtensionExtraAction { addr: deployer.address });
     extraActions.push(SetSignatureAllowedExtraAction { allowSignature: false });
-    val actionsBody = ActionsList { outActions: [], extraActions }.toCell();
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
         deployer.address,
@@ -594,7 +639,10 @@ get fun `test w5: Should fail allowing signature auth when allowed`() {
     // From extension: allow sig (already allowed) → error 143
     var extraActions: array<ExtraAction> = [];
     extraActions.push(SetSignatureAllowedExtraAction { allowSignature: true });
-    val actionsBody = ActionsList { outActions: [], extraActions }.toCell();
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
         deployer.address,
@@ -623,7 +671,10 @@ get fun `test w5: Should add ext and disallow signature auth`() {
     var extraActions: array<ExtraAction> = [];
     extraActions.push(AddExtensionExtraAction { addr: testExtension });
     extraActions.push(SetSignatureAllowedExtraAction { allowSignature: false });
-    val actionsBody = ActionsList { outActions: [], extraActions }.toCell();
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
         deployer.address,
@@ -661,7 +712,10 @@ get fun `test w5: Should add ext and disallow signature auth in separate txs`() 
     // From extension: add another extension
     var extraActions1: array<ExtraAction> = [];
     extraActions1.push(AddExtensionExtraAction { addr: testExtension });
-    val actionsBody1 = ActionsList { outActions: [], extraActions: extraActions1 }.toCell();
+    val actionsBody1 = ActionsList {
+        outActions: [],
+        extraActions: extraActions1,
+    }.toCell();
 
     val receipt1 = walletV5.sendExtensionActionRequest(
         deployer.address,
@@ -686,7 +740,10 @@ get fun `test w5: Should add ext and disallow signature auth in separate txs`() 
     // From extension: disable sig
     var extraActions2: array<ExtraAction> = [];
     extraActions2.push(SetSignatureAllowedExtraAction { allowSignature: false });
-    val actionsBody2 = ActionsList { outActions: [], extraActions: extraActions2 }.toCell();
+    val actionsBody2 = ActionsList {
+        outActions: [],
+        extraActions: extraActions2,
+    }.toCell();
 
     val receipt2 = walletV5.sendExtensionActionRequest(
         deployer.address,
@@ -722,7 +779,10 @@ get fun `test w5: Should add ext disallow sign allow sign remove ext in one tx t
     extraActions.push(SetSignatureAllowedExtraAction { allowSignature: false });
     extraActions.push(SetSignatureAllowedExtraAction { allowSignature: true });
     extraActions.push(RemoveExtensionExtraAction { addr: testExtension });
-    val actionsBody = ActionsList { outActions: [], extraActions }.toCell();
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
         deployer.address,
@@ -747,7 +807,10 @@ get fun `test w5: Should add ext disallow sign allow sign remove ext in one tx t
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actions2 = ActionsList { outActions, extraActions: [] };
+    val actions2 = ActionsList {
+        outActions,
+        extraActions: [],
+    };
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions2);
 
     val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: ton("0.1") });
@@ -780,7 +843,10 @@ get fun `test w5: Should fail removing last extension with signature auth disabl
     extraActions.push(SetSignatureAllowedExtraAction { allowSignature: false });
     extraActions.push(RemoveExtensionExtraAction { addr: testExtension });
     extraActions.push(RemoveExtensionExtraAction { addr: deployer.address });
-    val actionsBody = ActionsList { outActions: [], extraActions }.toCell();
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
         deployer.address,
@@ -810,7 +876,10 @@ get fun `test w5: Should fail disallowing signature auth twice in tx`() {
     extraActions.push(AddExtensionExtraAction { addr: testExtension });
     extraActions.push(SetSignatureAllowedExtraAction { allowSignature: false });
     extraActions.push(SetSignatureAllowedExtraAction { allowSignature: false });
-    val actionsBody = ActionsList { outActions: [], extraActions }.toCell();
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
         deployer.address,
@@ -839,7 +908,10 @@ get fun `test w5: Should add ext disallow sig auth then fail different signed tx
     var extraActions: array<ExtraAction> = [];
     extraActions.push(AddExtensionExtraAction { addr: testExtension });
     extraActions.push(SetSignatureAllowedExtraAction { allowSignature: false });
-    val actionsBody = ActionsList { outActions: [], extraActions }.toCell();
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    }.toCell();
 
     val receipt1 = walletV5.sendExtensionActionRequest(
         deployer.address,
@@ -864,7 +936,10 @@ get fun `test w5: Should add ext disallow sig auth then fail different signed tx
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actions2 = ActionsList { outActions, extraActions: [] };
+    val actions2 = ActionsList {
+        outActions,
+        extraActions: [],
+    };
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions2);
 
     val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: ton("0.1") });

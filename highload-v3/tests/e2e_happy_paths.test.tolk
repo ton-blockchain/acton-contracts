@@ -36,7 +36,10 @@ fun buildBenchmarkActionListCellRange(
             benchmarkMarkerBody(markerBase + startIndex + i),
             actionMode,
         );
-        actionsCell = OutList { prev: actionsCell, action: action as OutAction }.toCell();
+        actionsCell = OutList {
+            prev: actionsCell,
+            action: action as OutAction,
+        }.toCell();
         i += 1;
     }
     return actionsCell;
@@ -169,7 +172,10 @@ fun processChainedBatchWithCleanupStage(
         mode: SEND_MODE_CARRY_ALL_BALANCE as uint8,
         outMsg: tailTransfer.messageCell,
     };
-    rootActionsCell = OutList { prev: rootActionsCell, action: chainAction as OutAction }.toCell();
+    rootActionsCell = OutList {
+        prev: rootActionsCell,
+        action: chainAction as OutAction,
+    }.toCell();
 
     val rootTransfer = ctx
         .wallet

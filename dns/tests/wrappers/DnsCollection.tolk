@@ -20,7 +20,10 @@ fun NftCollectionContract.fromStorage(
     storage: CollectionStorage,
     toShard: AddressShardingOptions? = null,
 ) {
-    val stateInit = ContractState { code: build("dns_collection"), data: storage.toCell() };
+    val stateInit = ContractState {
+        code: build("dns_collection"),
+        data: storage.toCell(),
+    };
     val address = toShard == null
         ? AutoDeployAddress { stateInit }.calculateAddress()
         : AutoDeployAddress { stateInit, toShard }.calculateAddress();

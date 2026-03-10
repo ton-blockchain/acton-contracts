@@ -117,7 +117,10 @@ get fun `test handle 254 actions in one go`() {
     while (i < 254) {
         val body = beginCell().storeUint(i, 32).endCell();
         val action = sendAction(net.randomAddress(null), ton("0.015"), body, 0);
-        actionsCell = OutList { prev: actionsCell, action: action as OutAction }.toCell();
+        actionsCell = OutList {
+            prev: actionsCell,
+            action: action as OutAction,
+        }.toCell();
         i += 1;
     }
 
@@ -186,7 +189,10 @@ get fun `test go beyond 255 messages via chained internal_transfer`() {
         mode: SEND_MODE_CARRY_ALL_BALANCE as uint8,
         outMsg: tailTransfer.messageCell,
     };
-    rootActionsCell = OutList { prev: rootActionsCell, action: chainAction as OutAction }.toCell();
+    rootActionsCell = OutList {
+        prev: rootActionsCell,
+        action: chainAction as OutAction,
+    }.toCell();
 
     val rootTransfer = ctx
         .wallet

@@ -128,7 +128,10 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
             bounce: true,
             value: ton("0.3"),
             dest: orderAddress,
-            body: ApproveRequest { queryId: 1, signerIndex: 1 },
+            body: ApproveRequest {
+                queryId: 1,
+                signerIndex: 1,
+            },
         }),
     );
 

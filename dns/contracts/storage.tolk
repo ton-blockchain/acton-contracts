@@ -46,7 +46,10 @@ struct ItemStorageNotInitialized {
 }
 
 fun calcDeployedNftItem(index: uint256, itemCode: cell): AutoDeployAddress {
-    val itemStorage = ItemStorageNotInitialized { index, collectionAddress: contract.getAddress() };
+    val itemStorage = ItemStorageNotInitialized {
+        index,
+        collectionAddress: contract.getAddress(),
+    };
 
     return { workchain: BASECHAIN, stateInit: { code: itemCode, data: itemStorage.toCell() } };
 }

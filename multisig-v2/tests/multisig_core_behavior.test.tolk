@@ -537,7 +537,10 @@ get fun `test multisig: chained execution should work`() {
         makeTransferAction(chainedRecipient, ton("0.01"), 0x22222) as GenericOrderAction,
     );
 
-    val triggerBody = ExecuteInternalRequest { queryId: 0, order: innerOrder }.toCell();
+    val triggerBody = ExecuteInternalRequest {
+        queryId: 0,
+        order: innerOrder,
+    }.toCell();
     val trigger = makeTransferActionWithBody(
         ctx.multisig.address,
         ton("0.01"),
@@ -751,7 +754,10 @@ get fun `test multisig: should handle more than 255 orders`() {
         tailIdx += 1;
     }
 
-    val chainBody = ExecuteInternalRequest { queryId: 0, order: tailOrder }.toCell();
+    val chainBody = ExecuteInternalRequest {
+        queryId: 0,
+        order: tailOrder,
+    }.toCell();
     rootOrder.set(
         253 as uint8,
         makeTransferActionWithBody(
