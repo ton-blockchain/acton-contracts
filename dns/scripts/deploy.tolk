@@ -59,15 +59,9 @@ fun main() {
     println1("Collection deploy txs: {}", collectionTxs.size());
 
     // Replace these placeholders with real resolver addresses for your deployment topology.
-    val sampleTonResolver = address(
-        "0:0000000000000000000000000000000000000000000000000000000000000000",
-    );
-    val sampleTMeResolver = address(
-        "0:0000000000000000000000000000000000000000000000000000000000000000",
-    );
-    val sampleTonWwwResolver = address(
-        "0:0000000000000000000000000000000000000000000000000000000000000000",
-    );
+    val sampleTonResolver = address("0:0000000000000000000000000000000000000000000000000000000000000000");
+    val sampleTMeResolver = address("0:0000000000000000000000000000000000000000000000000000000000000000");
+    val sampleTonWwwResolver = address("0:0000000000000000000000000000000000000000000000000000000000000000");
 
     val rootTxs = deployRoot(deployer, sampleTonResolver, sampleTMeResolver, sampleTonWwwResolver);
     println1("Root deploy txs: {}", rootTxs.size());

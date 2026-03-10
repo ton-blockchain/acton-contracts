@@ -25,9 +25,7 @@ fun NftItemContract.fromAddress(address: address) {
 /// Deploys the contract to the blockchain
 fun NftItemContract.deploy(self, from: address, config: SendParams = {}): SendResultList {
     if (self.init == null) {
-        Assert.fail(
-            "Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment",
-        );
+        Assert.fail("Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment");
     }
     val deployMessage = createMessage({
         bounce: config.bounce,

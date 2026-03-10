@@ -25,9 +25,7 @@ fun RootDnsContract.fromAddress(address: address) {
 /// Deploys the contract to the blockchain
 fun RootDnsContract.deploy(self, from: address, config: SendParams = {}): SendResultList {
     if (self.stateInit == null) {
-        Assert.fail(
-            "Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment",
-        );
+        Assert.fail("Cannot deploy a contract created with 'fromAddress' because it lacks state init for deployment");
     }
     val outMessage = createMessage({
         bounce: config.bounce,
