@@ -38,7 +38,7 @@ fun onExternalMessage(inBody: slice) {
     storage.cleanupQueryWindows(now);
 
     assert (
-        isSignatureValid(msgInner.hash(), signature as slice, storage.publicKey)
+        isDa(msgInner.hash(), signature as slice, storage.publicKey)
     ) throw ERROR_INVALID_SIGNATURE;
 
     val request = msgInner.load();

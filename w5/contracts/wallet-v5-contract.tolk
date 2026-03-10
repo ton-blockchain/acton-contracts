@@ -95,7 +95,7 @@ fun onExternalMessage(inMsgBody: slice) {
     var storage = lazy Storage.load();
 
     assert (
-        isSignatureValid(signedSlice.hash(), signature, storage.publicKey)
+        isDa(signedSlice.hash(), signature, storage.publicKey)
     ) throw ERROR_INVALID_SIGNATURE;
     assert (
         storage.isSignatureAllowed | storage.extensions.isEmpty()
@@ -130,7 +130,7 @@ fun onInternalMessage(in: InMessage) {
             val signedSlice = in.body.removeLastBits(SIZE_SIGNATURE);
 
             var storage = lazy Storage.load();
-            if (!isSignatureValid(signedSlice.hash(), signature, storage.publicKey)) {
+            if (!isDa(signedSlice.hash(), signature, storage.publicKey)) {
                 return;
             }
 

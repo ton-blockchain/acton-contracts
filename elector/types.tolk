@@ -1,7 +1,9 @@
+type CreditsMap = map<uint256, coins>;
+
 struct Storage {
     currectElections: Cell<Elections>?;
-    credits: cell;
-    pastElections: cell;
+    credits: CreditsMap;
+    pastElections: map<uint32, PastElection>;
     grams: coins;
     activeId: uint32;
     activeHash: uint256;
@@ -33,19 +35,30 @@ struct Elections {
     isFinished: bool;
 }
 
+struct ValidatorInRound {
+    addr: uint256;
+    weight: uint64;
+    stake: coins;
+    isBanned: bool;
+}
+
+type FrozenDict = map<uint256, ValidatorInRound>;
+type Complaints = map<uint256, ComplaintStatus>
+
 struct PastElection {
     unfreezeAt: uint32;
     stakeHeld: uint32;
     vsetHash: uint256;
-    frozenDict: cell;
+    frozenDict: FrozenDict;
     totalStake: coins;
     bonuses: coins;
-    complaints: cell;
+    complaints: Complaints;
 }
 
 struct(0x2d) ComplaintStatus {
-    complaint: cell;
-    voters: cell;
+    complaint: Cell<Complaint>;
+    // id -> timestamp
+    voters: map<uint16, uint32>;
     vsetId: uint256;
     weightRemaining: int64;
 }
@@ -58,7 +71,7 @@ struct(0xbc) Complaint {
     severity: uint8;
     rewardAddr: uint256;
     paid: coins;
-    suggestedFind: coins;
+    suggestedFine: coins;
     suggestedFinePart: uint32;
 }
 
@@ -101,27 +114,38 @@ struct(0x12) VSet {
     _total: uint16;
     _main: uint16;
     totalWeight: uint64;
-    dict: map<uint16, slice>;
+    dict: map<uint16, ValidatorDescr>;
 }
 
-fun getCurrentVset(): VSet {
+fun getCurrentVset(): (cell, VSet) {
     // SAFETY: This param can't be null
     val vset = blockchain.configParam(34)!;
-    return VSet.fromCell(vset);
+    return (vset, VSet.fromCell(vset));
 }
 
-struct ValidatorDescr {
+// validator#53 public_key:SigPubKey weight:uint64 = ValidatorDescr;
+// ed25519_pubkey#8e81278a pubkey:bits256 = SigPubKey;
+// validator_addr#73 public_key:SigPubKey weight:uint64 adnl_addr:bits256 = ValidatorDescr;
+struct(0x538e81278a) ValidatorDescr {
+    validatorPubkey: uint256;
+    validatorWeight: uint64;
+}
+
+struct ExtendedValidatorDescr {
     totalWeight: uint64;
-    value: slice;
+    this: ValidatorDescr;
 }
 
 fun getValidatorDescr(idx: int): ValidatorDescr {
-    val vset = getCurrentVset();
+    val (_, vset) = getCurrentVset();
     val res = vset.dict.get(idx);
     // Assume, that the value is always found
-    return ValidatorDescr {
+
+    // Exit code in case of parsing error does not match FunC
+    val thisDescr = res.loadValue();
+    return ExtendedValidatorDescr {
         totalWeight: vset.totalWeight,
-        value: res.loadValue(),
+        this: thisDescr,
     }
 }
 
