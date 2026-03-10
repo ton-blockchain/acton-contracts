@@ -13,8 +13,6 @@ struct(0x654c5074) StakeSubmit {
     adnlAddr: uint256;
 }
 
-
-
 fun processNewStake(msg: NewStakeMessage): void {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
     val storage = Storage.load();
@@ -101,87 +99,7 @@ fun processNewStake(msg: NewStakeMessage): void {
     }
 }
 
-struct FreezeValue {
-    addr: uint256;
-    weight: uint64;
-    stake: coins;
-    isBanned: bool;
-}
 
-type FrozenDict = map<uint256, FreezeValue>;
-
-fun unfreezeWithoutBonuces(credits: CreditsMap, freezeDict: FrozenDict, totalStakes: int) {
-    var total = 0;
-    var recovered = 0;
-    var pubkey = -1;
-    do {
-        val freezeLookup = freezeDict.findKeyGreater(pubkey);
-        if (freezeLookup.isFound) {
-            val freezeVal = freezeLookup.loadValue();
-            pubkey = freezeLookup.getKey();
-            if (freezeVal.isBanned) {
-                recovered += freezeVal.stake;
-            } else {
-                credits.creditTo(freezeVal.addr, freezeVal.stake);
-            }
-            total += freezeVal.stake;
-        }
-    } while (freezeLookup.isFound);
-
-    assert (total == totalStakes) throw 59;
-    return (credits, recovered);
-}
-
-fun unfreezeWithBonuces(credits: CreditsMap, freezeDict: FrozenDict, totalStakes: int, totalBonuses: int) {
-    var total = 0;
-    var recovered = 0;
-    var returnedBonuces = 0;
-    var pubkey = -1;
-    do {
-        val freezeLookup = freezeDict.findKeyGreater(pubkey);
-        if (freezeLookup.isFound) {
-            val freezeVal = freezeLookup.loadValue();
-            pubkey = freezeLookup.getKey();
-            if (freezeVal.isBanned) {
-                recovered += freezeVal.stake;
-            } else {
-                val bonus = mulDivFloor(totalBonuses, freezeVal.stake, totalStakes);
-                returnedBonuces += bonus;
-                credits.creditTo(freezeVal.addr, freezeVal.stake + bonus);
-            }
-            total += freezeVal.stake;
-        }
-    } while (freezeLookup.isFound);
-
-    assert ((total == totalStakes) && (returnedBonuces <= totalBonuses)) throw 59;
-
-    return (credits, recovered + totalBonuses - returnedBonuces);
-}
-
-fun stakesSum(frozenDict: FrozenDict) {
-    var total = 0;
-    var pubkey = -1;
-    do {
-        val freezeLookup = frozenDict.findKeyGreater(pubkey);
-        if (freezeLookup.isFound) {
-            val freezeVal = lazy freezeLookup.loadValue();
-            pubkey = freezeLookup.getKey();
-            total += freezeVal.stake;
-        }
-    } while (freezeLookup.isFound);
-    return total;
-}
-
-
-fun unfreezeAll(credits: CreditsMap, pastElections: map<uint32, PastElection>, electionId: uint32) {
-    val res = pastElections.deleteAndGetDeleted(electionId);
-    if (!res.isFound) {
-        return (credits, pastElections, 0);
-    }
-    val pastElection = res.loadValue();
-    // TODO
-    // totalStakes = fdict.stakes_sup() WTF
-}
 
 fun onInternalMessage(in: InMessage) {
 
