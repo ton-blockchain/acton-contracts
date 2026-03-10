@@ -1,16 +1,16 @@
 import "errors"
-import "types"
-import "messages"
 import "fees-management"
+import "messages"
+import "types"
 
-type AllowedMessageToNftItem =
-    | AskToChangeOwnership
-    | RequestStaticData
+type AllowedMessageToNftItem = AskToChangeOwnership | RequestStaticData
 
 fun onInternalMessage(in: InMessage) {
     var loadingStorage = NftItemStorage.startLoading();
     if (loadingStorage.isNotInitialized()) {
-        assert (in.senderAddress == loadingStorage.collectionAddress) throw ERROR_NOT_FROM_COLLECTION;
+        assert (
+            in.senderAddress == loadingStorage.collectionAddress
+        ) throw ERROR_NOT_FROM_COLLECTION;
 
         // using a message from collection, convert "uninitialized" to "initialized" state
         val initParams = NftItemInitAtDeployment.fromSlice(in.body);
@@ -41,11 +41,15 @@ fun onInternalMessage(in: InMessage) {
                 restAmount -= (msg.forwardTonAmount + fwdFee);
             }
             if (msg.sendExcessesTo != null) {
-                assert (msg.sendExcessesTo.getWorkchain() == BASECHAIN) throw ERROR_INVALID_WORKCHAIN;
+                assert (
+                    msg.sendExcessesTo.getWorkchain() == BASECHAIN
+                ) throw ERROR_INVALID_WORKCHAIN;
                 restAmount -= fwdFee;
             }
 
-            assert (restAmount >= 0) throw ERROR_TOO_SMALL_REST_AMOUNT; // base nft spends fixed amount of gas, will not check for response
+            assert (
+                restAmount >= 0
+            ) throw ERROR_TOO_SMALL_REST_AMOUNT;                        // base nft spends fixed amount of gas, will not check for response
 
             if (msg.forwardTonAmount) {
                 val ownershipMsg = createMessage({
@@ -56,7 +60,7 @@ fun onInternalMessage(in: InMessage) {
                         queryId: msg.queryId,
                         oldOwnerAddress: storage.ownerAddress,
                         payload: msg.forwardPayload,
-                    }
+                    },
                 });
                 ownershipMsg.send(SEND_MODE_PAY_FEES_SEPARATELY);
             }
@@ -65,9 +69,7 @@ fun onInternalMessage(in: InMessage) {
                     bounce: BounceMode.NoBounce,
                     dest: msg.sendExcessesTo,
                     value: restAmount,
-                    body: ReturnExcessesBack {
-                        queryId: msg.queryId,
-                    }
+                    body: ReturnExcessesBack { queryId: msg.queryId },
                 });
                 excessesMsg.send(SEND_MODE_PAY_FEES_SEPARATELY);
             }
@@ -91,15 +93,15 @@ fun onInternalMessage(in: InMessage) {
                         queryId: msg.queryId,
                         itemIndex: storage.itemIndex as uint256,
                         collectionAddress: storage.collectionAddress,
-                    }
-                }
+                    },
+                },
             });
             respondMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
         }
 
         else => {
             // ignore empty messages, "wrong opcode" for others
-            assert (in.body.isEmpty()) throw 0xFFFF
+            assert (in.body.isEmpty()) throw 0xFFFF;
         }
     }
 }
@@ -111,7 +113,7 @@ get fun get_nft_data(): NftDataReply {
             isInitialized: false,
             itemIndex: loadingStorage.itemIndex,
             collectionAddress: loadingStorage.collectionAddress,
-        }
+        };
     }
 
     val storage = loadingStorage.endLoading();
@@ -121,5 +123,5 @@ get fun get_nft_data(): NftDataReply {
         collectionAddress: storage.collectionAddress,
         ownerAddress: storage.ownerAddress,
         content: storage.content,
-    }
+    };
 }

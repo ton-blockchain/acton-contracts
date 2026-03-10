@@ -1,9 +1,9 @@
-import "test_utils"
-import "wrappers/HighloadWalletV3"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/out_actions"
+import "test_utils"
+import "wrappers/HighloadWalletV3"
 
 get fun `test ignore internal transfer from non-self address`() {
     val ctx = setupHighloadTest();
@@ -11,28 +11,41 @@ get fun `test ignore internal transfer from non-self address`() {
     val queryId = HighloadQueryId.fromShiftAndBitNumber(40, 300).toInt();
 
     var actions = array<OutAction> [];
-    actions.push(sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY) as OutAction);
+    actions.push(
+        sendAction(
+            testAddr,
+            ton("1000"),
+            createEmptyCell(),
+            SEND_MODE_PAY_FEES_SEPARATELY,
+        ) as OutAction,
+    );
     val transferBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
 
     val outsider = net.treasury("outsider");
-    val res1 = net.send(outsider.address, createMessage({
-        bounce: false,
-        value: ton("1"),
-        dest: ctx.wallet.address,
-        body: transferBody,
-    }));
+    val res1 = net.send(
+        outsider.address,
+        createMessage({
+            bounce: false,
+            value: ton("1"),
+            dest: ctx.wallet.address,
+            body: transferBody,
+        }),
+    );
     expect(res1).toNotHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
         value: ton("1000"),
     });
 
-    val res2 = net.send(ctx.wallet.address, createMessage({
-        bounce: false,
-        value: ton("1"),
-        dest: ctx.wallet.address,
-        body: transferBody,
-    }));
+    val res2 = net.send(
+        ctx.wallet.address,
+        createMessage({
+            bounce: false,
+            value: ton("1"),
+            dest: ctx.wallet.address,
+            body: transferBody,
+        }),
+    );
     expect(res2).toHaveSuccessfulTx({
         from: ctx.wallet.address,
         to: testAddr,
@@ -46,7 +59,14 @@ get fun `test ignore bounced messages`() {
     val queryId = HighloadQueryId.fromShiftAndBitNumber(41, 301).toInt();
 
     var actions = array<OutAction> [];
-    actions.push(sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY) as OutAction);
+    actions.push(
+        sendAction(
+            testAddr,
+            ton("1000"),
+            createEmptyCell(),
+            SEND_MODE_PAY_FEES_SEPARATELY,
+        ) as OutAction,
+    );
     val transferBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
 
     val bounced = createMessage({

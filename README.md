@@ -54,7 +54,7 @@ Legend: `[ ]` planned, `(*)` stretch/if time.
   - https://github.com/ton-blockchain/wallet-contract-v5
 - [x] Highload Wallet V3
   - https://github.com/ton-blockchain/highload-wallet-contract-v3
-- [ ] Multisig V2
+- [x] Multisig V2
   - https://github.com/ton-blockchain/multisig-contract-v2
 - [x] DNS contract
   - https://github.com/ton-blockchain/dns-contract

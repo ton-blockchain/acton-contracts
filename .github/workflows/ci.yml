@@ -35,5 +35,4 @@ jobs:
         run: acton check --output-format github
 
       - name: Formatter
-        if: false
         run: acton fmt --check

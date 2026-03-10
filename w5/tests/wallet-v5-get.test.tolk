@@ -90,9 +90,15 @@ get fun `test w5: get extensions array`() {
     var foundPlugin3 = false;
     var i = 0;
     while (i < actual.size()) {
-        if (actual.get(i) == plugin1) { foundPlugin1 = true; }
-        if (actual.get(i) == plugin2) { foundPlugin2 = true; }
-        if (actual.get(i) == plugin3) { foundPlugin3 = true; }
+        if (actual.get(i) == plugin1) {
+            foundPlugin1 = true;
+        }
+        if (actual.get(i) == plugin2) {
+            foundPlugin2 = true;
+        }
+        if (actual.get(i) == plugin3) {
+            foundPlugin3 = true;
+        }
         i += 1;
     }
     expect(foundPlugin1).toEqual(true);

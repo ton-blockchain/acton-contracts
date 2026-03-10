@@ -17,12 +17,12 @@ fun RootDnsContract.fromStorage(storage: RootDnsStorage, toShard: AddressShardin
     val address = toShard == null
         ? AutoDeployAddress { stateInit }.calculateAddress()
         : AutoDeployAddress { stateInit, toShard }.calculateAddress();
-    return RootDnsContract { address, stateInit }
+    return RootDnsContract { address, stateInit };
 }
 
 /// Creates a contract wrapper instance from the address
 fun RootDnsContract.fromAddress(address: address) {
-    return RootDnsContract { address }
+    return RootDnsContract { address };
 }
 
 /// Deploys the contract to the blockchain
@@ -33,24 +33,27 @@ fun RootDnsContract.deploy(self, from: address, config: SendParams = {}): SendRe
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
-        dest: {
-            stateInit: self.stateInit,
-        },
+        dest: { stateInit: self.stateInit },
     });
-    return net.send(from, outMessage)
+    return net.send(from, outMessage);
 }
 
 /// Send outMessage to the contract with a custom body cell
-fun RootDnsContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
+fun RootDnsContract.sendAny(
+    self,
+    from: address,
+    body: cell,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body,
     });
-    return net.send(from, outMessage)
+    return net.send(from, outMessage);
 }
 
 fun RootDnsContract.dnsresolve(self, subdomain: slice, category: int): DnsResolveResponse {
-    return net.runGetMethod(self.address, "dnsresolve", [subdomain, category] as tuple)
+    return net.runGetMethod(self.address, "dnsresolve", [subdomain, category] as tuple);
 }

@@ -26,7 +26,6 @@ fun setTvmRegisterC5(actionList: cell): void
 fun OutActionsCell.beginParseAllowExotic(self): slice
     asm "XCTOS" "DROP"
 
-
 /// verify a cell containing OutActionList that it contains only "send message" actions
 fun OutActionsCell.verifyC5Actions(self, isExternal: bool): self {
     var count = 0;
@@ -36,15 +35,18 @@ fun OutActionsCell.verifyC5Actions(self, isExternal: bool): self {
         // these checks could be cheaper in terms of gas if we just try to parse cs;
         // but we want to throw exactly `ERROR_INVALID_C5` (not `9` "cell underflow")
         val (nBits, nRefs) = cs.remainingBitsAndRefsCount();
-        assert (nRefs == 2)      throw ERROR_INVALID_C5;
+        assert (nRefs == 2) throw ERROR_INVALID_C5;
         assert (nBits == 32 + 8) throw ERROR_INVALID_C5;
 
-        val outAction = lazy OutActionWithSendMessageOnly.fromSlice(cs, {
-            throwIfOpcodeDoesNotMatch: ERROR_INVALID_C5
-        });
+        val outAction = lazy OutActionWithSendMessageOnly.fromSlice(
+            cs,
+            { throwIfOpcodeDoesNotMatch: ERROR_INVALID_C5 },
+        );
 
         if (isExternal) {
-            assert (outAction.sendMode & SEND_MODE_IGNORE_ERRORS) throw ERROR_EXTERNAL_SEND_MESSAGE_MUST_HAVE_IGNORE_ERRORS_SEND_MODE;
+            assert (
+                outAction.sendMode & SEND_MODE_IGNORE_ERRORS
+            ) throw ERROR_EXTERNAL_SEND_MESSAGE_MUST_HAVE_IGNORE_ERRORS_SEND_MODE;
         }
 
         cs = outAction.prev.beginParseAllowExotic();

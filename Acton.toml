@@ -54,6 +54,17 @@ name = "highload_wallet_v3"
 src = "highload-v3/contracts/highload-wallet.tolk"
 depends = []
 
+# Multisig V2
+[contracts.multisig_v2]
+name = "multisig_v2"
+src = "multisig-v2/contracts/multisig-contract.tolk"
+depends = [{ name = "multisig_v2_order", function = "multisigV2OrderCompiledCode" }]
+
+[contracts.multisig_v2_order]
+name = "multisig_v2_order"
+src = "multisig-v2/contracts/order-contract.tolk"
+depends = []
+
 # NFT
 [contracts.nft-collection]
 name = "Collection"

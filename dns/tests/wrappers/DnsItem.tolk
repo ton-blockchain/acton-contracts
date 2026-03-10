@@ -22,7 +22,10 @@ fun NftItemContract.fromStorage(
     storage: ItemStorageNotInitialized,
     toShard: AddressShardingOptions? = null,
 ) {
-    val stateInit = ContractState { code: build("dns_item"), data: storage.toCell() };
+    val stateInit = ContractState {
+        code: build("dns_item"),
+        data: storage.toCell(),
+    };
     val address = toShard == null
         ? AutoDeployAddress { stateInit }.calculateAddress()
         : AutoDeployAddress { stateInit, toShard }.calculateAddress();
@@ -74,7 +77,10 @@ fun NftItemContract.sendEditContent(
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: EditContent { queryId, newContent: newContent.toCell() },
+        body: EditContent {
+            queryId,
+            newContent: newContent.toCell(),
+        },
     });
     return net.send(from, outMessage);
 }
@@ -91,11 +97,7 @@ fun NftItemContract.sendChangeDnsRecord(
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: ChangeDnsRecord {
-            queryId,
-            key,
-            value,
-        },
+        body: ChangeDnsRecord { queryId, key, value },
     });
     return net.send(from, outMessage);
 }
@@ -130,7 +132,12 @@ fun NftItemContract.sendDnsRecordRelease(
     return net.send(from, outMessage);
 }
 
-fun NftItemContract.sendGetStaticData(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendGetStaticData(
+    self,
+    from: address,
+    queryId: uint64,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -155,7 +162,11 @@ fun NftItemContract.sendGovernanceTransfer(
     return net.send(from, outMessage);
 }
 
-fun NftItemContract.sendGovernanceRelease(self, from: address, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendGovernanceRelease(
+    self,
+    from: address,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -166,7 +177,12 @@ fun NftItemContract.sendGovernanceRelease(self, from: address, config: SendParam
 }
 
 /// Send outMessage to the contract with a custom body cell
-fun NftItemContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendAny(
+    self,
+    from: address,
+    body: cell,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,

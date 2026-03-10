@@ -85,7 +85,7 @@ fun onInternalMessage(in: InMessage) {
             in.valueCoins,
             mutate storage,
             mutate auction,
-            isAuctionComplete
+            isAuctionComplete,
         );
         return;
     }
@@ -134,7 +134,7 @@ fun onInternalMessage(in: InMessage) {
                 mutate storage,
                 msg.queryId,
                 msg.transferData,
-                in.originalForwardFee
+                in.originalForwardFee,
             );
         }
 
@@ -183,7 +183,7 @@ fun onInternalMessage(in: InMessage) {
             // no need for lazy here
             val decision = GovernanceDecision.fromSlice(
                 configValue,
-                { throwIfOpcodeDoesNotMatch: ERROR_CONFIG_OPERATION_INVALID }
+                { throwIfOpcodeDoesNotMatch: ERROR_CONFIG_OPERATION_INVALID },
             );
 
             match (decision) {
@@ -193,7 +193,7 @@ fun onInternalMessage(in: InMessage) {
                         mutate storage,
                         msg.queryId,
                         decision.transferData,
-                        in.originalForwardFee
+                        in.originalForwardFee,
                     );
                 }
 
@@ -204,7 +204,7 @@ fun onInternalMessage(in: InMessage) {
                         dest: storage.collectionAddress,
                         value: 0,
                     });
-                    // SAFETY: Governance-only branch
+                    // SAFETY: governance release intentionally sends all remaining balance to the collection and destroys this item contract.
                     fillMsg.send(SEND_MODE_CARRY_ALL_BALANCE + SEND_MODE_DESTROY);
                 }
             }
