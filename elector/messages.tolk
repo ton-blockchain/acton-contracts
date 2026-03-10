@@ -52,6 +52,6 @@ struct VoteForComplaint {
 
 struct(0b0) FallbackMessage {
     // 31 because header is 1 bit
-    anyBits: uint31;
+    opcodeBits: uint31;
     queryId: uint64;
 }

@@ -266,9 +266,13 @@ fun onInternalMessage(in: InMessage) {
             val vote = VoteForComplaint.fromSlice(msg.vote);
             assert (vote.signTag == 0x56744350) throw 37;
             val vDescr = getValidatorDescr(vote.idx);
-            assert (isSliceSignatureValid(msg.vote, msg.signature, vDescr.validatorPubkey)) throw 34;
-            val res = proceedRegisterVote(vote.electId, vote.chash, vote.idx, vDescr.validatorWeight);
+            assert (isSliceSignatureValid(msg.vote, msg.signature as slice, vDescr.this.validatorPubkey)) throw 34;
+            val res = proceedRegisterVote(vote.electId, vote.chash, vote.idx, vDescr.this.validatorWeight);
             sendMessageBack(InMessage.source(), res + 0xd6745240, msg.queryId, SignedVoteForComplaint.getDeclaredPackPrefix(), 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
+            return;
+        }
+        FallbackMessage => {
+            sendMessageBack(InMessage.source(), 0xffffffff, msg.queryId, msg.opcodeBits as uint32, 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
             return;
         }
         else => {

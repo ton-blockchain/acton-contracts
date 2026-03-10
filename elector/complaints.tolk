@@ -78,7 +78,7 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
 
 
 struct VoteRegustrationStatus {
-    complaint: ComplaintStatus?;
+    complaint: Complaint?;
     status: int;
 }
 
@@ -103,7 +103,7 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
 
     if (isVsetOld) {
         cstatus.vsetId = curVsetId;
-        cstatus.voters = null;
+        cstatus.voters = [];
         cstatus.weightRemaining = mulDivFloor(curVset.totalWeight, 2, 3);
     }
 
@@ -132,12 +132,12 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
     }
 
     return VoteRegustrationStatus {
-        complaint: cstatus.complaint,
+        complaint: cstatus.complaint.load(),
         status: 2,
     }
 }
 
-fun proceedRegisterVote(electionId: uint32, chash: uint256, idx: int, weight: coins): int {
+fun proceedRegisterVote(electionId: uint32, chash: uint256, idx: int, weight: uint64): int {
     var storage = Storage.load();
     val electLookup = storage.pastElections.get(electionId);
     if (!electLookup.isFound) {

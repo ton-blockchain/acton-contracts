@@ -136,7 +136,7 @@ struct ExtendedValidatorDescr {
     this: ValidatorDescr;
 }
 
-fun getValidatorDescr(idx: int): ValidatorDescr {
+fun getValidatorDescr(idx: int): ExtendedValidatorDescr {
     val (_, vset) = getCurrentVset();
     val res = vset.dict.get(idx);
     // Assume, that the value is always found
