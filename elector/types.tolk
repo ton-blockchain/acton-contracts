@@ -93,6 +93,19 @@ fun getComplaintPrices(): ComplaintPrices {
     return ComplaintPrices.fromCell(info);
 }
 
+// Config param 16
+struct ValidatorLimits {
+    maxValidators: uint16;
+    maxMainValidators: uint16;
+    minValidators: uint16;
+}
+
+fun getValidatorLimits(): ValidatorLimits {
+    // SAFETY: This param can't be null
+    val raw = blockchain.configParam(16)!;
+    return ValidatorLimits.fromCell(raw);
+}
+
 struct ValidatorConfig {
     electedFor: uint32;
     electionsBeginBefore: uint32;

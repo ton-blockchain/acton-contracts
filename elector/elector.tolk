@@ -1,4 +1,6 @@
 import "@stdlib/gas-payments"
+import "@stdlib/lisp-lists"
+import "@stdlib/tvm-dicts"
 import "credits"
 import "complaints"
 import "messages"
@@ -280,4 +282,184 @@ fun onInternalMessage(in: InMessage) {
             return;
         }
     }
+}
+
+const SORT_KEY_LEN = 128 + 32 + 256;
+
+fun computeTotalStake(l: lisp_list<array<int>>, n: int, mStake: int): int {
+    var totStake = 0;
+    var ptr = l;
+    repeat (n) {
+        val head = ptr.popHead();
+        val stake = head.get(0);
+        val maxF = head.get(1);
+        totStake += min(stake, (maxF * mStake) >> 16);
+    }
+    return totStake;
+}
+
+struct ElectionResult {
+    vset: dict;
+    totalWeight: int;
+    frozen: FrozenDict;
+    totalStakes: coins;
+    count: int;
+}
+
+fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, minStake: coins, maxStake: coins, minTotalStake: coins, maxStakeFactor: uint32): ElectionResult {
+    val limits = getValidatorLimits();
+    val minValidators = max(limits.minValidators, 1);
+
+    // Build sorted dict: key = stake(128) + negTime(32) + pubkey(256)
+    var n = 0;
+    var sdict = createEmptyDict();
+    var pubkey = -1;
+    do {
+        val memberLookup = members.findKeyGreater(pubkey);
+        if (memberLookup.isFound) {
+            val member = memberLookup.loadValue();
+            pubkey = memberLookup.getKey();
+            val key = beginCell()
+                .storeUint(member.msgValue, 128)
+                .storeInt(-member.timestamp, 32)
+                .storeUint(pubkey, 256)
+                .endCell().beginParse();
+            sdict.sDictSetBuilder(SORT_KEY_LEN, key, beginCell()
+                .storeUint(min(member.maxFactor, maxStakeFactor), 32)
+                .storeUint(member.srcAddr, 256)
+                .storeUint(member.adnlAddr, 256));
+            n += 1;
+        }
+    } while (memberLookup.isFound);
+
+    n = min(n, limits.maxValidators);
+    if (n < minValidators) {
+        return ElectionResult {
+            vset: createEmptyDict(),
+            totalWeight: 0,
+            frozen: [],
+            totalStakes: 0,
+            count: 0,
+        };
+    }
+
+    // Extract all entries from sorted dict into a list (descending stake order)
+    // dict_delete_get_min extracts ascending; prependHead reverses → descending
+    var l: lisp_list<array<int>> = [];
+    do {
+        var (keySlice, valSlice, found) = sdict.sDictDeleteFirstAndGet(SORT_KEY_LEN);
+        if (found) {
+            var ks = keySlice!;
+            var vs = valSlice!;
+            val stake = min(ks.loadUint(128), maxStake);
+            ks.skipBits(32); // skip negTime
+            val entryPubkey = ks.preloadUint(256);
+            val maxF = vs.loadUint(32);
+            vs.skipBits(256); // skip addr
+            val adnlAddr = vs.preloadUint(256);
+            l.prependHead([stake, maxF, entryPubkey, adnlAddr]);
+        }
+    } while (found);
+    // l is now in descending stake order
+
+    // Find optimal validator count
+    var i = minValidators - 1;
+    var l1 = l;
+    repeat (i) {
+        l1 = l1.getTail();
+    }
+    var bestStake = 0;
+    var m = 0;
+    do {
+        val head = l1.popHead();
+        val stake = head.get(0);
+        i += 1;
+        if (stake >= minStake) {
+            val totStake = computeTotalStake(l, i, stake);
+            if (totStake > bestStake) {
+                bestStake = totStake;
+                m = i;
+            }
+        }
+    } while (i < n);
+
+    if ((m == 0) | (bestStake < minTotalStake)) {
+        return ElectionResult {
+            vset: createEmptyDict(),
+            totalWeight: 0,
+            frozen: [],
+            totalStakes: 0,
+            count: 0,
+        };
+    }
+
+    // Find minimum stake for the selected set (m-th largest)
+    l1 = l;
+    repeat (m - 1) {
+        l1 = l1.getTail();
+    }
+    val mStake = l1.getHead().get(0);
+
+    // Build validator set and frozen dict
+    var ii = 0;
+    var totStake = 0;
+    var totWeight = 0;
+    var vset = createEmptyDict();
+    var frozen: FrozenDict = [];
+    while (!l.isEmpty()) {
+        val head = l.popHead();
+        val entryStake = head.get(0);
+        val maxF = head.get(1);
+        val entryPubkey = head.get(2);
+        val adnlAddr = head.get(3);
+
+        // lookup source address from members
+        val memberLookup = members.get(entryPubkey);
+        assert (memberLookup.isFound) throw 61;
+        val member = memberLookup.loadValue();
+
+        var remainingStake = entryStake;
+        if (ii < m) {
+            val trueStake = min(entryStake, (maxF * mStake) >> 16);
+            remainingStake = entryStake - trueStake;
+            val weight = (trueStake << 60) / bestStake;
+            totStake += trueStake;
+            totWeight += weight;
+
+            // TODO: ValidatorDescr struct only covers 0x53 tag (without adnl_addr).
+            // The 0x73 tag (with adnl_addr) needs a separate struct or union type.
+            var vinfo = beginCell()
+                .storeUint(adnlAddr ? 0x73 : 0x53, 8)
+                .storeUint(0x8e81278a, 32)
+                .storeUint(entryPubkey, 256)
+                .storeUint(weight, 64);
+            if (adnlAddr) {
+                vinfo = vinfo.storeUint(adnlAddr, 256);
+            }
+            vset.uDictSetBuilder(16, ii, vinfo);
+
+            frozen.set(entryPubkey, ValidatorInRound {
+                addr: member.srcAddr,
+                weight,
+                stake: trueStake,
+                isBanned: false,
+            });
+        }
+
+        if (remainingStake) {
+            // credit unused portion of stake
+            credits.creditTo(member.srcAddr, remainingStake);
+        }
+        ii += 1;
+    }
+
+    assert (totStake == bestStake) throw 49;
+
+    return ElectionResult {
+        vset,
+        totalWeight: totWeight,
+        frozen,
+        totalStakes: totStake,
+        count: m,
+    };
 }
