@@ -94,6 +94,7 @@ output-fift = "build/fift"
 max-warnings = 0
 
 [lint.rules]
+explicit-return-type = "allow"
 unused-import = "allow"
 
 [fmt]
