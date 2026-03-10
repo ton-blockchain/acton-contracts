@@ -39,7 +39,10 @@ fun onInternalMessage(in: InMessage) {
                 bounce: BounceMode.Only256BitsOfBody,
                 dest: calcDeployedNftItem(itemIndex, storage.nftItemCode),
                 value: 0,
-                body: ItemInitData { fromAddress: in.senderAddress, domain: domain.toCell() },
+                body: ItemInitData {
+                    fromAddress: in.senderAddress,
+                    domain: domain.toCell(),
+                },
             });
             deployItemMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
         }

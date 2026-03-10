@@ -73,4 +73,3 @@ struct (0x5fcc3d14) AskToChangeOwnership {
     forwardTonAmount: coins
     forwardPayload: RemainingBitsAndRefs
 }
-

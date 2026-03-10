@@ -54,6 +54,17 @@ name = "highload_wallet_v3"
 src = "highload-v3/contracts/highload-wallet.tolk"
 depends = []
 
+# Multisig V2
+[contracts.multisig_v2]
+name = "multisig_v2"
+src = "multisig-v2/contracts/multisig-contract.tolk"
+depends = [{ name = "multisig_v2_order", function = "multisigV2OrderCompiledCode" }]
+
+[contracts.multisig_v2_order]
+name = "multisig_v2_order"
+src = "multisig-v2/contracts/order-contract.tolk"
+depends = []
+
 # NFT
 [contracts.nft-collection]
 name = "Collection"
@@ -70,6 +81,12 @@ depends = []
 name = "Elector"
 src = "elector/elector.tolk"
 
+# W5
+[contracts.w5]
+name = "Wallet W5"
+src = "w5/contracts/wallet-v5-contract.tolk"
+depends = []
+
 [lint.acton_jetton_minter]
 asm-function-missing-safety-comment = "allow"
 
@@ -78,7 +95,11 @@ asm-function-missing-safety-comment = "allow"
 [build]
 output-fift = "build/fift"
 
+[lint]
+max-warnings = 0
+
 [lint.rules]
+explicit-return-type = "allow"
 unused-import = "allow"
 
 [fmt]
@@ -91,6 +112,7 @@ test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
 test-acton-jetton = "acton test acton-jetton/tests"
 test-dns = "acton test dns/tests"
+test-w5 = "acton test w5/tests"
 test-highload = "acton test highload-v3/tests"
 
 [mappings]

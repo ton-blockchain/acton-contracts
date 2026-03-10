@@ -20,7 +20,10 @@ fun NftCollectionContract.fromStorage(
     storage: CollectionStorage,
     toShard: AddressShardingOptions? = null,
 ) {
-    val stateInit = ContractState { code: build("dns_collection"), data: storage.toCell() };
+    val stateInit = ContractState {
+        code: build("dns_collection"),
+        data: storage.toCell(),
+    };
     val address = toShard == null
         ? AutoDeployAddress { stateInit }.calculateAddress()
         : AutoDeployAddress { stateInit, toShard }.calculateAddress();
@@ -60,7 +63,12 @@ fun NftCollectionContract.sendDeployDnsDomain(
     return net.send(from, outMessage);
 }
 
-fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
+fun NftCollectionContract.sendFillUp(
+    self,
+    from: address,
+    queryId: uint64,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -71,7 +79,12 @@ fun NftCollectionContract.sendFillUp(self, from: address, queryId: uint64, confi
 }
 
 /// Send outMessage to the contract with a custom body cell
-fun NftCollectionContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
+fun NftCollectionContract.sendAny(
+    self,
+    from: address,
+    body: cell,
+    config: SendParams = {},
+): SendResultList {
     val outMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -90,7 +103,11 @@ fun NftCollectionContract.getNftAddressByIndex(self, index: int): address {
 }
 
 fun NftCollectionContract.getNftContent(self, index: int, individualNftContent: cell): cell {
-    return net.runGetMethod(self.address, "get_nft_content", [index, individualNftContent] as tuple);
+    return net.runGetMethod(
+        self.address,
+        "get_nft_content",
+        [index, individualNftContent] as tuple,
+    );
 }
 
 fun NftCollectionContract.dnsresolve(self, subdomain: slice, category: int): DnsResolveResponse {
