@@ -33,11 +33,9 @@ fun onInternalMessage(in: InMessage) {
             months = 12;
         }
 
-        val durationStep = (AUCTION_START_DURATION - AUCTION_END_DURATION) / 12;
-        var duration = AUCTION_START_DURATION;
-        repeat (months) {
-            duration -= durationStep;
-        }
+        val duration = AUCTION_START_DURATION -
+        // acton-disable-next-line divide-before-multiply
+        (AUCTION_START_DURATION - AUCTION_END_DURATION) * months / 12;
 
         val auctionEndTime = now + duration;
         val initialContent: DnsRecords = [];

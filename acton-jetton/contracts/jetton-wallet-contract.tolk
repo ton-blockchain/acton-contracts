@@ -73,7 +73,7 @@ fun onInternalMessage(in: InMessage) {
                     value: 0,
                     body: ReturnExcessesBack { queryId: msg.queryId },
                 });
-                // SAFETY: a prior reserve keeps required storage rent, and this optional excess refund may fail without affecting state correctness.
+                // SAFETY: mode SEND_MODE_CARRY_ALL_BALANCE is used after reserveToncoinsOnBalance()
                 excessesMsg.send(SEND_MODE_CARRY_ALL_BALANCE | SEND_MODE_IGNORE_ERRORS);
             }
         }
