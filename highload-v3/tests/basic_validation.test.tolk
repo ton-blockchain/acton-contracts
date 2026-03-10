@@ -2,8 +2,8 @@ import "@acton/crypto/crypto"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "../contracts/messages"
 import "test_utils"
+import "../contracts/messages"
 
 get fun `test deploy`() {
     val ctx = setupHighloadTest();

@@ -1,9 +1,9 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "test_utils"
 import "../contracts/errors"
 import "../contracts/messages"
-import "test_utils"
 
 get fun `test validation: malformed forward payload should be rejected`() {
     val (minter, deployer, _) = setupTest();

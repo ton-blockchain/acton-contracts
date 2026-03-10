@@ -1,8 +1,8 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/types/message"
-import "../contracts/messages"
 import "test_utils"
+import "../contracts/messages"
 
 get fun `test minter restores supply on internal_transfer bounce`() {
     val (minter, deployer, _) = setupTest();

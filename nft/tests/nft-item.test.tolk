@@ -3,10 +3,10 @@ import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "../contracts/messages"
 import "./nft-collection.test"
 import "./wrappers/NftCollectionContract"
 import "./wrappers/NftItemContract"
+import "../contracts/messages"
 
 get fun `test nft: should transfer ownership`() {
     val (nftCollection, _, _) = setupTest();

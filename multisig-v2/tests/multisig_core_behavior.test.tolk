@@ -1,12 +1,12 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "../contracts/errors"
-import "../contracts/messages"
-import "../contracts/types"
 import "test_utils"
 import "wrappers/MultisigV2"
 import "wrappers/MultisigV2Order"
+import "../contracts/errors"
+import "../contracts/messages"
+import "../contracts/types"
 
 get fun `test multisig: should deploy`() {
     val ctx = setupMultisig();

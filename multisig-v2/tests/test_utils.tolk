@@ -5,11 +5,11 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/transaction"
 import "@acton/vm/vm"
+import "wrappers/MultisigV2"
+import "wrappers/MultisigV2Order"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/types"
-import "wrappers/MultisigV2"
-import "wrappers/MultisigV2Order"
 
 const DEFAULT_ORDER_CREATE_VALUE = ton("2")
 const DEFAULT_APPROVE_VALUE = ton("0.1")

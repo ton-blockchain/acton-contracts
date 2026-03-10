@@ -4,11 +4,11 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/vm/vm"
-import "../contracts/messages"
-import "../contracts/types"
 import "test_utils"
 import "wrappers/MultisigV2"
 import "wrappers/MultisigV2Order"
+import "../contracts/messages"
+import "../contracts/types"
 
 const FEE_BASE_EXPIRATION = 2000000000
 const FEE_TEST_NOW = 1760000000

@@ -2,9 +2,9 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/out_actions"
-import "../contracts/messages"
 import "test_utils"
 import "wrappers/HighloadWalletV3"
+import "../contracts/messages"
 
 const HIGHLOAD_E2E_DIRECT_SEND_VALUE = ton("1")
 const HIGHLOAD_E2E_BATCH_SEND_VALUE = ton("0.015")

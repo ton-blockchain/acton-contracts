@@ -2,12 +2,12 @@ import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "../contracts/dns-utils"
-import "../contracts/messages"
-import "../contracts/storage"
 import "wrappers/DnsCollection"
 import "wrappers/DnsItem"
 import "wrappers/DnsRoot"
+import "../contracts/dns-utils"
+import "../contracts/messages"
+import "../contracts/storage"
 
 const ROOT_TON_RESOLVER_HASH = 0x348bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
 const ROOT_TME_RESOLVER_HASH = 0xa48bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f

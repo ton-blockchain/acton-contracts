@@ -1,10 +1,10 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "../contracts/messages"
-import "../contracts/types"
 import "test_utils"
 import "wrappers/MultisigV2Order"
+import "../contracts/messages"
+import "../contracts/types"
 
 const MULTISIG_E2E_THRESHOLD = 2
 const MULTISIG_E2E_SIGNER_COUNT = 5

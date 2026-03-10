@@ -1,10 +1,10 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "test_utils"
 import "../contracts/dns-utils"
 import "../contracts/errors"
 import "../contracts/messages"
-import "test_utils"
 
 fun setupCompletedItem() {
     val (item, collection, owner, bidder) = deployItemThroughCollection();

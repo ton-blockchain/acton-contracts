@@ -122,9 +122,10 @@ get fun royalty_params(): RoyaltyParams {
     return storage.royaltyParams.load();
 }
 
-get fun get_nft_content(_itemIndex: int, individualNftContent: string): Cell<
-    OffchainMetadataReply,
-> {
+get fun get_nft_content(
+    _itemIndex: int,
+    individualNftContent: string,
+): Cell<OffchainMetadataReply> {
     val storage = lazy NftCollectionStorage.load();
     val content = lazy storage.content.load();
 

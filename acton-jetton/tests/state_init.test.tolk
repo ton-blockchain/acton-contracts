@@ -4,10 +4,10 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/tlb/either"
 import "@acton/tlb/maybe"
+import "test_utils"
 import "../contracts/fees-management"
 import "../contracts/messages"
 import "../contracts/storage"
-import "test_utils"
 
 const MAX_JETTON_VALUE = 0xffffffffffffffffffffffffffffff
 

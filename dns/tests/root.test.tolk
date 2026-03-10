@@ -1,7 +1,7 @@
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "../contracts/dns-utils"
 import "test_utils"
+import "../contracts/dns-utils"
 
 get fun `test root: accepts plain top-up messages`() {
     val (root, _) = deployRootContract();

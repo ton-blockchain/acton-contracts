@@ -2,11 +2,11 @@ import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "test_utils"
+import "wrappers/JettonMinter"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
-import "test_utils"
-import "wrappers/JettonMinter"
 
 get fun `test admin: deploy should create minter without bounce`() {
     val deployer = net.treasury("deployer_manual_deploy");

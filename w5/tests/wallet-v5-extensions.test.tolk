@@ -2,9 +2,9 @@ import "@acton/crypto/crypto"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "./wrappers/WalletV5Contract"
 import "../contracts/messages"
 import "../contracts/storage"
-import "./wrappers/WalletV5Contract"
 
 get fun `test w5: do a transfer from extension`() {
     val keyPair = crypto.generateKeyPair();

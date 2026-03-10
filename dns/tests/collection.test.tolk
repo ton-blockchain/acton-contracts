@@ -1,10 +1,10 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "../contracts/dns-utils"
-import "../contracts/errors"
 import "test_utils"
 import "wrappers/DnsCollection"
+import "../contracts/dns-utils"
+import "../contracts/errors"
 
 get fun `test collection: validates domain format and minimum bid rules`() {
     val (collection, _, user) = deployCollectionContract();

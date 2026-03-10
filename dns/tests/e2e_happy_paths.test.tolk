@@ -1,10 +1,10 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "../contracts/dns-utils"
-import "../contracts/messages"
 import "test_utils"
 import "wrappers/DnsItem"
+import "../contracts/dns-utils"
+import "../contracts/messages"
 
 const E2E_DOMAIN = "benchflow"
 const E2E_INITIAL_BID = ton("1000")

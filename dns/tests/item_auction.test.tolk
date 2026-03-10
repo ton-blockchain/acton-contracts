@@ -1,11 +1,11 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "test_utils"
+import "wrappers/DnsItem"
 import "../contracts/dns-utils"
 import "../contracts/errors"
 import "../contracts/messages"
-import "test_utils"
-import "wrappers/DnsItem"
 
 get fun `test item auction: initializes only from collection and handles repeated init`() {
     val collection = newActor("item_init_collection");

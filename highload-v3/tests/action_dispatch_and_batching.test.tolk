@@ -2,8 +2,8 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/out_actions"
-import "../contracts/messages"
 import "test_utils"
+import "../contracts/messages"
 
 get fun `test send internal message`() {
     val ctx = setupHighloadTest();
