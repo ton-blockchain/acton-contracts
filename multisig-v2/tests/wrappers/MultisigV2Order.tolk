@@ -139,7 +139,12 @@ fun MultisigV2Order.sendComment(
     return net.send(from, commentMessage);
 }
 
-fun MultisigV2Order.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
+fun MultisigV2Order.sendAny(
+    self,
+    from: address,
+    body: cell,
+    config: SendParams = {},
+): SendResultList {
     val customBodyMessage = createMessage({
         bounce: config.bounce,
         value: config.value,

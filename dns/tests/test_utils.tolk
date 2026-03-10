@@ -1,10 +1,10 @@
-import "wrappers/DnsCollection"
-import "wrappers/DnsItem"
-import "wrappers/DnsRoot"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "wrappers/DnsCollection"
+import "wrappers/DnsItem"
+import "wrappers/DnsRoot"
 import "../contracts/dns-utils"
 import "../contracts/messages"
 import "../contracts/storage"
@@ -47,8 +47,9 @@ fun newActor(name: string, extraTopUp: coins = 0): Treasury {
 }
 
 fun makeCollectionContentCell(): cell {
-    return beginCell().storeUint(1, BYTE_SIZE).storeSlice("https://ton.org/collection.json"
-        .beginParse())
+    return beginCell()
+        .storeUint(1, BYTE_SIZE)
+        .storeSlice("https://ton.org/collection.json".beginParse())
         .endCell();
 }
 
@@ -75,12 +76,18 @@ fun domainIndex(domain: string): uint256 {
 }
 
 fun makeItemStorageNonInit(collectionAddress: address, domain: string = DEFAULT_DOMAIN) {
-    return ItemStorageNotInitialized { index: domainIndex(domain), collectionAddress };
+    return ItemStorageNotInitialized {
+        index: domainIndex(domain),
+        collectionAddress,
+    };
 }
 
 fun makeItemInitBody(fromAddress: address, domain: string): cell {
     val domainSlice = domain.beginParse();
-    return ItemInitData { fromAddress, domain: domainSlice.toCell() }.toCell();
+    return ItemInitData {
+        fromAddress,
+        domain: domainSlice.toCell(),
+    }.toCell();
 }
 
 fun repeatAsciiChar(charCode: int, count: int): slice {
@@ -124,22 +131,28 @@ fun makeDotSlice(): slice {
 }
 
 fun makeLabelDomainSlice(label: string): slice {
-    return beginCell().storeSlice(label.beginParse()).storeUint(0, BYTE_SIZE).endCell().beginParse();
+    return beginCell()
+        .storeSlice(label.beginParse())
+        .storeUint(0, BYTE_SIZE)
+        .endCell()
+        .beginParse();
 }
 
 fun makeLabelAndTailSlice(label: string, tail: string): slice {
-    return beginCell().storeSlice(label.beginParse()).storeUint(0, BYTE_SIZE).storeSlice(tail
-        .beginParse())
+    return beginCell()
+        .storeSlice(label.beginParse())
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice(tail.beginParse())
         .storeUint(0, BYTE_SIZE)
         .endCell()
         .beginParse();
 }
 
 fun makeRelativeSubdomainSlice(subdomain: string): slice {
-    return beginCell().storeUint(0, BYTE_SIZE).storeSlice(subdomain.beginParse()).storeUint(
-        0,
-        BYTE_SIZE
-    )
+    return beginCell()
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice(subdomain.beginParse())
+        .storeUint(0, BYTE_SIZE)
         .endCell()
         .beginParse();
 }
@@ -149,20 +162,28 @@ fun makeLeadingZero(domain: slice): slice {
 }
 
 fun makeTonDomainSlice(): slice {
-    return beginCell().storeSlice("ton".literalSlice()).storeUint(0, BYTE_SIZE).endCell().beginParse();
+    return beginCell()
+        .storeSlice("ton".literalSlice())
+        .storeUint(0, BYTE_SIZE)
+        .endCell()
+        .beginParse();
 }
 
 fun makeTonWwwDomainSlice(): slice {
-    return beginCell().storeSlice("ton".literalSlice()).storeUint(0, BYTE_SIZE).storeSlice("www"
-        .literalSlice())
+    return beginCell()
+        .storeSlice("ton".literalSlice())
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice("www".literalSlice())
         .storeUint(0, BYTE_SIZE)
         .endCell()
         .beginParse();
 }
 
 fun makeTMeDomainSlice(): slice {
-    return beginCell().storeSlice("me".literalSlice()).storeUint(0, BYTE_SIZE).storeSlice("t"
-        .literalSlice())
+    return beginCell()
+        .storeSlice("me".literalSlice())
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice("t".literalSlice())
         .storeUint(0, BYTE_SIZE)
         .endCell()
         .beginParse();
@@ -220,7 +241,7 @@ fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = 
     val deployRes = collection.sendAny(
         deployer.address,
         makeDeployBody(domain),
-        { value, bounce: true }
+        { value, bounce: true },
     );
     expect(deployRes).toHaveSuccessfulTx({ to: collection.address });
 

@@ -113,19 +113,19 @@ fun manualOrderProcessingCost(
     val forwardFees = calculateForwardFee(
         BASECHAIN,
         INIT_ORDER_BIT_OVERHEAD + orderBits + signersBits,
-        INIT_ORDER_CELL_OVERHEAD + orderCells + signersCells
+        INIT_ORDER_CELL_OVERHEAD + orderCells + signersCells,
     ) +
     calculateForwardFee(
         BASECHAIN,
         EXECUTE_ORDER_BIT_OVERHEAD + orderBits,
-        EXECUTE_ORDER_CELL_OVERHEAD + orderCells
+        EXECUTE_ORDER_CELL_OVERHEAD + orderCells,
     );
 
     val storageFees = calculateStorageFee(
         BASECHAIN,
         duration,
         ORDER_STATE_BIT_OVERHEAD + orderBits + signersBits,
-        ORDER_STATE_CELL_OVERHEAD + orderCells + signersCells
+        ORDER_STATE_CELL_OVERHEAD + orderCells + signersCells,
     );
 
     return gasFees + forwardFees + storageFees;
@@ -136,18 +136,25 @@ get fun `test helpers: getTextComment should flatten comment chain in refs`() {
     val plain = TextComment.fromCell(plainBody);
     expect(getTextComment(plain.comment).bitsEqual(COMMENT_APPROVE)).toEqual(true);
 
-    val chained = beginCell().storeSlice("a".beginParse()).storeRef(beginCell().storeSlice("p"
-        .beginParse())
-        .storeRef(beginCell().storeSlice("prove".beginParse()).endCell())
-        .endCell())
+    val chained = beginCell()
+        .storeSlice("a".beginParse())
+        .storeRef(
+            beginCell()
+                .storeSlice("p".beginParse())
+                .storeRef(beginCell().storeSlice("prove".beginParse()).endCell())
+                .endCell(),
+        )
         .endCell();
     val chainedBody = beginCell().storeUint(0, 32).storeSlice(chained.beginParse()).endCell();
     val withRefs = TextComment.fromCell(chainedBody);
     expect(getTextComment(withRefs.comment).bitsEqual(COMMENT_APPROVE)).toEqual(true);
 
-    val emptyInMiddle = beginCell().storeUint(0, 32).storeSlice("ap".beginParse()).storeRef(beginCell()
-        .storeRef(beginCell().storeSlice("prove".beginParse()).endCell())
-        .endCell())
+    val emptyInMiddle = beginCell()
+        .storeUint(0, 32)
+        .storeSlice("ap".beginParse())
+        .storeRef(
+            beginCell().storeRef(beginCell().storeSlice("prove".beginParse()).endCell()).endCell(),
+        )
         .endCell();
     val withEmptyRefs = TextComment.fromCell(emptyInMiddle);
     expect(getTextComment(withEmptyRefs.comment).bitsEqual(COMMENT_APPROVE)).toEqual(true);
@@ -170,11 +177,13 @@ get fun `test helpers: findSignerByAddress should return signer index when found
 }
 
 get fun `test helpers: calculateOrderProcessingCost should match manual formula`() {
-    val signers = toSignerMap(array<address> [
-        net.randomAddress("calc_signer_0"),
-        net.randomAddress("calc_signer_1"),
-        net.randomAddress("calc_signer_2")
-    ]);
+    val signers = toSignerMap(
+        array<address> [
+            net.randomAddress("calc_signer_0"),
+            net.randomAddress("calc_signer_1"),
+            net.randomAddress("calc_signer_2"),
+        ],
+    );
     val order = makeSingleActionOrder(9090);
     val duration = 7 * 24 * 3600;
 
@@ -210,10 +219,12 @@ get fun `test helpers: OrderStorageInitialized.approve should accept and then ex
 
     val secondActions = vm.outActions();
     expect(secondActions.size()).toEqual(2);
-    expect(containsMessageWithOpcode(secondActions, ApproveAccepted.getDeclaredPackPrefix2()))
-        .toEqual(true);
-    expect(containsMessageWithOpcode(secondActions, ExecuteOrderRequest.getDeclaredPackPrefix2()))
-        .toEqual(true);
+    expect(
+        containsMessageWithOpcode(secondActions, ApproveAccepted.getDeclaredPackPrefix2()),
+    ).toEqual(true);
+    expect(
+        containsMessageWithOpcode(secondActions, ExecuteOrderRequest.getDeclaredPackPrefix2()),
+    ).toEqual(true);
 }
 
 get fun `test helpers: OrderStorageInitialized.approve should reject duplicate approval`() {

@@ -67,10 +67,10 @@ fun getTopDomainBits(domain: slice): int {
 }
 
 enum DomainChar {
-    Hyphen = 45 // ASCII '-': allowed only inside a label, not as the first/last checked char.
-    DigitZero = 48 // ASCII '0': lower bound for allowed digits
-    DigitNine = 57 // ASCII '9': upper bound for allowed digits
-    LowercaseA = 97 // ASCII 'a': lower bound for allowed lowercase letters
+    Hyphen = 45      // ASCII '-': allowed only inside a label, not as the first/last checked char.
+    DigitZero = 48   // ASCII '0': lower bound for allowed digits
+    DigitNine = 57   // ASCII '9': upper bound for allowed digits
+    LowercaseA = 97  // ASCII 'a': lower bound for allowed lowercase letters
     LowercaseZ = 122 // ASCII 'z': upper bound for allowed lowercase letters
 }
 
@@ -110,7 +110,10 @@ struct MinPriceConfig {
 }
 
 fun getMinPriceConfig(domainCharCount: int): MinPriceConfig {
-    var res = MinPriceConfig { startMinPrice: 10, endMinPrice: 1 };
+    var res = MinPriceConfig {
+        startMinPrice: 10,
+        endMinPrice: 1,
+    };
 
     if (domainCharCount == 4) {
         res = { startMinPrice: 1000, endMinPrice: 100 };

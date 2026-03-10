@@ -138,10 +138,7 @@ fun MultisigV2.sendExecuteInternal(
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: ExecuteInternalRequest {
-            queryId,
-            order,
-        },
+        body: ExecuteInternalRequest { queryId, order },
     });
     return net.send(from, executeInternalMessage);
 }

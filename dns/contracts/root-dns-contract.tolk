@@ -1,6 +1,6 @@
+import "dns-utils"
 import "errors"
 import "storage"
-import "dns-utils"
 
 fun getPrefixLengthByDomain(domainLength: int, startsWithZeroByte: bool) {
     return (domainLength - 1) * BYTE_SIZE + (startsWithZeroByte ? BYTE_SIZE : 0);
@@ -18,10 +18,7 @@ get fun dnsresolve(subdomain: slice, _category: int): DnsResolveResponse {
 
     // "." is resolved, without dns record
     if (startsWithZeroByte && subdomainLengthInBits == BYTE_SIZE) {
-        return {
-            resolvedPrefixLengthBits: BYTE_SIZE,
-            resolvedRecord: null,
-        };
+        return { resolvedPrefixLengthBits: BYTE_SIZE, resolvedRecord: null };
     }
 
     if (startsWithZeroByte) {
@@ -35,49 +32,56 @@ get fun dnsresolve(subdomain: slice, _category: int): DnsResolveResponse {
     // wwwDomainBuilder.append("ton");
 
     val tonWwwDomain = beginCell()
-        .storeSlice("ton".literalSlice()).storeUint(0, BYTE_SIZE)
-        .storeSlice("www".literalSlice()).storeUint(0, BYTE_SIZE)
+        .storeSlice("ton".literalSlice())
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice("www".literalSlice())
+        .storeUint(0, BYTE_SIZE)
         .toSlice();
 
     if (subdomainLengthInBits >= TON_WWW_DOMAIN_SIZE * BYTE_SIZE) {
         if (subdomain.preloadBits(TON_WWW_DOMAIN_SIZE * BYTE_SIZE).bitsEqual(tonWwwDomain)) {
-            
             return {
-                resolvedPrefixLengthBits: getPrefixLengthByDomain(TON_WWW_DOMAIN_SIZE, startsWithZeroByte),
-                resolvedRecord: rootStorage.tonWwwAddress.toNextResolver()
+                resolvedPrefixLengthBits: getPrefixLengthByDomain(
+                    TON_WWW_DOMAIN_SIZE,
+                    startsWithZeroByte,
+                ),
+                resolvedRecord: rootStorage.tonWwwAddress.toNextResolver(),
             };
         }
     }
 
-    val tonDomain = beginCell()
-        .storeSlice("ton".literalSlice()).storeUint(0, BYTE_SIZE)
-        .toSlice();
+    val tonDomain = beginCell().storeSlice("ton".literalSlice()).storeUint(0, BYTE_SIZE).toSlice();
 
     if (subdomainLengthInBits >= TON_DOMAIN_SIZE * BYTE_SIZE) {
         if (subdomain.preloadBits(TON_DOMAIN_SIZE * BYTE_SIZE).bitsEqual(tonDomain)) {
             return {
-                resolvedPrefixLengthBits: getPrefixLengthByDomain(TON_DOMAIN_SIZE, startsWithZeroByte),
+                resolvedPrefixLengthBits: getPrefixLengthByDomain(
+                    TON_DOMAIN_SIZE,
+                    startsWithZeroByte,
+                ),
                 resolvedRecord: rootStorage.tonAddress.toNextResolver(),
             };
         }
     }
 
     val tMeDomain = beginCell()
-        .storeSlice("me".literalSlice()).storeUint(0, BYTE_SIZE)
-        .storeSlice("t".literalSlice()).storeUint(0, BYTE_SIZE)
+        .storeSlice("me".literalSlice())
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice("t".literalSlice())
+        .storeUint(0, BYTE_SIZE)
         .toSlice();
 
     if (subdomainLengthInBits >= TELEGRAM_DOMAIN_SIZE * BYTE_SIZE) {
         if (subdomain.preloadBits(TELEGRAM_DOMAIN_SIZE * BYTE_SIZE).bitsEqual(tMeDomain)) {
             return {
-                resolvedPrefixLengthBits: getPrefixLengthByDomain(TELEGRAM_DOMAIN_SIZE, startsWithZeroByte),
+                resolvedPrefixLengthBits: getPrefixLengthByDomain(
+                    TELEGRAM_DOMAIN_SIZE,
+                    startsWithZeroByte,
+                ),
                 resolvedRecord: rootStorage.tMeAddress.toNextResolver(),
             };
         }
     }
 
-    return {
-        resolvedPrefixLengthBits: 0,
-        resolvedRecord: null,
-    };
+    return { resolvedPrefixLengthBits: 0, resolvedRecord: null };
 }

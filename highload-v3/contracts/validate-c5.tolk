@@ -43,7 +43,7 @@ struct MessageRelaxed {
 fun validateMessageToSend(messageToSend: cell) {
     val msg = lazy MessageRelaxed.fromCell(
         messageToSend,
-        { throwIfOpcodeDoesNotMatch: ERROR_INVALID_MESSAGE_TO_SEND }
+        { throwIfOpcodeDoesNotMatch: ERROR_INVALID_MESSAGE_TO_SEND },
     );
 
     var res: bool;

@@ -5,11 +5,11 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/transaction"
 import "@acton/vm/vm"
+import "wrappers/MultisigV2"
+import "wrappers/MultisigV2Order"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/types"
-import "wrappers/MultisigV2"
-import "wrappers/MultisigV2Order"
 
 const DEFAULT_ORDER_CREATE_VALUE = ton("2")
 const DEFAULT_APPROVE_VALUE = ton("0.1")
@@ -80,12 +80,7 @@ fun setupMultisig(
     val signers = createSignerAddresses(signerCount, deployer.address);
     val proposers = createProposerAddresses(proposerCount, proposer.address);
 
-    val multisig = MultisigV2.fromConfig(
-        threshold,
-        signers,
-        proposers,
-        allowArbitraryOrderSeqno,
-    );
+    val multisig = MultisigV2.fromConfig(threshold, signers, proposers, allowArbitraryOrderSeqno);
 
     val deploy = multisig.deploy(deployer.address, { value: ton("10"), bounce: false });
     expect(deploy).toHaveSuccessfulDeploy({ to: multisig.address });
@@ -126,10 +121,7 @@ fun makeTransferAction(
         dest: to,
         body: markerBody(marker),
     });
-    return {
-        mode: mode as uint8,
-        message: transferMessage.messageCell,
-    };
+    return { mode: mode as uint8, message: transferMessage.messageCell };
 }
 
 fun makeTransferActionWithBody(
@@ -145,10 +137,7 @@ fun makeTransferActionWithBody(
         dest: to,
         body,
     });
-    return {
-        mode: mode as uint8,
-        message: transferMessage.messageCell,
-    };
+    return { mode: mode as uint8, message: transferMessage.messageCell };
 }
 
 fun makeUpdateAction(
@@ -248,7 +237,9 @@ fun nowPlus(delta: int = DEFAULT_ORDER_TTL): int {
 }
 
 fun deployOrderFor(multisigAddress: address, orderSeqno: int): MultisigV2Order {
-    return MultisigV2Order.fromAddress(MultisigV2.fromAddress(multisigAddress).getOrderAddress(orderSeqno));
+    return MultisigV2Order.fromAddress(
+        MultisigV2.fromAddress(multisigAddress).getOrderAddress(orderSeqno),
+    );
 }
 
 fun nextOrder(multisig: MultisigV2): (MultisigV2Order, int) {
@@ -265,16 +256,18 @@ fun sendOrderBySigner(
     orderSeqno: uint256 = MAX_ORDER_SEQNO,
     value: coins = DEFAULT_ORDER_CREATE_VALUE,
 ): SendResultList {
-    return ctx.multisig.sendNewOrder(
-        ctx.signers.get(signerIndex),
-        order,
-        expirationDate,
-        true,
-        signerIndex,
-        orderSeqno,
-        0,
-        { value, bounce: true },
-    );
+    return ctx
+        .multisig
+        .sendNewOrder(
+            ctx.signers.get(signerIndex),
+            order,
+            expirationDate,
+            true,
+            signerIndex,
+            orderSeqno,
+            0,
+            { value, bounce: true },
+        );
 }
 
 fun sendOrderByProposer(
@@ -285,16 +278,18 @@ fun sendOrderByProposer(
     orderSeqno: uint256 = MAX_ORDER_SEQNO,
     value: coins = DEFAULT_ORDER_CREATE_VALUE,
 ): SendResultList {
-    return ctx.multisig.sendNewOrder(
-        ctx.proposers.get(proposerIndex),
-        order,
-        expirationDate,
-        false,
-        proposerIndex,
-        orderSeqno,
-        0,
-        { value, bounce: true },
-    );
+    return ctx
+        .multisig
+        .sendNewOrder(
+            ctx.proposers.get(proposerIndex),
+            order,
+            expirationDate,
+            false,
+            proposerIndex,
+            orderSeqno,
+            0,
+            { value, bounce: true },
+        );
 }
 
 fun buildLargeOrder(

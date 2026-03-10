@@ -1,10 +1,10 @@
+import "@acton/crypto/crypto"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "@acton/crypto/crypto"
 import "./wrappers/WalletV5Contract"
-import "../contracts/storage"
 import "../contracts/messages"
+import "../contracts/storage"
 
 get fun `test w5: do a transfer from extension`() {
     val keyPair = crypto.generateKeyPair();
@@ -22,18 +22,21 @@ get fun `test w5: do a transfer from extension`() {
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
 
-    val actionsBody = ActionsList { outActions, extraActions: [] }.toCell();
+    val actionsBody = ActionsList {
+        outActions,
+        extraActions: [],
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt.size()).toEqual(2);
 
-    expect(receipt).toHaveSuccessfulTx({
-        from: deployer.address,
-        to: walletV5.address,
-    });
+    expect(receipt).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address });
 
     expect(receipt).toHaveTx({
         from: walletV5.address,
@@ -74,15 +77,15 @@ get fun `test w5: do two transfers from extension and add other extension`() {
     val actionsBody = ActionsList { outActions, extraActions }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt.size()).toEqual(3);
 
-    expect(receipt).toHaveSuccessfulTx({
-        from: deployer.address,
-        to: walletV5.address,
-    });
+    expect(receipt).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address });
 
     expect(receipt).toHaveTx({
         from: walletV5.address,
@@ -127,18 +130,21 @@ get fun `test w5: add and remove other extension from extension`() {
     // Add other extension from extension
     var extraActions1: array<ExtraAction> = [];
     extraActions1.push(AddExtensionExtraAction { addr: otherExtension });
-    val actionsBody1 = ActionsList { outActions: [], extraActions: extraActions1 }.toCell();
+    val actionsBody1 = ActionsList {
+        outActions: [],
+        extraActions: extraActions1,
+    }.toCell();
 
     val receipt1 = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody1, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody1,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt1.size()).toEqual(1);
 
-    expect(receipt1).toHaveSuccessfulTx({
-        from: deployer.address,
-        to: walletV5.address,
-    });
+    expect(receipt1).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address });
 
     // Verify both extensions exist
     val ext1 = walletV5.getExtensions();
@@ -151,18 +157,21 @@ get fun `test w5: add and remove other extension from extension`() {
     // Remove other extension
     var extraActions2: array<ExtraAction> = [];
     extraActions2.push(RemoveExtensionExtraAction { addr: otherExtension });
-    val actionsBody2 = ActionsList { outActions: [], extraActions: extraActions2 }.toCell();
+    val actionsBody2 = ActionsList {
+        outActions: [],
+        extraActions: extraActions2,
+    }.toCell();
 
     val receipt2 = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody2, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody2,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt2.size()).toEqual(1);
 
-    expect(receipt2).toHaveSuccessfulTx({
-        from: deployer.address,
-        to: walletV5.address,
-    });
+    expect(receipt2).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address });
 
     // Verify only deployer extension remains
     val ext2 = walletV5.getExtensions();
@@ -182,18 +191,21 @@ get fun `test w5: extension removes itself`() {
 
     var extraActions: array<ExtraAction> = [];
     extraActions.push(RemoveExtensionExtraAction { addr: deployer.address });
-    val actionsBody = ActionsList { outActions: [], extraActions }.toCell();
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt.size()).toEqual(1);
 
-    expect(receipt).toHaveSuccessfulTx({
-        from: deployer.address,
-        to: walletV5.address,
-    });
+    expect(receipt).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address });
 
     // Extensions dict should be empty
     val ext = walletV5.getExtensions();
@@ -214,10 +226,16 @@ get fun `test w5: extension must be in dict to pass authorization`() {
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actionsBody = ActionsList { outActions, extraActions: [] }.toCell();
+    val actionsBody = ActionsList {
+        outActions,
+        extraActions: [],
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        sender.address, actionsBody, 0, { value: ton("0.1") }
+        sender.address,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt.size()).toEqual(1);
@@ -253,11 +271,12 @@ get fun `test w5: disallow signature auth and do a transfer from extension`() {
     // Disable signature auth from extension
     var extraActions0: array<ExtraAction> = [];
     extraActions0.push(SetSignatureAllowedExtraAction { allowSignature: false });
-    val actionsBody0 = ActionsList { outActions: [], extraActions: extraActions0 }.toCell();
+    val actionsBody0 = ActionsList {
+        outActions: [],
+        extraActions: extraActions0,
+    }.toCell();
 
-    walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody0, 0, { value: ton("0.1") }
-    );
+    walletV5.sendExtensionActionRequest(deployer.address, actionsBody0, 0, { value: ton("0.1") });
 
     expect(walletV5.isSignatureAllowed()).toEqual(false);
 
@@ -268,18 +287,21 @@ get fun `test w5: disallow signature auth and do a transfer from extension`() {
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actionsBody = ActionsList { outActions, extraActions: [] }.toCell();
+    val actionsBody = ActionsList {
+        outActions,
+        extraActions: [],
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt.size()).toEqual(2);
 
-    expect(receipt).toHaveSuccessfulTx({
-        from: deployer.address,
-        to: walletV5.address,
-    });
+    expect(receipt).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address });
 
     expect(receipt).toHaveTx({
         from: walletV5.address,
@@ -304,10 +326,11 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
     // Disable signature auth from extension
     var extraActions0: array<ExtraAction> = [];
     extraActions0.push(SetSignatureAllowedExtraAction { allowSignature: false });
-    val actionsBody0 = ActionsList { outActions: [], extraActions: extraActions0 }.toCell();
-    walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody0, 0, { value: ton("0.1") }
-    );
+    val actionsBody0 = ActionsList {
+        outActions: [],
+        extraActions: extraActions0,
+    }.toCell();
+    walletV5.sendExtensionActionRequest(deployer.address, actionsBody0, 0, { value: ton("0.1") });
 
     expect(walletV5.isSignatureAllowed()).toEqual(false);
 
@@ -315,10 +338,16 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
     var extraActions1: array<ExtraAction> = [];
     extraActions1.push(SetSignatureAllowedExtraAction { allowSignature: true });
     extraActions1.push(RemoveExtensionExtraAction { addr: deployer.address });
-    val actionsBody1 = ActionsList { outActions: [], extraActions: extraActions1 }.toCell();
+    val actionsBody1 = ActionsList {
+        outActions: [],
+        extraActions: extraActions1,
+    }.toCell();
 
     val receipt = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody1, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody1,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt.size()).toEqual(1);
@@ -347,20 +376,18 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actionsBody2 = ActionsList { outActions, extraActions: [] };
+    val actionsBody2 = ActionsList {
+        outActions,
+        extraActions: [],
+    };
 
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actionsBody2);
 
-    val receipt2 = walletV5.sendSignedBody(
-        deployer.address, signedBody, { value: ton("0.1") }
-    );
+    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: ton("0.1") });
 
     expect(receipt2.size()).toEqual(2);
 
-    expect(receipt2).toHaveSuccessfulTx({
-        from: deployer.address,
-        to: walletV5.address,
-    });
+    expect(receipt2).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address });
 
     expect(receipt2).toHaveTx({
         from: walletV5.address,
@@ -387,10 +414,16 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
     // Disable signature auth from extension
     var extraActions0: array<ExtraAction> = [];
     extraActions0.push(SetSignatureAllowedExtraAction { allowSignature: false });
-    val actionsBody0 = ActionsList { outActions: [], extraActions: extraActions0 }.toCell();
+    val actionsBody0 = ActionsList {
+        outActions: [],
+        extraActions: extraActions0,
+    }.toCell();
 
     val receipt0 = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody0, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody0,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt0.size()).toEqual(1);
@@ -407,10 +440,16 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
     var extraActions1: array<ExtraAction> = [];
     extraActions1.push(SetSignatureAllowedExtraAction { allowSignature: true });
     extraActions1.push(RemoveExtensionExtraAction { addr: deployer.address });
-    val actionsBody1 = ActionsList { outActions: [], extraActions: extraActions1 }.toCell();
+    val actionsBody1 = ActionsList {
+        outActions: [],
+        extraActions: extraActions1,
+    }.toCell();
 
     val receipt1 = walletV5.sendExtensionActionRequest(
-        deployer.address, actionsBody1, 0, { value: ton("0.1") }
+        deployer.address,
+        actionsBody1,
+        0,
+        { value: ton("0.1") },
     );
 
     expect(receipt1.size()).toEqual(1);
@@ -433,20 +472,18 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
-    val actionsBody2 = ActionsList { outActions, extraActions: [] };
+    val actionsBody2 = ActionsList {
+        outActions,
+        extraActions: [],
+    };
 
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actionsBody2);
 
-    val receipt2 = walletV5.sendSignedBody(
-        deployer.address, signedBody, { value: ton("0.1") }
-    );
+    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: ton("0.1") });
 
     expect(receipt2.size()).toEqual(2);
 
-    expect(receipt2).toHaveSuccessfulTx({
-        from: deployer.address,
-        to: walletV5.address,
-    });
+    expect(receipt2).toHaveSuccessfulTx({ from: deployer.address, to: walletV5.address });
 
     expect(receipt2).toHaveTx({
         from: walletV5.address,

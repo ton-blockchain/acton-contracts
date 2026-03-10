@@ -1,10 +1,10 @@
-import "test_utils"
 import "@acton/emulation/network"
 import "@acton/ffi/ffi"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/tlb/either"
 import "@acton/tlb/maybe"
+import "test_utils"
 import "../contracts/fees-management"
 import "../contracts/messages"
 import "../contracts/storage"
@@ -20,7 +20,7 @@ get fun `test state: should mint max jetton value`() {
         deployer.address,
         MAX_JETTON_VALUE,
         ton("0.05"),
-        ton("0.3")
+        ton("0.3"),
     );
     expect(mintResult).toHaveSuccessfulTx<MintNewJettons>({
         from: deployer.address,
@@ -40,13 +40,7 @@ get fun `test state: wallet storage and init-state bounds should match fee const
     val recipient = net.randomAddress();
     val recipientWallet = userWallet(minter, recipient);
 
-    val mintResult = minter.sendMint(
-        deployer.address,
-        recipient,
-        TEST_JETTON_UNIT,
-        0,
-        ton("0.3")
-    );
+    val mintResult = minter.sendMint(deployer.address, recipient, TEST_JETTON_UNIT, 0, ton("0.3"));
     expect(mintResult).toHaveSuccessfulTx<InternalTransferStep>({
         from: minter.address,
         to: recipientWallet.address,
@@ -97,5 +91,4 @@ get fun `test state: wallet storage and init-state bounds should match fee const
 
     expect(initBits).toBeGreater(0);
     expect(initCells).toBeGreater(0);
-
 }

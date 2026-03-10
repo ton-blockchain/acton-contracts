@@ -1,7 +1,7 @@
-import "test_utils"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "test_utils"
 import "../contracts/errors"
 import "../contracts/messages"
 
@@ -10,7 +10,11 @@ get fun `test validation: malformed forward payload should be rejected`() {
     val wallet = mintTo(minter, deployer, deployer.address, DEFAULT_MINTED_JETTONS);
 
     val payloadRef = beginCell().endCell();
-    val badPayload = beginCell().storeUint(1, 1).storeRef(payloadRef).storeUint(1, 1).endCell()
+    val badPayload = beginCell()
+        .storeUint(1, 1)
+        .storeRef(payloadRef)
+        .storeUint(1, 1)
+        .endCell()
         .beginParse();
 
     val outMessage = createMessage({
@@ -36,11 +40,17 @@ get fun `test validation: malformed custom payload should be rejected`() {
     val forwardPayload = beginCell().storeUint(0x1234567890abcdef, 128).endCell();
     val customPayload = beginCell().storeUint(0xfedcba0987654321, 128).endCell();
 
-    val malformedMissingRef = beginCell().storeUint(0x0f8a7ea5, 32).storeUint(0, 64).storeCoins(
-        sentAmount,
-    ).storeAddress(notDeployer.address).storeAddress(deployer.address).storeUint(1, 1).storeCoins(
-        forwardAmount,
-    ).storeUint(1, 1).storeRef(forwardPayload).endCell();
+    val malformedMissingRef = beginCell()
+        .storeUint(0x0f8a7ea5, 32)
+        .storeUint(0, 64)
+        .storeCoins(sentAmount)
+        .storeAddress(notDeployer.address)
+        .storeAddress(deployer.address)
+        .storeUint(1, 1)
+        .storeCoins(forwardAmount)
+        .storeUint(1, 1)
+        .storeRef(forwardPayload)
+        .endCell();
 
     val failRes1 = sendRawTransferPayload(deployer.address, wallet.address, malformedMissingRef);
     expect(failRes1).toHaveTx<AskToTransfer>({
@@ -50,11 +60,18 @@ get fun `test validation: malformed custom payload should be rejected`() {
         aborted: true,
     });
 
-    val malformedUnexpectedRef = beginCell().storeUint(0x0f8a7ea5, 32).storeUint(0, 64).storeCoins(
-        sentAmount,
-    ).storeAddress(notDeployer.address).storeAddress(deployer.address).storeUint(0, 1).storeRef(
-        customPayload,
-    ).storeCoins(forwardAmount).storeUint(1, 1).storeRef(forwardPayload).endCell();
+    val malformedUnexpectedRef = beginCell()
+        .storeUint(0x0f8a7ea5, 32)
+        .storeUint(0, 64)
+        .storeCoins(sentAmount)
+        .storeAddress(notDeployer.address)
+        .storeAddress(deployer.address)
+        .storeUint(0, 1)
+        .storeRef(customPayload)
+        .storeCoins(forwardAmount)
+        .storeUint(1, 1)
+        .storeRef(forwardPayload)
+        .endCell();
 
     val failRes2 = sendRawTransferPayload(deployer.address, wallet.address, malformedUnexpectedRef);
     expect(failRes2).toHaveTx<AskToTransfer>({
@@ -64,10 +81,18 @@ get fun `test validation: malformed custom payload should be rejected`() {
         aborted: true,
     });
 
-    val validPayload = beginCell().storeUint(0x0f8a7ea5, 32).storeUint(0, 64).storeCoins(sentAmount)
-        .storeAddress(notDeployer.address).storeAddress(deployer.address).storeUint(1, 1).storeRef(
-        customPayload,
-    ).storeCoins(forwardAmount).storeUint(1, 1).storeRef(forwardPayload).endCell();
+    val validPayload = beginCell()
+        .storeUint(0x0f8a7ea5, 32)
+        .storeUint(0, 64)
+        .storeCoins(sentAmount)
+        .storeAddress(notDeployer.address)
+        .storeAddress(deployer.address)
+        .storeUint(1, 1)
+        .storeRef(customPayload)
+        .storeCoins(forwardAmount)
+        .storeUint(1, 1)
+        .storeRef(forwardPayload)
+        .endCell();
 
     val okRes = sendRawTransferPayload(deployer.address, wallet.address, validPayload);
     expect(okRes).toHaveSuccessfulTx<AskToTransfer>({ from: deployer.address, to: wallet.address });
@@ -173,13 +198,7 @@ get fun `test validation: minter cannot force burn tokens`() {
     });
     expect(wallet.getJettonBalance()).toEqual(balanceBefore);
 
-    val ok = wallet.sendBurn(
-        notDeployer.address,
-        ton("0.2"),
-        ton("1"),
-        notDeployer.address,
-        null,
-    );
+    val ok = wallet.sendBurn(notDeployer.address, ton("0.2"), ton("1"), notDeployer.address, null);
     expect(ok).toHaveSuccessfulTx<AskToBurn>({ from: notDeployer.address, to: wallet.address });
 }
 
@@ -221,8 +240,5 @@ get fun `test validation: minter cannot force transfer tokens`() {
         0,
         null,
     );
-    expect(ok).toHaveSuccessfulTx<AskToTransfer>({
-        from: notDeployer.address,
-        to: wallet.address,
-    });
+    expect(ok).toHaveSuccessfulTx<AskToTransfer>({ from: notDeployer.address, to: wallet.address });
 }

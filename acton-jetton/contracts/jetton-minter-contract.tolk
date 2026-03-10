@@ -1,10 +1,10 @@
+import "@gen/acton_jetton_wallet_code"
 import "errors"
 import "fees-management"
 import "jetton-utils"
 import "messages"
 import "sharding"
 import "storage"
-import "@gen/acton_jetton_wallet_code"
 
 type AllowedMessageToMinter =
     | MintNewJettons
@@ -35,7 +35,7 @@ fun assertSenderIsAdmin(senderAddress: address, adminAddress: address?) {
     // but in practice, the above assertion is redundant, we just bypass the nullability check:
     assert (
         senderAddress == adminAddress!
-    ) throw ERROR_NOT_OWNER; // then, if admin is `null`, error code 7 will be thrown (while executing operator `==`),// it's suitable for current implementation
+    ) throw ERROR_NOT_OWNER;                                       // then, if admin is `null`, error code 7 will be thrown (while executing operator `==`),// it's suitable for current implementation
 }
 
 fun onInternalMessage(in: InMessage) {
@@ -50,7 +50,7 @@ fun onInternalMessage(in: InMessage) {
                 calcAddressOfJettonWallet(
                     msg.burnInitiator,
                     contract.getAddress(),
-                    jettonWalletCode
+                    jettonWalletCode,
                 )
             ) throw ERROR_NOT_VALID_WALLET;
             storage.totalSupply -= msg.jettonAmount;
@@ -80,7 +80,7 @@ fun onInternalMessage(in: InMessage) {
                 walletAddress = calcAddressOfJettonWallet(
                     msg.ownerAddress,
                     contract.getAddress(),
-                    jettonWalletCode
+                    jettonWalletCode,
                 );
             }
 
@@ -94,8 +94,9 @@ fun onInternalMessage(in: InMessage) {
                     ownerAddress,
                 },
             });
-            respondMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
-            SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+            respondMsg.send(
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL,
+            );
         }
 
         MintNewJettons => {
@@ -103,9 +104,9 @@ fun onInternalMessage(in: InMessage) {
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
             assert (msg.mintRecipient.getWorkchain() == MY_WORKCHAIN) throw ERROR_WRONG_WORKCHAIN;
 
-            val internalTransferMsg = lazy msg.internalTransferMsg.load({
-                throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP,
-            });
+            val internalTransferMsg = lazy msg
+                .internalTransferMsg
+                .load({ throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP });
             val forwardTonAmount = internalTransferMsg.forwardTonAmount;
             internalTransferMsg.forwardPayload.checkIsCorrectTlbEither();
 
@@ -115,7 +116,10 @@ fun onInternalMessage(in: InMessage) {
             storage.totalSupply += internalTransferMsg.jettonAmount;
             storage.save();
 
-            reserveToncoinsOnBalance(ton("0.01"), RESERVE_MODE_EXACT_AMOUNT); // reserve for storage fees
+            reserveToncoinsOnBalance(
+                ton("0.01"),
+                RESERVE_MODE_EXACT_AMOUNT,
+            );                                                                // reserve for storage fees
 
             val jettonWalletCode = actonJettonWalletCompiledCode();
             val deployMsg = createMessage({
@@ -123,7 +127,7 @@ fun onInternalMessage(in: InMessage) {
                 dest: calcDeployedJettonWallet(
                     msg.mintRecipient,
                     contract.getAddress(),
-                    jettonWalletCode
+                    jettonWalletCode,
                 ),
                 value: msg.tonAmount,
                 body: msg.internalTransferMsg,
@@ -196,10 +200,9 @@ get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
     val jettonWalletCode = actonJettonWalletCompiledCode();
     var metadata: OnchainMetadataReply = { contentDict: [] };
-    metadata.contentDict.set(
-        "uri".sha256(),
-        SnakeDataReply { string: storage.metadataUri }.toCell()
-    );
+    metadata
+        .contentDict
+        .set("uri".sha256(), SnakeDataReply { string: storage.metadataUri }.toCell());
     metadata.contentDict.set("decimals".sha256(), SnakeDataReply { string: "9" }.toCell());
 
     return {

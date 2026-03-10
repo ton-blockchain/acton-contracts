@@ -37,7 +37,9 @@ fun JettonWallet.sendTransfer(
             sendExcessesTo: responseAddress,
             customPayload,
             forwardTonAmount,
-            forwardPayload: beginCell().storeMaybeRef(forwardPayload.toCell()).endCell()
+            forwardPayload: beginCell()
+                .storeMaybeRef(forwardPayload.toCell())
+                .endCell()
                 .beginParse(),
         },
     });

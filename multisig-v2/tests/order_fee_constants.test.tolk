@@ -1,5 +1,4 @@
 import "@stdlib/gas-payments"
-import "wrappers/MultisigV2"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
@@ -7,6 +6,7 @@ import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "@acton/vm/vm"
+import "wrappers/MultisigV2"
 import "../contracts/messages"
 import "../contracts/order-helpers"
 import "../contracts/types"
@@ -116,7 +116,7 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
         0,
         MAX_ORDER_SEQNO,
         0,
-        { value: createValue, bounce: true }
+        { value: createValue, bounce: true },
     );
 
     val orderAddress = multisig.getOrderAddress(orderSeqno);
@@ -128,8 +128,11 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
             bounce: true,
             value: ton("0.3"),
             dest: orderAddress,
-            body: ApproveRequest { queryId: 1, signerIndex: 1 },
-        })
+            body: ApproveRequest {
+                queryId: 1,
+                signerIndex: 1,
+            },
+        }),
     );
 
     val multisigInitTx = create.findTransaction<NewOrderRequest>({
@@ -175,18 +178,18 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
     val predictedInitFwd = calculateForwardFee(
         BASECHAIN,
         INIT_ORDER_BIT_OVERHEAD + orderBits + signersBits,
-        INIT_ORDER_CELL_OVERHEAD + orderCells + signersCells
+        INIT_ORDER_CELL_OVERHEAD + orderCells + signersCells,
     );
     val predictedExecFwd = calculateForwardFee(
         BASECHAIN,
         EXECUTE_ORDER_BIT_OVERHEAD + orderBits,
-        EXECUTE_ORDER_CELL_OVERHEAD + orderCells
+        EXECUTE_ORDER_CELL_OVERHEAD + orderCells,
     );
     val predictedStorage = calculateStorageFee(
         BASECHAIN,
         duration,
         ORDER_STATE_BIT_OVERHEAD + orderBits + signersBits,
-        ORDER_STATE_CELL_OVERHEAD + orderCells + signersCells
+        ORDER_STATE_CELL_OVERHEAD + orderCells + signersCells,
     );
 
     val actualInitFwd = orderInit.loadInMsg<InitOrderRequest>().info.fwdFee;
