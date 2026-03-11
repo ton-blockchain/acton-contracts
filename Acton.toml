@@ -79,7 +79,7 @@ depends = []
 # Elector
 [contracts.elector]
 name = "Elector"
-src = "elector/elector.tolk"
+src = "elector/contracts/elector.tolk"
 
 # W5
 [contracts.w5]

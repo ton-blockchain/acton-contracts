@@ -1,11 +1,11 @@
-import "@stdlib/gas-payments"
-import "@stdlib/lisp-lists"
+import "../../.acton/tolk-stdlib/gas-payments"
+import "../../.acton/tolk-stdlib/lisp-lists"
 import "credits"
 import "complaints"
 import "messages"
 import "types"
 import "utils"
-import "@stdlib/tvm-lowlevel"
+import "../../.acton/tolk-stdlib/tvm-lowlevel"
 
 
 struct(0x654c5074) StakeSubmit {

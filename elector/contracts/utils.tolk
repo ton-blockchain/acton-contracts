@@ -1,4 +1,4 @@
-import "@stdlib/reflection"
+import "../../.acton/tolk-stdlib/reflection"
 import "types"
 
 fun returnStake(to: address, queryId: uint64, reason: uint32): void {
