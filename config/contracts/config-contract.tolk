@@ -250,25 +250,42 @@ fun unpackProposal(statusSlice: slice): ProposalView {
     };
 }
 
-get fun get_proposal(proposalHash: int): ProposalView? {
+fun proposalParameterViewToTuple(proposal: ProposalParameterView): tuple {
+    return [proposal.paramId, proposal.paramValue, proposal.paramHash] as tuple;
+}
+
+fun proposalViewToTuple(proposal: ProposalView): tuple {
+    return [
+        proposal.expires,
+        proposal.isCritical,
+        proposalParameterViewToTuple(proposal.proposal),
+        proposal.validatorSetId,
+        proposal.voters,
+        proposal.remainingWeight,
+        proposal.roundsRemaining,
+        proposal.wins,
+        proposal.losses,
+    ] as tuple;
+}
+
+get fun get_proposal(proposalHash: int): tuple? {
     val storage = lazy Storage.load();
     val lookup = storage.voteDict.get(proposalHash as uint256);
     if (!lookup.isFound) {
         return null;
     }
-    return unpackProposal(lookup.loadValue());
+    return proposalViewToTuple(unpackProposal(lookup.loadValue()));
 }
 
-get fun list_proposals(): lisp_list<ProposalListEntry> {
+get fun list_proposals(): lisp_list<tuple> {
     val storage = lazy Storage.load();
 
-    var list = [] as lisp_list<ProposalListEntry>;
+    var list = [] as lisp_list<tuple>;
     var entry = storage.voteDict.findLast();
     while (entry.isFound) {
-        list.prependHead(ProposalListEntry {
-            proposalHash: entry.getKey(),
-            proposal: unpackProposal(entry.loadValue()),
-        });
+        list.prependHead(
+            [entry.getKey(), proposalViewToTuple(unpackProposal(entry.loadValue()))] as tuple,
+        );
         entry = storage.voteDict.iteratePrev(entry);
     }
 
