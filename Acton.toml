@@ -114,6 +114,7 @@ test-acton-jetton = "acton test acton-jetton/tests"
 test-dns = "acton test dns/tests"
 test-w5 = "acton test w5/tests"
 test-highload = "acton test highload-v3/tests"
+test-elector = "acton test elector/tests"
 
 [mappings]
 acton = ".acton"

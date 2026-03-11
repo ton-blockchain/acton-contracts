@@ -1,4 +1,4 @@
-import "../../.acton/tolk-stdlib/reflection"
+import "@stdlib/reflection"
 import "types"
 
 fun returnStake(to: address, queryId: uint64, reason: uint32): void {
@@ -7,7 +7,7 @@ fun returnStake(to: address, queryId: uint64, reason: uint32): void {
         bounce: BounceMode.Only256BitsOfBody,
         value: 0,
         body: ReturnMsg {
-            op: 0xee6f454c0,
+            op: 0xee6f454c,
             queryId,
             reason,
         },

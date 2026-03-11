@@ -5,23 +5,27 @@ import "@acton/testing/expect"
 import "@acton/types/message"
 import "../../contracts/messages"
 import "../../contracts/types"
-import "../../contracts/utils"
 
 struct Elector {
     address: address
     stateInit: ContractState? = null
+    workchain: int8 = BASECHAIN
 }
 
 /// Creates a contract wrapper instance from the storage data
-fun Elector.fromStorage(storage: Storage, toShard: AddressShardingOptions? = null) {
+fun Elector.fromStorage(
+    storage: Storage,
+    toShard: AddressShardingOptions? = null,
+    workchain: int8 = BASECHAIN,
+) {
     val stateInit = ContractState {
         code: build("elector"),
         data: storage.toCell(),
     };
     val address = toShard == null
-        ? AutoDeployAddress { stateInit }.calculateAddress()
-        : AutoDeployAddress { stateInit, toShard }.calculateAddress();
-    return Elector { address, stateInit };
+        ? AutoDeployAddress { stateInit, workchain }.calculateAddress()
+        : AutoDeployAddress { stateInit, toShard, workchain }.calculateAddress();
+    return Elector { address, stateInit, workchain };
 }
 
 /// Creates a contract wrapper instance from the address
@@ -37,7 +41,7 @@ fun Elector.deploy(self, from: address, config: SendParams = {}): SendResultList
     val genericMsg = createMessage({
         bounce: config.bounce,
         value: config.value,
-        dest: { stateInit: self.stateInit },
+        dest: AutoDeployAddress { stateInit: self.stateInit, workchain: self.workchain },
     });
     return net.send(from, genericMsg);
 }

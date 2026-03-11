@@ -10,7 +10,7 @@ import "@stdlib/tvm-lowlevel"
 fun processNewStake(msg: NewStakeMessage): void {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
     val storage = Storage.load();
-    if ((storage.currectElections == null) || (srcWcAndHash.0 == -1)) {
+    if ((storage.currectElections == null) || (srcWcAndHash.0 != -1)) {
         returnStake(InMessage.source(), msg.queryId, 0);
         return;
     }
@@ -97,7 +97,7 @@ fun configSetConfirmed(queryId: uint64, ok: bool) {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
     val configAddr = blockchain.configParam(0)!.beginParse().preloadUint(256);
     var storage = Storage.load();
-    if ((storage.currectElections == null) || (srcWcAndHash.0 == -1) || (srcWcAndHash.1 != configAddr)) {
+    if ((storage.currectElections == null) || (srcWcAndHash.0 != -1) || (srcWcAndHash.1 != configAddr)) {
         // not from config smc, somebody's joke?
         // or no elections active (or just completed)
         return;
