@@ -1,4 +1,4 @@
-import "types"
+import "storage"
 
 const OP_SET_CUSTOM_PARAM = 0x6e43536c
 const OP_SET_NEXT_VALIDATOR_SET = 0x4e565354

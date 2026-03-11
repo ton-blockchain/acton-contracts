@@ -51,9 +51,10 @@ fun onInternalMessage(in: InMessage) {
                 val electorHash = electorParam!.beginParse().preloadUint(256);
 
                 if (srcHash == electorHash) {
-                    val (utimeSince, utimeUntil) = checkValidatorSet(msg.vset);
+                    val validatorSetWindow = checkValidatorSet(msg.vset);
                     val now = blockchain.now();
-                    ok = (utimeSince > now) && (utimeUntil > utimeSince);
+                    ok = (validatorSetWindow.utimeSince > now) &&
+                    (validatorSetWindow.utimeUntil > validatorSetWindow.utimeSince);
                 }
             }
 
@@ -95,16 +96,20 @@ fun onInternalMessage(in: InMessage) {
             val signedVote = msg.loadSignedVotePayload(ERROR_INVALID_MESSAGE);
 
             val validatorDescr = getValidatorDescription(signedVote.validatorIndex);
-            val (validatorPubkey, weight) = unpackValidatorDescr(validatorDescr);
+            val validatorInfo = unpackValidatorDescr(validatorDescr);
 
             assert (
-                isSliceSignatureValid(msg.signedVoteBody, msg.signature as slice, validatorPubkey)
+                isSliceSignatureValid(
+                    msg.signedVoteBody,
+                    msg.signature as slice,
+                    validatorInfo.publicKey,
+                )
             ) throw ERROR_INVALID_SIGNATURE;
 
             val result = proceedRegisterVote(
                 signedVote.proposalHash,
                 signedVote.validatorIndex,
-                weight,
+                validatorInfo.weight,
             );
             sendConfirmation(in.senderAddress, msg.queryId, TAG_VOTE_PROCESSED_BASE + result);
         }
@@ -125,11 +130,15 @@ fun onExternalMessage(inMsgBody: slice) {
     assert (msg.action.msgSeqno == storage.storedSeqno) throw ERROR_BAD_SEQNO;
 
     val validatorDescription = getValidatorDescription(msg.action.validatorIndex);
-    val (validatorPubkey, weight) = unpackValidatorDescr(validatorDescription);
+    val validatorInfo = unpackValidatorDescr(validatorDescription);
 
     // TODO: bench skip vs RemainingBits vs skip val
     assert (
-        isSliceSignatureValid(inMsgBody.skipBits(512), msg.signature as slice, validatorPubkey)
+        isSliceSignatureValid(
+            inMsgBody.skipBits(512),
+            msg.signature as slice,
+            validatorInfo.publicKey,
+        )
     ) throw ERROR_INVALID_SIGNATURE;
 
     acceptExternalMessage();
@@ -138,15 +147,15 @@ fun onExternalMessage(inMsgBody: slice) {
     storage.save();
     commitContractDataAndActions();
 
-    proceedRegisterVote(msg.action.proposalHash, msg.action.validatorIndex, weight);
+    proceedRegisterVote(msg.action.proposalHash, msg.action.validatorIndex, validatorInfo.weight);
 }
 
 fun onRunTickTock() {
     var storage = lazy Storage.load();
-    var cfgDict = storage.loadConfigDict();
+    var configDict = storage.config;
     var updated = false;
 
-    val nextVset = cfgDict.getById(CONFIG_PARAM_NEXT_VALIDATOR_SET);
+    val nextVset = configDict.getById(CONFIG_PARAM_NEXT_VALIDATOR_SET);
     if (nextVset != null) {
         var ds = nextVset!.beginParse();
         if (ds.remainingBitsCount() >= 40) {
@@ -154,29 +163,29 @@ fun onRunTickTock() {
             val since = ds.preloadUint(32);
 
             if (since <= blockchain.now() && tag == OP_VALIDATOR_SET_EXT) {
-                val oldCurrentVset = cfgDict.setByIdAndGetPrevious(
+                val oldCurrentVset = configDict.setByIdAndGetPrevious(
                     CONFIG_PARAM_CURRENT_VALIDATOR_SET,
                     nextVset!,
                 );
 
                 if (oldCurrentVset != null) {
-                    cfgDict.setById(CONFIG_PARAM_PREVIOUS_VALIDATOR_SET, oldCurrentVset!);
+                    configDict.setById(CONFIG_PARAM_PREVIOUS_VALIDATOR_SET, oldCurrentVset!);
                 } else {
-                    cfgDict.deleteById(CONFIG_PARAM_PREVIOUS_VALIDATOR_SET);
+                    configDict.deleteById(CONFIG_PARAM_PREVIOUS_VALIDATOR_SET);
                 }
 
-                cfgDict.deleteById(CONFIG_PARAM_NEXT_VALIDATOR_SET);
+                configDict.deleteById(CONFIG_PARAM_NEXT_VALIDATOR_SET);
                 updated = true;
             }
         }
     }
 
     if (!updated) {
-        var voteDict = storage.voteDict;
-        storage.voteDict = scanRandomProposal(mutate voteDict);
+        // TODO: mutate?
+        scanRandomProposal(mutate storage.voteDict);
     }
 
-    storage.saveConfigDict(cfgDict);
+    storage.config = configDict;
     storage.save();
 }
 
@@ -185,7 +194,30 @@ get fun seqno(): int {
     return storage.storedSeqno;
 }
 
-fun unpackProposal(statusSlice: slice): tuple {
+struct ProposalParameterView {
+    paramId: int32
+    paramValue: cell?
+    paramHash: int
+}
+
+struct ProposalView {
+    expires: uint32
+    isCritical: bool
+    proposal: ProposalParameterView
+    validatorSetId: uint256
+    voters: lisp_list<int>
+    remainingWeight: int64
+    roundsRemaining: uint8
+    wins: uint8
+    losses: uint8
+}
+
+struct ProposalListEntry {
+    proposalHash: uint256
+    proposal: ProposalView
+}
+
+fun unpackProposal(statusSlice: slice): ProposalView {
     val status = ConfigProposalStatus.fromSlice(
         statusSlice,
         { throwIfOpcodeDoesNotMatch: ERROR_INVALID_PROPOSAL_STATUS },
@@ -200,20 +232,25 @@ fun unpackProposal(statusSlice: slice): tuple {
     }
 
     val paramHash = proposal.ifHashEqual == null ? -1 : (proposal.ifHashEqual! as int);
-    return [
-        status.expires,
-        status.isCritical,
-        [proposal.paramId, proposal.paramValue, paramHash] as tuple,
-        status.validatorSetId,
-        votersList,
-        status.remainingWeight,
-        status.roundsRemaining,
-        status.wins,
-        status.losses,
-    ] as tuple;
+
+    return ProposalView {
+        expires: status.expires,
+        isCritical: status.isCritical,
+        proposal: ProposalParameterView {
+            paramId: proposal.paramId,
+            paramValue: proposal.paramValue,
+            paramHash,
+        },
+        validatorSetId: status.validatorSetId,
+        voters: votersList,
+        remainingWeight: status.remainingWeight,
+        roundsRemaining: status.roundsRemaining,
+        wins: status.wins,
+        losses: status.losses,
+    };
 }
 
-get fun get_proposal(proposalHash: int): tuple? {
+get fun get_proposal(proposalHash: int): ProposalView? {
     val storage = lazy Storage.load();
     val lookup = storage.voteDict.get(proposalHash as uint256);
     if (!lookup.isFound) {
@@ -222,13 +259,16 @@ get fun get_proposal(proposalHash: int): tuple? {
     return unpackProposal(lookup.loadValue());
 }
 
-get fun list_proposals(): lisp_list<tuple> {
+get fun list_proposals(): lisp_list<ProposalListEntry> {
     val storage = lazy Storage.load();
 
-    var list = [] as lisp_list<tuple>;
+    var list = [] as lisp_list<ProposalListEntry>;
     var entry = storage.voteDict.findLast();
     while (entry.isFound) {
-        list.prependHead([entry.getKey(), unpackProposal(entry.loadValue())] as tuple);
+        list.prependHead(ProposalListEntry {
+            proposalHash: entry.getKey(),
+            proposal: unpackProposal(entry.loadValue()),
+        });
         entry = storage.voteDict.iteratePrev(entry);
     }
 
@@ -237,9 +277,9 @@ get fun list_proposals(): lisp_list<tuple> {
 
 get fun proposal_storage_price(critical: int, seconds: int, bits: int, refs: int): int {
     val storage = lazy Storage.load();
-    val cfgDict = storage.loadConfigDict();
+    val configDict = storage.config;
 
-    val cparam11 = cfgDict.getById(CONFIG_PARAM_VOTING_SETUP);
+    val cparam11 = configDict.getById(CONFIG_PARAM_VOTING_SETUP);
     assert (cparam11 != null) throw ERROR_INVALID_PROPOSAL_STATUS;
 
     val voteCfg = getVoteConfigInternal(critical != 0, cparam11!);

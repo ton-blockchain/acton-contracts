@@ -6,36 +6,6 @@ import "messages"
 import "storage"
 import "types"
 
-fun ConfigDict.getById(self, index: int): cell? {
-    val lookup = self.get(index as int32);
-    if (!lookup.isFound) {
-        return null;
-    }
-    return lookup.loadValue();
-}
-
-fun ConfigDict.setById(mutate self, index: int, value: cell) {
-    self.set(index as int32, value);
-}
-
-fun ConfigDict.setByIdAndGetPrevious(mutate self, index: int, value: cell): cell? {
-    val previous = self.setAndGetPrevious(index as int32, value);
-    if (!previous.isFound) {
-        return null;
-    }
-    return previous.loadValue();
-}
-
-fun ConfigDict.deleteById(mutate self, index: int) {
-    self.delete(index as int32);
-}
-
-fun Storage.setConfigParam(mutate self, index: int, value: cell) {
-    var cfgDict = self.loadConfigDict();
-    cfgDict.setById(index, value);
-    self.saveConfigDict(cfgDict);
-}
-
 fun setConfParam(index: int, value: cell) {
     var storage = lazy Storage.load();
     storage.setConfigParam(index, value);
@@ -56,14 +26,21 @@ fun getVoteConfig(critical: bool): ConfigProposalSetup {
     return getVoteConfigInternal(critical, cparam11!);
 }
 
-fun checkValidatorSet(vset: cell): (int, int) {
+struct ValidatorSetWindow {
+    utimeSince: int
+    utimeUntil: int
+}
+
+fun checkValidatorSet(validatorSet: cell): ValidatorSetWindow {
     val parsed = ValidatorSetExt.fromCell(
-        vset,
+        validatorSet,
         { throwIfOpcodeDoesNotMatch: ERROR_INVALID_VALIDATOR_SET },
     );
+
     assert (parsed.main > 0) throw ERROR_INVALID_VALIDATOR_SET;
     assert (parsed.total >= parsed.main) throw ERROR_INVALID_VALIDATOR_SET;
-    return (parsed.utimeSince, parsed.utimeUntil);
+
+    return { utimeSince: parsed.utimeSince, utimeUntil: parsed.utimeUntil };
 }
 
 fun sendAnswer(addr: address, queryId: uint64, ansTag: int, mode: int) {
@@ -126,7 +103,13 @@ fun applyCodeUpgrade(newCode: cell, upgradeParams: slice) {
     throw 0;
 }
 
-fun getCurrentValidatorSet(): (cell, int, map<uint16, slice>) {
+struct CurrentValidatorSetInfo {
+    vset: cell
+    totalWeight: int
+    validators: map<uint16, slice>
+}
+
+fun getCurrentValidatorSet(): CurrentValidatorSetInfo {
     val vset = blockchain.configParam(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
     assert (vset != null) throw ERROR_WRONG_CURRENT_VSET;
 
@@ -135,19 +118,28 @@ fun getCurrentValidatorSet(): (cell, int, map<uint16, slice>) {
         { throwIfOpcodeDoesNotMatch: ERROR_WRONG_CURRENT_VSET },
     );
     val validators = createMapFromLowLevelDict<uint16, slice>(parsed.validators);
-    return (vset!, parsed.totalWeight, validators);
+    return CurrentValidatorSetInfo {
+        vset: vset!,
+        totalWeight: parsed.totalWeight,
+        validators,
+    };
 }
 
 fun getValidatorDescription(idx: uint16): slice {
-    val (_, totalWeight, validators) = getCurrentValidatorSet();
-    val lookup = validators.get(idx);
+    val currentValidatorSet = getCurrentValidatorSet();
+    val lookup = currentValidatorSet.validators.get(idx);
 
     assert (lookup.isFound) throw ERROR_WRONG_VALIDATOR_DESCRIPTION;
 
     return lookup.loadValue();
 }
 
-fun unpackValidatorDescr(vdescr: slice): (int, int) {
+struct ValidatorKeyAndWeight {
+    publicKey: int
+    weight: int
+}
+
+fun unpackValidatorDescr(vdescr: slice): ValidatorKeyAndWeight {
     val descr = lazy ValidatorDescr.fromSlice(
         vdescr,
         { throwIfOpcodeDoesNotMatch: ERROR_WRONG_VALIDATOR_DESCRIPTION },
@@ -156,14 +148,20 @@ fun unpackValidatorDescr(vdescr: slice): (int, int) {
     match (descr) {
         ValidatorDescrSimple => {
             assert (descr.pubkeyTag == OP_ED25519_PUBKEY) throw ERROR_WRONG_VALIDATOR_DESCRIPTION;
-            return (descr.publicKey, descr.weight);
+            return { publicKey: descr.publicKey, weight: descr.weight };
         }
         ValidatorDescrWithAdnl => {
             assert (descr.pubkeyTag == OP_ED25519_PUBKEY) throw ERROR_WRONG_VALIDATOR_DESCRIPTION;
-            return (descr.publicKey, descr.weight);
+            return { publicKey: descr.publicKey, weight: descr.weight };
         }
         else => throw ERROR_WRONG_VALIDATOR_DESCRIPTION,
     }
+}
+
+struct ProposalAcceptanceResult {
+    cfgDict: ConfigDict
+    paramId: int
+    paramVal: cell?
 }
 
 @inline_ref
@@ -171,7 +169,7 @@ fun acceptProposal(
     mutate cfgDict: ConfigDict,
     proposalCell: Cell<ConfigProposal>,
     critical: bool,
-): (ConfigDict, int, cell?) {
+): ProposalAcceptanceResult {
     val proposal = proposalCell.load();
     val paramId32 = proposal.paramId;
     val paramId = paramId32 as int;
@@ -180,18 +178,30 @@ fun acceptProposal(
     val currentHash = currentValue == null ? 0 : (currentValue!.hash() as int);
 
     if (proposal.ifHashEqual != null && currentHash != proposal.ifHashEqual!) {
-        return (cfgDict, 0, null);
+        return {
+            cfgDict,
+            paramId: 0,
+            paramVal: null,
+        };
     }
 
     if (paramId == CUSTOM_PARAM_1 || paramId == CUSTOM_PARAM_2) {
-        return (cfgDict, 0, null);
+        return {
+            cfgDict,
+            paramId: 0,
+            paramVal: null,
+        };
     }
 
     val mandatoryParamsCell = cfgDict.getById(CONFIG_PARAM_MANDATORY_PARAMS);
     if (mandatoryParamsCell != null && proposal.paramValue == null) {
         val mandatoryParams = createMapFromLowLevelDict<int32, slice>(mandatoryParamsCell!);
         if (mandatoryParams.exists(paramId32)) {
-            return (cfgDict, 0, null);
+            return {
+                cfgDict,
+                paramId: 0,
+                paramVal: null,
+            };
         }
     }
 
@@ -199,7 +209,11 @@ fun acceptProposal(
     if (criticalParamsCell != null) {
         val criticalParams = createMapFromLowLevelDict<int32, slice>(criticalParamsCell!);
         if (criticalParams.exists(paramId32) && !critical) {
-            return (cfgDict, 0, null);
+            return {
+                cfgDict,
+                paramId: 0,
+                paramVal: null,
+            };
         }
     }
 
@@ -209,22 +223,21 @@ fun acceptProposal(
         cfgDict.set(paramId32, proposal.paramValue!);
     }
 
-    return (cfgDict, paramId, proposal.paramValue);
+    return {
+        cfgDict,
+        paramId,
+        paramVal: proposal.paramValue,
+    };
 }
 
 @inline_ref
-fun performProposedAction(
-    mutate cfgDict: ConfigDict,
-    publicKey: int,
-    paramId: int,
-    paramVal: cell?,
-): (ConfigDict, int) {
+fun performProposedAction(publicKey: int, paramId: int, paramVal: cell?): uint256 {
     if (paramId == -999) {
-        return (cfgDict, paramVal == null ? 0 : paramVal!.beginParse().preloadUint(256));
+        return paramVal == null ? 0 : paramVal!.beginParse().preloadUint(256);
     }
 
     if (paramVal == null) {
-        return (cfgDict, publicKey);
+        return publicKey;
     }
 
     if (paramId == -1000) {
@@ -237,7 +250,7 @@ fun performProposedAction(
         changeElectorCode(paramVal!.beginParse());
     }
 
-    return (cfgDict, publicKey);
+    return publicKey;
 }
 
 @inline_ref
@@ -275,19 +288,26 @@ fun updateProposalStatus(
     };
 }
 
+struct VoteRegistrationResult {
+    acceptedProposal: Cell<ConfigProposal>?
+    status: int
+}
+
 @inline_ref
-fun registerVote(mutate voteDict: VoteDict, proposalHash: uint256, idx: uint16, weight: int): (
-    VoteDict,
-    Cell<ConfigProposal>?,
-    int,
-) {
+fun registerVote(
+    mutate voteDict: VoteDict,
+    proposalHash: uint256,
+    idx: uint16,
+    weight: int,
+): VoteRegistrationResult {
     val statusLookup = voteDict.get(proposalHash);
+
     if (!statusLookup.isFound) {
-        return (voteDict, null, -1);
+        return { acceptedProposal: null, status: -1 };
     }
 
-    val (curVset, totalWeight, _) = getCurrentValidatorSet();
-    val curVsetId = curVset.hash();
+    val currentValidatorSet = getCurrentValidatorSet();
+    val curVsetId = currentValidatorSet.vset.hash();
 
     var status = ConfigProposalStatus.fromSlice(
         statusLookup.loadValue(),
@@ -296,28 +316,28 @@ fun registerVote(mutate voteDict: VoteDict, proposalHash: uint256, idx: uint16, 
 
     if (status.expires <= blockchain.now()) {
         voteDict.delete(proposalHash);
-        return (voteDict, null, -1);
+        return { acceptedProposal: null, status: -1 };
     }
 
     if (status.validatorSetId != curVsetId) {
         val updated = updateProposalStatus(status, status.remainingWeight);
         if (updated == null) {
             voteDict.delete(proposalHash);
-            return (voteDict, null, -1);
+            return { acceptedProposal: null, status: -1 };
         }
 
         status = updated!;
         status.validatorSetId = curVsetId;
         status.voters = [];
         status.remainingWeight = mulDivFloor(
-            totalWeight,
+            currentValidatorSet.totalWeight,
             VOTE_WEIGHT_THRESHOLD_NUMERATOR,
             VOTE_WEIGHT_THRESHOLD_DENOMINATOR,
         );
     }
 
     if (status.voters.exists(idx)) {
-        return (voteDict, null, -2);
+        return { acceptedProposal: null, status: -2 };
     }
 
     status.voters.set(idx, blockchain.now() as uint32);
@@ -326,7 +346,7 @@ fun registerVote(mutate voteDict: VoteDict, proposalHash: uint256, idx: uint16, 
     status.remainingWeight -= weight;
     if ((status.remainingWeight ^ oldWeightRemaining) >= 0) {
         voteDict.set(proposalHash, status.toCell().beginParse());
-        return (voteDict, null, 2);
+        return { acceptedProposal: null, status: 2 };
     }
 
     val voteCfg = getVoteConfig(status.isCritical);
@@ -335,12 +355,12 @@ fun registerVote(mutate voteDict: VoteDict, proposalHash: uint256, idx: uint16, 
 
     if (wins >= voteCfg.minWins) {
         voteDict.delete(proposalHash);
-        return (voteDict, status.proposal, status.isCritical ? 7 : 6);
+        return { acceptedProposal: status.proposal, status: status.isCritical ? 7 : 6 };
     }
 
     status.wins = wins as uint8;
     voteDict.set(proposalHash, status.toCell().beginParse());
-    return (voteDict, null, 2);
+    return { acceptedProposal: null, status: 2 };
 }
 
 fun Storage.incrementSeqno(mutate self) {
@@ -354,35 +374,36 @@ fun proceedRegisterVote(proposalHash: uint256, idx: uint16, weight: int): int {
     var acceptedProposal: Cell<ConfigProposal>? = null;
     var status = 0;
 
-    (voteDict, acceptedProposal, status) = registerVote(mutate voteDict, proposalHash, idx, weight);
+    val voteRegistration = registerVote(mutate voteDict, proposalHash, idx, weight);
+
+    acceptedProposal = voteRegistration.acceptedProposal;
+    status = voteRegistration.status;
     storage.voteDict = voteDict;
+
     storage.save();
 
     if (acceptedProposal != null) {
         val critical = status == 7;
 
-        var cfgDict = storage.loadConfigDict();
+        var configDict = storage.config;
         var paramId = 0;
         var paramVal: cell? = null;
 
-        (cfgDict, paramId, paramVal) = acceptProposal(mutate cfgDict, acceptedProposal!, critical);
+        val proposalAcceptance = acceptProposal(mutate configDict, acceptedProposal!, critical);
+        configDict = proposalAcceptance.cfgDict;
+        paramId = proposalAcceptance.paramId;
+        paramVal = proposalAcceptance.paramVal;
 
-        storage.saveConfigDict(cfgDict);
+        storage.config = configDict;
         storage.save();
 
+        // TODO: ?
         if (paramId != 0) {
             commitContractDataAndActions();
 
-            var publicKey = storage.publicKey as int;
-            (cfgDict, publicKey) = performProposedAction(
-                mutate cfgDict,
-                publicKey,
-                paramId,
-                paramVal,
-            );
+            val publicKey = performProposedAction(storage.publicKey, paramId, paramVal);
 
-            storage.publicKey = publicKey as uint256;
-            storage.saveConfigDict(cfgDict);
+            storage.publicKey = publicKey;
             storage.save();
         }
     }
@@ -390,10 +411,15 @@ fun proceedRegisterVote(proposalHash: uint256, idx: uint16, weight: int): int {
     return status;
 }
 
+struct ProposalScanResult {
+    proposalStatusSlice: slice?
+    changed: bool
+}
+
 @inline_ref
-fun scanProposal(proposalHash: uint256, statusSlice: slice): (slice?, bool) {
-    val (curVset, totalWeight, _) = getCurrentValidatorSet();
-    val curVsetId = curVset.hash();
+fun scanProposal(statusSlice: slice): ProposalScanResult {
+    val currentValidatorSet = getCurrentValidatorSet();
+    val curVsetId = currentValidatorSet.vset.hash();
 
     var status = ConfigProposalStatus.fromSlice(
         statusSlice,
@@ -401,44 +427,50 @@ fun scanProposal(proposalHash: uint256, statusSlice: slice): (slice?, bool) {
     );
 
     if (status.expires <= blockchain.now()) {
-        return (null, true);
+        return { proposalStatusSlice: null, changed: true };
     }
 
     if (status.validatorSetId == curVsetId) {
-        return (statusSlice, false);
+        return { proposalStatusSlice: statusSlice, changed: false };
     }
 
     val updated = updateProposalStatus(status, status.remainingWeight);
     if (updated == null) {
-        return (null, true);
+        return { proposalStatusSlice: null, changed: true };
     }
 
     status = updated!;
     status.validatorSetId = curVsetId;
     status.voters = [];
     status.remainingWeight = mulDivFloor(
-        totalWeight,
+        currentValidatorSet.totalWeight,
         VOTE_WEIGHT_THRESHOLD_NUMERATOR,
         VOTE_WEIGHT_THRESHOLD_DENOMINATOR,
     );
 
-    return (status.toCell().beginParse(), true);
+    // TODO: ?
+    return { proposalStatusSlice: status.toCell().beginParse(), changed: true };
 }
 
-fun scanRandomProposal(mutate voteDict: VoteDict): VoteDict {
+fun scanRandomProposal(mutate voteDict: VoteDict) {
     if (voteDict.isEmpty()) {
-        return voteDict;
+        return;
     }
 
     val entry = voteDict.findKeyGreaterOrEqual(random.uint256());
     if (!entry.isFound) {
-        return voteDict;
+        return;
     }
 
     val proposalHash = entry.getKey();
+
     var proposalStatusSlice: slice? = null;
     var changed = false;
-    (proposalStatusSlice, changed) = scanProposal(proposalHash, entry.loadValue());
+
+    val scanResult = scanProposal(entry.loadValue());
+
+    proposalStatusSlice = scanResult.proposalStatusSlice;
+    changed = scanResult.changed;
 
     if (changed) {
         if (proposalStatusSlice == null) {
@@ -447,8 +479,6 @@ fun scanRandomProposal(mutate voteDict: VoteDict): VoteDict {
             voteDict.set(proposalHash, proposalStatusSlice!);
         }
     }
-
-    return voteDict;
 }
 
 @inline_ref
@@ -554,9 +584,9 @@ fun registerVotingProposal(msg: NewVotingProposalRequest, msgValue: coins): int 
         return ERROR_TAG_NOT_ENOUGH_FUNDS;
     }
 
-    val (vset, totalWeight, _) = getCurrentValidatorSet();
+    val currentValidatorSet = getCurrentValidatorSet();
     val weightRemaining = mulDivFloor(
-        totalWeight,
+        currentValidatorSet.totalWeight,
         VOTE_WEIGHT_THRESHOLD_NUMERATOR,
         VOTE_WEIGHT_THRESHOLD_DENOMINATOR,
     );
@@ -569,7 +599,7 @@ fun registerVotingProposal(msg: NewVotingProposalRequest, msgValue: coins): int 
             isCritical: msg.critical,
             voters: [],
             remainingWeight: weightRemaining as int64,
-            validatorSetId: vset.hash(),
+            validatorSetId: currentValidatorSet.vset.hash(),
             roundsRemaining: voteCfg.maxTotalRounds,
             wins: 0,
             losses: 0,
