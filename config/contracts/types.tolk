@@ -1,5 +1,5 @@
 type ConfigDict = map<int32, cell>
-type VoteDict = map<uint256, cell>
+type VoteDict = map<uint256, slice>
 type VotersDict = map<uint16, uint32>
 
 const CUSTOM_PARAM_1 = -1024

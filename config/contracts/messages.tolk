@@ -38,6 +38,31 @@ const ERROR_TAG_PROPOSAL_ALREADY_EXISTS = -0xc16c7245
 const ERROR_TAG_PROPOSAL_EXPIRED = -0xc5787069
 const ERROR_TAG_NOT_ENOUGH_FUNDS = -0xf0617924
 
+const CONFIG_PARAM_ELECTOR_ADDRESS = 1
+const CONFIG_PARAM_MANDATORY_PARAMS = 9
+const CONFIG_PARAM_CRITICAL_PARAMS = 10
+const CONFIG_PARAM_VOTING_SETUP = 11
+const CONFIG_PARAM_PREVIOUS_VALIDATOR_SET = 32
+const CONFIG_PARAM_CURRENT_VALIDATOR_SET = 34
+const CONFIG_PARAM_NEXT_VALIDATOR_SET = 36
+
+const PROPOSAL_EXTENSION_GRACE_PERIOD = 16384
+const PROPOSAL_BITS_OVERHEAD = 1024
+const PROPOSAL_REFS_OVERHEAD = 2
+
+const VOTE_WEIGHT_THRESHOLD_NUMERATOR = 3
+const VOTE_WEIGHT_THRESHOLD_DENOMINATOR = 4
+
+const MIN_INTERNAL_MESSAGE_VALUE = 1 << 30
+const INTERNAL_QUERY_HIGH_BIT = 1 << 31
+const EXTERNAL_SEQNO_MODULO = 1 << 32
+
+struct (0xf3) ConfigProposal {
+    paramId: int32
+    paramValue: cell?
+    ifHashEqual: uint256?
+}
+
 struct (0x4e565354) SetNextValidatorSetRequest {
     queryId: uint64
     vset: cell
@@ -46,7 +71,7 @@ struct (0x4e565354) SetNextValidatorSetRequest {
 struct (0x6e43536c) SetCustomParamRequest {
     queryId: uint64
     paramId: int32
-    receiverAddress: any_address
+    receiverAddress: address
     value: cell
 }
 
@@ -54,7 +79,7 @@ struct (0x6e565052) NewVotingProposalRequest {
     queryId: uint64
     expireAt: uint32
     critical: bool
-    proposal: cell
+    proposal: Cell<ConfigProposal>
 }
 
 struct (0x566f7445) SignedVotePayload {
@@ -65,7 +90,14 @@ struct (0x566f7445) SignedVotePayload {
 struct (0x566f7465) VoteForProposalRequest {
     queryId: uint64
     signature: bits512
-    signedVote: SignedVotePayload
+    signedVoteBody: RemainingBitsAndRefs
+}
+
+fun VoteForProposalRequest.loadSignedVotePayload(self, throwCode: int): SignedVotePayload {
+    return SignedVotePayload.fromSlice(
+        self.signedVoteBody,
+        { throwIfOpcodeDoesNotMatch: throwCode }
+    );
 }
 
 type AllowedInternalMessage =
@@ -74,17 +106,22 @@ type AllowedInternalMessage =
     | NewVotingProposalRequest
     | VoteForProposalRequest
 
+struct ExternalSignedMessage {
+    signature: bits512
+    signedBody: RemainingBitsAndRefs
+}
+
+struct ExternalActionHeader {
+    action: uint32
+    msgSeqno: uint32
+    validUntil: uint32
+}
+
 struct (0x566f7465) ExternalVoteAction {
     msgSeqno: uint32
     validUntil: uint32
     validatorIndex: uint16
     proposalHash: uint256
-}
-
-struct (0xf3) ConfigProposal {
-    paramId: int32
-    paramValue: cell?
-    ifHashEqual: uint256?
 }
 
 struct (0x36) ConfigProposalSetup {
@@ -98,9 +135,19 @@ struct (0x36) ConfigProposalSetup {
     cellPrice: uint32
 }
 
+fun ConfigProposalSetup.calculateStoragePrice(self, seconds: int, bits: int, refs: int): int {
+    return (self.bitPrice * (bits + PROPOSAL_BITS_OVERHEAD) +
+    self.cellPrice * (refs + PROPOSAL_REFS_OVERHEAD)) *
+    seconds;
+}
+
 struct (0x91) ConfigVotingSetup {
     normalParams: Cell<ConfigProposalSetup>
     criticalParams: Cell<ConfigProposalSetup>
+}
+
+fun ConfigVotingSetup.selectProposalSetup(self, critical: bool): ConfigProposalSetup {
+    return critical ? self.criticalParams.load() : self.normalParams.load();
 }
 
 struct (0xce) ConfigProposalStatus {
@@ -139,7 +186,12 @@ struct (0x73) ValidatorDescrWithAdnl {
 
 type ValidatorDescr = ValidatorDescrSimple | ValidatorDescrWithAdnl
 
+struct (0x4e436f64) ElectorCodeChangeAction {
+    queryId: uint64
+    payload: RemainingBitsAndRefs
+}
+
 struct AnswerBody {
-    ansTag: int32
+    ansTag: uint32
     queryId: uint64
 }
