@@ -204,3 +204,10 @@ fun ReturnMsg.packToBuilder(self, mutate b: builder) {
         b.storeUint(self.reason, 32);
     }
 }
+
+struct(0x654c5074) StakeSubmit {
+    stakeAt: uint32;
+    maxFactor: uint32;
+    srcAddr: uint256;
+    adnlAddr: uint256;
+}

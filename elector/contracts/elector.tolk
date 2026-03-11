@@ -1,19 +1,11 @@
-import "../../.acton/tolk-stdlib/gas-payments"
-import "../../.acton/tolk-stdlib/lisp-lists"
+import "@stdlib/gas-payments"
+import "@stdlib/lisp-lists"
 import "credits"
 import "complaints"
 import "messages"
 import "types"
 import "utils"
-import "../../.acton/tolk-stdlib/tvm-lowlevel"
-
-
-struct(0x654c5074) StakeSubmit {
-    stakeAt: uint32;
-    maxFactor: uint32;
-    srcAddr: uint256;
-    adnlAddr: uint256;
-}
+import "@stdlib/tvm-lowlevel"
 
 fun processNewStake(msg: NewStakeMessage): void {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
@@ -147,9 +139,6 @@ fun processSimpleTransfer() {
 
 const RECOVER_STAKE_OPCODE: uint32 = 0x47657424;
 
-struct(0xf96f7324) PayStake {
-    queryId: uint64;
-}
 
 fun recoverStake(queryId: uint64) {
     val (srcWc, srcHashPart) = InMessage.source().getWorkchainAndHash();

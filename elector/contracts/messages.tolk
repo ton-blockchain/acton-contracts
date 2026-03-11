@@ -15,6 +15,10 @@ struct(0x47657424) RecoverStakeRequest {
     queryId: uint64;
 }
 
+struct(0xf96f7324) PayStake {
+    queryId: uint64;
+}
+
 struct(0x4e436f64) UpgradeCode {
     queryId: uint64;
     newCode: cell;
