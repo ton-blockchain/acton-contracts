@@ -6,16 +6,6 @@ const OP_NEW_VOTING_PROPOSAL = 0x6e565052
 const OP_VOTE_FOR_PROPOSAL = 0x566f7465
 const OP_SIGNED_VOTE = 0x566f7445
 
-const OP_ACTION_CHANGE_PARAM = 0x43665021
-const OP_ACTION_CHANGE_CONFIG_CODE = 0x4e436f64
-const OP_ACTION_CHANGE_MASTER_PUBKEY = 0x50624b21
-const OP_ACTION_CHANGE_ELECTOR_CODE = 0x4e43ef05
-
-const OP_CFG_PROPOSAL = 0xf3
-const OP_CFG_VOTING_SETUP = 0x91
-const OP_CFG_PROPOSAL_SETUP = 0x36
-const OP_CFG_PROPOSAL_STATUS = 0xce
-
 const OP_VALIDATOR_SET_EXT = 0x12
 const OP_VALIDATOR_SIMPLE = 0x53
 const OP_VALIDATOR_ADDR = 0x73
@@ -96,25 +86,13 @@ struct (0x566f7465) VoteForProposalRequest {
 fun VoteForProposalRequest.loadSignedVotePayload(self, throwCode: int): SignedVotePayload {
     return SignedVotePayload.fromSlice(
         self.signedVoteBody,
-        { throwIfOpcodeDoesNotMatch: throwCode }
+        { throwIfOpcodeDoesNotMatch: throwCode },
     );
 }
 
-type AllowedInternalMessage =
-    | SetNextValidatorSetRequest
-    | SetCustomParamRequest
-    | NewVotingProposalRequest
-    | VoteForProposalRequest
-
 struct ExternalSignedMessage {
     signature: bits512
-    signedBody: RemainingBitsAndRefs
-}
-
-struct ExternalActionHeader {
-    action: uint32
-    msgSeqno: uint32
-    validUntil: uint32
+    action: ExternalVoteAction
 }
 
 struct (0x566f7465) ExternalVoteAction {
@@ -146,8 +124,8 @@ struct (0x91) ConfigVotingSetup {
     criticalParams: Cell<ConfigProposalSetup>
 }
 
-fun ConfigVotingSetup.selectProposalSetup(self, critical: bool): ConfigProposalSetup {
-    return critical ? self.criticalParams.load() : self.normalParams.load();
+fun ConfigVotingSetup.selectProposalSetup(self, isCritical: bool): ConfigProposalSetup {
+    return isCritical ? self.criticalParams.load() : self.normalParams.load();
 }
 
 struct (0xce) ConfigProposalStatus {

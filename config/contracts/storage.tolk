@@ -8,7 +8,7 @@ struct Storage {
     voteDict: VoteDict
 }
 
-fun Storage.load() {
+fun Storage.load(): Storage {
     return Storage.fromCell(contract.getData());
 }
 

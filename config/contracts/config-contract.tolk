@@ -12,6 +12,12 @@ fun isKnownInternalMessageTag(tag: uint32): bool {
     tag == OP_VOTE_FOR_PROPOSAL;
 }
 
+type AllowedInternalMessage =
+    | SetNextValidatorSetRequest
+    | SetCustomParamRequest
+    | NewVotingProposalRequest
+    | VoteForProposalRequest
+
 fun onInternalMessage(in: InMessage) {
     val isAdminOfCustomParam = in.senderAddress == ADMIN_ADDRESS_FOR_CUSTOM_PARAMS;
     val isValidWorkchain = isAdminOfCustomParam || in.senderAddress.getWorkchain() == MASTERCHAIN;
@@ -88,7 +94,7 @@ fun onInternalMessage(in: InMessage) {
         VoteForProposalRequest => {
             val signedVote = msg.loadSignedVotePayload(ERROR_INVALID_MESSAGE);
 
-            val (validatorDescr, _) = getValidatorDescr(signedVote.validatorIndex);
+            val validatorDescr = getValidatorDescription(signedVote.validatorIndex);
             val (validatorPubkey, weight) = unpackValidatorDescr(validatorDescr);
 
             assert (
@@ -108,36 +114,31 @@ fun onInternalMessage(in: InMessage) {
 }
 
 fun onExternalMessage(inMsgBody: slice) {
-    val msg = ExternalSignedMessage.fromSlice(inMsgBody);
-    val header = ExternalActionHeader.fromSlice(msg.signedBody);
+    assert (inMsgBody.depth() <= 128) throw ERROR_EXTERNAL_BODY_TOO_DEEP;
 
-    assert (header.validUntil >= blockchain.now()) throw ERROR_VALID_UNTIL_EXPIRED;
-    assert (msg.signedBody.depth() <= 128) throw ERROR_EXTERNAL_BODY_TOO_DEEP;
+    // TODO: lazy bench
+    val msg = lazy ExternalSignedMessage.fromSlice(inMsgBody, { throwIfOpcodeDoesNotMatch: 0 });
+
+    assert (msg.action.validUntil >= blockchain.now()) throw ERROR_VALID_UNTIL_EXPIRED;
 
     var storage = lazy Storage.load();
-    assert (header.msgSeqno == storage.storedSeqno) throw ERROR_BAD_SEQNO;
+    assert (msg.action.msgSeqno == storage.storedSeqno) throw ERROR_BAD_SEQNO;
 
-    if (header.action == OP_VOTE_FOR_PROPOSAL) {
-        val vote = ExternalVoteAction.fromSlice(
-            msg.signedBody,
-            { throwIfOpcodeDoesNotMatch: ERROR_INVALID_MESSAGE },
-        );
+    val validatorDescription = getValidatorDescription(msg.action.validatorIndex);
+    val (validatorPubkey, weight) = unpackValidatorDescr(validatorDescription);
 
-        val (validatorDescr, _) = getValidatorDescr(vote.validatorIndex);
-        val (validatorPubkey, weight) = unpackValidatorDescr(validatorDescr);
+    // TODO: bench skip vs RemainingBits vs skip val
+    assert (
+        isSliceSignatureValid(inMsgBody.skipBits(512), msg.signature as slice, validatorPubkey)
+    ) throw ERROR_INVALID_SIGNATURE;
 
-        assert (
-            isSliceSignatureValid(msg.signedBody, msg.signature as slice, validatorPubkey)
-        ) throw ERROR_INVALID_SIGNATURE;
+    acceptExternalMessage();
 
-        acceptExternalMessage();
+    storage.incrementSeqno();
+    storage.save();
+    commitContractDataAndActions();
 
-        storage.incrementSeqno();
-        storage.save();
-        commitContractDataAndActions();
-
-        proceedRegisterVote(vote.proposalHash, vote.validatorIndex, weight);
-    }
+    proceedRegisterVote(msg.action.proposalHash, msg.action.validatorIndex, weight);
 }
 
 fun onRunTickTock() {
