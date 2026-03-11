@@ -21,6 +21,7 @@ jobs:
         uses: i582/setup-acton@master
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
+          acton-version: 'trunk'
 
       - name: Version
         run: acton --version
