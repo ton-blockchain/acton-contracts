@@ -55,3 +55,44 @@ struct(0b0) FallbackMessage {
     opcodeBits: uint31;
     queryId: uint64;
 }
+
+// Get method structs
+
+struct ParticipantExtEntry {
+    pubkey: uint256;
+    data: array<int>;
+}
+
+struct PastElectionFullEntry {
+    id: uint32;
+    unfreezeAt: uint32;
+    stakeHeld: uint32;
+    vsetHash: uint256;
+    frozenDict: FrozenDict;
+    totalStake: coins;
+    bonuses: coins;
+    complaints: Complaints;
+}
+
+struct ComplaintUnpacked {
+    validatorPubkey: uint256;
+    description: cell;
+    createdAt: uint32;
+    severity: uint8;
+    rewardAddr: uint256;
+    paid: coins;
+    suggestedFine: coins;
+    suggestedFinePart: uint32;
+}
+
+struct ComplaintFullInfo {
+    complaint: ComplaintUnpacked;
+    voters: lisp_list<int>;
+    vsetId: uint256;
+    weightRemaining: int64;
+}
+
+struct ComplaintListEntry {
+    id: uint256;
+    info: ComplaintFullInfo;
+}

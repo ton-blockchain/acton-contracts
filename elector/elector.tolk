@@ -1,6 +1,5 @@
 import "@stdlib/gas-payments"
 import "@stdlib/lisp-lists"
-import "@stdlib/tvm-dicts"
 import "credits"
 import "complaints"
 import "messages"
@@ -284,7 +283,18 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
-const SORT_KEY_LEN = 128 + 32 + 256;
+// Sorting key for election: orders by stake ascending, then time descending, then pubkey
+struct SortKey {
+    stake: uint128;
+    negTime: int32;
+    pubkey: uint256;
+}
+
+struct SortValue {
+    maxFactor: uint32;
+    addr: uint256;
+    adnlAddr: uint256;
+}
 
 fun computeTotalStake(l: lisp_list<array<int>>, n: int, mStake: int): int {
     var totStake = 0;
@@ -299,7 +309,7 @@ fun computeTotalStake(l: lisp_list<array<int>>, n: int, mStake: int): int {
 }
 
 struct ElectionResult {
-    vset: dict;
+    vset: map<uint16, AnyValidatorDescr>;
     totalWeight: int;
     frozen: FrozenDict;
     totalStakes: coins;
@@ -310,24 +320,24 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
     val limits = getValidatorLimits();
     val minValidators = max(limits.minValidators, 1);
 
-    // Build sorted dict: key = stake(128) + negTime(32) + pubkey(256)
+    // Build sorted dict: key = (stake, negTime, pubkey) for ascending order
     var n = 0;
-    var sdict = createEmptyDict();
+    var sdict: map<SortKey, SortValue> = [];
     var pubkey = -1;
     do {
         val memberLookup = members.findKeyGreater(pubkey);
         if (memberLookup.isFound) {
             val member = memberLookup.loadValue();
             pubkey = memberLookup.getKey();
-            val key = beginCell()
-                .storeUint(member.msgValue, 128)
-                .storeInt(-member.timestamp, 32)
-                .storeUint(pubkey, 256)
-                .endCell().beginParse();
-            sdict.sDictSetBuilder(SORT_KEY_LEN, key, beginCell()
-                .storeUint(min(member.maxFactor, maxStakeFactor), 32)
-                .storeUint(member.srcAddr, 256)
-                .storeUint(member.adnlAddr, 256));
+            sdict.set(SortKey {
+                stake: member.msgValue as uint128,
+                negTime: -member.timestamp,
+                pubkey,
+            }, SortValue {
+                maxFactor: min(member.maxFactor, maxStakeFactor),
+                addr: member.srcAddr,
+                adnlAddr: member.adnlAddr,
+            });
             n += 1;
         }
     } while (memberLookup.isFound);
@@ -335,7 +345,7 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
     n = min(n, limits.maxValidators);
     if (n < minValidators) {
         return ElectionResult {
-            vset: createEmptyDict(),
+            vset: [],
             totalWeight: 0,
             frozen: [],
             totalStakes: 0,
@@ -344,22 +354,20 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
     }
 
     // Extract all entries from sorted dict into a list (descending stake order)
-    // dict_delete_get_min extracts ascending; prependHead reverses → descending
+    // findKeyGreater iterates ascending; prependHead reverses → descending
     var l: lisp_list<array<int>> = [];
+    var prevKey = SortKey { stake: 0, negTime: -1, pubkey: 0 };
+    var iterFound = true;
     do {
-        var (keySlice, valSlice, found) = sdict.sDictDeleteFirstAndGet(SORT_KEY_LEN);
-        if (found) {
-            var ks = keySlice!;
-            var vs = valSlice!;
-            val stake = min(ks.loadUint(128), maxStake);
-            ks.skipBits(32); // skip negTime
-            val entryPubkey = ks.preloadUint(256);
-            val maxF = vs.loadUint(32);
-            vs.skipBits(256); // skip addr
-            val adnlAddr = vs.preloadUint(256);
-            l.prependHead([stake, maxF, entryPubkey, adnlAddr]);
+        val lookup = sdict.findKeyGreater(prevKey);
+        iterFound = lookup.isFound;
+        if (iterFound) {
+            prevKey = lookup.getKey();
+            val sv = lookup.loadValue();
+            val stake = min(prevKey.stake, maxStake);
+            l.prependHead([stake, sv.maxFactor, prevKey.pubkey, sv.adnlAddr]);
         }
-    } while (found);
+    } while (iterFound);
     // l is now in descending stake order
 
     // Find optimal validator count
@@ -385,7 +393,7 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
 
     if ((m == 0) | (bestStake < minTotalStake)) {
         return ElectionResult {
-            vset: createEmptyDict(),
+            vset: [],
             totalWeight: 0,
             frozen: [],
             totalStakes: 0,
@@ -404,7 +412,7 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
     var ii = 0;
     var totStake = 0;
     var totWeight = 0;
-    var vset = createEmptyDict();
+    var vset: map<uint16, AnyValidatorDescr> = [];
     var frozen: FrozenDict = [];
     while (!l.isEmpty()) {
         val head = l.popHead();
@@ -426,17 +434,18 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
             totStake += trueStake;
             totWeight += weight;
 
-            // TODO: ValidatorDescr struct only covers 0x53 tag (without adnl_addr).
-            // The 0x73 tag (with adnl_addr) needs a separate struct or union type.
-            var vinfo = beginCell()
-                .storeUint(adnlAddr ? 0x73 : 0x53, 8)
-                .storeUint(0x8e81278a, 32)
-                .storeUint(entryPubkey, 256)
-                .storeUint(weight, 64);
             if (adnlAddr) {
-                vinfo = vinfo.storeUint(adnlAddr, 256);
+                vset.set(ii, ValidatorDescrWithAdnlAddr {
+                    validatorPubkey: entryPubkey,
+                    validatorWeight: weight,
+                    adnlAddr,
+                });
+            } else {
+                vset.set(ii, ValidatorDescr {
+                    validatorPubkey: entryPubkey,
+                    validatorWeight: weight,
+                });
             }
-            vset.uDictSetBuilder(16, ii, vinfo);
 
             frozen.set(entryPubkey, ValidatorInRound {
                 addr: member.srcAddr,
@@ -462,4 +471,409 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
         totalStakes: totStake,
         count: m,
     };
+}
+
+fun postponeElections(): bool {
+    return false;
+}
+
+fun conductElections(mutate storage: Storage): bool {
+    if (storage.currectElections == null) {
+        return false;
+    }
+    var elect = storage.currectElections.load();
+    if (blockchain.now() < elect.electionsCloseAt) {
+        // elections not finished yet
+        return false;
+    }
+    if (blockchain.configParam(0) == null) {
+        // no configuration smart contract to send result to
+        return postponeElections();
+    }
+    val stakeLimits = getStakeLimits();
+    if (elect.totalStake < stakeLimits.minTotalStake) {
+        // insufficient total stake, postpone elections
+        return postponeElections();
+    }
+    if (elect.isFailed) {
+        // do not retry failed elections until new stakes arrive
+        return postponeElections();
+    }
+    if (elect.isFinished) {
+        // elections finished
+        return false;
+    }
+
+    val res = tryElect(mutate storage.credits, elect.members, stakeLimits.minStake, stakeLimits.maxStake, stakeLimits.minTotalStake, stakeLimits.maxStakeFactor);
+
+    // if count==0, set failed=true, finished=false
+    elect.isFailed = (res.count == 0);
+    elect.isFinished = !elect.isFailed;
+    storage.currectElections = elect.toCell();
+
+    if (res.count == 0) {
+        // elections failed
+        storage.save();
+        return postponeElections();
+    }
+
+    // serialize a query to the configuration smart contract
+    // to install the computed validator set as the next validator set
+    val validatorConf = getValidatorConf();
+    val start = max(blockchain.now() + validatorConf.electionsEndBefore - 60, elect.electionsAt);
+    val limits = getValidatorLimits();
+
+    val vset = VSet {
+        utimeSince: start,
+        utimeUntil: start + validatorConf.electedFor,
+        _total: res.count,
+        _main: min(res.count, limits.maxMainValidators),
+        totalWeight: res.totalWeight,
+        dict: res.vset,
+    };
+
+    val configAddr = blockchain.configParam(0)!.beginParse().preloadUint(256);
+    sendValidatorSetToConfig(configAddr, vset, elect.electionsAt as uint64);
+
+    // add frozen to the dictionary of past elections
+    storage.pastElections.set(elect.electionsAt, PastElection {
+        unfreezeAt: start + validatorConf.electedFor + validatorConf.stakeHeldFor,
+        stakeHeld: validatorConf.stakeHeldFor,
+        vsetHash: vset.toCell().hash(),
+        frozenDict: res.frozen,
+        totalStake: res.totalStakes,
+        bonuses: 0,
+        complaints: [],
+    });
+
+    storage.save();
+    return true;
+}
+
+fun updateActiveVsetId(mutate storage: Storage): bool {
+    val curHash = blockchain.configParam(34)!.hash();
+    if (curHash == storage.activeHash) {
+        // validator set unchanged
+        return false;
+    }
+    if (storage.activeId != 0) {
+        // active_id becomes inactive
+        val pastLookup = storage.pastElections.get(storage.activeId);
+        if (pastLookup.isFound) {
+            var pastElection = pastLookup.loadValue();
+            assert (pastElection.vsetHash == storage.activeHash) throw 57;
+            pastElection.unfreezeAt = blockchain.now() + pastElection.stakeHeld;
+            storage.pastElections.set(storage.activeId, pastElection);
+        }
+    }
+    // look up new active_id by hash
+    var newId: uint32 = 0;
+    var prevKey = -1;
+    var searching = true;
+    do {
+        val lookup = storage.pastElections.findKeyGreater(prevKey);
+        searching = lookup.isFound;
+        if (searching) {
+            prevKey = lookup.getKey();
+            var pastElection = lookup.loadValue();
+            if (pastElection.vsetHash == curHash) {
+                // transfer 1/8 of accumulated everybody's grams to this validator set as bonuses
+                val amount = storage.grams >> 3;
+                storage.grams -= amount;
+                pastElection.bonuses += amount;
+                storage.pastElections.set(prevKey, pastElection);
+                newId = prevKey;
+                searching = false;
+            }
+        }
+    } while (searching);
+    storage.activeId = newId;
+    storage.activeHash = curHash;
+    storage.save();
+    return true;
+}
+
+fun cellHashEq(vset: cell?, expectedHash: uint256): bool {
+    if (vset == null) {
+        return false;
+    }
+    return vset.hash() == expectedHash;
+}
+
+fun validatorSetInstalled(mutate storage: Storage): bool {
+    // This is checked in onTickTock
+    val elect = storage.currectElections!.load();
+    if (!elect.isFinished) {
+        // elections not finished yet
+        return false;
+    }
+    val pastLookup = storage.pastElections.get(elect.electionsAt);
+    if (!pastLookup.isFound) {
+        // no election data in dictionary
+        return false;
+    }
+    val pastElection = pastLookup.loadValue();
+    val vsetHash = pastElection.vsetHash;
+    if (cellHashEq(blockchain.configParam(34), vsetHash) | cellHashEq(blockchain.configParam(36), vsetHash)) {
+        // this validator set has been installed, forget elections
+        storage.currectElections = null;
+        storage.save();
+        updateActiveVsetId(mutate storage);
+        return true;
+    }
+    return false;
+}
+
+fun checkUnfreeze(mutate storage: Storage): bool {
+    var prevId = -1;
+    var searching = true;
+    do {
+        val lookup = storage.pastElections.findKeyGreater(prevId);
+        searching = lookup.isFound;
+        if (searching) {
+            prevId = lookup.getKey();
+            val pastElection = lookup.loadValue();
+            if ((pastElection.unfreezeAt <= blockchain.now()) & (prevId != storage.activeId)) {
+                // unfreeze!
+                val (pastElections, unusedPrizes) = storage.credits.unfreezeAll(storage.pastElections, prevId);
+                storage.pastElections = pastElections;
+                storage.grams += unusedPrizes;
+                // unfreeze only one at time, exit loop
+                storage.save();
+                searching = false;
+            }
+        }
+    } while (searching);
+    return prevId >= 0;
+}
+
+fun announceNewElections(mutate storage: Storage): bool {
+    val nextVset = blockchain.configParam(36);
+    if (nextVset != null) {
+        // next validator set exists, no elections needed
+        return false;
+    }
+    val electorAddr = blockchain.configParam(1)!.beginParse().preloadUint(256);
+    val (myWc, myAddr) = contract.getAddress().getWorkchainAndHash();
+    if ((myWc != -1) | (myAddr != electorAddr)) {
+        // this smart contract is not the elections smart contract anymore
+        return false;
+    }
+    val curVset = blockchain.configParam(34);
+    if (curVset == null) {
+        return false;
+    }
+    val validatorConf = getValidatorConf();
+    val curValidUntil = curVset.beginParse().skipBits(8 + 32).preloadUint(32);
+    var t = blockchain.now();
+    val t0 = curValidUntil - validatorConf.electionsBeginBefore;
+    if (t < t0) {
+        // too early for the next elections
+        return false;
+    }
+    if (t - t0 < 60) {
+        // pretend that the elections started at t0
+        t = t0;
+    }
+    // get stake parameters
+    val stakeLimits = getStakeLimits();
+    // announce new elections
+    val electAt = t + validatorConf.electionsBeginBefore;
+    val electClose = electAt - validatorConf.electionsEndBefore;
+    storage.currectElections = Elections {
+        electionsAt: electAt,
+        electionsCloseAt: electClose,
+        minStake: stakeLimits.minStake,
+        totalStake: 0,
+        members: [],
+        isFailed: false,
+        isFinished: false,
+    }.toCell();
+    storage.save();
+    return true;
+}
+
+
+fun onRunTickTock(_isTock: bool) {
+    var storage = Storage.load();
+    if (storage.currectElections != null) {
+        assert (conductElections(mutate storage) == false) throw 0;
+        assert (validatorSetInstalled(mutate storage) == false) throw 0;
+    } else {
+        assert (announceNewElections(mutate storage) == false) throw 0;
+    }
+    assert (updateActiveVsetId(mutate storage)) throw 0;
+    checkUnfreeze(mutate storage);
+}
+
+// checks whether a public key participates in current elections
+get fun participates_in(validatorPubkey: uint256): int {
+    val storage = Storage.load();
+    if (storage.currectElections == null) {
+        return 0;
+    }
+    val elect = storage.currectElections.load();
+    val memberLookup = elect.members.get(validatorPubkey);
+    return memberLookup.isFound ? memberLookup.loadValue().msgValue : 0;
+}
+
+// returns the list of all participants of current elections with their stakes
+get fun participant_list(): lisp_list<array<int>> {
+    val storage = Storage.load();
+    if (storage.currectElections == null) {
+        return [];
+    }
+    val elect = storage.currectElections.load();
+    var l: lisp_list<array<int>> = [];
+    var entry = elect.members.findLast();
+    while (entry.isFound) {
+        l.prependHead([entry.getKey(), entry.loadValue().msgValue]);
+        entry = elect.members.iteratePrev(entry);
+    }
+    return l;
+}
+
+// returns the list of all participants of current elections with their data
+get fun participant_list_extended(): (int, int, coins, coins, lisp_list<ParticipantExtEntry>, bool, bool) {
+    val storage = Storage.load();
+    if (storage.currectElections == null) {
+        return (0, 0, 0, 0, [], false, false);
+    }
+    val elect = storage.currectElections.load();
+    var l: lisp_list<ParticipantExtEntry> = [];
+    var entry = elect.members.findLast();
+    while (entry.isFound) {
+        val key = entry.getKey();
+        val member = entry.loadValue();
+        l.prependHead(ParticipantExtEntry {
+            pubkey: key,
+            data: [member.msgValue, member.maxFactor, member.srcAddr, member.adnlAddr],
+        });
+        entry = elect.members.iteratePrev(entry);
+    }
+    return (elect.electionsAt, elect.electionsCloseAt, elect.minStake, elect.totalStake, l, elect.isFailed, elect.isFinished);
+}
+
+// computes the return stake
+get fun compute_returned_stake(walletAddr: uint256): int {
+    val storage = Storage.load();
+    val lookup = storage.credits.get(walletAddr);
+    return lookup.isFound ? lookup.loadValue() : 0;
+}
+
+// returns the list of past election ids
+get fun past_election_ids(): lisp_list<int> {
+    val storage = Storage.load();
+    var l: lisp_list<int> = [];
+    var entry = storage.pastElections.findLast();
+    while (entry.isFound) {
+        l.prependHead(entry.getKey());
+        entry = storage.pastElections.iteratePrev(entry);
+    }
+    return l;
+}
+
+// returns the list of past elections with full data
+get fun past_elections(): lisp_list<PastElectionFullEntry> {
+    val storage = Storage.load();
+    var l: lisp_list<PastElectionFullEntry> = [];
+    var entry = storage.pastElections.findLast();
+    while (entry.isFound) {
+        val id = entry.getKey();
+        val pe = entry.loadValue();
+        l.prependHead(PastElectionFullEntry {
+            id,
+            unfreezeAt: pe.unfreezeAt,
+            stakeHeld: pe.stakeHeld,
+            vsetHash: pe.vsetHash,
+            frozenDict: pe.frozenDict,
+            totalStake: pe.totalStake,
+            bonuses: pe.bonuses,
+            complaints: pe.complaints,
+        });
+        entry = storage.pastElections.iteratePrev(entry);
+    }
+    return l;
+}
+
+// returns the list of past elections with summary data
+get fun past_elections_list(): lisp_list<array<int>> {
+    val storage = Storage.load();
+    var l: lisp_list<array<int>> = [];
+    var entry = storage.pastElections.findLast();
+    while (entry.isFound) {
+        val id = entry.getKey();
+        val pe = entry.loadValue();
+        l.prependHead([id, pe.unfreezeAt, pe.vsetHash, pe.stakeHeld]);
+        entry = storage.pastElections.iteratePrev(entry);
+    }
+    return l;
+}
+
+fun completeUnpackComplaint(cstatus: ComplaintStatus): ComplaintFullInfo {
+    val complaint = cstatus.complaint.load();
+    var votersList: lisp_list<int> = [];
+    var vEntry = cstatus.voters.findLast();
+    while (vEntry.isFound) {
+        votersList.prependHead(vEntry.getKey());
+        vEntry = cstatus.voters.iteratePrev(vEntry);
+    }
+    return ComplaintFullInfo {
+        complaint: ComplaintUnpacked {
+            validatorPubkey: complaint.validatorPubkey,
+            description: complaint.description,
+            createdAt: complaint.createdAt,
+            severity: complaint.severity,
+            rewardAddr: complaint.rewardAddr,
+            paid: complaint.paid,
+            suggestedFine: complaint.suggestedFine,
+            suggestedFinePart: complaint.suggestedFinePart,
+        },
+        voters: votersList,
+        vsetId: cstatus.vsetId,
+        weightRemaining: cstatus.weightRemaining,
+    };
+}
+
+get fun get_past_complaints(electionId: uint32): Complaints {
+    val storage = Storage.load();
+    val pastLookup = storage.pastElections.get(electionId);
+    if (!pastLookup.isFound) {
+        return [];
+    }
+    val pastElection = pastLookup.loadValue();
+    return pastElection.complaints;
+}
+
+get fun show_complaint(electionId: uint32, chash: uint256): ComplaintFullInfo? {
+    val complaints = get_past_complaints(electionId);
+    val lookup = complaints.get(chash);
+    if (!lookup.isFound) {
+        return null;
+    }
+    val cstatus = lookup.loadValue();
+    return completeUnpackComplaint(cstatus);
+}
+
+get fun list_complaints(electionId: uint32): lisp_list<ComplaintListEntry> {
+    val complaints = get_past_complaints(electionId);
+    var l: lisp_list<ComplaintListEntry> = [];
+    var entry = complaints.findLast();
+    while (entry.isFound) {
+        val key = entry.getKey();
+        val cstatus = entry.loadValue();
+        l.prependHead(ComplaintListEntry {
+            id: key,
+            info: completeUnpackComplaint(cstatus),
+        });
+        entry = complaints.iteratePrev(entry);
+    }
+    return l;
+}
+
+get fun complaint_storage_price(bits: int, refs: int, expireIn: int): int {
+    val prices = getComplaintPrices();
+    val pps = (bits + 1024) * prices.bitPrice + (refs + 2) * prices.cellPrice;
+    val paid = pps * expireIn + prices.deposit;
+    return paid + (1 << 30);
 }

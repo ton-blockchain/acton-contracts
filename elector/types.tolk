@@ -106,6 +106,20 @@ fun getValidatorLimits(): ValidatorLimits {
     return ValidatorLimits.fromCell(raw);
 }
 
+// Config param 17
+struct StakeLimits {
+    minStake: coins;
+    maxStake: coins;
+    minTotalStake: coins;
+    maxStakeFactor: uint32;
+}
+
+fun getStakeLimits(): StakeLimits {
+    // SAFETY: This param can't be null
+    val raw = blockchain.configParam(17)!;
+    return StakeLimits.fromCell(raw);
+}
+
 struct ValidatorConfig {
     electedFor: uint32;
     electionsBeginBefore: uint32;
@@ -127,7 +141,7 @@ struct(0x12) VSet {
     _total: uint16;
     _main: uint16;
     totalWeight: uint64;
-    dict: map<uint16, ValidatorDescr>;
+    dict: map<uint16, AnyValidatorDescr>;
 }
 
 fun getCurrentVset(): (cell, VSet) {
@@ -137,12 +151,20 @@ fun getCurrentVset(): (cell, VSet) {
 }
 
 // validator#53 public_key:SigPubKey weight:uint64 = ValidatorDescr;
-// ed25519_pubkey#8e81278a pubkey:bits256 = SigPubKey;
 // validator_addr#73 public_key:SigPubKey weight:uint64 adnl_addr:bits256 = ValidatorDescr;
+// ed25519_pubkey#8e81278a pubkey:bits256 = SigPubKey;
 struct(0x538e81278a) ValidatorDescr {
     validatorPubkey: uint256;
     validatorWeight: uint64;
 }
+
+struct(0x738e81278a) ValidatorDescrWithAdnlAddr {
+    validatorPubkey: uint256;
+    validatorWeight: uint64;
+    adnlAddr: uint256;
+}
+
+type AnyValidatorDescr = ValidatorDescr | ValidatorDescrWithAdnlAddr;
 
 struct ExtendedValidatorDescr {
     totalWeight: uint64;
@@ -154,11 +176,17 @@ fun getValidatorDescr(idx: int): ExtendedValidatorDescr {
     val res = vset.dict.get(idx);
     // Assume, that the value is always found
 
-    // Exit code in case of parsing error does not match FunC
     val thisDescr = res.loadValue();
-    return ExtendedValidatorDescr {
-        totalWeight: vset.totalWeight,
-        this: thisDescr,
+    match (thisDescr) {
+        ValidatorDescr => {
+            return ExtendedValidatorDescr {
+                totalWeight: vset.totalWeight,
+                this: thisDescr,
+            }
+        }
+        ValidatorDescrWithAdnlAddr => {
+            throw 41;
+        }
     }
 }
 
