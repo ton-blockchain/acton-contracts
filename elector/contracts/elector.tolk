@@ -9,46 +9,41 @@ import "@stdlib/tvm-lowlevel"
 
 fun processNewStake(msg: NewStakeMessage): void {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
-    val storage = Storage.load();
+    var storage = Storage.load();
     if ((storage.currectElections == null) || (srcWcAndHash.0 != -1)) {
-        returnStake(InMessage.source(), msg.queryId, 0);
-        return;
+        return returnStake(InMessage.source(), msg.queryId, 0);
     }
 
-    if (!isSliceSignatureValid(beginCell().storeAny(StakeSubmit {
+    val dataCell = StakeSubmit {
         stakeAt: msg.stakeAt,
         maxFactor: msg.maxFactor,
         srcAddr: srcWcAndHash.1,
         adnlAddr: msg.adnlAddr,
-    }).toSlice(), msg.signature.load() as slice, msg.validatorPubkey)) {
+    }.toCell();
+    if (!isSignatureValid(dataCell.hash(), msg.signature.load() as slice, msg.validatorPubkey)) {
         // incorrect signature, return stake
-        returnStake(InMessage.source(), msg.queryId, 1);
-        return;
+        return returnStake(InMessage.source(), msg.queryId, 1);
     }
 
     if (msg.maxFactor < 0x10000) {
         // factor must be >= 1. = 65536/65536
-        returnStake(InMessage.source(), msg.queryId, 6);
-        return;
+        return returnStake(InMessage.source(), msg.queryId, 6);
     }
 
     var elect = storage.currectElections.load();
     var msgValue = InMessage.value() - ton("1"); // Deduct 1 ton for sending confirmation
     if ((msgValue << 12) < elect.totalStake) {
         // stake smaller than 1/4096 of the total accumulated stakes, return
-        returnStake(InMessage.source(), msg.queryId, 2);
-        return;
+        return returnStake(InMessage.source(), msg.queryId, 2);
     }
 
     elect.totalStake += msgValue;
     if (msg.stakeAt != elect.electionsAt) {
-        returnStake(InMessage.source(), msg.queryId, 3);
-        return;
+        return returnStake(InMessage.source(), msg.queryId, 3);
     }
 
     if (elect.isFinished) {
-        returnStake(InMessage.source(), msg.queryId, 0);
-        return;
+        return returnStake(InMessage.source(), msg.queryId, 0);
     }
 
     var memberLookupRes = elect.members.get(msg.validatorPubkey);
@@ -60,14 +55,12 @@ fun processNewStake(msg: NewStakeMessage): void {
 
     if (memberLookupRes.isFound) {
         // can make stakes for a public key from one address only
-        returnStake(InMessage.source(), msg.queryId, 4);
-        return;
+        return returnStake(InMessage.source(), msg.queryId, 4);
     }
 
 
     if (msgValue < elect.minStake) {
-        returnStake(InMessage.source(), msg.queryId, 5);
-        return;
+        return returnStake(InMessage.source(), msg.queryId, 5);
     }
 
     assert (msgValue != 0) throw 44;
@@ -86,6 +79,7 @@ fun processNewStake(msg: NewStakeMessage): void {
     elect.isFailed = false;
     elect.isFinished = false;
 
+    storage.currectElections = elect.toCell();
     storage.save();
 
     if (msg.queryId) {
@@ -105,6 +99,7 @@ fun configSetConfirmed(queryId: uint64, ok: bool) {
     val elect = storage.currectElections.load();
     if (elect.electionsAt != queryId || (!elect.isFinished)) {
         // not these elections, or elections not finished yet
+        return;
     }
     setGasLimitToMaximum();
     if(!ok) {
@@ -256,7 +251,7 @@ fun onInternalMessage(in: InMessage) {
             val vote = VoteForComplaint.fromSlice(msg.vote);
             assert (vote.signTag == 0x56744350) throw 37;
             val vDescr = getValidatorDescr(vote.idx);
-            assert (isSliceSignatureValid(msg.vote, msg.signature as slice, vDescr.this.validatorPubkey)) throw 34;
+            assert (isSignatureValid(msg.vote.hash(), msg.signature as slice, vDescr.this.validatorPubkey)) throw 34;
             val res = proceedRegisterVote(vote.electId, vote.chash, vote.idx, vDescr.this.validatorWeight);
             sendMessageBack(InMessage.source(), res + 0xd6745240, msg.queryId, SignedVoteForComplaint.getDeclaredPackPrefix(), 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
             return;
@@ -684,14 +679,15 @@ fun announceNewElections(mutate storage: Storage): bool {
 
 
 fun onRunTickTock(_isTock: bool) {
+    setGasLimitToMaximum();
     var storage = Storage.load();
     if (storage.currectElections != null) {
-        assert (conductElections(mutate storage) == false) throw 0;
-        assert (validatorSetInstalled(mutate storage) == false) throw 0;
+        if (conductElections(mutate storage)) { return; }
+        if (validatorSetInstalled(mutate storage)) { return; }
     } else {
-        assert (announceNewElections(mutate storage) == false) throw 0;
+        if (announceNewElections(mutate storage)) { return; }
     }
-    assert (updateActiveVsetId(mutate storage)) throw 0;
+    if (updateActiveVsetId(mutate storage)) { return; }
     checkUnfreeze(mutate storage);
 }
 

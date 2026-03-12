@@ -129,21 +129,23 @@ fun generateStakeSignature(
     srcAddr: uint256,
     adnlAddr: uint256,
 ): bits512 {
-    val signCell = StakeSubmit {
+    val dataCell = StakeSubmit {
         stakeAt,
         maxFactor,
         srcAddr,
         adnlAddr,
     }.toCell();
-    var sig = crypto.sign(privateKey, signCell);
+    var sig = crypto.sign(privateKey, dataCell);
     return sig.loadBits(512) as bits512;
 }
 
 /// Submit a valid stake from a random masterchain address.
 /// Returns (result, srcAddr, stakeAt, pubkey, stakeAmount).
+/// If customStake > 0, uses that amount; otherwise computes minimum valid stake.
 fun submitValidStake(
     elector: Elector,
     totalStake: coins,
+    customStake: coins = 0,
 ): (SendResultList, address, int, uint256, coins) {
     val kp = crypto.generateKeyPair();
     // Use a random address hash as ADNL address (256-bit random value)
@@ -152,7 +154,7 @@ fun submitValidStake(
 
     val stakeLimits = defaultStakeLimits();
     val minStake = max(stakeLimits.minStake, totalStake >> 12);
-    val stake: coins = minStake + ton("1000");
+    val stake: coins = customStake > 0 ? customStake : minStake + ton("1000");
 
     val stakeAt = elector.active_election_id();
     assert (stakeAt != 0) throw 999;
@@ -181,27 +183,33 @@ fun submitValidStake(
     return (res, srcAddr, stakeAt, kp.publicKey as uint256, stake);
 }
 
-/// Conduct valid elections by submitting enough stakes and running tick-tocks
+/// Conduct valid elections by submitting enough stakes and advancing time past close.
+/// Needs at least minValidators (5) different validators and minTotalStake (2M TON).
 fun conductValidElections(elector: Elector): int {
     val stakeAt = elector.active_election_id();
     assert (stakeAt != 0) throw 998;
 
+    val validatorLimits = defaultValidatorLimits();
+    val stakeLimits = defaultStakeLimits();
+
+    // Submit enough validators to meet both minValidators and minTotalStake.
+    // Each validator stakes enough so that minValidators * stakePerValidator >= minTotalStake.
     var totalStake: coins = 0;
-    var finished = false;
-
-    while (!finished) {
-        val (res, _, _, _, stake) = submitValidStake(elector, totalStake);
+    val numValidators = max(validatorLimits.minValidators as int, 5);
+    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
+    var i = 0;
+    while (i < numValidators) {
+        val (_, _, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
         totalStake += stake;
-
-        // Advance time a bit
-        net.setNow(net.now() + 10);
-        net.runTickTock(elector.address, true);
-
-        // Check if elections finished
-        val (electAt, closeAt, minStake, curTotalStake, plist, isFailed, isFinished)
-            = elector.participant_list_extended();
-        finished = isFinished;
+        i += 1;
     }
+
+    // Get elections close time and advance past it
+    val (_, closeAt, _, _, _, _, _) = elector.participant_list_extended();
+    net.setNow(closeAt + 1);
+
+    // Run tick-tock to conduct elections
+    net.runTickTock(elector.address, true);
 
     return stakeAt;
 }

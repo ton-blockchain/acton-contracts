@@ -185,7 +185,13 @@ fun getValidatorDescr(idx: int): ExtendedValidatorDescr {
             }
         }
         ValidatorDescrWithAdnlAddr => {
-            throw 41;
+            return ExtendedValidatorDescr {
+                totalWeight: vset.totalWeight,
+                this: ValidatorDescr {
+                    validatorPubkey: thisDescr.validatorPubkey,
+                    validatorWeight: thisDescr.validatorWeight,
+                },
+            }
         }
     }
 }

@@ -108,7 +108,7 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
     }
 
     val lookupVote = cstatus.voters.get(idx);
-    if (!lookupVote.isFound) {
+    if (lookupVote.isFound) {
         // Already voted for this proposal
         return VoteRegustrationStatus {
             complaint: null,

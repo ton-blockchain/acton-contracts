@@ -116,8 +116,13 @@ get fun `test new stake already finished`() {
     // Conduct elections until finished
     conductValidElections(elector);
 
-    // Verify elections are finished
-    val (_, _, _, totalStake, _, _, isFinished) = elector.participant_list_extended();
+    // Check state after conduct
+    val (electAt, _, minStake, totalStake, _, isFailed, isFinished) = elector.participant_list_extended();
+    expect(electAt).toNotEqual(0);
+    // Total stake should be at least 2M TON (minTotalStake)
+    val minTotalStake: coins = 2000000 * ONECOIN;
+    assert (totalStake >= minTotalStake) throw 900;
+    expect(isFailed).toEqual(false);
     expect(isFinished).toEqual(true);
 
     // Try to submit a new stake after elections finished — should be rejected (reason 0)
