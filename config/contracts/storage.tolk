@@ -1,5 +1,3 @@
-import "errors"
-
 const CUSTOM_PARAM_1 = -1024
 const CUSTOM_PARAM_2 = -1025
 
@@ -66,7 +64,9 @@ fun Storage.save(self) {
     contract.setData(self.toCell());
 }
 
-fun Storage.setConfigParam(mutate self, index: int, value: cell) {
-    // TODO: mutates?
-    self.config.setById(index, value);
+fun Storage.setConfigParam(index: int, value: cell) {
+    var storage = lazy Storage.load();
+
+    storage.config.setById(index, value);
+    storage.save();
 }

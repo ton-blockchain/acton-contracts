@@ -1,10 +1,10 @@
+import "@stdlib/exotic-cells"
 import "@stdlib/gas-payments"
 import "@stdlib/lisp-lists"
 import "config-helpers"
 import "errors"
 import "messages"
 import "storage"
-import "types"
 
 fun isKnownInternalMessageTag(tag: uint32): bool {
     return tag == OP_SET_NEXT_VALIDATOR_SET || tag == OP_SET_CUSTOM_PARAM ||
@@ -59,7 +59,7 @@ fun onInternalMessage(in: InMessage) {
             }
 
             if (ok) {
-                setConfParam(CONFIG_PARAM_NEXT_VALIDATOR_SET, msg.vset);
+                Storage.setConfigParam(CONFIG_PARAM_NEXT_VALIDATOR_SET, msg.vset);
                 sendConfirmation(in.senderAddress, msg.queryId, TAG_SET_NEXT_VALIDATORS_ACCEPTED);
             } else {
                 sendError(in.senderAddress, msg.queryId, TAG_SET_NEXT_VALIDATORS_REJECTED);
@@ -71,7 +71,7 @@ fun onInternalMessage(in: InMessage) {
             val isCustomParam = msg.paramId == CUSTOM_PARAM_1 || msg.paramId == CUSTOM_PARAM_2;
 
             if (!isExotic && msg.value.depth() == 0 && isCustomParam && isAdminOfCustomParam) {
-                setConfParam(msg.paramId as int, msg.value);
+                Storage.setConfigParam(msg.paramId as int, msg.value);
                 sendConfirmation(msg.receiverAddress, msg.queryId, TAG_SET_CUSTOM_PARAM_ACCEPTED);
             } else {
                 sendError(msg.receiverAddress, msg.queryId, TAG_SET_CUSTOM_PARAM_REJECTED);
@@ -83,13 +83,25 @@ fun onInternalMessage(in: InMessage) {
 
             var mode = SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE;
             var ansTag = -price;
+
             if (price >= 0) {
                 reserveToncoinsOnBalance(price, RESERVE_MODE_INCREASE_BY_ORIGINAL_BALANCE);
+
                 ansTag = TAG_NEW_VOTING_CREATED;
                 mode = SEND_MODE_CARRY_ALL_BALANCE;
             }
 
-            sendAnswer(in.senderAddress, msg.queryId, ansTag, mode);
+            val answerMsg = createMessage({
+                bounce: true,
+                dest: in.senderAddress,
+                value: 0,
+                body: AnswerBody {
+                    ansTag: (ansTag & 0xffffffff),
+                    queryId: msg.queryId,
+                },
+            });
+
+            answerMsg.send(mode);
         }
 
         VoteForProposalRequest => {
