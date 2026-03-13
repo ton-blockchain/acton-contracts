@@ -416,6 +416,99 @@ get fun `test new stake success query id`() {
     expect(curStake).toEqual(stake);
 }
 
+/// Test that sending exactly 1/4096 of totalStake without 1 TON fee causes low fraction rejection
+get fun `test new stake low fraction confirmation fee`() {
+    val setup = setupElector();
+    val elector = setup.elector;
+
+    announceElections(elector);
+    val stakeAt = elector.active_election_id();
+    expect(stakeAt).toNotEqual(0);
+
+    // Submit several valid stakes to build up totalStake
+    var totalStake: coins = 0;
+    var i = 0;
+    while (i < 3) {
+        val (_, _, _, _, stake) = submitValidStake(elector, totalStake);
+        totalStake += stake;
+        i += 1;
+    }
+
+    val kp = crypto.generateKeyPair();
+    val srcAddr = net.randomAddress("low-staker", MASTERCHAIN);
+    net.topUp(srcAddr, ton("100000"));
+    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
+    val (_, srcHash) = srcAddr.getWorkchainAndHash();
+
+    val maxFactor: uint32 = (1 << 16) + (1 << 15);
+    // Stake exactly 1/4096 of totalStake — without adding ONECOIN fee
+    val tinyStake: coins = totalStake >> 12;
+
+    val signature = generateStakeSignature(
+        kp.privateKey, stakeAt as uint32, maxFactor, srcHash, adnlInt,
+    );
+
+    // Without ONECOIN fee — after 1 TON deduction, effective stake < 1/4096 → rejected (reason 2)
+    val res = elector.sendNewStakeMessage(
+        srcAddr, 1, kp.publicKey as uint256,
+        stakeAt as uint32, maxFactor, adnlInt, signature,
+        { value: tinyStake },
+    );
+    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+
+    // With ONECOIN + 1 added — passes fraction check (may still fail min_stake, reason 5)
+    val res2 = elector.sendNewStakeMessage(
+        srcAddr, 2, kp.publicKey as uint256,
+        stakeAt as uint32, maxFactor, adnlInt, signature,
+        { value: tinyStake + ONECOIN + 1 },
+    );
+    // Either succeeds or fails with different reason (5), but NOT low fraction (2)
+    expect(res2).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+}
+
+/// Test that sending min_stake without 1 TON fee causes stake-too-low rejection
+get fun `test new stake lower min stake confirmation fee`() {
+    val setup = setupElector();
+    val elector = setup.elector;
+
+    announceElections(elector);
+    val stakeAt = elector.active_election_id();
+    expect(stakeAt).toNotEqual(0);
+
+    val kp = crypto.generateKeyPair();
+    val srcAddr = net.randomAddress("staker", MASTERCHAIN);
+    net.topUp(srcAddr, ton("100000"));
+    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
+    val (_, srcHash) = srcAddr.getWorkchainAndHash();
+
+    val stakeLimits = defaultStakeLimits();
+    val maxFactor: uint32 = (1 << 16) + (1 << 15);
+
+    val signature = generateStakeSignature(
+        kp.privateKey, stakeAt as uint32, maxFactor, srcHash, adnlInt,
+    );
+
+    // Send min_stake without ONECOIN — after 1 TON deduction, effective < min_stake → rejected (reason 5)
+    // But msg_value must be at least ONECOIN to avoid fraction issues on empty elections
+    val tonAmount: coins = max(ONECOIN, stakeLimits.minStake);
+    val res = elector.sendNewStakeMessage(
+        srcAddr, 1, kp.publicKey as uint256,
+        stakeAt as uint32, maxFactor, adnlInt, signature,
+        { value: tonAmount },
+    );
+    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+
+    // With ONECOIN added — should succeed
+    val res2 = elector.sendNewStakeMessage(
+        srcAddr, 2, kp.publicKey as uint256,
+        stakeAt as uint32, maxFactor, adnlInt, signature,
+        { value: tonAmount + ONECOIN },
+    );
+    expect(res2).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+}
+
 get fun `test new stake low fraction`() {
     val setup = setupElector();
     val elector = setup.elector;

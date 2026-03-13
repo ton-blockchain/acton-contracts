@@ -235,7 +235,9 @@ fun onInternalMessage(in: InMessage) {
                 // Invalid complaint
                 price = -3;
             }
-            price = registerComplaint(msg, InMessage.value());
+            else {
+                price = registerComplaint(msg, InMessage.value());
+            }
             var mode = SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE;
             var ansTag = -price;
             if (price >= 0) {

@@ -164,3 +164,5 @@ get fun `test vset rejected success`() {
     // Frozen stakes should be unfrozen — past election should be removed
     // and credits should be available for recovery
 }
+
+// TODO: test vset_confirmed_success — governance_tests marks this as unnecessary (vset_rejected_success already covers the flow)

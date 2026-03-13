@@ -167,3 +167,6 @@ get fun `test election announce success`() {
     expect(isFailed).toEqual(false);
     expect(isFinished).toEqual(false);
 }
+
+// TODO: test election_announce_validators_set_malformed — commented out in governance_tests (requires malformed vset cell)
+// TODO: test election_announce_before_existed_elections — commented out in governance_tests

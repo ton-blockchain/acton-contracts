@@ -228,6 +228,60 @@ fun createComplaint(validatorPubkey: uint256, suggestedFine: coins, suggestedFin
     };
 }
 
+/// Submit a known validator stake. Call BEFORE conductValidElections.
+fun submitKnownValidatorStake(elector: Elector, totalStake: coins, kp: KeyPair): (address, uint256, coins) {
+    val stakeLimits = defaultStakeLimits();
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+
+    val stakeAt = elector.active_election_id();
+    assert (stakeAt != 0) throw 999;
+
+    val srcAddr = net.randomAddress("known-staker", MASTERCHAIN);
+    net.topUp(srcAddr, stakePerValidator + ton("100"));
+
+    val (_, srcHash) = srcAddr.getWorkchainAndHash();
+    val adnlAddr: uint256 = 12345;
+
+    val maxFactor: uint32 = (1 << 16) + (1 << 15); // 1.5
+    val signature = generateStakeSignature(
+        kp.privateKey, stakeAt as uint32, maxFactor, srcHash, adnlAddr,
+    );
+
+    elector.sendNewStakeMessage(
+        srcAddr, 0, kp.publicKey as uint256, stakeAt as uint32,
+        maxFactor, adnlAddr, signature,
+        { value: stakePerValidator + ONECOIN },
+    );
+
+    return (srcAddr, kp.publicKey as uint256, stakePerValidator);
+}
+
+/// Conduct elections with a known first validator.
+/// Returns (stakeAt, knownPubkey) where knownPubkey is in the frozen dict.
+fun conductElectionsWithKnownValidator(elector: Elector): (int, uint256) {
+    val kp = crypto.generateKeyPair();
+    val stakeAt = elector.active_election_id();
+
+    val stakeLimits = defaultStakeLimits();
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+
+    val (_, knownPubkey, knownStake) = submitKnownValidatorStake(elector, 0, kp);
+    var totalStake = knownStake;
+
+    var i = 0;
+    while (i < 4) {
+        val (_, _, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
+        totalStake += stake;
+        i += 1;
+    }
+
+    val (_, closeAt, _, _, _, _, _) = elector.participant_list_extended();
+    net.setNow(closeAt + 1);
+    net.runTickTock(elector.address, true);
+
+    return (stakeAt, knownPubkey);
+}
+
 /// Build a validators set cell from parameters
 fun buildVSet(validSince: int, validUntil: int, total: int, main: int, totalWeight: int): VSet {
     return VSet {

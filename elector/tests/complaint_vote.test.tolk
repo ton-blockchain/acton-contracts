@@ -65,60 +65,6 @@ fun sendVote(elector: Elector, queryId: uint64, privateKey: int, idx: uint16, el
     return elector.sendSignedVoteForComplaint(voter, queryId, sig, voteCell.beginParse(), { value: ton("1") });
 }
 
-/// Submit a known validator stake. Call BEFORE conductValidElections.
-fun submitKnownValidatorStake(elector: Elector, totalStake: coins, kp: KeyPair): (address, uint256, coins) {
-    val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
-
-    val stakeAt = elector.active_election_id();
-    assert (stakeAt != 0) throw 999;
-
-    val srcAddr = net.randomAddress("known-staker", MASTERCHAIN);
-    net.topUp(srcAddr, stakePerValidator + ton("100"));
-
-    val (_, srcHash) = srcAddr.getWorkchainAndHash();
-    val adnlAddr: uint256 = 12345;
-
-    val maxFactor: uint32 = (1 << 16) + (1 << 15); // 1.5
-    val signature = generateStakeSignature(
-        kp.privateKey, stakeAt as uint32, maxFactor, srcHash, adnlAddr,
-    );
-
-    elector.sendNewStakeMessage(
-        srcAddr, 0, kp.publicKey as uint256, stakeAt as uint32,
-        maxFactor, adnlAddr, signature,
-        { value: stakePerValidator + ONECOIN },
-    );
-
-    return (srcAddr, kp.publicKey as uint256, stakePerValidator);
-}
-
-/// Conduct elections with a known first validator.
-/// Returns (stakeAt, knownPubkey) where knownPubkey is in the frozen dict.
-fun conductElectionsWithKnownValidator(elector: Elector): (int, uint256) {
-    val kp = crypto.generateKeyPair();
-    val stakeAt = elector.active_election_id();
-
-    val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
-
-    val (_, knownPubkey, knownStake) = submitKnownValidatorStake(elector, 0, kp);
-    var totalStake = knownStake;
-
-    var i = 0;
-    while (i < 4) {
-        val (_, _, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
-        totalStake += stake;
-        i += 1;
-    }
-
-    val (_, closeAt, _, _, _, _, _) = elector.participant_list_extended();
-    net.setNow(closeAt + 1);
-    net.runTickTock(elector.address, true);
-
-    return (stakeAt, knownPubkey);
-}
-
 /// Test that vote with wrong sign tag is rejected
 get fun `test vote wrong tag`() {
     val setup = setupElector();
@@ -229,4 +175,115 @@ get fun `test vote already voted`() {
     // response = 0 + 0xd6745240 = 0xd6745240
     val res2 = sendVote(elector, 3, kps.get(0).privateKey, 0, stakeAt as uint32, chash);
     expect(res2).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745240 });
+}
+
+/// Test that vote on completed complaint with changed vset returns old_vset (-3)
+get fun `test vote old vset finished`() {
+    val setup = setupElector();
+    val elector = setup.elector;
+
+    announceElections(elector);
+    val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
+    val kps = setupVsetWithKnownValidators(5);
+    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
+
+    // Vote with validators idx 1-4 to collect 2/3 weight
+    // Each has weight 100, total weight 500, need muldiv(500,2,3) = 333
+    // 4 * 100 = 400 >= 333 → vote completes on 4th vote
+    var i = 1;
+    while (i <= 4) {
+        val res = sendVote(elector, i as uint64, kps.get(i).privateKey, i as uint16, stakeAt as uint32, chash);
+        if (i < 4) {
+            // Vote accepted (status 1): 0xd6745241
+            expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+        } else {
+            // Vote finished (status 2): 0xd6745242
+            expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745242 });
+        }
+        i += 1;
+    }
+
+    // Change config param 34 to a different vset (same validators, different timing)
+    // so that vsetId changes but signatures still verify
+    var dict: map<uint16, AnyValidatorDescr> = [];
+    var totalWeight: uint64 = 0;
+    i = 0;
+    while (i < 5) {
+        val weight: uint64 = 100;
+        dict.set(i, ValidatorDescrWithAdnlAddr {
+            validatorPubkey: kps.get(i).publicKey as uint256,
+            validatorWeight: weight,
+            adnlAddr: 0,
+        });
+        totalWeight += weight;
+        i += 1;
+    }
+    val newVset = VSet {
+        utimeSince: (blockchain.now() + 100) as uint32,
+        utimeUntil: (blockchain.now() + 10100) as uint32,
+        _total: 5 as uint16,
+        _main: 5 as uint16,
+        totalWeight,
+        dict,
+    };
+    var config = net.getConfig();
+    config.setParamRaw(34, newVset.toCell());
+    net.setConfig(config);
+
+    // Try voting with idx 0 — vset changed and weightRemaining < 0 → returns -3
+    // response = -3 + 0xd6745240 = 0xd674523d
+    val lateres = sendVote(elector, 10, kps.get(0).privateKey, 0, stakeAt as uint32, chash);
+    expect(lateres).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd674523d });
+}
+
+/// Test that vote resets when vset changes before 2/3 collected
+get fun `test vote old vset reset`() {
+    val setup = setupElector();
+    val elector = setup.elector;
+
+    announceElections(elector);
+    val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
+    val kps = setupVsetWithKnownValidators(5);
+    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
+
+    // Vote with only 1 validator (idx 1, weight 100 < 333) — not enough for 2/3
+    val res1 = sendVote(elector, 1, kps.get(1).privateKey, 1, stakeAt as uint32, chash);
+    expect(res1).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+
+    // Change config param 34 to a different vset (same validators, different timing)
+    var dict: map<uint16, AnyValidatorDescr> = [];
+    var totalWeight: uint64 = 0;
+    var i = 0;
+    while (i < 5) {
+        val weight: uint64 = 100;
+        dict.set(i, ValidatorDescrWithAdnlAddr {
+            validatorPubkey: kps.get(i).publicKey as uint256,
+            validatorWeight: weight,
+            adnlAddr: 0,
+        });
+        totalWeight += weight;
+        i += 1;
+    }
+    val newVset = VSet {
+        utimeSince: (blockchain.now() + 100) as uint32,
+        utimeUntil: (blockchain.now() + 10100) as uint32,
+        _total: 5 as uint16,
+        _main: 5 as uint16,
+        totalWeight,
+        dict,
+    };
+    var config = net.getConfig();
+    config.setParamRaw(34, newVset.toCell());
+    net.setConfig(config);
+
+    // Vote with idx 2 — vset changed, weightRemaining > 0 → reset, then vote accepted
+    // response = 1 + 0xd6745240 = 0xd6745241
+    val res2 = sendVote(elector, 2, kps.get(2).privateKey, 2, stakeAt as uint32, chash);
+    expect(res2).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+
+    // Verify vote was reset: show_complaint should show updated vsetId
+    val info = elector.show_complaint(stakeAt as uint32, chash);
+    assert (info != null) throw 600;
+    // The vsetId should now match the new vset hash
+    expect(info.vsetId).toEqual(newVset.toCell().hash());
 }
