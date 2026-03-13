@@ -66,8 +66,9 @@ fun sendValidatorSetToConfig(configAddHashPart: uint256, vset: VSet, queryId: ui
     returnMsg.send(SEND_MODE_PAY_FEES_SEPARATELY);
 }
 
-
+// SAFETY: Only one opcode, nothing to comment
 fun InMessage.value(): coins asm "INMSG_VALUE";
+// SAFETY: Only one opcode, nothing to comment
 fun InMessage.source(): address asm "INMSG_SRC";
 fun T.getDeclaredPackPrefix(): int {
     return reflect.serializationPrefixOf<T>();

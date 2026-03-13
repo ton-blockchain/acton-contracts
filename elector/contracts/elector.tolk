@@ -269,6 +269,10 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
+fun onBouncedMessage(_in: InMessageBounced) {
+    // Elector sends some bounceable messages, but don't handle them
+}
+
 // Sorting key for election: orders by stake ascending, then time descending, then pubkey
 struct SortKey {
     stake: uint128;
