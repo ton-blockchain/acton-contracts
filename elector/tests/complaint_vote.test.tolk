@@ -8,7 +8,7 @@ import "wrappers/Elector"
 import "../contracts/types"
 import "../contracts/messages"
 
-/// Set up config param 34 with known validators (with ADNL addresses)
+/// Set up config param 34 with known validators (with ADNL addresses).
 /// Returns array of KeyPairs used for the validators.
 fun setupVsetWithKnownValidators(numValidators: int): array<KeyPair> {
     var kps: array<KeyPair> = [];
@@ -41,59 +41,31 @@ fun setupVsetWithKnownValidators(numValidators: int): array<KeyPair> {
     return kps;
 }
 
-/// Build a raw complaint cell for the given validator pubkey
-fun buildComplaintCell(validatorPubkey: uint256, suggestedFine: coins, suggestedFinePart: uint32): cell {
-    val description = beginCell().storeUint(0xDEAD, 32).endCell();
-    return beginCell()
-        .storeUint(0xbc, 8) // Complaint prefix
-        .storeUint(validatorPubkey, 256)
-        .storeRef(description)
-        .storeUint(0, 32) // createdAt (will be overwritten)
-        .storeUint(0, 8) // severity
-        .storeUint(0, 256) // rewardAddr (will be overwritten)
-        .storeCoins(0) // paid (will be overwritten)
-        .storeCoins(suggestedFine)
-        .storeUint(suggestedFinePart, 32)
-        .endCell();
+/// Register a complaint via the wrapper, return the complaint hash from storage
+fun registerTestComplaint(elector: Elector, stakeAt: int, frozenPubkey: uint256, fine: coins): uint256 {
+    val complaint = createComplaint(frozenPubkey, fine, 0);
+    val sender = net.randomAddress("complainer", MASTERCHAIN);
+    net.topUp(sender, ton("1000"));
+    elector.sendNewComplaint(sender, 1, stakeAt as uint32, complaint.toCell().beginParse(), { value: ton("500") });
+
+    val complaints = elector.get_past_complaints(stakeAt as uint32);
+    val first = complaints.findFirst();
+    assert (first.isFound) throw 500;
+    return first.getKey();
 }
 
-/// Build a NewComplaint message body cell
-fun buildComplaintBody(queryId: uint64, electionId: uint32, complaintCell: cell): cell {
-    val cs = complaintCell.beginParse();
-    return beginCell()
-        .storeUint(0x52674370, 32) // NewComplaint opcode
-        .storeUint(queryId, 64)
-        .storeUint(electionId, 32)
-        .storeSlice(cs)
-        .endCell();
+/// Sign a VoteForComplaint and send it via wrapper
+fun sendVote(elector: Elector, queryId: uint64, privateKey: int, idx: uint16, electId: uint32, chash: uint256): SendResultList {
+    val vote = VoteForComplaint { signTag: 0x56744350, idx, electId, chash };
+    val voteCell = vote.toCell();
+    val sig = crypto.sign(privateKey, voteCell).loadBits(512) as bits512;
+
+    val voter = net.randomAddress("voter", MASTERCHAIN);
+    net.topUp(voter, ton("10"));
+    return elector.sendSignedVoteForComplaint(voter, queryId, sig, voteCell.beginParse(), { value: ton("1") });
 }
 
-/// Build a VoteForComplaint cell
-fun buildVoteCell(idx: uint16, electId: uint32, chash: uint256): cell {
-    return VoteForComplaint {
-        signTag: 0x56744350,
-        idx,
-        electId,
-        chash,
-    }.toCell();
-}
-
-/// Sign a vote and build the SignedVoteForComplaint message body cell
-fun buildSignedVoteBody(queryId: uint64, privateKey: int, idx: uint16, electId: uint32, chash: uint256): cell {
-    val voteCell = buildVoteCell(idx, electId, chash);
-    val sigSlice = crypto.sign(privateKey, voteCell);
-
-    val voteSlice = voteCell.beginParse();
-    return beginCell()
-        .storeUint(0x56744370, 32) // SignedVoteForComplaint opcode
-        .storeUint(queryId, 64)
-        .storeSlice(sigSlice) // 512-bit signature
-        .storeSlice(voteSlice)
-        .endCell();
-}
-
-/// Submit a known validator stake and return its pubkey.
-/// Call BEFORE conductValidElections.
+/// Submit a known validator stake. Call BEFORE conductValidElections.
 fun submitKnownValidatorStake(elector: Elector, totalStake: coins, kp: KeyPair): (address, uint256, coins) {
     val stakeLimits = defaultStakeLimits();
     val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
@@ -105,14 +77,14 @@ fun submitKnownValidatorStake(elector: Elector, totalStake: coins, kp: KeyPair):
     net.topUp(srcAddr, stakePerValidator + ton("100"));
 
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
-    val adnlAddr: uint256 = 12345; // dummy ADNL
+    val adnlAddr: uint256 = 12345;
 
     val maxFactor: uint32 = (1 << 16) + (1 << 15); // 1.5
     val signature = generateStakeSignature(
         kp.privateKey, stakeAt as uint32, maxFactor, srcHash, adnlAddr,
     );
 
-    val res = elector.sendNewStakeMessage(
+    elector.sendNewStakeMessage(
         srcAddr, 0, kp.publicKey as uint256, stakeAt as uint32,
         maxFactor, adnlAddr, signature,
         { value: stakePerValidator + ONECOIN },
@@ -130,11 +102,9 @@ fun conductElectionsWithKnownValidator(elector: Elector): (int, uint256) {
     val stakeLimits = defaultStakeLimits();
     val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
 
-    // Submit known validator first
     val (_, knownPubkey, knownStake) = submitKnownValidatorStake(elector, 0, kp);
     var totalStake = knownStake;
 
-    // Submit 4 more to meet minValidators
     var i = 0;
     while (i < 4) {
         val (_, _, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
@@ -142,7 +112,6 @@ fun conductElectionsWithKnownValidator(elector: Elector): (int, uint256) {
         i += 1;
     }
 
-    // Advance past close
     val (_, closeAt, _, _, _, _, _) = elector.participant_list_extended();
     net.setNow(closeAt + 1);
     net.runTickTock(elector.address, true);
@@ -157,38 +126,21 @@ get fun `test vote wrong tag`() {
 
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
-
-    // Set up vset with known validators
     val kps = setupVsetWithKnownValidators(5);
+    registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
 
-    // Register a complaint
-    val fine = ton("100");
-    val complaintCell = buildComplaintCell(frozenPubkey, fine, 0);
-    val body = buildComplaintBody(1, stakeAt as uint32, complaintCell);
-    val sender = net.randomAddress("complainer", MASTERCHAIN);
-    net.topUp(sender, ton("1000"));
-    elector.sendAny(sender, body, { value: ton("500") });
-
-    // Build vote with wrong sign tag
+    // Build vote with wrong sign tag — must use manual cell since struct enforces correct tag
     val wrongVoteCell = beginCell()
-        .storeUint(0xDEADBEEF, 32) // wrong tag
-        .storeUint(0, 16) // idx
+        .storeUint(0xDEADBEEF, 32)
+        .storeUint(0, 16)
         .storeUint(stakeAt, 32)
-        .storeUint(0, 256) // chash
+        .storeUint(0, 256)
         .endCell();
-    val sigSlice = crypto.sign(kps.get(0).privateKey, wrongVoteCell);
-
-    val voteBody = beginCell()
-        .storeUint(0x56744370, 32)
-        .storeUint(1, 64) // queryId
-        .storeSlice(sigSlice)
-        .storeSlice(wrongVoteCell.beginParse())
-        .endCell();
+    val sig = crypto.sign(kps.get(0).privateKey, wrongVoteCell).loadBits(512) as bits512;
 
     val voter = net.randomAddress("voter", MASTERCHAIN);
     net.topUp(voter, ton("10"));
-    // Should throw 37 (wrong sign tag) — transaction should fail
-    val res = elector.sendAny(voter, voteBody, { value: ton("1") });
+    val res = elector.sendSignedVoteForComplaint(voter, 1, sig, wrongVoteCell.beginParse(), { value: ton("1") });
     expect(res).toHaveFailedTx({ to: elector.address, exitCode: 37 });
 }
 
@@ -199,32 +151,17 @@ get fun `test vote invalid signature`() {
 
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
-
     val kps = setupVsetWithKnownValidators(5);
+    registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
 
-    // Register a complaint
-    val complaintCell = buildComplaintCell(frozenPubkey, ton("100"), 0);
-    val body = buildComplaintBody(1, stakeAt as uint32, complaintCell);
-    val sender = net.randomAddress("complainer", MASTERCHAIN);
-    net.topUp(sender, ton("1000"));
-    elector.sendAny(sender, body, { value: ton("500") });
-
-    // Build vote with correct tag but sign with wrong key
     val wrongKp = crypto.generateKeyPair();
-    val voteCell = buildVoteCell(0, stakeAt as uint32, 0);
-    val sigSlice = crypto.sign(wrongKp.privateKey, voteCell); // wrong key
-
-    val voteBody = beginCell()
-        .storeUint(0x56744370, 32)
-        .storeUint(1, 64)
-        .storeSlice(sigSlice)
-        .storeSlice(voteCell.beginParse())
-        .endCell();
+    val vote = VoteForComplaint { signTag: 0x56744350, idx: 0, electId: stakeAt as uint32, chash: 0 };
+    val voteCell = vote.toCell();
+    val sig = crypto.sign(wrongKp.privateKey, voteCell).loadBits(512) as bits512; // wrong key
 
     val voter = net.randomAddress("voter", MASTERCHAIN);
     net.topUp(voter, ton("10"));
-    // Should throw 34 (invalid signature)
-    val res = elector.sendAny(voter, voteBody, { value: ton("1") });
+    val res = elector.sendSignedVoteForComplaint(voter, 1, sig, voteCell.beginParse(), { value: ton("1") });
     expect(res).toHaveFailedTx({ to: elector.address, exitCode: 34 });
 }
 
@@ -235,25 +172,13 @@ get fun `test vote no such elections`() {
 
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
-
     val kps = setupVsetWithKnownValidators(5);
+    registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
 
-    // Register a complaint first (so there IS a complaint)
-    val complaintCell = buildComplaintCell(frozenPubkey, ton("100"), 0);
-    val body = buildComplaintBody(1, stakeAt as uint32, complaintCell);
-    val sender = net.randomAddress("complainer", MASTERCHAIN);
-    net.topUp(sender, ton("1000"));
-    elector.sendAny(sender, body, { value: ton("500") });
-
-    // Vote with wrong election ID
     val wrongElectId: uint32 = (stakeAt + 999) as uint32;
-    val voteBody = buildSignedVoteBody(1, kps.get(0).privateKey, 0, wrongElectId, 0);
-
-    val voter = net.randomAddress("voter", MASTERCHAIN);
-    net.topUp(voter, ton("10"));
+    val res = sendVote(elector, 1, kps.get(0).privateKey, 0, wrongElectId, 0);
     // proceedRegisterVote returns -2, response opcode = -2 + 0xd6745240 = 0xd674523e
-    val res = elector.sendAny(voter, voteBody, { value: ton("1") });
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: voter, opcode: 0xd674523e });
+    expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd674523e });
 }
 
 /// Test that vote for non-existent complaint returns error
@@ -263,18 +188,12 @@ get fun `test vote no such complaint`() {
 
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
-
     val kps = setupVsetWithKnownValidators(5);
 
-    // Don't register any complaint — vote directly
     val fakeChash: uint256 = 12345;
-    val voteBody = buildSignedVoteBody(1, kps.get(0).privateKey, 0, stakeAt as uint32, fakeChash);
-
-    val voter = net.randomAddress("voter", MASTERCHAIN);
-    net.topUp(voter, ton("10"));
+    val res = sendVote(elector, 1, kps.get(0).privateKey, 0, stakeAt as uint32, fakeChash);
     // registerVote returns -1 (complaint not found), response = -1 + 0xd6745240 = 0xd674523f
-    val res = elector.sendAny(voter, voteBody, { value: ton("1") });
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: voter, opcode: 0xd674523f });
+    expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd674523f });
 }
 
 /// Test that a successful vote is registered
@@ -284,33 +203,12 @@ get fun `test vote success`() {
 
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
-
     val kps = setupVsetWithKnownValidators(5);
+    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
 
-    // Register a complaint against a frozen validator
-    val fine = ton("100");
-    val complaintCell = buildComplaintCell(frozenPubkey, fine, 0);
-    val body = buildComplaintBody(1, stakeAt as uint32, complaintCell);
-    val sender = net.randomAddress("complainer", MASTERCHAIN);
-    net.topUp(sender, ton("1000"));
-    val cplRes = elector.sendAny(sender, body, { value: ton("500") });
-    expect(cplRes).toHaveSuccessfulTx({ from: elector.address, to: sender });
-
-    // Get the actual complaint hash from list_complaints
-    // The complaint is repacked by the contract, so hash differs from our cell.
-    // Use get_past_complaints to iterate, or list_complaints.
-    val complaints = elector.get_past_complaints(stakeAt as uint32);
-    val firstComplaint = complaints.findFirst();
-    assert (firstComplaint.isFound) throw 500;
-    val chash = firstComplaint.getKey();
-
-    // Vote with validator 0
-    val voteBody = buildSignedVoteBody(2, kps.get(0).privateKey, 0, stakeAt as uint32, chash);
-    val voter = net.randomAddress("voter0", MASTERCHAIN);
-    net.topUp(voter, ton("10"));
+    val res = sendVote(elector, 2, kps.get(0).privateKey, 0, stakeAt as uint32, chash);
     // status 1 = vote accepted, response = 1 + 0xd6745240 = 0xd6745241
-    val voteRes = elector.sendAny(voter, voteBody, { value: ton("1") });
-    expect(voteRes).toHaveSuccessfulTx({ from: elector.address, to: voter, opcode: 0xd6745241 });
+    expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
 }
 
 /// Test that voting twice is rejected
@@ -320,33 +218,15 @@ get fun `test vote already voted`() {
 
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
-
     val kps = setupVsetWithKnownValidators(5);
-
-    // Register complaint
-    val complaintCell = buildComplaintCell(frozenPubkey, ton("100"), 0);
-    val body = buildComplaintBody(1, stakeAt as uint32, complaintCell);
-    val sender = net.randomAddress("complainer", MASTERCHAIN);
-    net.topUp(sender, ton("1000"));
-    elector.sendAny(sender, body, { value: ton("500") });
-
-    val complaints = elector.get_past_complaints(stakeAt as uint32);
-    val firstComplaint = complaints.findFirst();
-    assert (firstComplaint.isFound) throw 500;
-    val chash = firstComplaint.getKey();
+    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
 
     // First vote — should succeed
-    val voteBody1 = buildSignedVoteBody(2, kps.get(0).privateKey, 0, stakeAt as uint32, chash);
-    val voter1 = net.randomAddress("voter0a", MASTERCHAIN);
-    net.topUp(voter1, ton("10"));
-    val res1 = elector.sendAny(voter1, voteBody1, { value: ton("1") });
-    expect(res1).toHaveSuccessfulTx({ from: elector.address, to: voter1, opcode: 0xd6745241 });
+    val res1 = sendVote(elector, 2, kps.get(0).privateKey, 0, stakeAt as uint32, chash);
+    expect(res1).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
 
     // Second vote with same validator idx — should return 0 (already voted)
     // response = 0 + 0xd6745240 = 0xd6745240
-    val voteBody2 = buildSignedVoteBody(3, kps.get(0).privateKey, 0, stakeAt as uint32, chash);
-    val voter2 = net.randomAddress("voter0b", MASTERCHAIN);
-    net.topUp(voter2, ton("10"));
-    val res2 = elector.sendAny(voter2, voteBody2, { value: ton("1") });
-    expect(res2).toHaveSuccessfulTx({ from: elector.address, to: voter2, opcode: 0xd6745240 });
+    val res2 = sendVote(elector, 3, kps.get(0).privateKey, 0, stakeAt as uint32, chash);
+    expect(res2).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745240 });
 }

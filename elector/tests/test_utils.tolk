@@ -214,6 +214,20 @@ fun conductValidElections(elector: Elector): int {
     return stakeAt;
 }
 
+/// Create a test Complaint struct with placeholder fields (createdAt, rewardAddr, paid are overwritten by contract)
+fun createComplaint(validatorPubkey: uint256, suggestedFine: coins, suggestedFinePart: uint32): Complaint {
+    return Complaint {
+        validatorPubkey,
+        description: beginCell().storeUint(0xDEAD, 32).endCell(),
+        createdAt: 0,
+        severity: 0,
+        rewardAddr: 0,
+        paid: 0,
+        suggestedFine,
+        suggestedFinePart,
+    };
+}
+
 /// Build a validators set cell from parameters
 fun buildVSet(validSince: int, validUntil: int, total: int, main: int, totalWeight: int): VSet {
     return VSet {

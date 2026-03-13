@@ -1,12 +1,8 @@
-import "@acton/emulation/config"
 import "@acton/emulation/network"
-import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test_utils"
 import "wrappers/Elector"
 import "../contracts/types"
-import "../contracts/messages"
 
 /// Test that elections don't finish before close time
 get fun `test elections ongoing`() {
