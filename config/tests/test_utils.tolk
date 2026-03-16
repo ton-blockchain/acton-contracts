@@ -475,28 +475,44 @@ fun precomputedExternalVoteSignature(
     var hi = 0 as uint256;
     var lo = 0 as uint256;
 
-    if (hash == VOTE_HASH_CODE_PROPOSAL && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE) {
+    if (
+        hash == VOTE_HASH_CODE_PROPOSAL && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE
+    ) {
         hi = 0x916e4641b5409c9e35b3cd245355c6b993e06bd5f0227a487cf9647673899e09;
         lo = 0xde69aec6109acc3f5c01368217003a1bdf0b0217952307d6269333e49210fd06;
-    } else if (hash == VOTE_HASH_REGULAR_PARAM && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE) {
+    } else if (
+        hash == VOTE_HASH_REGULAR_PARAM && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE
+    ) {
         hi = 0x46d092a6441a254062f676cb5653a44d0b2371dedfc847a3fb97bb260828c107;
         lo = 0x74fa40e215f6cb9f36c228e3622ec4f48010c30db6fffd602425446f25cf6103;
-    } else if (hash == VOTE_HASH_REGULAR_PARAM && seqno == 1 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE) {
+    } else if (
+        hash == VOTE_HASH_REGULAR_PARAM && seqno == 1 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE
+    ) {
         hi = 0x79c38aec1c1690cb7844f608c8fe2dc93f82ea7ad7b6a9f27c009a6d8850cfe6;
         lo = 0x5948752936a95d89bcb7b6712b0a5a676c20fc02dcfcc4bd41094c8c4e9a1107;
-    } else if (hash == VOTE_HASH_REGULAR_PARAM && seqno == 5 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE) {
+    } else if (
+        hash == VOTE_HASH_REGULAR_PARAM && seqno == 5 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE
+    ) {
         hi = 0x23e6382c073c3e0842008cd6d49095557b3aeb8cdb5f3e1691bd7ba4e59787e9;
         lo = 0x67b439a9f93434e255b57cec1d4f9c9149448802cdd8d56e621b7ece9f719101;
-    } else if (hash == VOTE_HASH_REGULAR_PARAM && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_PAST) {
+    } else if (
+        hash == VOTE_HASH_REGULAR_PARAM && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_PAST
+    ) {
         hi = 0x71e3881eb85fb4fe6e60f10cb246b00a4df8cc220681b7ff0a9510a01c84cd4c;
         lo = 0xd292df882d68ad96220baa86642fa54cdcfe81cd8ff24e40dc0ff332bd7a590a;
-    } else if (hash == VOTE_HASH_CUSTOM_SLOT_1 && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE) {
+    } else if (
+        hash == VOTE_HASH_CUSTOM_SLOT_1 && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE
+    ) {
         hi = 0x2e878ac7b84d6bab5beab3ed61aed1f73626670361a161f9457d311a6f6fe71b;
         lo = 0xc7cd06f6a23fa289ab7359eb9fe43be0cfa9ce215a61a770a8c15e6b515a8208;
-    } else if (hash == VOTE_HASH_CUSTOM_SLOT_2 && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE) {
+    } else if (
+        hash == VOTE_HASH_CUSTOM_SLOT_2 && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE
+    ) {
         hi = 0xc5866eb9440444a7cf067aa391a65327a0bb841dbddba539948da06f574ba08e;
         lo = 0x214495a967c1dbf343f51af2526a980d09c228c9b919278a8fdb4d4f45e95507;
-    } else if (hash == VOTE_HASH_UNKNOWN_CASE && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE) {
+    } else if (
+        hash == VOTE_HASH_UNKNOWN_CASE && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE
+    ) {
         hi = 0xdbf1698bed7a613a43e53a4f3314b569fcb28124e0ee60daac6be0f5fc722ac7;
         lo = 0x4cd70bab475144fa4e8bd93575671b551d0fe2d150216a4adf24af70e0950d05;
     } else {
