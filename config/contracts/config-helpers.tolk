@@ -500,6 +500,7 @@ fun scanRandomProposal(mutate voteDict: VoteDict) {
         return;
     }
 
+    random.initialize();
     val entry = voteDict.findKeyGreaterOrEqual(random.uint256());
     if (!entry.isFound) {
         return;

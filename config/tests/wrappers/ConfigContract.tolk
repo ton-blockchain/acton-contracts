@@ -33,12 +33,12 @@ fun ConfigContract.deploy(self, from: address, config: SendParams = {}): SendRes
     if (self.stateInit == null) {
         Assert.fail("Cannot deploy a contract created with fromAddress");
     }
-    val msg = createMessage({
+    val deployMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: { stateInit: self.stateInit! },
     });
-    return net.send(from, msg);
+    return net.send(from, deployMessage);
 }
 
 fun ConfigContract.sendSetNextValidatorSetRequest(
@@ -48,13 +48,13 @@ fun ConfigContract.sendSetNextValidatorSetRequest(
     vset: cell,
     config: SendParams = {},
 ): SendResultList {
-    val msg = createMessage({
+    val setNextValidatorSetMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body: SetNextValidatorSetRequest { queryId, vset },
     });
-    return net.send(from, msg);
+    return net.send(from, setNextValidatorSetMessage);
 }
 
 fun ConfigContract.sendSetCustomParamRequest(
@@ -66,13 +66,13 @@ fun ConfigContract.sendSetCustomParamRequest(
     value: cell,
     config: SendParams = {},
 ): SendResultList {
-    val msg = createMessage({
+    val setCustomParamMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body: SetCustomParamRequest { queryId, paramId, receiverAddress, value },
     });
-    return net.send(from, msg);
+    return net.send(from, setCustomParamMessage);
 }
 
 fun ConfigContract.sendNewVotingProposalRequest(
@@ -84,7 +84,7 @@ fun ConfigContract.sendNewVotingProposalRequest(
     proposal: ConfigProposal,
     config: SendParams = {},
 ): SendResultList {
-    val msg = createMessage({
+    val newVotingProposalMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
@@ -95,7 +95,7 @@ fun ConfigContract.sendNewVotingProposalRequest(
             proposal: proposal.toCell(),
         },
     });
-    return net.send(from, msg);
+    return net.send(from, newVotingProposalMessage);
 }
 
 fun ConfigContract.sendVoteForProposalRequest(
@@ -106,13 +106,13 @@ fun ConfigContract.sendVoteForProposalRequest(
     signedVoteBody: RemainingBitsAndRefs,
     config: SendParams = {},
 ): SendResultList {
-    val msg = createMessage({
+    val voteForProposalMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body: VoteForProposalRequest { queryId, signature, signedVoteBody },
     });
-    return net.send(from, msg);
+    return net.send(from, voteForProposalMessage);
 }
 
 fun ConfigContract.sendAny(
@@ -121,13 +121,13 @@ fun ConfigContract.sendAny(
     body: cell,
     config: SendParams = {},
 ): SendResultList {
-    val msg = createMessage({
+    val internalMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
         body,
     });
-    return net.send(from, msg);
+    return net.send(from, internalMessage);
 }
 
 fun ConfigContract.seqno(self): int {

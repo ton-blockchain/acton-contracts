@@ -5,7 +5,7 @@ import "test_utils"
 import "../contracts/messages"
 
 fun singleIndexDictCell(idx: int32): cell {
-    var m = createEmptyMap<int32, slice>();
+    var m: map<int32, slice> = [];
     m.set(idx, beginCell().toSlice());
     return m.toLowLevelDict()!;
 }

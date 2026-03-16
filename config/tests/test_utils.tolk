@@ -107,7 +107,7 @@ fun buildVotingSetupWith(normal: ConfigProposalSetup, critical: ConfigProposalSe
 }
 
 fun buildCriticalParamsCell(): cell {
-    var criticalMap = createEmptyMap<int32, slice>();
+    var criticalMap: map<int32, slice> = [];
     criticalMap.set(-1000, beginCell().toSlice());
     return criticalMap.toLowLevelDict()!;
 }
@@ -149,7 +149,7 @@ fun totalValidatorWeight(validators: array<ValidatorFixture>): int {
 }
 
 fun validatorsToRawDict(validators: array<ValidatorFixture>): dict {
-    var validatorMap = createEmptyMap<uint16, slice>();
+    var validatorMap: map<uint16, slice> = [];
 
     var i = 0;
     while (i < validators.size()) {

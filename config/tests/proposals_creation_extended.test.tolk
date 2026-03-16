@@ -17,7 +17,7 @@ fun deepCell(depth: int): cell {
 }
 
 fun setSingleIndexDictConfig(paramId: int32, idx: int32) {
-    var dict = createEmptyMap<int32, slice>();
+    var dict: map<int32, slice> = [];
     dict.set(idx, beginCell().toSlice());
     setGlobalConfigParam(paramId as uint32, dict.toLowLevelDict()!);
 }
