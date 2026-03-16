@@ -49,7 +49,7 @@ get fun `test voting int: should reject malformed signed-vote payload tag`() {
         opcode: OP_VOTE_FOR_PROPOSAL,
         aborted: true,
     });
-    expect(ctx.contract.get_proposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
 }
 
 get fun `test voting int: should reject bad signature`() {
@@ -123,7 +123,7 @@ get fun `test voting int: should remove expired proposal on vote attempt`() {
         to: ctx.validatorSender,
         opcode: (TAG_VOTE_PROCESSED_BASE - 1) as uint32,
     });
-    expect(ctx.contract.get_proposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash as int)).toBeNull();
 }
 
 get fun `test voting int invariant: round transition on vote should reset voters and bump losses`() {
@@ -227,7 +227,7 @@ get fun `test voting int invariant: proposal should be removed after too many lo
         to: ctx.validatorSender,
         opcode: (TAG_VOTE_PROCESSED_BASE - 1) as uint32,
     });
-    expect(ctx.contract.get_proposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash as int)).toBeNull();
 }
 
 get fun `test voting int invariant: proposal should be removed after too many rounds`() {
@@ -285,7 +285,7 @@ get fun `test voting int invariant: proposal should be removed after too many ro
         to: ctx.validatorSender,
         opcode: (TAG_VOTE_PROCESSED_BASE - 1) as uint32,
     });
-    expect(ctx.contract.get_proposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash as int)).toBeNull();
 }
 
 get fun `test voting int acceptance invariant: should not apply value when current hash changed`() {
@@ -308,7 +308,7 @@ get fun `test voting int acceptance invariant: should not apply value when curre
     setStorageConfigParam(ctx.contract, idx, changedVal);
     voteUntilAccepted(ctx, hash);
 
-    expect(ctx.contract.get_proposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash as int)).toBeNull();
     assertConfigParam(ctx.contract, idx, changedVal);
 }
 
@@ -331,7 +331,7 @@ get fun `test voting int acceptance invariant: should not nullify param that bec
     setStorageConfigParam(ctx.contract, CONFIG_PARAM_MANDATORY_PARAMS, singleIndexDictCell(idx));
     voteUntilAccepted(ctx, hash);
 
-    expect(ctx.contract.get_proposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash as int)).toBeNull();
     assertConfigParam(ctx.contract, idx, prevVal);
 }
 
@@ -354,6 +354,6 @@ get fun `test voting int acceptance invariant: should not apply non-critical vot
     setStorageConfigParam(ctx.contract, CONFIG_PARAM_CRITICAL_PARAMS, singleIndexDictCell(idx));
     voteUntilAccepted(ctx, hash);
 
-    expect(ctx.contract.get_proposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash as int)).toBeNull();
     assertConfigParam(ctx.contract, idx, prevVal);
 }

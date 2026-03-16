@@ -231,7 +231,7 @@ fun acceptInternalProposalStage(ctx: ConfigTestContext, fixture: ConfigE2ePropos
         to: ctx.validatorSender,
         opcode: (TAG_VOTE_PROCESSED_BASE + 6) as uint32,
     });
-    expect(ctx.contract.get_proposal(fixture.proposalHash as int)).toBeNull();
+    expect(ctx.contract.getProposal(fixture.proposalHash as int)).toBeNull();
     assertConfigParam(ctx.contract, fixture.paramId, fixture.value);
 }
 
@@ -269,7 +269,7 @@ fun acceptExternalSpecialProposalStage(ctx: ConfigTestContext, fixture: ConfigE2
 
     expect(res.size() > 0).toEqual(true);
     expect(ctx.contract.seqno()).toEqual(2);
-    expect(ctx.contract.get_proposal(fixture.proposalHash as int)).toBeNull();
+    expect(ctx.contract.getProposal(fixture.proposalHash as int)).toBeNull();
     assertConfigParam(ctx.contract, fixture.paramId, fixture.value);
     expect(getStorage(ctx.contract).publicKey).toEqual(CONFIG_E2E_EXTERNAL_PUBLIC_KEY);
 }

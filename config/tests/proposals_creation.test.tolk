@@ -26,7 +26,7 @@ fun assertProposalCreateOutcome(
         val proposal = createProposal(paramId as int32, value, expectedHash);
         val hash = proposalHash(proposal);
 
-        expect(ctx.contract.get_proposal(hash as int)).toBeNull();
+        expect(ctx.contract.getProposal(hash as int)).toBeNull();
 
         val res = ctx
             .contract
@@ -52,7 +52,7 @@ fun assertProposalCreateOutcome(
         });
 
         if (expectedTag == TAG_NEW_VOTING_CREATED) {
-            expect(ctx.contract.get_proposal(hash as int) == null).toEqual(false);
+            expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
         } else {
             expect(contractDataHash(ctx.contract)).toEqual(beforeData);
         }
@@ -124,7 +124,7 @@ get fun `test proposals invariant: proposal list should track creation and avoid
         opcode: TAG_NEW_VOTING_CREATED,
     });
     expect(proposalCount(ctx.contract)).toEqual(before + 1);
-    expect(ctx.contract.get_proposal(createdHash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(createdHash as int) == null).toEqual(false);
 
     val rejectBefore = proposalCount(ctx.contract);
     val rejectedProposal = createProposal(
@@ -140,7 +140,7 @@ get fun `test proposals invariant: proposal list should track creation and avoid
         opcode: (-ERROR_TAG_CUSTOM_SLOT_VOTING_REJECTED) as uint32,
     });
     expect(proposalCount(ctx.contract)).toEqual(rejectBefore);
-    expect(ctx.contract.get_proposal(rejectedHash as int)).toBeNull();
+    expect(ctx.contract.getProposal(rejectedHash as int)).toBeNull();
 }
 
 get fun `test proposals invariant: duplicate proposal should be rejected when expiration is not extended`() {
@@ -187,8 +187,8 @@ get fun `test proposals invariant: duplicate proposal should be rejected when ex
 get fun `test proposals unit: proposal_storage_price should respect min-store boundary`() {
     val ctx = setupConfigTest();
 
-    val tooShort = ctx.contract.proposal_storage_price(0, 10, 0, 0);
-    val valid = ctx.contract.proposal_storage_price(0, 100, 100, 1);
+    val tooShort = ctx.contract.proposalStoragePrice(0, 10, 0, 0);
+    val valid = ctx.contract.proposalStoragePrice(0, 100, 100, 1);
 
     expect(tooShort).toEqual(-1);
     expect(valid > 0).toEqual(true);

@@ -361,7 +361,7 @@ fun parseProposalFull(raw: tuple): ProposalFullView {
 }
 
 fun getProposalOrNull(contract: ConfigContract, hash: uint256): ProposalTupleView? {
-    val raw = contract.get_proposal(hash as int);
+    val raw = contract.getProposal(hash as int);
     if (raw == null) {
         return null;
     }
@@ -369,7 +369,7 @@ fun getProposalOrNull(contract: ConfigContract, hash: uint256): ProposalTupleVie
 }
 
 fun getProposalFullOrNull(contract: ConfigContract, hash: uint256): ProposalFullView? {
-    val raw = contract.get_proposal(hash as int);
+    val raw = contract.getProposal(hash as int);
     if (raw == null) {
         return null;
     }
@@ -598,7 +598,7 @@ fun voteUntilAccepted(ctx: ConfigTestContext, hash: uint256): SendResultList {
                 opcode: OP_VOTE_FOR_PROPOSAL,
             });
 
-            if (ctx.contract.get_proposal(hash as int) == null) {
+            if (ctx.contract.getProposal(hash as int) == null) {
                 return res;
             }
 
@@ -719,7 +719,7 @@ fun setNextValidatorsBody(vset: cell, queryId: uint64 = DEFAULT_QUERY_ID): cell 
 }
 
 fun proposalCount(contract: ConfigContract): int {
-    return contract.list_proposals().calculateSize();
+    return contract.listProposals().calculateSize();
 }
 
 fun emptyOrDifferent(slotValue: cell?, expected: cell): bool {

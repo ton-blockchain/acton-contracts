@@ -45,7 +45,7 @@ get fun `test proposals ext: should reject hash mismatch and accept matching has
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.get_proposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
 }
 
 get fun `test proposals ext: should reject nullification of mandatory param`() {
@@ -67,7 +67,7 @@ get fun `test proposals ext: should reject nullification of mandatory param`() {
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.get_proposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
 }
 
 get fun `test proposals ext: should reject overly deep value`() {
@@ -88,7 +88,7 @@ get fun `test proposals ext: should reject overly deep value`() {
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.get_proposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
 }
 
 get fun `test proposals ext: should enforce critical flag for critical params`() {
@@ -110,7 +110,7 @@ get fun `test proposals ext: should enforce critical flag for critical params`()
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.get_proposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
 }
 
 get fun `test proposals ext: should enforce minimal storage duration`() {
@@ -132,7 +132,7 @@ get fun `test proposals ext: should enforce minimal storage duration`() {
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.get_proposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
 }
 
 get fun `test proposals ext invariant: update requires matching criticality and enough funds`() {

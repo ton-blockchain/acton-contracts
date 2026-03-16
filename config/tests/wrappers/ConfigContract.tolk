@@ -134,15 +134,15 @@ fun ConfigContract.seqno(self): int {
     return net.runGetMethod(self.address, "seqno");
 }
 
-fun ConfigContract.get_proposal(self, proposalHash: int): tuple? {
+fun ConfigContract.getProposal(self, proposalHash: int): tuple? {
     return net.runGetMethod(self.address, "get_proposal", proposalHash);
 }
 
-fun ConfigContract.list_proposals(self): lisp_list<tuple> {
+fun ConfigContract.listProposals(self): lisp_list<tuple> {
     return net.runGetMethod(self.address, "list_proposals");
 }
 
-fun ConfigContract.proposal_storage_price(
+fun ConfigContract.proposalStoragePrice(
     self,
     critical: int,
     seconds: int,

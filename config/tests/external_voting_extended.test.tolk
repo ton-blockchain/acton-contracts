@@ -86,7 +86,7 @@ get fun `test voting ext: should remove expired proposal on accepted external vo
     val res = sendExternalVote(ctx, 0, EXTERNAL_VALID_UNTIL_FUTURE, 0, hash);
     expect(res.size() > 0).toEqual(true);
     expect(ctx.contract.seqno()).toEqual(1);
-    expect(ctx.contract.get_proposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash as int)).toBeNull();
 }
 
 get fun `test voting ext invariant: duplicate vote should not mutate proposal status`() {
@@ -179,6 +179,6 @@ get fun `test voting ext: should accept proposal across rounds and apply config`
     sendExternalVote(ctx, 1, EXTERNAL_VALID_UNTIL_FUTURE, 0, hash);
 
     expect(ctx.contract.seqno()).toEqual(2);
-    expect(ctx.contract.get_proposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash as int)).toBeNull();
     assertConfigParam(ctx.contract, -406, value);
 }

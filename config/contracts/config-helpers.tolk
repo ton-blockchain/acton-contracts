@@ -105,7 +105,7 @@ fun changeElectorCode(codeBody: slice) {
 
 // TODO: ?
 @method_id(1666)
-fun afterCodeUpgrade(param: slice, oldCode: continuation) {}
+fun afterCodeUpgrade(_param: slice, _oldCode: continuation) {}
 
 fun applyCodeUpgrade(newCode: cell, upgradeParams: slice): never {
     contract.setCodePostponed(newCode);
