@@ -6,12 +6,6 @@ import "errors"
 import "messages"
 import "storage"
 
-fun isKnownInternalMessageTag(tag: uint32): bool {
-    return tag == OP_SET_NEXT_VALIDATOR_SET || tag == OP_SET_CUSTOM_PARAM ||
-    tag == OP_NEW_VOTING_PROPOSAL ||
-    tag == OP_VOTE_FOR_PROPOSAL;
-}
-
 type AllowedInternalMessage =
     | SetNextValidatorSetRequest
     | SetCustomParamRequest
@@ -31,8 +25,7 @@ fun onInternalMessage(in: InMessage) {
         throw ERROR_INVALID_MESSAGE;
     }
 
-    if (!isKnownInternalMessageTag(tag)) {
-        assert (tag == 0 || (tag & INTERNAL_QUERY_HIGH_BIT) != 0) throw ERROR_INVALID_MESSAGE;
+    if (tag == 0 || (tag & INTERNAL_QUERY_HIGH_BIT) != 0) {
         return;
     }
 
@@ -106,22 +99,22 @@ fun onInternalMessage(in: InMessage) {
 
         VoteForProposalRequest => {
             val signedVote = msg.loadSignedVotePayload(ERROR_INVALID_MESSAGE);
-
-            val validatorDescr = getValidatorDescription(signedVote.validatorIndex);
-            val validatorInfo = unpackValidatorDescr(validatorDescr);
+            val validatorContext = getCurrentValidatorContext(signedVote.validatorIndex);
 
             assert (
                 isSliceSignatureValid(
                     msg.signedVoteBody,
                     msg.signature as slice,
-                    validatorInfo.publicKey,
+                    validatorContext.publicKey,
                 )
             ) throw ERROR_INVALID_SIGNATURE;
 
             val result = proceedRegisterVote(
                 signedVote.proposalHash,
                 signedVote.validatorIndex,
-                validatorInfo.weight,
+                validatorContext.weight,
+                validatorContext.validatorSetId,
+                validatorContext.totalWeight,
             );
             sendConfirmation(in.senderAddress, msg.queryId, TAG_VOTE_PROCESSED_BASE + result);
         }
@@ -141,15 +134,14 @@ fun onExternalMessage(inMsgBody: slice) {
     var storage = lazy Storage.load();
     assert (msg.action.msgSeqno == storage.storedSeqno) throw ERROR_BAD_SEQNO;
 
-    val validatorDescription = getValidatorDescription(msg.action.validatorIndex);
-    val validatorInfo = unpackValidatorDescr(validatorDescription);
+    val validatorContext = getCurrentValidatorContext(msg.action.validatorIndex);
 
     // TODO: bench skip vs RemainingBits vs skip val
     assert (
         isSliceSignatureValid(
             inMsgBody.skipBits(512),
             msg.signature as slice,
-            validatorInfo.publicKey,
+            validatorContext.publicKey,
         )
     ) throw ERROR_INVALID_SIGNATURE;
 
@@ -159,7 +151,13 @@ fun onExternalMessage(inMsgBody: slice) {
     storage.save();
     commitContractDataAndActions();
 
-    proceedRegisterVote(msg.action.proposalHash, msg.action.validatorIndex, validatorInfo.weight);
+    proceedRegisterVote(
+        msg.action.proposalHash,
+        msg.action.validatorIndex,
+        validatorContext.weight,
+        validatorContext.validatorSetId,
+        validatorContext.totalWeight,
+    );
 }
 
 fun onRunTickTock() {

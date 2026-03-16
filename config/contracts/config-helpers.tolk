@@ -19,13 +19,32 @@ fun getVoteConfig(isCritical: bool): ConfigProposalSetup {
     return getVoteConfigInternal(isCritical, configParam11);
 }
 
+fun getVoteRoundRulesInternal(critical: bool, configParam11: cell): ConfigProposalRoundRules {
+    val setup = ConfigVotingSetup.fromCell(
+        configParam11,
+        { throwIfOpcodeDoesNotMatch: ERROR_INVALID_PROPOSAL_STATUS },
+    );
+
+    return ConfigProposalRoundRules.fromCell(
+        critical ? setup.criticalParams : setup.normalParams,
+        { throwIfOpcodeDoesNotMatch: ERROR_INVALID_PROPOSAL_STATUS },
+    );
+}
+
+fun getVoteRoundRules(isCritical: bool): ConfigProposalRoundRules {
+    val configParam11 = blockchain.configParam(CONFIG_PARAM_VOTING_SETUP);
+    assert (configParam11 != null) throw ERROR_INVALID_PROPOSAL_STATUS;
+
+    return getVoteRoundRulesInternal(isCritical, configParam11);
+}
+
 struct ValidatorSetWindow {
     utimeSince: int
     utimeUntil: int
 }
 
 fun checkValidatorSet(validatorSet: cell): ValidatorSetWindow {
-    val parsed = ValidatorSetExt.fromCell(
+    val parsed = ValidatorSetMeta.fromCell(
         validatorSet,
         { throwIfOpcodeDoesNotMatch: ERROR_INVALID_VALIDATOR_SET },
     );
@@ -99,40 +118,31 @@ fun applyCodeUpgrade(newCode: cell, upgradeParams: slice): never {
     throw 0;
 }
 
-struct CurrentValidatorSetInfo {
-    valiadorSet: cell
+struct CurrentValidatorSetMeta {
+    validatorSetId: uint256
     totalWeight: int
-    validators: map<uint16, slice>
 }
 
-fun getCurrentValidatorSet(): CurrentValidatorSetInfo {
-    val valiadorSet = blockchain.configParam(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
-    assert (valiadorSet != null) throw ERROR_WRONG_CURRENT_VSET;
+fun getCurrentValidatorSetMeta(): CurrentValidatorSetMeta {
+    val validatorSet = blockchain.configParam(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
+    assert (validatorSet != null) throw ERROR_WRONG_CURRENT_VSET;
 
-    val parsed = ValidatorSetExt.fromCell(
-        valiadorSet,
+    val parsed = ValidatorSetMeta.fromCell(
+        validatorSet,
         { throwIfOpcodeDoesNotMatch: ERROR_WRONG_CURRENT_VSET },
     );
 
-    val validators = createMapFromLowLevelDict<uint16, slice>(parsed.validators);
-
-    return {
-        valiadorSet,
-        totalWeight: parsed.totalWeight,
-        validators,
-    };
-}
-
-fun getValidatorDescription(idx: uint16): slice {
-    val currentValidatorSet = getCurrentValidatorSet();
-    val lookup = currentValidatorSet.validators.get(idx);
-
-    assert (lookup.isFound) throw ERROR_WRONG_VALIDATOR_DESCRIPTION;
-
-    return lookup.loadValue();
+    return { validatorSetId: validatorSet.hash(), totalWeight: parsed.totalWeight };
 }
 
 struct ValidatorKeyAndWeight {
+    publicKey: int
+    weight: int
+}
+
+struct CurrentValidatorContext {
+    validatorSetId: uint256
+    totalWeight: int
     publicKey: int
     weight: int
 }
@@ -153,6 +163,28 @@ fun unpackValidatorDescr(validatorDescription: slice): ValidatorKeyAndWeight {
 
         else => throw ERROR_WRONG_VALIDATOR_DESCRIPTION,
     }
+}
+
+fun getCurrentValidatorContext(idx: uint16): CurrentValidatorContext {
+    val validatorSet = blockchain.configParam(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
+    assert (validatorSet != null) throw ERROR_WRONG_CURRENT_VSET;
+
+    val parsed = ValidatorSetExt.fromCell(
+        validatorSet,
+        { throwIfOpcodeDoesNotMatch: ERROR_WRONG_CURRENT_VSET },
+    );
+    val validators = createMapFromLowLevelDict<uint16, slice>(parsed.validators);
+    val lookup = validators.get(idx);
+
+    assert (lookup.isFound) throw ERROR_WRONG_VALIDATOR_DESCRIPTION;
+
+    val validatorInfo = unpackValidatorDescr(lookup.loadValue());
+    return {
+        validatorSetId: validatorSet.hash(),
+        totalWeight: parsed.totalWeight,
+        publicKey: validatorInfo.publicKey,
+        weight: validatorInfo.weight,
+    };
 }
 
 struct ProposalAcceptanceResult {
@@ -247,12 +279,12 @@ fun updateProposalStatus(
     status: ConfigProposalStatus,
     previousWeightRemaining: int,
 ): ConfigProposalStatus? {
-    val voteCfg = getVoteConfig(status.isCritical);
+    val voteRules = getVoteRoundRules(status.isCritical);
 
     if (previousWeightRemaining >= 0) {
         status.losses += 1;
     }
-    if (status.losses > voteCfg.maxLosses) {
+    if (status.losses > voteRules.maxLosses) {
         return null;
     }
 
@@ -275,6 +307,8 @@ fun registerVote(
     proposalHash: uint256,
     idx: uint16,
     weight: int,
+    currentValidatorSetId: uint256,
+    currentTotalWeight: int,
 ): VoteRegistrationResult {
     val statusLookup = voteDict.get(proposalHash);
 
@@ -282,9 +316,6 @@ fun registerVote(
     if (!statusLookup.isFound) {
         return { acceptedProposal: null, status: -1 };
     }
-
-    val currentValidatorSet = getCurrentValidatorSet();
-    val currentValidatorSetId = currentValidatorSet.valiadorSet.hash();
 
     var status = ConfigProposalStatus.fromSlice(
         statusLookup.loadValue(),
@@ -313,7 +344,7 @@ fun registerVote(
         status.voters = [];
 
         status.remainingWeight = mulDivFloor(
-            currentValidatorSet.totalWeight,
+            currentTotalWeight,
             VOTE_WEIGHT_THRESHOLD_NUMERATOR,
             VOTE_WEIGHT_THRESHOLD_DENOMINATOR,
         );
@@ -340,13 +371,13 @@ fun registerVote(
     }
 
     // proposal wins in this round
-    val voteCfg = getVoteConfig(status.isCritical);
+    val voteRules = getVoteRoundRules(status.isCritical);
     var wins = status.wins;
 
     wins += 1;
 
     // proposal is accepted, remove and process
-    if (wins >= voteCfg.minWins) {
+    if (wins >= voteRules.minWins) {
         voteDict.delete(proposalHash);
 
         return { acceptedProposal: status.proposal, status: status.isCritical ? 7 : 6 };
@@ -364,7 +395,13 @@ fun Storage.incrementSeqno(mutate self) {
 }
 
 @inline_ref
-fun proceedRegisterVote(proposalHash: uint256, idx: uint16, weight: int): int {
+fun proceedRegisterVote(
+    proposalHash: uint256,
+    idx: uint16,
+    weight: int,
+    currentValidatorSetId: uint256,
+    currentTotalWeight: int,
+): int {
     var storage = lazy Storage.load();
 
     var voteDict = storage.voteDict;
@@ -372,7 +409,14 @@ fun proceedRegisterVote(proposalHash: uint256, idx: uint16, weight: int): int {
 
     var status = 0;
 
-    val voteRegistration = registerVote(mutate voteDict, proposalHash, idx, weight);
+    val voteRegistration = registerVote(
+        mutate voteDict,
+        proposalHash,
+        idx,
+        weight,
+        currentValidatorSetId,
+        currentTotalWeight,
+    );
 
     acceptedProposal = voteRegistration.acceptedProposal;
     status = voteRegistration.status;
@@ -416,8 +460,8 @@ struct ProposalScanResult {
 
 @inline_ref
 fun scanProposal(statusSlice: slice): ProposalScanResult {
-    val currentValidatorSet = getCurrentValidatorSet();
-    val curVsetId = currentValidatorSet.valiadorSet.hash();
+    val currentValidatorSet = getCurrentValidatorSetMeta();
+    val curVsetId = currentValidatorSet.validatorSetId;
 
     var status = ConfigProposalStatus.fromSlice(
         statusSlice,
@@ -600,7 +644,7 @@ fun registerVotingProposal(msg: NewVotingProposalRequest, msgValue: coins): int 
         return ERROR_TAG_NOT_ENOUGH_FUNDS;
     }
 
-    val currentValidatorSet = getCurrentValidatorSet();
+    val currentValidatorSet = getCurrentValidatorSetMeta();
 
     val weightRemaining = mulDivFloor(
         currentValidatorSet.totalWeight,
@@ -617,7 +661,7 @@ fun registerVotingProposal(msg: NewVotingProposalRequest, msgValue: coins): int 
             isCritical: msg.critical,
             voters: [],
             remainingWeight: weightRemaining,
-            validatorSetId: currentValidatorSet.valiadorSet.hash(),
+            validatorSetId: currentValidatorSet.validatorSetId,
             roundsRemaining: voteCfg.maxTotalRounds,
             wins: 0,
             losses: 0,

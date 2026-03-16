@@ -100,6 +100,14 @@ struct (0x36) ConfigProposalSetup {
     cellPrice: uint32
 }
 
+struct (0x36) ConfigProposalRoundRules {
+    minTotalRounds: uint8
+    maxTotalRounds: uint8
+    minWins: uint8
+    maxLosses: uint8
+    remaining: RemainingBitsAndRefs
+}
+
 fun ConfigProposalSetup.calculateStoragePrice(self, seconds: int, bits: int, refs: int): int {
     return (self.bitPrice * (bits + PROPOSAL_BITS_OVERHEAD) +
     self.cellPrice * (refs + PROPOSAL_REFS_OVERHEAD)) *
@@ -134,6 +142,15 @@ struct (0x12) ValidatorSetExt {
     main: uint16
     totalWeight: uint64
     validators: dict
+}
+
+struct (0x12) ValidatorSetMeta {
+    utimeSince: uint32
+    utimeUntil: uint32
+    total: uint16
+    main: uint16
+    totalWeight: uint64
+    remaining: RemainingBitsAndRefs
 }
 
 struct (0x53) ValidatorDescrSimple {
