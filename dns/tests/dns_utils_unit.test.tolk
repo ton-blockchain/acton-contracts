@@ -20,15 +20,19 @@ get fun `test dns-utils: checkDomainString validates charset and hyphen placemen
     expect(checkDomainString(uppercase, uppercase.remainingBitsCount())).toEqual(false);
 
     val startsWithHyphen = "-alice".beginParse();
-    expect(checkDomainString(startsWithHyphen, startsWithHyphen.remainingBitsCount())).toEqual(false);
+    expect(checkDomainString(startsWithHyphen, startsWithHyphen.remainingBitsCount())).toEqual(
+        false,
+    );
 
     val endsWithHyphen = "alice-".beginParse();
     expect(checkDomainString(endsWithHyphen, endsWithHyphen.remainingBitsCount())).toEqual(false);
 }
 
 get fun `test dns-utils: getTopDomainBits stops at first zero-byte separator`() {
-    val encoded = beginCell().storeSlice("alice".literalSlice()).storeUint(0, BYTE_SIZE).storeSlice("sub"
-        .literalSlice())
+    val encoded = beginCell()
+        .storeSlice("alice".literalSlice())
+        .storeUint(0, BYTE_SIZE)
+        .storeSlice("sub".literalSlice())
         .storeUint(0, BYTE_SIZE)
         .endCell()
         .beginParse();

@@ -64,7 +64,8 @@ fun calcMinimalTransferAmount(forwardTonAmount: int, fwdFee: int) {
     // 3 messages: wal1->wal2,  wal2->owner, wal2->response
     // but last one is optional (it is ok if it fails)
     fwdCount * fwdFee +
-    forwardInitStateOverhead() + // additional fwd fees related to initstate in internal_transfer
+    forwardInitStateOverhead() +
+    // additional fwd fees related to initstate in internal_transfer
     calculateGasFee(MY_WORKCHAIN, sendTransferGasConsumption) +
     calculateGasFee(MY_WORKCHAIN, receiveTransferGasConsumption) +
     calculateJettonWalletMinStorageFee();

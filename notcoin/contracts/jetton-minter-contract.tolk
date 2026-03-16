@@ -1,8 +1,8 @@
 import "errors"
-import "jetton-utils"
 import "fees-management"
-import "storage"
+import "jetton-utils"
 import "messages"
+import "storage"
 import "types"
 
 type AllowedMessageToMinter =
@@ -102,9 +102,9 @@ fun onInternalMessage(in: InMessage) {
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
             assert (msg.mintRecipient.getWorkchain() == MY_WORKCHAIN) throw ERROR_WRONG_WORKCHAIN;
 
-            val internalTransferMsg = lazy msg.internalTransferMsg.load({
-                throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP,
-            });
+            val internalTransferMsg = lazy msg
+                .internalTransferMsg
+                .load({ throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP });
             val forwardTonAmount = internalTransferMsg.forwardTonAmount;
             internalTransferMsg.forwardPayload.checkIsCorrectTlbEither();
 
@@ -180,10 +180,9 @@ fun onInternalMessage(in: InMessage) {
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
     var metadata: OnchainMetadataReply = { contentDict: [] };
-    metadata.contentDict.set(
-        "uri".sha256(),
-        SnakeDataReply { string: storage.metadataUri }.toCell(),
-    );
+    metadata
+        .contentDict
+        .set("uri".sha256(), SnakeDataReply { string: storage.metadataUri }.toCell());
     metadata.contentDict.set("decimals".sha256(), SnakeDataReply { string: "9" }.toCell());
 
     return {

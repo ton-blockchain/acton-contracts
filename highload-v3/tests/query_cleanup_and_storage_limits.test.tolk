@@ -1,7 +1,7 @@
-import "test_utils"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "test_utils"
 import "../contracts/messages"
 
 get fun `test queries hashmaps are cleared`() {
@@ -15,7 +15,7 @@ get fun `test queries hashmaps are cleared`() {
         msg,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        1000
+        1000,
     );
     expect(res1).toHaveSuccessfulTx<InternalTransfer>({
         from: ctx.wallet.address,
@@ -34,7 +34,7 @@ get fun `test queries hashmaps are cleared`() {
         msg,
         SEND_MODE_CARRY_ALL_BALANCE,
         newQueryId,
-        1200
+        1200,
     );
     expect(res2).toHaveSuccessfulTx<InternalTransfer>({
         from: ctx.wallet.address,
@@ -61,7 +61,7 @@ get fun `test queries dictionary with max keys fits credit limit`() {
         msg,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        1000
+        1000,
     );
 
     expect(res).toHaveSuccessfulTx({ to: ctx.wallet.address });

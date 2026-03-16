@@ -2,9 +2,9 @@ import "@stdlib/gas-payments"
 import "errors"
 import "messages"
 import "order-helpers"
+import "order-state"
 import "storage"
 import "types"
-import "order-state"
 
 type AllowedOrderAction = SendMessageAction | UpdateMultisigParamsAction
 
@@ -54,10 +54,7 @@ fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsM
 }
 
 type AllowedMessageToMultisig =
-    | NewOrderRequest
-    | ExecuteOrderRequest
-    | ExecuteInternalRequest
-    | TextComment
+NewOrderRequest | ExecuteOrderRequest | ExecuteInternalRequest | TextComment
 
 fun onInternalMessage(in: InMessage) {
     val msg = lazy AllowedMessageToMultisig.fromSlice(in.body);
@@ -91,7 +88,7 @@ fun onInternalMessage(in: InMessage) {
             val minimalValue = calculateOrderProcessingCost(
                 msg.order,
                 storage.signers,
-                msg.expirationDate - now
+                msg.expirationDate - now,
             );
             assert (in.valueCoins >= minimalValue) throw ERROR_NOT_ENOUGH_TON;
 
@@ -110,8 +107,9 @@ fun onInternalMessage(in: InMessage) {
                     signerIndexOnInit,
                 },
             });
-            deployOrderMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE |
-            SEND_MODE_BOUNCE_ON_ACTION_FAIL);
+            deployOrderMsg.send(
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL,
+            );
 
             storage.save();
         }
@@ -181,7 +179,7 @@ get fun get_order_estimate(order: cell, expirationDate: int): int {
     return calculateOrderProcessingCost(
         orderBody,
         storage.signers,
-        expirationDate - blockchain.now()
+        expirationDate - blockchain.now(),
     );
 }
 

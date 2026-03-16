@@ -1,4 +1,3 @@
-
 type ForwardPayloadRemainder = RemainingBitsAndRefs
 
 struct (0x0f8a7ea5) AskToTransfer {
@@ -88,9 +87,7 @@ struct (0xcb862902) ChangeMinterMetadataUri {
     newMetadataUri: string
 }
 
-struct (0xd372158c) TopUpTons {
-}
-
+struct (0xd372158c) TopUpTons {}
 
 // "forward payload" is TL/B `(Either Cell ^Cell)`;
 // we want to test, that if ^Cell, no other data exists in a slice
@@ -98,6 +95,6 @@ fun ForwardPayloadRemainder.checkIsCorrectTlbEither(self) {
     var mutableCopy = self;
     if (mutableCopy.loadMaybeRef() != null) {
         // throw "cell underflow" if there is data besides a ref
-        mutableCopy.assertEnd()
+        mutableCopy.assertEnd();
     }
 }

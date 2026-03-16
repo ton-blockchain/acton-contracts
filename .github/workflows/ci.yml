@@ -1,13 +1,13 @@
 name: CI
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build-and-test:
@@ -15,12 +15,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Acton
-        uses: i582/setup-acton@v0.0.1
+        uses: i582/setup-acton@master
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
+          acton-version: 'trunk'
 
       - name: Version
         run: acton --version
@@ -35,5 +36,4 @@ jobs:
         run: acton check --output-format github
 
       - name: Formatter
-        if: false
         run: acton fmt --check

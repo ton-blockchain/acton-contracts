@@ -1,8 +1,8 @@
-import "test_utils"
-import "wrappers/MultisigV2Order"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "test_utils"
+import "wrappers/MultisigV2Order"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/types"
@@ -35,7 +35,9 @@ get fun `test multisig: multisig parameters update with threshold = 0 should fai
 
 get fun `test multisig: should not allow to create order with seqno other than next order seqno`() {
     val ctx = setupMultisig();
-    val order = singleActionOrder(makeTransferAction(net.randomAddress("seqno_fixed_target")) as GenericOrderAction);
+    val order = singleActionOrder(
+        makeTransferAction(net.randomAddress("seqno_fixed_target")) as GenericOrderAction,
+    );
 
     val before = ctx.multisig.getData();
     expect(before.nextOrderSeqno).toBeGreater(-1);
@@ -43,7 +45,14 @@ get fun `test multisig: should not allow to create order with seqno other than n
     val validSeqno = before.nextOrderSeqno as uint256;
     val validOrderAddress = ctx.multisig.getOrderAddress(before.nextOrderSeqno);
 
-    val ok = sendOrderBySigner(ctx, order, nowPlus(100), 0, validSeqno, ton("0.5"));
+    val ok = sendOrderBySigner(
+        ctx,
+        order,
+        nowPlus(100),
+        0,
+        validSeqno,
+        ton("0.5"),
+    );
     expect(ok).toHaveSuccessfulTx<NewOrderRequest>({
         from: ctx.deployer.address,
         to: ctx.multisig.address,
@@ -52,7 +61,14 @@ get fun `test multisig: should not allow to create order with seqno other than n
 
     val afterOk = ctx.multisig.getData();
 
-    val invalidSame = sendOrderBySigner(ctx, order, nowPlus(100), 0, validSeqno, ton("0.5"));
+    val invalidSame = sendOrderBySigner(
+        ctx,
+        order,
+        nowPlus(100),
+        0,
+        validSeqno,
+        ton("0.5"),
+    );
     expect(invalidSame).toHaveFailedTx<NewOrderRequest>({
         from: ctx.deployer.address,
         to: ctx.multisig.address,
@@ -66,7 +82,7 @@ get fun `test multisig: should not allow to create order with seqno other than n
         nowPlus(100),
         0,
         invalidHigherSeqno,
-        ton("0.5")
+        ton("0.5"),
     );
     expect(invalidHigher).toHaveFailedTx<NewOrderRequest>({
         from: ctx.deployer.address,
@@ -75,7 +91,14 @@ get fun `test multisig: should not allow to create order with seqno other than n
     });
 
     val invalidLowerSeqno = (afterOk.nextOrderSeqno - 1) as uint256;
-    val invalidLower = sendOrderBySigner(ctx, order, nowPlus(100), 0, invalidLowerSeqno, ton("0.5"));
+    val invalidLower = sendOrderBySigner(
+        ctx,
+        order,
+        nowPlus(100),
+        0,
+        invalidLowerSeqno,
+        ton("0.5"),
+    );
     expect(invalidLower).toHaveFailedTx<NewOrderRequest>({
         from: ctx.deployer.address,
         to: ctx.multisig.address,
@@ -88,7 +111,9 @@ get fun `test multisig: should not allow to create order with seqno other than n
 
 get fun `test multisig: should allow to create orders with arbitrary seqno`() {
     val ctx = setupMultisig(4, 6, 1, true);
-    val order = singleActionOrder(makeTransferAction(net.randomAddress("seqno_arbitrary_target")) as GenericOrderAction);
+    val order = singleActionOrder(
+        makeTransferAction(net.randomAddress("seqno_arbitrary_target")) as GenericOrderAction,
+    );
 
     val data = ctx.multisig.getData();
     expect(data.nextOrderSeqno).toEqual(-1);
@@ -101,13 +126,23 @@ get fun `test multisig: should allow to create orders with arbitrary seqno`() {
         val seqno = seqnos.get(i) as uint256;
         val expectedOrderAddress = ctx.multisig.getOrderAddress(seqnos.get(i));
 
-        val res = sendOrderBySigner(ctx, order, nowPlus(1000), signerIndex, seqno, ton("0.5"));
+        val res = sendOrderBySigner(
+            ctx,
+            order,
+            nowPlus(1000),
+            signerIndex,
+            seqno,
+            ton("0.5"),
+        );
 
         expect(res).toHaveSuccessfulTx<NewOrderRequest>({
             from: ctx.signers.get(signerIndex),
             to: ctx.multisig.address,
         });
-        expect(res).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: expectedOrderAddress });
+        expect(res).toHaveSuccessfulDeploy({
+            from: ctx.multisig.address,
+            to: expectedOrderAddress,
+        });
 
         i += 1;
     }
@@ -115,11 +150,20 @@ get fun `test multisig: should allow to create orders with arbitrary seqno`() {
 
 get fun `test multisig: should allow to create order with maximum possible seqno`() {
     val ctx = setupMultisig(2, 3, 1, true);
-    val order = singleActionOrder(makeTransferAction(net.randomAddress("max_seqno_target")) as GenericOrderAction);
+    val order = singleActionOrder(
+        makeTransferAction(net.randomAddress("max_seqno_target")) as GenericOrderAction,
+    );
 
     val orderAddress = ctx.multisig.getOrderAddress(MAX_ORDER_SEQNO as int);
 
-    val res = sendOrderBySigner(ctx, order, nowPlus(100), 0, MAX_ORDER_SEQNO, ton("0.5"));
+    val res = sendOrderBySigner(
+        ctx,
+        order,
+        nowPlus(100),
+        0,
+        MAX_ORDER_SEQNO,
+        ton("0.5"),
+    );
 
     expect(res).toHaveSuccessfulTx<NewOrderRequest>({
         from: ctx.deployer.address,
@@ -130,7 +174,9 @@ get fun `test multisig: should allow to create order with maximum possible seqno
 
 get fun `test multisig: subsequent order creation with same seqno should result in vote`() {
     val ctx = setupMultisig(3, 5, 1, true);
-    val order = singleActionOrder(makeTransferAction(net.randomAddress("same_seqno_vote_target")) as GenericOrderAction);
+    val order = singleActionOrder(
+        makeTransferAction(net.randomAddress("same_seqno_vote_target")) as GenericOrderAction,
+    );
 
     val targetSeqno = 4242 as uint256;
     val orderAddress = ctx.multisig.getOrderAddress(4242);
@@ -141,7 +187,14 @@ get fun `test multisig: subsequent order creation with same seqno should result 
         val signerIndex = i;
         val signerAddress = ctx.signers.get(signerIndex);
 
-        val res = sendOrderBySigner(ctx, order, nowPlus(1000), signerIndex, targetSeqno, ton("0.5"));
+        val res = sendOrderBySigner(
+            ctx,
+            order,
+            nowPlus(1000),
+            signerIndex,
+            targetSeqno,
+            ton("0.5"),
+        );
 
         expect(res).toHaveSuccessfulTx<NewOrderRequest>({
             from: signerAddress,

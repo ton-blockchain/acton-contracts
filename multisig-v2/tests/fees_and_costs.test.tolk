@@ -1,12 +1,12 @@
-import "test_utils"
-import "wrappers/MultisigV2"
-import "wrappers/MultisigV2Order"
 import "@acton/build/build"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/vm/vm"
+import "test_utils"
+import "wrappers/MultisigV2"
+import "wrappers/MultisigV2Order"
 import "../contracts/messages"
 import "../contracts/types"
 
@@ -35,7 +35,7 @@ fun setupFeeContext(): FeeContext {
         2,
         array<address> [deployer.address, second.address],
         array<address> [proposer.address],
-        false
+        false,
     );
     val walletDeploy = wallet.deploy(deployer.address, { value: ton("20"), bounce: false });
     expect(walletDeploy).toHaveSuccessfulDeploy({ to: wallet.address });
@@ -54,7 +54,7 @@ fun setupFeeContext(): FeeContext {
         2,
         jumboSigners,
         array<address> [proposer.address],
-        false
+        false,
     );
     val jumboDeploy = jumboWallet.deploy(deployer.address, { value: ton("200"), bounce: false });
     expect(jumboDeploy).toHaveSuccessfulDeploy({ to: jumboWallet.address });
@@ -74,14 +74,15 @@ fun buildTransferActions(count: int, markerBase: int = 1000): DirectOrderActions
     var actionCells = array<cell> [];
     var i = 0;
     while (i < count) {
-        actionCells.push(makeTransferAction(
-            sink,
-            ton("0.015"),
-            markerBase + i,
-            SEND_MODE_PAY_FEES_SEPARATELY,
-            false
-        )
-            .toCell());
+        actionCells.push(
+            makeTransferAction(
+                sink,
+                ton("0.015"),
+                markerBase + i,
+                SEND_MODE_PAY_FEES_SEPARATELY,
+                false,
+            ).toCell(),
+        );
         i += 1;
     }
     return packActionCells(actionCells);
@@ -106,7 +107,7 @@ fun executeEstimatedOrder(
         0,
         MAX_ORDER_SEQNO,
         0,
-        { value: (estimate + extraValue) as coins, bounce: true }
+        { value: (estimate + extraValue) as coins, bounce: true },
     );
 
     expect(create).toHaveSuccessfulTx<NewOrderRequest>({ from: firstSigner, to: wallet.address });
@@ -114,7 +115,12 @@ fun executeEstimatedOrder(
     val orderAddress = wallet.getOrderAddress(seqno);
     val orderContract = MultisigV2Order.fromAddress(orderAddress);
 
-    val approve = orderContract.sendApprove(secondSigner, 1, 1, { value: ton("0.2"), bounce: true });
+    val approve = orderContract.sendApprove(
+        secondSigner,
+        1,
+        1,
+        { value: ton("0.2"), bounce: true },
+    );
 
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({
         from: orderAddress,
@@ -133,7 +139,7 @@ get fun `test fee: should send new order with contract estimated message value`(
         ctx.deployer.address,
         ctx.second.address,
         order,
-        FEE_BASE_EXPIRATION
+        FEE_BASE_EXPIRATION,
     );
 
     expect(create).toHaveSuccessfulDeploy({ from: ctx.wallet.address });
@@ -149,7 +155,7 @@ get fun `test fee: should estimate correctly with 255 signers multisig`() {
         ctx.deployer.address,
         ctx.second.address,
         order,
-        FEE_BASE_EXPIRATION
+        FEE_BASE_EXPIRATION,
     );
 
     expect(create).toHaveSuccessfulDeploy({ from: ctx.jumboWallet.address });
@@ -165,7 +171,7 @@ get fun `test fee: should estimate correctly with large order`() {
         ctx.deployer.address,
         ctx.second.address,
         order,
-        FEE_BASE_EXPIRATION
+        FEE_BASE_EXPIRATION,
     );
 
     expect(create).toHaveSuccessfulDeploy({ from: ctx.jumboWallet.address });
@@ -194,7 +200,7 @@ get fun `test fee: should estimate correctly on gas fees change`() {
         ctx.deployer.address,
         ctx.second.address,
         order,
-        FEE_BASE_EXPIRATION
+        FEE_BASE_EXPIRATION,
     );
     expect(approve).toHaveSuccessfulTx({ from: ctx.jumboWallet.address });
 
@@ -224,7 +230,7 @@ get fun `test fee: should estimate correctly on forward fees change`() {
         ctx.deployer.address,
         ctx.second.address,
         order,
-        FEE_BASE_EXPIRATION
+        FEE_BASE_EXPIRATION,
     );
     expect(approve).toHaveSuccessfulTx({ from: ctx.jumboWallet.address });
 
@@ -256,7 +262,7 @@ get fun `test fee: should estimate correctly on storage fees change`() {
         ctx.deployer.address,
         ctx.second.address,
         order,
-        FEE_BASE_EXPIRATION
+        FEE_BASE_EXPIRATION,
     );
     expect(approve).toHaveSuccessfulTx({ from: ctx.jumboWallet.address });
 
@@ -285,7 +291,12 @@ fun runCommonCase(
         i += 1;
     }
 
-    val wallet = MultisigV2.fromConfig(threshold, signers, array<address> [proposer.address], false);
+    val wallet = MultisigV2.fromConfig(
+        threshold,
+        signers,
+        array<address> [proposer.address],
+        false,
+    );
     val deployRes = wallet.deploy(deployer.address, { value: ton("100"), bounce: false });
     expect(deployRes).toHaveSuccessfulDeploy({ to: wallet.address });
 
@@ -304,7 +315,7 @@ fun runCommonCase(
         creatorIndex,
         MAX_ORDER_SEQNO,
         0,
-        { value: (estimate + FEE_DEFAULT_CREATE_VALUE) as coins, bounce: true }
+        { value: (estimate + FEE_DEFAULT_CREATE_VALUE) as coins, bounce: true },
     );
     expect(create).toHaveSuccessfulTx<NewOrderRequest>({ from: creator, to: wallet.address });
 
@@ -318,7 +329,7 @@ fun runCommonCase(
             signers.get(signerIdx),
             signerIdx,
             signerIdx as uint64,
-            { value: ton("0.2"), bounce: true }
+            { value: ton("0.2"), bounce: true },
         );
         signerIdx += 1;
     }
@@ -359,16 +370,18 @@ get fun `test fee: should be enough for 75 years`() {
     val estimate = ctx.wallet.getOrderEstimate(order, expirationDate);
     val seqno = ctx.wallet.getData().nextOrderSeqno;
 
-    val create = ctx.wallet.sendNewOrder(
-        ctx.deployer.address,
-        order,
-        expirationDate,
-        true,
-        0,
-        MAX_ORDER_SEQNO,
-        0,
-        { value: (estimate + ton("5")) as coins, bounce: true }
-    );
+    val create = ctx
+        .wallet
+        .sendNewOrder(
+            ctx.deployer.address,
+            order,
+            expirationDate,
+            true,
+            0,
+            MAX_ORDER_SEQNO,
+            0,
+            { value: (estimate + ton("5")) as coins, bounce: true },
+        );
 
     val orderContract = MultisigV2Order.fromAddress(ctx.wallet.getOrderAddress(seqno));
     expect(create).toHaveSuccessfulDeploy({ to: orderContract.address });
@@ -379,7 +392,7 @@ get fun `test fee: should be enough for 75 years`() {
         ctx.second.address,
         1,
         1,
-        { value: ton("0.2"), bounce: true }
+        { value: ton("0.2"), bounce: true },
     );
 
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({

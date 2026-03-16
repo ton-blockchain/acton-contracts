@@ -1,8 +1,8 @@
 import "@stdlib/gas-payments"
-import "errors"
-import "storage"
-import "messages"
 import "c5-register-validation"
+import "errors"
+import "messages"
+import "storage"
 
 const SIZE_SIGNATURE = 512
 
@@ -31,7 +31,9 @@ fun processExtraActions(extraActions: SnakedExtraActions, isExtension: bool) {
                 val removed = storage.extensions.delete(extensionAddrHash);
                 assert (removed) throw ERROR_REMOVE_EXTENSION;
                 if (!storage.isSignatureAllowed) {
-                    assert (!storage.extensions.isEmpty()) throw ERROR_REMOVE_LAST_EXTENSION_WHEN_SIGNATURE_DISABLED;
+                    assert (
+                        !storage.extensions.isEmpty()
+                    ) throw ERROR_REMOVE_LAST_EXTENSION_WHEN_SIGNATURE_DISABLED;
                 }
                 storage.save();
             }
@@ -40,15 +42,19 @@ fun processExtraActions(extraActions: SnakedExtraActions, isExtension: bool) {
                 assert (isExtension) throw ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE;
 
                 var storage = lazy Storage.load();
-                assert (storage.isSignatureAllowed != action.allowSignature) throw ERROR_THIS_SIGNATURE_MODE_ALREADY_SET;
+                assert (
+                    storage.isSignatureAllowed != action.allowSignature
+                ) throw ERROR_THIS_SIGNATURE_MODE_ALREADY_SET;
                 if (!action.allowSignature) {
-                    assert (!storage.extensions.isEmpty()) throw ERROR_DISABLE_SIGNATURE_WHEN_EXTENSIONS_IS_EMPTY;
+                    assert (
+                        !storage.extensions.isEmpty()
+                    ) throw ERROR_DISABLE_SIGNATURE_WHEN_EXTENSIONS_IS_EMPTY;
                 }
                 storage.isSignatureAllowed = action.allowSignature;
                 storage.save();
             }
 
-            else => throw ERROR_UNSUPPORTED_ACTION
+            else => throw ERROR_UNSUPPORTED_ACTION,
         }
         if (!extraActions.hasNext()) {
             return;
@@ -57,7 +63,13 @@ fun processExtraActions(extraActions: SnakedExtraActions, isExtension: bool) {
     }
 }
 
-fun processActions(outActions: OutActionsCell?, hasExtraActions: bool, extraActions: SnakedExtraActions, isExternal: bool, isExtension: bool) {
+fun processActions(
+    outActions: OutActionsCell?,
+    hasExtraActions: bool,
+    extraActions: SnakedExtraActions,
+    isExternal: bool,
+    isExtension: bool,
+) {
     if (outActions != null) {
         // Simply set the C5 register with all pre-computed actions after verification:
         setTvmRegisterC5(outActions.verifyC5Actions(isExternal));
@@ -67,24 +79,27 @@ fun processActions(outActions: OutActionsCell?, hasExtraActions: bool, extraActi
     }
 }
 
-
 type AllowedMessageToWalletV5 = ExtensionActionRequest | InternalSignedRequest
 
 type AllowedExternalMessageToWalletV5 = ExternalSignedRequest
-
 
 fun onExternalMessage(inMsgBody: slice) {
     val signature = inMsgBody.getLastBits(SIZE_SIGNATURE);
     val signedSlice = inMsgBody.removeLastBits(SIZE_SIGNATURE);
 
-    val msg = AllowedExternalMessageToWalletV5.fromSlice(signedSlice, {
-        throwIfOpcodeDoesNotMatch: ERROR_INVALID_MESSAGE_OPERATION,
-    });
+    val msg = AllowedExternalMessageToWalletV5.fromSlice(
+        signedSlice,
+        { throwIfOpcodeDoesNotMatch: ERROR_INVALID_MESSAGE_OPERATION },
+    );
 
     var storage = lazy Storage.load();
 
-    assert (isSignatureValid(signedSlice.hash(), signature, storage.publicKey)) throw ERROR_INVALID_SIGNATURE;
-    assert (storage.isSignatureAllowed | storage.extensions.isEmpty()) throw ERROR_SIGNATURE_DISABLED;
+    assert (
+        isSignatureValid(signedSlice.hash(), signature, storage.publicKey)
+    ) throw ERROR_INVALID_SIGNATURE;
+    assert (
+        storage.isSignatureAllowed | storage.extensions.isEmpty()
+    ) throw ERROR_SIGNATURE_DISABLED;
     assert (msg.seqno == storage.seqno) throw ERROR_INVALID_SEQNO;
     assert (msg.walletId == storage.subwalletId) throw ERROR_INVALID_WALLET_ID;
     assert (msg.validUntil > blockchain.now()) throw ERROR_EXPIRED;
@@ -100,8 +115,7 @@ fun onExternalMessage(inMsgBody: slice) {
     processActions(msg.outActions, msg.hasExtraActions, msg.extraActions, true, false);
 }
 
-
-@on_bounced_policy("manual")        // tell the compiler "don't insert code to filter out bounced messages"
+@on_bounced_policy("manual")
 fun onInternalMessage(in: InMessage) {
     val msg = lazy AllowedMessageToWalletV5.fromSlice(in.body);
 
@@ -109,7 +123,7 @@ fun onInternalMessage(in: InMessage) {
         InternalSignedRequest => {
             val bodyLongEnough = in.body.remainingBitsCount() >= SIZE_SIGNATURE + 128;
             if (!bodyLongEnough) {
-                return;     // don't try to parse it (it will fail), just ignore
+                return; // don't try to parse it (it will fail), just ignore
             }
 
             val signature = in.body.getLastBits(SIZE_SIGNATURE);
@@ -120,7 +134,9 @@ fun onInternalMessage(in: InMessage) {
                 return;
             }
 
-            assert (storage.isSignatureAllowed | storage.extensions.isEmpty()) throw ERROR_SIGNATURE_DISABLED;
+            assert (
+                storage.isSignatureAllowed | storage.extensions.isEmpty()
+            ) throw ERROR_SIGNATURE_DISABLED;
             assert (msg.seqno == storage.seqno) throw ERROR_INVALID_SEQNO;
             assert (msg.walletId == storage.subwalletId) throw ERROR_INVALID_WALLET_ID;
             assert (msg.validUntil > blockchain.now()) throw ERROR_EXPIRED;
@@ -156,8 +172,6 @@ fun onInternalMessage(in: InMessage) {
         }
     }
 }
-
-
 
 get fun is_signature_allowed(): bool {
     val storage = lazy Storage.load();

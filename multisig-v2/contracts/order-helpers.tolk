@@ -39,19 +39,19 @@ fun calculateOrderProcessingCost(
     val forwardFees = calculateForwardFee(
         BASECHAIN,
         INIT_ORDER_BIT_OVERHEAD + orderBits + signersBits,
-        INIT_ORDER_CELL_OVERHEAD + orderCells + signersCells
+        INIT_ORDER_CELL_OVERHEAD + orderCells + signersCells,
     ) +
     calculateForwardFee(
         BASECHAIN,
         EXECUTE_ORDER_BIT_OVERHEAD + orderBits,
-        EXECUTE_ORDER_CELL_OVERHEAD + orderCells
+        EXECUTE_ORDER_CELL_OVERHEAD + orderCells,
     );
 
     val storageFees = calculateStorageFee(
         BASECHAIN,
         duration,
         ORDER_STATE_BIT_OVERHEAD + orderBits + signersBits,
-        ORDER_STATE_CELL_OVERHEAD + orderCells + signersCells
+        ORDER_STATE_CELL_OVERHEAD + orderCells + signersCells,
     );
 
     return gasFees + forwardFees + storageFees;

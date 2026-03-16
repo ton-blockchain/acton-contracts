@@ -1,8 +1,13 @@
 import "errors"
-import "types"
 import "messages"
+import "types"
 
-fun deployNftItem(itemIndex: int, nftItemCode: cell, attachTonAmount: coins, initParams: Cell<NftItemInitAtDeployment>) {
+fun deployNftItem(
+    itemIndex: int,
+    nftItemCode: cell,
+    attachTonAmount: coins,
+    initParams: Cell<NftItemInitAtDeployment>,
+) {
     val deployMsg = createMessage({
         bounce: BounceMode.Only256BitsOfBody,
         dest: calcDeployedNftItem(itemIndex, contract.getAddress(), nftItemCode),
@@ -13,10 +18,7 @@ fun deployNftItem(itemIndex: int, nftItemCode: cell, attachTonAmount: coins, ini
 }
 
 type AllowedMessageToNftCollection =
-    | RequestRoyaltyParams
-    | DeployNft
-    | BatchDeployNfts
-    | ChangeCollectionAdmin
+RequestRoyaltyParams | DeployNft | BatchDeployNfts | ChangeCollectionAdmin
 
 fun onInternalMessage(in: InMessage) {
     val msg = lazy AllowedMessageToNftCollection.fromSlice(in.body);
@@ -44,7 +46,7 @@ fun onInternalMessage(in: InMessage) {
                 body: ResponseRoyaltyParams {
                     queryId: msg.queryId,
                     royaltyParams: storage.royaltyParams.load(),
-                }
+                },
             });
             respondMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
         }
@@ -57,13 +59,20 @@ fun onInternalMessage(in: InMessage) {
             var r = msg.deployList.findFirst();
             while (r.isFound) {
                 counter += 1;
-                assert (counter < 250) throw ERROR_BATCH_LIMIT_EXCEEDED;   // due to limits of action list size
+                assert (
+                    counter < 250
+                ) throw ERROR_BATCH_LIMIT_EXCEEDED;                      // due to limits of action list size
 
                 val itemIndex = r.getKey();
                 assert (itemIndex <= storage.nextItemIndex) throw ERROR_NOT_FROM_ADMIN + counter;
 
                 val dictItem = r.loadValue();
-                deployNftItem(itemIndex, storage.nftItemCode, dictItem.attachTonAmount, dictItem.initParams);
+                deployNftItem(
+                    itemIndex,
+                    storage.nftItemCode,
+                    dictItem.attachTonAmount,
+                    dictItem.initParams,
+                );
                 if (itemIndex == storage.nextItemIndex) {
                     storage.nextItemIndex += 1;
                 }
@@ -82,7 +91,7 @@ fun onInternalMessage(in: InMessage) {
 
         else => {
             // ignore empty messages, "wrong opcode" for others
-            assert (in.body.isEmpty()) throw 0xFFFF
+            assert (in.body.isEmpty()) throw 0xFFFF;
         }
     }
 }
@@ -90,8 +99,6 @@ fun onInternalMessage(in: InMessage) {
 fun onBouncedMessage(_in: InMessageBounced) {
     // For receiving funds from possibly bounced deployment of NFT
 }
-
-
 
 get fun get_collection_data(): CollectionDataReply {
     val storage = lazy NftCollectionStorage.load();
@@ -101,7 +108,7 @@ get fun get_collection_data(): CollectionDataReply {
         nextItemIndex: storage.nextItemIndex,
         collectionMetadata: content.collectionMetadata,
         adminAddress: storage.adminAddress,
-    }
+    };
 }
 
 get fun get_nft_address_by_index(itemIndex: int): address {
@@ -115,7 +122,10 @@ get fun royalty_params(): RoyaltyParams {
     return storage.royaltyParams.load();
 }
 
-get fun get_nft_content(_itemIndex: int, individualNftContent: string): Cell<OffchainMetadataReply> {
+get fun get_nft_content(
+    _itemIndex: int,
+    individualNftContent: string,
+): Cell<OffchainMetadataReply> {
     val storage = lazy NftCollectionStorage.load();
     val content = lazy storage.content.load();
 
@@ -125,6 +135,6 @@ get fun get_nft_content(_itemIndex: int, individualNftContent: string): Cell<Off
     // individual nft = "my-picture-123.png"  (probably, a long string, snake-encoded)
     // result         = concatenation
     return OffchainMetadataReply {
-        string: content.commonContent.concat(individualNftContent)
-    }.toCell()
+        string: content.commonContent.concat(individualNftContent),
+    }.toCell();
 }

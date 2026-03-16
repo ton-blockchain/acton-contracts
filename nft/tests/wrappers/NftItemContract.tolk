@@ -1,8 +1,8 @@
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "../../contracts/types"
 import "../../contracts/messages"
+import "../../contracts/types"
 import "../../contracts/types"
 
 struct NftItemContract {
@@ -17,12 +17,12 @@ fun NftItemContract.fromStorage(storage: NftItemStorage) {
         data: storage.toCell(),
     };
     val address = AutoDeployAddress { stateInit: init }.calculateAddress();
-    return NftItemContract { address, init }
+    return NftItemContract { address, init };
 }
 
 /// Creates a contract wrapper instance from the address
 fun NftItemContract.fromAddress(address: address) {
-    return NftItemContract { address }
+    return NftItemContract { address };
 }
 
 /// Deploys the contract to the blockchain
@@ -33,14 +33,22 @@ fun NftItemContract.deploy(self, from: address, config: SendParams = {}): SendRe
     val deployMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
-        dest: {
-            stateInit: self.init,
-        },
+        dest: { stateInit: self.init },
     });
     return net.send(from, deployMessage);
 }
 
-fun NftItemContract.sendAskToChangeOwnership(self, from: address, queryId: uint64, newOwnerAddress: address, sendExcessesTo: address?, customPayload: dict, forwardTonAmount: coins, forwardPayload: RemainingBitsAndRefs, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendAskToChangeOwnership(
+    self,
+    from: address,
+    queryId: uint64,
+    newOwnerAddress: address,
+    sendExcessesTo: address?,
+    customPayload: dict,
+    forwardTonAmount: coins,
+    forwardPayload: RemainingBitsAndRefs,
+    config: SendParams = {},
+): SendResultList {
     val askToChangeOwnershipMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -57,20 +65,28 @@ fun NftItemContract.sendAskToChangeOwnership(self, from: address, queryId: uint6
     return net.send(from, askToChangeOwnershipMessage);
 }
 
-fun NftItemContract.sendRequestStaticData(self, from: address, queryId: uint64, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendRequestStaticData(
+    self,
+    from: address,
+    queryId: uint64,
+    config: SendParams = {},
+): SendResultList {
     val requestStaticDataMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: RequestStaticData {
-            queryId,
-        },
+        body: RequestStaticData { queryId },
     });
     return net.send(from, requestStaticDataMessage);
 }
 
 /// Send message to the contract with a custom body cell
-fun NftItemContract.sendAny(self, from: address, body: cell, config: SendParams = {}): SendResultList {
+fun NftItemContract.sendAny(
+    self,
+    from: address,
+    body: cell,
+    config: SendParams = {},
+): SendResultList {
     val outgoingMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -81,5 +97,5 @@ fun NftItemContract.sendAny(self, from: address, body: cell, config: SendParams 
 }
 
 fun NftItemContract.getNftData(self): NftDataReply {
-    return net.runGetMethod(self.address, "get_nft_data")
+    return net.runGetMethod(self.address, "get_nft_data");
 }

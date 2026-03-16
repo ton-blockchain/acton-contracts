@@ -1,8 +1,8 @@
-import "wrappers/JettonMinter"
-import "wrappers/JettonWallet"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "wrappers/JettonMinter"
+import "wrappers/JettonWallet"
 import "../contracts/messages"
 import "../contracts/storage"
 
@@ -23,7 +23,8 @@ fun makeTinyForwardPayload() {
 }
 
 fun makeRichForwardPayload() {
-    return beginCell().storeMaybeRef(beginCell().storeUint(0x123456789abcdef, 128).endCell())
+    return beginCell()
+        .storeMaybeRef(beginCell().storeUint(0x123456789abcdef, 128).endCell())
         .endCell()
         .beginParse();
 }

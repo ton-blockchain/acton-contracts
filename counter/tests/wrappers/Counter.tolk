@@ -9,7 +9,10 @@ struct Counter {
 
 /// Creates a contract wrapper instance from the storage data
 fun Counter.fromStorage(storage: Storage) {
-    val init = ContractState { code: build("counter"), data: storage.toCell() };
+    val init = ContractState {
+        code: build("counter"),
+        data: storage.toCell(),
+    };
     val address = AutoDeployAddress { stateInit: init }.calculateAddress();
     return Counter { address, init };
 }

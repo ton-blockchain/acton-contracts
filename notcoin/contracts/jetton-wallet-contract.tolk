@@ -1,8 +1,8 @@
 import "errors"
-import "jetton-utils"
 import "fees-management"
-import "storage"
+import "jetton-utils"
 import "messages"
+import "storage"
 import "types"
 
 type AllowedMessageToWallet = AskToTransfer | AskToBurn | InternalTransferStep | TopUpTons
@@ -73,7 +73,7 @@ fun onInternalMessage(in: InMessage) {
                     value: 0,
                     body: ReturnExcessesBack { queryId: msg.queryId },
                 });
-                // SAFETY: asdasd
+                // SAFETY: mode SEND_MODE_CARRY_ALL_BALANCE is used after reserveToncoinsOnBalance()
                 excessesMsg.send(SEND_MODE_CARRY_ALL_BALANCE | SEND_MODE_IGNORE_ERRORS);
             }
         }
