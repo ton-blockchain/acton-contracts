@@ -34,3 +34,6 @@ global.libraries.toml
 # coverage
 lcov.info
 gen/
+
+# Acton related files
+libraries.toml

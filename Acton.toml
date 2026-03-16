@@ -10,6 +10,12 @@ name = "counter"
 src = "counter/contracts/counter.tolk"
 depends = []
 
+# Config
+[contracts.config]
+name = "config"
+src = "config/contracts/config-contract.tolk"
+depends = []
+
 # Notcoin 
 [contracts.notcoin_minter]
 name = "notcoin_minter"
