@@ -82,6 +82,11 @@ name = "Item"
 src = "nft/contracts/nft-item-contract.tolk"
 depends = []
 
+# Elector
+[contracts.elector]
+name = "Elector"
+src = "elector/contracts/elector.tolk"
+
 # W5
 [contracts.w5]
 name = "Wallet W5"
@@ -115,6 +120,7 @@ test-acton-jetton = "acton test acton-jetton/tests"
 test-dns = "acton test dns/tests"
 test-w5 = "acton test w5/tests"
 test-highload = "acton test highload-v3/tests"
+test-elector = "acton test elector/tests"
 
 [mappings]
 acton = ".acton"
