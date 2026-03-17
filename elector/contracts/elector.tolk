@@ -436,6 +436,7 @@ fun tryElect(
         if (iterFound) {
             prevKey = lookup.getKey();
             val sv = lookup.loadValue();
+            // TODO: If validator sends more than maxStake, then the diff will be lost. This is the implementation detail from original funC implementation
             val stake = min(prevKey.stake, maxStake);
             l.prependHead([stake, sv.maxFactor, prevKey.pubkey, sv.adnlAddr]);
         }
