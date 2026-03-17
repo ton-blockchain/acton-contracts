@@ -38,7 +38,15 @@ get fun `test bench conduct elections`() {
     announceElections(elector);
     conductValidElections(elector);
 
-    val (_, _, _, _, _, _, isFinished) = elector.participantListExtended();
+    val (
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+        isFinished,
+    ) = elector.participantListExtended();
     expect(isFinished).toEqual(true);
 }
 
@@ -70,7 +78,11 @@ get fun `test bench recover stake`() {
     var config = net.getConfig();
     config.setParamRaw(
         16,
-        ValidatorLimits { maxValidators: 5, maxMainValidators: 5, minValidators: 5 }.toCell(),
+        ValidatorLimits {
+            maxValidators: 5,
+            maxMainValidators: 5,
+            minValidators: 5,
+        }.toCell(),
     );
     net.setConfig(config);
 
@@ -88,7 +100,15 @@ get fun `test bench recover stake`() {
         i += 1;
     }
 
-    val (_, closeAt, _, _, _, _, _) = elector.participantListExtended();
+    val (
+        _,
+        closeAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
     net.setNow(closeAt + 1);
     net.runTickTock(elector.address, true);
 
@@ -131,7 +151,14 @@ get fun `test bench complaint vote`() {
     // 4 votes to reach 2/3 (4*100=400 >= 333)
     var i = 1;
     while (i <= 4) {
-        sendVote(elector, i as uint64, kps.get(i).privateKey, i as uint16, stakeAt as uint32, chash);
+        sendVote(
+            elector,
+            i as uint64,
+            kps.get(i).privateKey,
+            i as uint16,
+            stakeAt as uint32,
+            chash,
+        );
         i += 1;
     }
 
@@ -209,7 +236,12 @@ fun sendVote(
     electId: uint32,
     chash: uint256,
 ): SendResultList {
-    val vote = VoteForComplaint { signTag: 0x56744350, idx, electId, chash };
+    val vote = VoteForComplaint {
+        signTag: 0x56744350,
+        idx,
+        electId,
+        chash,
+    };
     val voteCell = vote.toCell();
     val sig = crypto.sign(privateKey, voteCell).loadBits(512) as bits512;
 
@@ -253,7 +285,15 @@ fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cel
         i += 1;
     }
 
-    val (_, closeAt, _, _, _, _, _) = elector.participantListExtended();
+    val (
+        _,
+        closeAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
     net.setNow(closeAt + 1);
 
     val tickResult = net.runTickTock(elector.address, true);
