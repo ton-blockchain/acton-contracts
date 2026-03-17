@@ -217,15 +217,8 @@ fun Elector.participantList(self): lisp_list<array<int>> {
     return net.runGetMethod(self.address, "participant_list");
 }
 
-fun Elector.participantListExtended(self): (
-    int,
-    int,
-    coins,
-    coins,
-    lisp_list<ParticipantExtEntry>,
-    bool,
-    bool
-) {
+// fmt-ignore
+fun Elector.participantListExtended(self): (int, int, coins, coins, lisp_list<ParticipantExtEntry>, bool, bool) {
     return net.runGetMethod(self.address, "participant_list_extended");
 }
 

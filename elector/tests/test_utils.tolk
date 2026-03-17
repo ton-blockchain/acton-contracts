@@ -145,13 +145,8 @@ fun generateStakeSignature(
 /// Submit a valid stake from a random masterchain address.
 /// Returns (result, srcAddr, stakeAt, pubkey, stakeAmount).
 /// If customStake > 0, uses that amount; otherwise computes minimum valid stake.
-fun submitValidStake(elector: Elector, totalStake: coins, customStake: coins = 0): (
-    SendResultList,
-    address,
-    int,
-    uint256,
-    coins,
-) {
+// fmt-ignore
+fun submitValidStake(elector: Elector, totalStake: coins, customStake: coins = 0): (SendResultList, address, int, uint256, coins) {
     val kp = crypto.generateKeyPair();
     // Use a random address hash as ADNL address (256-bit random value)
     val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
@@ -250,11 +245,8 @@ fun createComplaint(
 }
 
 /// Submit a known validator stake. Call BEFORE conductValidElections.
-fun submitKnownValidatorStake(elector: Elector, _totalStake: coins, kp: KeyPair): (
-    address,
-    uint256,
-    coins,
-) {
+// fmt-ignore
+fun submitKnownValidatorStake(elector: Elector, _totalStake: coins, kp: KeyPair): (address, uint256, coins) {
     val stakeLimits = defaultStakeLimits();
     val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
 

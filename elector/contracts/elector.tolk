@@ -840,15 +840,8 @@ get fun participant_list(): lisp_list<array<int>> {
 }
 
 // returns the list of all participants of current elections with their data
-get fun participant_list_extended(): (
-    int,
-    int,
-    coins,
-    coins,
-    lisp_list<ParticipantExtEntry>,
-    bool,
-    bool
-) {
+// fmt-ignore
+get fun participant_list_extended(): (int, int, coins, coins, lisp_list<ParticipantExtEntry>, bool, bool) {
     val storage = Storage.load();
     if (storage.currectElections == null) {
         return (
