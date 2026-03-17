@@ -48,7 +48,7 @@ get fun `test bench install vset`() {
     val elector = setup.elector;
 
     announceElections(elector);
-    val (stakeAt, vsetCell, _) = conductElectionsAndGetVset(elector, setup.configAddr);
+    val (_, vsetCell, _) = conductElectionsAndGetVset(elector, setup.configAddr);
 
     var config = net.getConfig();
     config.setParamRaw(34, vsetCell);
