@@ -1,7 +1,7 @@
 import "@stdlib/reflection"
 import "types"
 
-fun returnStake(to: address, queryId: uint64, reason: uint32): void {
+fun returnStake(to: address, queryId: uint64, reason: StakeReason): void {
     val returnMsg = createMessage({
         dest: to,
         bounce: BounceMode.Only256BitsOfBody,
@@ -9,7 +9,7 @@ fun returnStake(to: address, queryId: uint64, reason: uint32): void {
         body: ReturnMsg {
             op: 0xee6f454c,
             queryId,
-            reason,
+            reason: reason as uint32,
         },
     });
     returnMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
@@ -29,7 +29,7 @@ fun sendMessageBack(to: address, ansTag: uint32, queryId: uint64, body: uint32, 
     returnMsg.send(mode);
 }
 
-fun sendConfirmation(to: address, queryId: uint64, comment: uint32): void {
+fun sendConfirmation(to: address, queryId: uint64, comment: StakeReason): void {
     val returnMsg = createMessage({
         dest: to,
         bounce: BounceMode.Only256BitsOfBody,
@@ -37,7 +37,7 @@ fun sendConfirmation(to: address, queryId: uint64, comment: uint32): void {
         body: ReturnMsg {
             op: 0xf374484c,
             queryId,
-            reason: comment,
+            reason: comment as uint32,
         },
     });
     returnMsg.send(SEND_MODE_IGNORE_ERRORS);

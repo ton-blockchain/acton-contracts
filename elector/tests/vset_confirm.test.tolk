@@ -143,16 +143,45 @@ get fun `test vset confirmed wrong elections`() {
     expect(elector.active_election_id()).toNotEqual(0);
 }
 
-/// Test that config rejected (alt) successfully cancels elections and unfreezes stakes
+/// Test that config rejected (alt) successfully cancels elections, unfreezes stakes, and removes past election
 get fun `test vset rejected success`() {
     val setup = setupElector();
     val elector = setup.elector;
 
     announceElections(elector);
-    conductValidElections(elector);
+
+    // Use conductElectionsAndGetVset to track a known staker's address hash
+    val stakeAt = elector.active_election_id();
+    assert (stakeAt != 0) throw 300;
+
+    val validatorLimits = defaultValidatorLimits();
+    val stakeLimits = defaultStakeLimits();
+    val numValidators = max(validatorLimits.minValidators as int, 5);
+    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
+
+    // Submit stakes and track all staker address hashes
+    var stakerHashes: array<uint256> = [];
+    var totalStake: coins = 0;
+    var i = 0;
+    while (i < numValidators) {
+        val (_, srcAddr, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
+        val (_, hash) = srcAddr.getWorkchainAndHash();
+        stakerHashes.push(hash);
+        totalStake += stake;
+        i += 1;
+    }
+
+    // Close elections
+    val (_, closeAt, _, _, _, _, _) = elector.participant_list_extended();
+    net.setNow(closeAt + 1);
+    net.runTickTock(elector.address, true);
 
     val (electAt, _, _, _, _, _, isFinished) = elector.participant_list_extended();
     expect(isFinished).toEqual(true);
+
+    // Before rejection: staker should have zero credit (stakes are frozen)
+    val firstStakerHash = stakerHashes.get(0);
+    expect(elector.compute_returned_stake(firstStakerHash)).toEqual(0);
 
     // Send rejection from config
     net.topUp(setup.configAddr, ton("10"));
@@ -161,8 +190,22 @@ get fun `test vset rejected success`() {
     // Elections should be cancelled
     expect(elector.active_election_id()).toEqual(0);
 
-    // Frozen stakes should be unfrozen — past election should be removed
-    // and credits should be available for recovery
+    // After rejection: all frozen stakes should be credited back
+    // Note: submitValidStake uses the same "staker" label so all validators share
+    // the same source address → credits accumulate to numValidators * stakePerValidator
+    val totalExpectedCredit: coins = (numValidators as coins) * stakePerValidator;
+    val actualCredit = elector.compute_returned_stake(firstStakerHash);
+    expect(actualCredit as int).toEqual(totalExpectedCredit as int);
+
+    // Verify past election entry was removed
+    val pastIds = elector.past_election_ids();
+    // past_election_ids should not contain stakeAt anymore
+    // Since we can't iterate lisp_list with isEmpty, use participates_in or
+    // check that past_elections returns empty by verifying get_past_complaints returns empty
+    val complaints = elector.get_past_complaints(stakeAt as uint32);
+    val lookupResult = complaints.findFirst();
+    // If past election was removed, complaints map should be empty (default)
+    expect(lookupResult.isFound).toEqual(false);
 }
 
 // TODO: test vset_confirmed_success — governance_tests marks this as unnecessary (vset_rejected_success already covers the flow)

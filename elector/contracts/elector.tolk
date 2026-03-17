@@ -11,7 +11,7 @@ fun processNewStake(msg: NewStakeMessage): void {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
     var storage = Storage.load();
     if ((storage.currectElections == null) || (srcWcAndHash.0 != -1)) {
-        return returnStake(InMessage.source(), msg.queryId, 0);
+        return returnStake(InMessage.source(), msg.queryId, StakeReason.Ok);
     }
 
     val dataCell = StakeSubmit {
@@ -21,29 +21,26 @@ fun processNewStake(msg: NewStakeMessage): void {
         adnlAddr: msg.adnlAddr,
     }.toCell();
     if (!isSignatureValid(dataCell.hash(), msg.signature.load() as slice, msg.validatorPubkey)) {
-        // incorrect signature, return stake
-        return returnStake(InMessage.source(), msg.queryId, 1);
+        return returnStake(InMessage.source(), msg.queryId, StakeReason.InvalidSignature);
     }
 
     if (msg.maxFactor < 0x10000) {
-        // factor must be >= 1. = 65536/65536
-        return returnStake(InMessage.source(), msg.queryId, 6);
+        return returnStake(InMessage.source(), msg.queryId, StakeReason.LowFactor);
     }
 
     var elect = storage.currectElections.load();
     var msgValue = InMessage.value() - ton("1"); // Deduct 1 ton for sending confirmation
     if ((msgValue << 12) < elect.totalStake) {
-        // stake smaller than 1/4096 of the total accumulated stakes, return
-        return returnStake(InMessage.source(), msg.queryId, 2);
+        return returnStake(InMessage.source(), msg.queryId, StakeReason.StakeTooSmall);
     }
 
     elect.totalStake += msgValue;
     if (msg.stakeAt != elect.electionsAt) {
-        return returnStake(InMessage.source(), msg.queryId, 3);
+        return returnStake(InMessage.source(), msg.queryId, StakeReason.WrongElection);
     }
 
     if (elect.isFinished) {
-        return returnStake(InMessage.source(), msg.queryId, 0);
+        return returnStake(InMessage.source(), msg.queryId, StakeReason.Ok);
     }
 
     var memberLookupRes = elect.members.get(msg.validatorPubkey);
@@ -54,13 +51,12 @@ fun processNewStake(msg: NewStakeMessage): void {
     }
 
     if (memberLookupRes.isFound) {
-        // can make stakes for a public key from one address only
-        return returnStake(InMessage.source(), msg.queryId, 4);
+        return returnStake(InMessage.source(), msg.queryId, StakeReason.DuplicateKey);
     }
 
 
     if (msgValue < elect.minStake) {
-        return returnStake(InMessage.source(), msg.queryId, 5);
+        return returnStake(InMessage.source(), msg.queryId, StakeReason.BelowMinStake);
     }
 
     assert (msgValue != 0) throw 44;
@@ -83,7 +79,7 @@ fun processNewStake(msg: NewStakeMessage): void {
     storage.save();
 
     if (msg.queryId) {
-        sendConfirmation(InMessage.source(), msg.queryId, 0);
+        sendConfirmation(InMessage.source(), msg.queryId, StakeReason.Ok);
     }
 }
 
@@ -123,7 +119,7 @@ fun processSimpleTransfer() {
     }
     val electionLookup = storage.pastElections.get(storage.activeId);
     if (!electionLookup.isFound) {
-        storage.grams != InMessage.value();
+        storage.grams += InMessage.value();
     } else {
         var election = electionLookup.loadValue();
         election.bonuses += InMessage.value();
@@ -232,8 +228,7 @@ fun onInternalMessage(in: InMessage) {
             var price = 0;
             // Changed from FunC original src. This if statement was inside the `registerComplaint()`
             if (in.body.depth() >= 128) {
-                // Invalid complaint
-                price = -3;
+                price = ComplaintError.CellTooDeep as int;
             }
             else {
                 price = registerComplaint(msg, InMessage.value());
@@ -255,7 +250,7 @@ fun onInternalMessage(in: InMessage) {
             val vDescr = getValidatorDescr(vote.idx);
             assert (isSignatureValid(msg.vote.hash(), msg.signature as slice, vDescr.this.validatorPubkey)) throw 34;
             val res = proceedRegisterVote(vote.electId, vote.chash, vote.idx, vDescr.this.validatorWeight);
-            sendMessageBack(InMessage.source(), res + 0xd6745240, msg.queryId, SignedVoteForComplaint.getDeclaredPackPrefix(), 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
+            sendMessageBack(InMessage.source(), (res as int + 0xd6745240) as uint32, msg.queryId, SignedVoteForComplaint.getDeclaredPackPrefix(), 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
             return;
         }
         FallbackMessage => {

@@ -41,9 +41,14 @@ fun setupVsetWithKnownValidators(numValidators: int): array<KeyPair> {
     return kps;
 }
 
-/// Register a complaint via the wrapper, return the complaint hash from storage
-fun registerTestComplaint(elector: Elector, stakeAt: int, frozenPubkey: uint256, fine: coins): uint256 {
-    val complaint = createComplaint(frozenPubkey, fine, 0);
+struct ComplaintRegistration {
+    chash: uint256;
+    senderHash: uint256;
+}
+
+/// Register a complaint via the wrapper, return the complaint hash and sender address hash
+fun registerTestComplaintFull(elector: Elector, stakeAt: int, frozenPubkey: uint256, fine: coins, finePart: uint32): ComplaintRegistration {
+    val complaint = createComplaint(frozenPubkey, fine, finePart);
     val sender = net.randomAddress("complainer", MASTERCHAIN);
     net.topUp(sender, ton("1000"));
     elector.sendNewComplaint(sender, 1, stakeAt as uint32, complaint.toCell().beginParse(), { value: ton("500") });
@@ -51,7 +56,12 @@ fun registerTestComplaint(elector: Elector, stakeAt: int, frozenPubkey: uint256,
     val complaints = elector.get_past_complaints(stakeAt as uint32);
     val first = complaints.findFirst();
     assert (first.isFound) throw 500;
-    return first.getKey();
+    return ComplaintRegistration { chash: first.getKey(), senderHash: sender.getWorkchainAndHash().1 };
+}
+
+/// Register a complaint via the wrapper, return the complaint hash from storage
+fun registerTestComplaint(elector: Elector, stakeAt: int, frozenPubkey: uint256, fine: coins): uint256 {
+    return registerTestComplaintFull(elector, stakeAt, frozenPubkey, fine, 0).chash;
 }
 
 /// Sign a VoteForComplaint and send it via wrapper
@@ -142,7 +152,7 @@ get fun `test vote no such complaint`() {
     expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd674523f });
 }
 
-/// Test that a successful vote is registered
+/// Test full 2/3 voting cycle with fine deduction and reward verification
 get fun `test vote success`() {
     val setup = setupElector();
     val elector = setup.elector;
@@ -150,11 +160,52 @@ get fun `test vote success`() {
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
     val kps = setupVsetWithKnownValidators(5);
-    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
 
-    val res = sendVote(elector, 2, kps.get(0).privateKey, 0, stakeAt as uint32, chash);
-    // status 1 = vote accepted, response = 1 + 0xd6745240 = 0xd6745241
-    expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+    val fine: coins = ton("100");
+    val finePart: uint32 = 1 << 30; // 1/4 of stake as additional fine
+    val reg = registerTestComplaintFull(elector, stakeAt, frozenPubkey, fine, finePart);
+    val chash = reg.chash;
+    val rewardAddr = reg.senderHash;
+
+    // Record credit before voting
+    val creditBefore = elector.compute_returned_stake(rewardAddr);
+
+    // Known frozen stake from setup: conductElectionsWithKnownValidator uses this amount
+    val stakeLimits = defaultStakeLimits();
+    val stakeBefore: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+
+    // Vote with validators idx 1-4 to collect 2/3 weight
+    // Each has weight 100, total weight 500, need muldiv(500,2,3) = 333
+    // 4 * 100 = 400 >= 333 → vote completes on 4th vote
+    var i = 1;
+    while (i <= 4) {
+        val res = sendVote(elector, i as uint64, kps.get(i).privateKey, i as uint16, stakeAt as uint32, chash);
+        if (i < 4) {
+            // Vote accepted (status 1): 0xd6745241
+            expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+        } else {
+            // Vote finished (status 2): 0xd6745242
+            expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745242 });
+        }
+
+        // Verify intermediate complaint state via show_complaint
+        val complaintInfo = elector.show_complaint(stakeAt as uint32, chash);
+        assert (complaintInfo != null) throw (600 + i);
+
+        i += 1;
+    }
+
+    // After vote completed: verify reward credited to complainer
+    // trueFine = min(stake, fine + mulDivFloor(stake, finePart, 1 << 32))
+    val trueFine = min(stakeBefore, fine + mulDivFloor(stakeBefore, finePart, 1 << 32));
+
+    // reward = min(trueFine >> 3, paid * 8)
+    val info = elector.show_complaint(stakeAt as uint32, chash);
+    assert (info != null) throw 630;
+    val paid = info.complaint.paid;
+    val expectedReward = min(trueFine >> 3, paid * 8);
+    val creditAfter = elector.compute_returned_stake(rewardAddr);
+    expect(creditAfter as int).toEqual((creditBefore + expectedReward) as int);
 }
 
 /// Test that voting twice is rejected

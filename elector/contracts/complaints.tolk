@@ -6,21 +6,18 @@ import "utils"
 fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     val (srcWc, srcAddr) = InMessage.source().getWorkchainAndHash();
     if (srcWc != -1) {
-        // not from masterchain
-        return -1;
+        return ComplaintError.NotMasterchain as int;
     }
 
     var storage = lazy Storage.load();
     val electionLookup = storage.pastElections.get(msg.electionId);
     if (!electionLookup.isFound) {
-        // election not found
-        return -2;
+        return ComplaintError.ElectionNotFound as int;
     }
     var pastElection = electionLookup.loadValue();
     val expireIn = pastElection.unfreezeAt - blockchain.now();
     if (expireIn <= 0) {
-        // already expired
-        return -4;
+        return ComplaintError.AlreadyExpired as int;
     }
 
     var complaint = Complaint.fromSlice(msg.rawComplaint);
@@ -35,8 +32,7 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     complaint.paid = pps * expireIn + prices.deposit;
 
     if (msgValue < complaint.paid + (1 << 30)) {
-        // not enough money
-        return -5;
+        return ComplaintError.NotEnoughMoney as int;
     }
 
     // re-pack modified complaint
@@ -45,18 +41,15 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     // check validator exists in frozen dict
     val frozenLookup = pastElection.frozenDict.get(complaint.validatorPubkey);
     if (!frozenLookup.isFound) {
-        // no such validator, cannot complain
-        return -6;
+        return ComplaintError.ValidatorNotFound as int;
     }
     val validator = frozenLookup.loadValue();
     val fine = complaint.suggestedFine + mulDivFloor(validator.stake, complaint.suggestedFinePart, 1 << 32);
     if (fine > validator.stake) {
-        // validator's stake is less than suggested fine
-        return -7;
+        return ComplaintError.FineTooLarge as int;
     }
     if (fine <= complaint.paid) {
-        // fine is less than money paid for creating complaint
-        return -8;
+        return ComplaintError.PaidMoreThanFine as int;
     }
     val cstatus = ComplaintStatus {
         complaint: complaintCell,
@@ -68,8 +61,7 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     val cplId = complaintCell.hash();
     val wasThere = pastElection.complaints.addOrGetExisting(cplId, cstatus);
     if (wasThere.isFound) {
-        // complaint already exists
-        return -9;
+        return ComplaintError.DuplicateComplaint as int;
     }
     storage.pastElections.set(msg.electionId, pastElection);
     storage.save();
@@ -79,7 +71,7 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
 
 struct VoteRegustrationStatus {
     complaint: Complaint?;
-    status: int;
+    status: VoteStatus;
 }
 
 fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: int): VoteRegustrationStatus {
@@ -87,7 +79,7 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
     if (!lookupComplaint.isFound) {
         return VoteRegustrationStatus {
             complaint: null,
-            status: -1,
+            status: VoteStatus.ComplaintNotFound,
         }
     }
     val (rawVset, curVset) = getCurrentVset();
@@ -97,7 +89,7 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
     if (cstatus.weightRemaining < 0 && isVsetOld) {
         return VoteRegustrationStatus {
             complaint: null,
-            status: -3,
+            status: VoteStatus.OldVset,
         }
     }
 
@@ -109,10 +101,9 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
 
     val lookupVote = cstatus.voters.get(idx);
     if (lookupVote.isFound) {
-        // Already voted for this proposal
         return VoteRegustrationStatus {
             complaint: null,
-            status: 0,
+            status: VoteStatus.AlreadyVoted,
         }
     }
 
@@ -127,25 +118,25 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
     if (oldWr >= 0) {
         return VoteRegustrationStatus {
             complaint: null,
-            status: 1,
+            status: VoteStatus.Accepted,
         }
     }
 
     return VoteRegustrationStatus {
         complaint: cstatus.complaint.load(),
-        status: 2,
+        status: VoteStatus.Finished,
     }
 }
 
-fun proceedRegisterVote(electionId: uint32, chash: uint256, idx: int, weight: uint64): int {
+fun proceedRegisterVote(electionId: uint32, chash: uint256, idx: int, weight: uint64): VoteStatus {
     var storage = Storage.load();
     val electLookup = storage.pastElections.get(electionId);
     if (!electLookup.isFound) {
-        return -2;
+        return VoteStatus.ElectionNotFound;
     }
     var pastElection = electLookup.loadValue();
     val res = pastElection.complaints.registerVote(chash, idx, weight);
-    if (res.status <= 0) {
+    if (res.status as int <= 0) {
         return res.status;
     }
     if (res.complaint != null) {
@@ -153,6 +144,7 @@ fun proceedRegisterVote(electionId: uint32, chash: uint256, idx: int, weight: ui
         val punishRes = storage.credits.punish(pastElection.frozenDict, res.complaint);
         storage.grams += punishRes.fineUnalloc;
         pastElection.totalStake -= punishRes.fineCollected;
+        pastElection.frozenDict = punishRes.frozenDict;
     }
     storage.pastElections.set(electionId, pastElection);
     storage.save();

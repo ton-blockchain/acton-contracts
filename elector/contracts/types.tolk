@@ -1,3 +1,37 @@
+/// Status codes returned by registerComplaint (negative = error, positive = paid amount = success)
+enum ComplaintError {
+    NotMasterchain = -1
+    ElectionNotFound = -2
+    CellTooDeep = -3
+    AlreadyExpired = -4
+    NotEnoughMoney = -5
+    ValidatorNotFound = -6
+    FineTooLarge = -7
+    PaidMoreThanFine = -8
+    DuplicateComplaint = -9
+}
+
+/// Status codes returned by registerVote / proceedRegisterVote
+enum VoteStatus {
+    OldVset = -3
+    ElectionNotFound = -2
+    ComplaintNotFound = -1
+    AlreadyVoted = 0
+    Accepted = 1
+    Finished = 2
+}
+
+/// Reason codes passed to returnStake / sendConfirmation in processNewStake
+enum StakeReason {
+    Ok = 0
+    InvalidSignature = 1
+    StakeTooSmall = 2
+    WrongElection = 3
+    DuplicateKey = 4
+    BelowMinStake = 5
+    LowFactor = 6
+}
+
 type CreditsMap = map<uint256, coins>;
 
 struct Storage {
