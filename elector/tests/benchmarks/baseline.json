@@ -1,0 +1,1268 @@
+{
+  "timestamp": 1773748518,
+  "opcodes": {
+    "VSetWithOpcode": {
+      "min_gas": 1071,
+      "max_gas": 1071,
+      "avg_gas": 1071,
+      "samples": 5,
+      "all_values": [
+        1071,
+        1071,
+        1071,
+        1071,
+        1071
+      ]
+    },
+    "NewComplaint": {
+      "min_gas": 13676,
+      "max_gas": 13676,
+      "avg_gas": 13676,
+      "samples": 2,
+      "all_values": [
+        13676,
+        13676
+      ]
+    },
+    "0xf2676350": {
+      "min_gas": 1071,
+      "max_gas": 1071,
+      "avg_gas": 1071,
+      "samples": 2,
+      "all_values": [
+        1071,
+        1071
+      ]
+    },
+    "SignedVoteForComplaint": {
+      "min_gas": 14295,
+      "max_gas": 20378,
+      "avg_gas": 16487,
+      "samples": 4,
+      "all_values": [
+        14295,
+        15324,
+        15949,
+        20378
+      ]
+    },
+    "0xd6745241": {
+      "min_gas": 1071,
+      "max_gas": 1071,
+      "avg_gas": 1071,
+      "samples": 3,
+      "all_values": [
+        1071,
+        1071,
+        1071
+      ]
+    },
+    "PayStake": {
+      "min_gas": 1071,
+      "max_gas": 1071,
+      "avg_gas": 1071,
+      "samples": 1,
+      "all_values": [
+        1071
+      ]
+    },
+    "0xd6745242": {
+      "min_gas": 1071,
+      "max_gas": 1071,
+      "avg_gas": 1071,
+      "samples": 1,
+      "all_values": [
+        1071
+      ]
+    },
+    "RecoverStakeRequest": {
+      "min_gas": 5005,
+      "max_gas": 5005,
+      "avg_gas": 5005,
+      "samples": 1,
+      "all_values": [
+        5005
+      ]
+    },
+    "NewStakeMessage": {
+      "min_gas": 7268,
+      "max_gas": 9643,
+      "avg_gas": 8652,
+      "samples": 27,
+      "all_values": [
+        7268,
+        8393,
+        9018,
+        9018,
+        9643,
+        7268,
+        8393,
+        8393,
+        8393,
+        9643,
+        9643,
+        7268,
+        8393,
+        9018,
+        9018,
+        9643,
+        7268,
+        7268,
+        8393,
+        9018,
+        9643,
+        9643,
+        7268,
+        8393,
+        9018,
+        9643,
+        9643
+      ]
+    }
+  },
+  "trace_chains": {
+    "test bench recover stake::trace#7": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#21": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 21",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench install vset::trace#18": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 18",
+      "tx_count": 1,
+      "total_gas_used": 9643,
+      "total_gas_fees": 96430000,
+      "total_forward_fees": 15893455,
+      "total_fees": 96430000
+    },
+    "test bench recover stake::trace#22": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 22",
+      "tx_count": 3,
+      "total_gas_used": 1071,
+      "total_gas_fees": 10710000,
+      "total_forward_fees": 41840320,
+      "total_fees": 799297109
+    },
+    "test bench complaint vote::trace#30": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 30",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench new complaint::trace#21": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 21",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench complaint vote::trace#1": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#3": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 0,
+      "total_fees": 77120000
+    },
+    "test bench new complaint::trace#17": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 17",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench install vset::trace#8": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench conduct elections::trace#2": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 3275,
+      "total_gas_fees": 32750000,
+      "total_forward_fees": 334489219,
+      "total_fees": 32750000
+    },
+    "test bench new complaint::trace#8": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench recover stake::trace#18": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 18",
+      "tx_count": 1,
+      "total_gas_used": 9643,
+      "total_gas_fees": 96430000,
+      "total_forward_fees": 15893455,
+      "total_fees": 96430000
+    },
+    "test bench install vset::trace#12": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 9018,
+      "total_gas_fees": 90180000,
+      "total_forward_fees": 15893455,
+      "total_fees": 90180000
+    },
+    "test bench install vset::trace#20": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 20",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 0,
+      "total_fees": 121640000
+    },
+    "test bench complaint vote::trace#6": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 7268,
+      "total_gas_fees": 72680000,
+      "total_forward_fees": 15893455,
+      "total_fees": 72680000
+    },
+    "test bench conduct elections::trace#18": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 18",
+      "tx_count": 1,
+      "total_gas_used": 9643,
+      "total_gas_fees": 96430000,
+      "total_forward_fees": 15893455,
+      "total_fees": 96430000
+    },
+    "test bench new complaint::trace#10": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench new stake::trace#1": {
+      "test_name": "test bench new stake",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench install vset::trace#1": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench conduct elections::trace#7": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#18": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 18",
+      "tx_count": 1,
+      "total_gas_used": 9643,
+      "total_gas_fees": 96430000,
+      "total_forward_fees": 15893455,
+      "total_fees": 96430000
+    },
+    "test bench recover stake::trace#5": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench complaint vote::trace#5": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench recover stake::trace#15": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 15",
+      "tx_count": 1,
+      "total_gas_used": 8393,
+      "total_gas_fees": 83930000,
+      "total_forward_fees": 15893455,
+      "total_fees": 83930000
+    },
+    "test bench install vset::trace#2": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 3275,
+      "total_gas_fees": 32750000,
+      "total_forward_fees": 334489219,
+      "total_fees": 32750000
+    },
+    "test bench recover stake::trace#2": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 3275,
+      "total_gas_fees": 32750000,
+      "total_forward_fees": 334489219,
+      "total_fees": 32750000
+    },
+    "test bench complaint vote::trace#22": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 22",
+      "tx_count": 3,
+      "total_gas_used": 14747,
+      "total_gas_fees": 147470000,
+      "total_forward_fees": 28186884,
+      "total_fees": 154896552
+    },
+    "test bench new complaint::trace#18": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 18",
+      "tx_count": 1,
+      "total_gas_used": 9643,
+      "total_gas_fees": 96430000,
+      "total_forward_fees": 15893455,
+      "total_fees": 96430000
+    },
+    "test bench recover stake::trace#20": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 20",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench new stake::trace#6": {
+      "test_name": "test bench new stake",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 7268,
+      "total_gas_fees": 72680000,
+      "total_forward_fees": 15893455,
+      "total_fees": 72680000
+    },
+    "test bench recover stake::trace#12": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 8393,
+      "total_gas_fees": 83930000,
+      "total_forward_fees": 15893455,
+      "total_fees": 83930000
+    },
+    "test bench install vset::trace#11": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench new complaint::trace#19": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 19",
+      "tx_count": 3,
+      "total_gas_used": 1071,
+      "total_gas_fees": 10710000,
+      "total_forward_fees": 41840320,
+      "total_fees": 715123497
+    },
+    "test bench install vset::trace#16": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 16",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#34": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 34",
+      "tx_count": 3,
+      "total_gas_used": 21449,
+      "total_gas_fees": 214490000,
+      "total_forward_fees": 28480219,
+      "total_fees": 221916552
+    },
+    "test bench conduct elections::trace#14": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 14",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench conduct elections::trace#11": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench recover stake::trace#14": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 14",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench complaint vote::trace#20": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 20",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123934
+    },
+    "test bench complaint vote::trace#32": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 32",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#7": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench new complaint::trace#3": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 0,
+      "total_fees": 77120000
+    },
+    "test bench complaint vote::trace#19": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 19",
+      "tx_count": 3,
+      "total_gas_used": 1071,
+      "total_gas_fees": 10710000,
+      "total_forward_fees": 41840320,
+      "total_fees": 708373497
+    },
+    "test bench conduct elections::trace#13": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 13",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench recover stake::trace#21": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 21",
+      "tx_count": 1,
+      "total_gas_used": 9643,
+      "total_gas_fees": 96430000,
+      "total_forward_fees": 15893455,
+      "total_fees": 96430000
+    },
+    "test bench recover stake::trace#9": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 8393,
+      "total_gas_fees": 83930000,
+      "total_forward_fees": 15893455,
+      "total_fees": 83930000
+    },
+    "test bench recover stake::trace#10": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench new complaint::trace#20": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 20",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123934
+    },
+    "test bench complaint vote::trace#8": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench complaint vote::trace#4": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench conduct elections::trace#12": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 9018,
+      "total_gas_fees": 90180000,
+      "total_forward_fees": 15893455,
+      "total_fees": 90180000
+    },
+    "test bench new complaint::trace#16": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 16",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#14": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 14",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench complaint vote::trace#29": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 29",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench recover stake::trace#16": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 16",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench announce elections::trace#2": {
+      "test_name": "test bench announce elections",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 3275,
+      "total_gas_fees": 32750000,
+      "total_forward_fees": 334489219,
+      "total_fees": 32750000
+    },
+    "test bench install vset::trace#15": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 15",
+      "tx_count": 1,
+      "total_gas_used": 9643,
+      "total_gas_fees": 96430000,
+      "total_forward_fees": 15893455,
+      "total_fees": 96430000
+    },
+    "test bench conduct elections::trace#8": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench conduct elections::trace#1": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench recover stake::trace#23": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 23",
+      "tx_count": 3,
+      "total_gas_used": 6076,
+      "total_gas_fees": 60760000,
+      "total_forward_fees": 20000154,
+      "total_fees": 67483978
+    },
+    "test bench conduct elections::trace#9": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 8393,
+      "total_gas_fees": 83930000,
+      "total_forward_fees": 15893455,
+      "total_fees": 83930000
+    },
+    "test bench conduct elections::trace#17": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 17",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench recover stake::trace#6": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 7268,
+      "total_gas_fees": 72680000,
+      "total_forward_fees": 15893455,
+      "total_fees": 72680000
+    },
+    "test bench announce elections::trace#1": {
+      "test_name": "test bench announce elections",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench new complaint::trace#14": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 14",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench recover stake::trace#19": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 19",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench install vset::trace#3": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 0,
+      "total_fees": 77120000
+    },
+    "test bench install vset::trace#6": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 7268,
+      "total_gas_fees": 72680000,
+      "total_forward_fees": 15893455,
+      "total_fees": 72680000
+    },
+    "test bench complaint vote::trace#2": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 3275,
+      "total_gas_fees": 32750000,
+      "total_forward_fees": 334489219,
+      "total_fees": 32750000
+    },
+    "test bench complaint vote::trace#28": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 28",
+      "tx_count": 3,
+      "total_gas_used": 16395,
+      "total_gas_fees": 163950000,
+      "total_forward_fees": 28480219,
+      "total_fees": 171376552
+    },
+    "test bench new complaint::trace#5": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench conduct elections::trace#3": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 0,
+      "total_fees": 77120000
+    },
+    "test bench new complaint::trace#22": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 22",
+      "tx_count": 3,
+      "total_gas_used": 14747,
+      "total_gas_fees": 147470000,
+      "total_forward_fees": 28186884,
+      "total_fees": 154896552
+    },
+    "test bench complaint vote::trace#31": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 31",
+      "tx_count": 3,
+      "total_gas_used": 17020,
+      "total_gas_fees": 170200000,
+      "total_forward_fees": 28480219,
+      "total_fees": 177626552
+    },
+    "test bench install vset::trace#13": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 13",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench new stake::trace#5": {
+      "test_name": "test bench new stake",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench conduct elections::trace#10": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench recover stake::trace#8": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench complaint vote::trace#12": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 9018,
+      "total_gas_fees": 90180000,
+      "total_forward_fees": 15893455,
+      "total_fees": 90180000
+    },
+    "test bench conduct elections::trace#4": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench install vset::trace#9": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 8393,
+      "total_gas_fees": 83930000,
+      "total_forward_fees": 15893455,
+      "total_fees": 83930000
+    },
+    "test bench new complaint::trace#6": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 7268,
+      "total_gas_fees": 72680000,
+      "total_forward_fees": 15893455,
+      "total_fees": 72680000
+    },
+    "test bench recover stake::trace#13": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 13",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench new complaint::trace#15": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 15",
+      "tx_count": 1,
+      "total_gas_used": 9643,
+      "total_gas_fees": 96430000,
+      "total_forward_fees": 15893455,
+      "total_fees": 96430000
+    },
+    "test bench recover stake::trace#17": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 17",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench new stake::trace#2": {
+      "test_name": "test bench new stake",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 3275,
+      "total_gas_fees": 32750000,
+      "total_forward_fees": 334489219,
+      "total_fees": 32750000
+    },
+    "test bench conduct elections::trace#16": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 16",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench conduct elections::trace#19": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 19",
+      "tx_count": 3,
+      "total_gas_used": 1071,
+      "total_gas_fees": 10710000,
+      "total_forward_fees": 41840320,
+      "total_fees": 708373588
+    },
+    "test bench complaint vote::trace#10": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#13": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 13",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench new complaint::trace#9": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 8393,
+      "total_gas_fees": 83930000,
+      "total_forward_fees": 15893455,
+      "total_fees": 83930000
+    },
+    "test bench complaint vote::trace#11": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench complaint vote::trace#15": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 15",
+      "tx_count": 1,
+      "total_gas_used": 9018,
+      "total_gas_fees": 90180000,
+      "total_forward_fees": 15893455,
+      "total_fees": 90180000
+    },
+    "test bench recover stake::trace#3": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 0,
+      "total_fees": 77120000
+    },
+    "test bench recover stake::trace#11": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench new complaint::trace#1": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench conduct elections::trace#6": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 7268,
+      "total_gas_fees": 72680000,
+      "total_forward_fees": 15893455,
+      "total_fees": 72680000
+    },
+    "test bench install vset::trace#10": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#9": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 8393,
+      "total_gas_fees": 83930000,
+      "total_forward_fees": 15893455,
+      "total_fees": 83930000
+    },
+    "test bench complaint vote::trace#27": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 27",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench new complaint::trace#13": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 13",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench announce elections::trace#3": {
+      "test_name": "test bench announce elections",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 0,
+      "total_fees": 77120000
+    },
+    "test bench complaint vote::trace#16": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 16",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench install vset::trace#4": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench install vset::trace#17": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 17",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench complaint vote::trace#23": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 23",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench install vset::trace#19": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 19",
+      "tx_count": 3,
+      "total_gas_used": 1071,
+      "total_gas_fees": 10710000,
+      "total_forward_fees": 41840320,
+      "total_fees": 721873130
+    },
+    "test bench new complaint::trace#7": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench new complaint::trace#11": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench new stake::trace#3": {
+      "test_name": "test bench new stake",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 0,
+      "total_fees": 77120000
+    },
+    "test bench complaint vote::trace#26": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 26",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench install vset::trace#5": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench install vset::trace#7": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench new complaint::trace#12": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 9018,
+      "total_gas_fees": 90180000,
+      "total_forward_fees": 15893455,
+      "total_fees": 90180000
+    },
+    "test bench new stake::trace#4": {
+      "test_name": "test bench new stake",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench recover stake::trace#4": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#24": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 24",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench conduct elections::trace#15": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 15",
+      "tx_count": 1,
+      "total_gas_used": 9018,
+      "total_gas_fees": 90180000,
+      "total_forward_fees": 15893455,
+      "total_fees": 90180000
+    },
+    "test bench recover stake::trace#1": {
+      "test_name": "test bench recover stake",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench complaint vote::trace#17": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 17",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench complaint vote::trace#25": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 25",
+      "tx_count": 3,
+      "total_gas_used": 15366,
+      "total_gas_fees": 153660000,
+      "total_forward_fees": 28480219,
+      "total_fees": 161086552
+    },
+    "test bench complaint vote::trace#33": {
+      "test_name": "test bench complaint vote",
+      "trace_name": "Trace 33",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench conduct elections::trace#5": {
+      "test_name": "test bench conduct elections",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test bench new complaint::trace#2": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 3275,
+      "total_gas_fees": 32750000,
+      "total_forward_fees": 334489219,
+      "total_fees": 32750000
+    },
+    "test bench new complaint::trace#4": {
+      "test_name": "test bench new complaint",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test bench install vset::trace#14": {
+      "test_name": "test bench install vset",
+      "trace_name": "Trace 14",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    }
+  }
+}
