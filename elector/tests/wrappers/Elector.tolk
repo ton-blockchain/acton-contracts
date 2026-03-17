@@ -41,7 +41,10 @@ fun Elector.deploy(self, from: address, config: SendParams = {}): SendResultList
     val genericMsg = createMessage({
         bounce: config.bounce,
         value: config.value,
-        dest: AutoDeployAddress { stateInit: self.stateInit, workchain: self.workchain },
+        dest: AutoDeployAddress {
+            stateInit: self.stateInit,
+            workchain: self.workchain,
+        },
     });
     return net.send(from, genericMsg);
 }
@@ -206,55 +209,55 @@ fun Elector.sendAny(self, from: address, body: cell, config: SendParams = {}): S
     return net.send(from, genericMsg);
 }
 
-fun Elector.participates_in(self, validatorPubkey: uint256): int {
+fun Elector.participatesIn(self, validatorPubkey: uint256): int {
     return net.runGetMethod(self.address, "participates_in", validatorPubkey);
 }
 
-fun Elector.participant_list(self): lisp_list<array<int>> {
+fun Elector.participantList(self): lisp_list<array<int>> {
     return net.runGetMethod(self.address, "participant_list");
 }
 
-fun Elector.participant_list_extended(self): (
+fun Elector.participantListExtended(self): (
     int,
     int,
     coins,
     coins,
     lisp_list<ParticipantExtEntry>,
     bool,
-    bool,
+    bool
 ) {
     return net.runGetMethod(self.address, "participant_list_extended");
 }
 
-fun Elector.compute_returned_stake(self, walletAddr: uint256): int {
+fun Elector.computeReturnedStake(self, walletAddr: uint256): int {
     return net.runGetMethod(self.address, "compute_returned_stake", walletAddr);
 }
 
-fun Elector.past_election_ids(self): lisp_list<int> {
+fun Elector.pastElectionIds(self): lisp_list<int> {
     return net.runGetMethod(self.address, "past_election_ids");
 }
 
-fun Elector.past_elections(self): lisp_list<PastElectionFullEntry> {
+fun Elector.pastElections(self): lisp_list<PastElectionFullEntry> {
     return net.runGetMethod(self.address, "past_elections");
 }
 
-fun Elector.past_elections_list(self): lisp_list<array<int>> {
+fun Elector.pastElectionsList(self): lisp_list<array<int>> {
     return net.runGetMethod(self.address, "past_elections_list");
 }
 
-fun Elector.get_past_complaints(self, electionId: uint32): Complaints {
+fun Elector.getPastComplaints(self, electionId: uint32): Complaints {
     return net.runGetMethod(self.address, "get_past_complaints", electionId);
 }
 
-fun Elector.show_complaint(self, electionId: uint32, chash: uint256): ComplaintFullInfo? {
+fun Elector.showComplaint(self, electionId: uint32, chash: uint256): ComplaintFullInfo? {
     return net.runGetMethod(self.address, "show_complaint", [electionId, chash] as tuple);
 }
 
-fun Elector.list_complaints(self, electionId: uint32): lisp_list<ComplaintListEntry> {
+fun Elector.listComplaints(self, electionId: uint32): lisp_list<ComplaintListEntry> {
     return net.runGetMethod(self.address, "list_complaints", electionId);
 }
 
-fun Elector.complaint_storage_price(self, bits: int, refs: int, expireIn: int): int {
+fun Elector.complaintStoragePrice(self, bits: int, refs: int, expireIn: int): int {
     return net.runGetMethod(
         self.address,
         "complaint_storage_price",

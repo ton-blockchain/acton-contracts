@@ -1,11 +1,11 @@
 import "@stdlib/gas-payments"
 import "@stdlib/lisp-lists"
-import "credits"
+import "@stdlib/tvm-lowlevel"
 import "complaints"
+import "credits"
 import "messages"
 import "types"
 import "utils"
-import "@stdlib/tvm-lowlevel"
 
 fun processNewStake(msg: NewStakeMessage): void {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
@@ -54,7 +54,6 @@ fun processNewStake(msg: NewStakeMessage): void {
         return returnStake(InMessage.source(), msg.queryId, StakeReason.DuplicateKey);
     }
 
-
     if (msgValue < elect.minStake) {
         return returnStake(InMessage.source(), msg.queryId, StakeReason.BelowMinStake);
     }
@@ -64,13 +63,18 @@ fun processNewStake(msg: NewStakeMessage): void {
     // in asm it is ACCEPT
     setGasLimitToMaximum();
     // Store stake in the dictionary
-    elect.members.set(msg.validatorPubkey, MemberParams {
-        msgValue,
-        timestamp: blockchain.now(),
-        maxFactor: msg.maxFactor,
-        srcAddr: srcWcAndHash.1,
-        adnlAddr: msg.adnlAddr,
-    });
+    elect
+        .members
+        .set(
+            msg.validatorPubkey,
+            MemberParams {
+                msgValue,
+                timestamp: blockchain.now(),
+                maxFactor: msg.maxFactor,
+                srcAddr: srcWcAndHash.1,
+                adnlAddr: msg.adnlAddr,
+            },
+        );
 
     elect.isFailed = false;
     elect.isFinished = false;
@@ -87,7 +91,10 @@ fun configSetConfirmed(queryId: uint64, ok: bool) {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
     val configAddr = blockchain.configParam(0)!.beginParse().preloadUint(256);
     var storage = Storage.load();
-    if ((storage.currectElections == null) || (srcWcAndHash.0 != -1) || (srcWcAndHash.1 != configAddr)) {
+    if (
+        (storage.currectElections == null) || (srcWcAndHash.0 != -1) ||
+        (srcWcAndHash.1 != configAddr)
+    ) {
         // not from config smc, somebody's joke?
         // or no elections active (or just completed)
         return;
@@ -98,9 +105,11 @@ fun configSetConfirmed(queryId: uint64, ok: bool) {
         return;
     }
     setGasLimitToMaximum();
-    if(!ok) {
+    if (!ok) {
         // Cancel elections, return stakes
-        val (pastElections, unusedPrizes) = storage.credits.unfreezeAll(storage.pastElections, elect.electionsAt);
+        val (pastElections, unusedPrizes) = storage
+            .credits
+            .unfreezeAll(storage.pastElections, elect.electionsAt);
         storage.currectElections = null;
         storage.pastElections = pastElections;
         storage.grams += unusedPrizes;
@@ -128,20 +137,33 @@ fun processSimpleTransfer() {
     storage.save();
 }
 
-const RECOVER_STAKE_OPCODE: uint32 = 0x47657424;
-
+const RECOVER_STAKE_OPCODE: uint32 = 0x47657424
 
 fun recoverStake(queryId: uint64) {
     val (srcWc, srcHashPart) = InMessage.source().getWorkchainAndHash();
     if (srcWc != -1) {
         // not from masterchain, return error
-        return sendMessageBack(InMessage.source(), 0xfffffffe, queryId, RECOVER_STAKE_OPCODE, 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
+        return sendMessageBack(
+            InMessage.source(),
+            0xfffffffe,
+            queryId,
+            RECOVER_STAKE_OPCODE,
+            0,
+            SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
+        );
     }
     var storage = Storage.load();
     val deleteRes = storage.credits.deleteAndGetDeleted(srcHashPart);
     if (!deleteRes.isFound) {
         // no credit for sender, return error
-        return sendMessageBack(InMessage.source(), 0xfffffffe, queryId, RECOVER_STAKE_OPCODE, 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
+        return sendMessageBack(
+            InMessage.source(),
+            0xfffffffe,
+            queryId,
+            RECOVER_STAKE_OPCODE,
+            0,
+            SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
+        );
     }
     val amount: coins = deleteRes.loadValue();
 
@@ -151,9 +173,7 @@ fun recoverStake(queryId: uint64) {
         dest: InMessage.source(),
         bounce: BounceMode.Only256BitsOfBody,
         value: amount,
-        body: PayStake {
-            queryId,
-        },
+        body: PayStake { queryId },
     });
     recoverStakeMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
 }
@@ -161,7 +181,14 @@ fun recoverStake(queryId: uint64) {
 @method_id(1666)
 fun afterCodeUpgrade(queryId: uint64) {
     val op = 0x4e436f64;
-    return sendMessageBack(InMessage.source(), 0xce436f64, queryId, op, 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
+    return sendMessageBack(
+        InMessage.source(),
+        0xce436f64,
+        queryId,
+        op,
+        0,
+        SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
+    );
 }
 
 fun upgradeCode(msg: UpgradeCode): bool {
@@ -178,7 +205,7 @@ fun upgradeCode(msg: UpgradeCode): bool {
     }
     setGasLimitToMaximum();
     contract.setCodePostponed(msg.newCode);
-    if(!msg.remaining.isEmpty()) {
+    if (!msg.remaining.isEmpty()) {
         // SAFETY: This is safe as sender is validated
         setTvmRegisterC3(transformSliceToContinuation(msg.newCode.beginParse()));
         afterCodeUpgrade(msg.queryId);
@@ -187,12 +214,20 @@ fun upgradeCode(msg: UpgradeCode): bool {
     return true;
 }
 
-type AllowedMessages = SimpleTransfer | NewStakeMessage | RecoverStakeRequest | UpgradeCode | ConfigConfirmed | ConfigConfirmedAlt | NewComplaint | SignedVoteForComplaint | FallbackMessage;
-
+type AllowedMessages =
+    | SimpleTransfer
+    | NewStakeMessage
+    | RecoverStakeRequest
+    | UpgradeCode
+    | ConfigConfirmed
+    | ConfigConfirmedAlt
+    | NewComplaint
+    | SignedVoteForComplaint
+    | FallbackMessage
 
 fun onInternalMessage(in: InMessage) {
     // Special case with empty body
-    if(in.body.isEmpty()) {
+    if (in.body.isEmpty()) {
         processSimpleTransfer();
         return;
     }
@@ -213,7 +248,14 @@ fun onInternalMessage(in: InMessage) {
         UpgradeCode => {
             // Accepted only from config contract
             val ok = upgradeCode(msg);
-            sendMessageBack(InMessage.source(), ok ? 0xce436f64 : 0xffffffff, msg.queryId, UpgradeCode.getDeclaredPackPrefix(), 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
+            sendMessageBack(
+                InMessage.source(),
+                ok ? 0xce436f64 : 0xffffffff,
+                msg.queryId,
+                UpgradeCode.getDeclaredPackPrefix(),
+                0,
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
+            );
             return;
         }
         ConfigConfirmed => {
@@ -229,8 +271,7 @@ fun onInternalMessage(in: InMessage) {
             // Changed from FunC original src. This if statement was inside the `registerComplaint()`
             if (in.body.depth() >= 128) {
                 price = ComplaintError.CellTooDeep as int;
-            }
-            else {
+            } else {
                 price = registerComplaint(msg, InMessage.value());
             }
             var mode = SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE;
@@ -241,20 +282,52 @@ fun onInternalMessage(in: InMessage) {
                 ansTag = 0;
                 mode = SEND_MODE_CARRY_ALL_BALANCE;
             }
-            sendMessageBack(InMessage.source(), ansTag + 0xf2676350, msg.queryId, NewComplaint.getDeclaredPackPrefix(), 0, mode);
+            sendMessageBack(
+                InMessage.source(),
+                ansTag + 0xf2676350,
+                msg.queryId,
+                NewComplaint.getDeclaredPackPrefix(),
+                0,
+                mode,
+            );
             return;
         }
         SignedVoteForComplaint => {
             val vote = VoteForComplaint.fromSlice(msg.vote);
             assert (vote.signTag == 0x56744350) throw 37;
             val vDescr = getValidatorDescr(vote.idx);
-            assert (isSignatureValid(msg.vote.hash(), msg.signature as slice, vDescr.this.validatorPubkey)) throw 34;
-            val res = proceedRegisterVote(vote.electId, vote.chash, vote.idx, vDescr.this.validatorWeight);
-            sendMessageBack(InMessage.source(), (res as int + 0xd6745240) as uint32, msg.queryId, SignedVoteForComplaint.getDeclaredPackPrefix(), 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
+            assert (
+                isSignatureValid(
+                    msg.vote.hash(),
+                    msg.signature as slice,
+                    vDescr.this.validatorPubkey,
+                )
+            ) throw 34;
+            val res = proceedRegisterVote(
+                vote.electId,
+                vote.chash,
+                vote.idx,
+                vDescr.this.validatorWeight,
+            );
+            sendMessageBack(
+                InMessage.source(),
+                (res as int + 0xd6745240) as uint32,
+                msg.queryId,
+                SignedVoteForComplaint.getDeclaredPackPrefix(),
+                0,
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
+            );
             return;
         }
         FallbackMessage => {
-            sendMessageBack(InMessage.source(), 0xffffffff, msg.queryId, msg.opcodeBits as uint32, 0, SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
+            sendMessageBack(
+                InMessage.source(),
+                0xffffffff,
+                msg.queryId,
+                msg.opcodeBits as uint32,
+                0,
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
+            );
             return;
         }
         else => {
@@ -270,15 +343,15 @@ fun onBouncedMessage(_in: InMessageBounced) {
 
 // Sorting key for election: orders by stake ascending, then time descending, then pubkey
 struct SortKey {
-    stake: uint128;
-    negTime: int32;
-    pubkey: uint256;
+    stake: uint128
+    negTime: int32
+    pubkey: uint256
 }
 
 struct SortValue {
-    maxFactor: uint32;
-    addr: uint256;
-    adnlAddr: uint256;
+    maxFactor: uint32
+    addr: uint256
+    adnlAddr: uint256
 }
 
 fun computeTotalStake(l: lisp_list<array<int>>, n: int, mStake: int): int {
@@ -294,14 +367,21 @@ fun computeTotalStake(l: lisp_list<array<int>>, n: int, mStake: int): int {
 }
 
 struct ElectionResult {
-    vset: map<uint16, AnyValidatorDescr>;
-    totalWeight: int;
-    frozen: FrozenDict;
-    totalStakes: coins;
-    count: int;
+    vset: map<uint16, AnyValidatorDescr>
+    totalWeight: int
+    frozen: FrozenDict
+    totalStakes: coins
+    count: int
 }
 
-fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, minStake: coins, maxStake: coins, minTotalStake: coins, maxStakeFactor: uint32): ElectionResult {
+fun tryElect(
+    mutate credits: CreditsMap,
+    members: map<uint256, MemberParams>,
+    minStake: coins,
+    maxStake: coins,
+    minTotalStake: coins,
+    maxStakeFactor: uint32,
+): ElectionResult {
     val limits = getValidatorLimits();
     val minValidators = max(limits.minValidators, 1);
 
@@ -314,15 +394,18 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
         if (memberLookup.isFound) {
             val member = memberLookup.loadValue();
             pubkey = memberLookup.getKey();
-            sdict.set(SortKey {
-                stake: member.msgValue as uint128,
-                negTime: -member.timestamp,
-                pubkey,
-            }, SortValue {
-                maxFactor: min(member.maxFactor, maxStakeFactor),
-                addr: member.srcAddr,
-                adnlAddr: member.adnlAddr,
-            });
+            sdict.set(
+                SortKey {
+                    stake: member.msgValue as uint128,
+                    negTime: -member.timestamp,
+                    pubkey,
+                },
+                SortValue {
+                    maxFactor: min(member.maxFactor, maxStakeFactor),
+                    addr: member.srcAddr,
+                    adnlAddr: member.adnlAddr,
+                },
+            );
             n += 1;
         }
     } while (memberLookup.isFound);
@@ -341,7 +424,11 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
     // Extract all entries from sorted dict into a list (descending stake order)
     // findKeyGreater iterates ascending; prependHead reverses → descending
     var l: lisp_list<array<int>> = [];
-    var prevKey = SortKey { stake: 0, negTime: -1, pubkey: 0 };
+    var prevKey = SortKey {
+        stake: 0,
+        negTime: -1,
+        pubkey: 0,
+    };
     var iterFound = true;
     do {
         val lookup = sdict.findKeyGreater(prevKey);
@@ -420,24 +507,33 @@ fun tryElect(mutate credits: CreditsMap, members: map<uint256, MemberParams>, mi
             totWeight += weight;
 
             if (adnlAddr) {
-                vset.set(ii, ValidatorDescrWithAdnlAddr {
-                    validatorPubkey: entryPubkey,
-                    validatorWeight: weight,
-                    adnlAddr,
-                });
+                vset.set(
+                    ii,
+                    ValidatorDescrWithAdnlAddr {
+                        validatorPubkey: entryPubkey,
+                        validatorWeight: weight,
+                        adnlAddr,
+                    },
+                );
             } else {
-                vset.set(ii, ValidatorDescr {
-                    validatorPubkey: entryPubkey,
-                    validatorWeight: weight,
-                });
+                vset.set(
+                    ii,
+                    ValidatorDescr {
+                        validatorPubkey: entryPubkey,
+                        validatorWeight: weight,
+                    },
+                );
             }
 
-            frozen.set(entryPubkey, ValidatorInRound {
-                addr: member.srcAddr,
-                weight,
-                stake: trueStake,
-                isBanned: false,
-            });
+            frozen.set(
+                entryPubkey,
+                ValidatorInRound {
+                    addr: member.srcAddr,
+                    weight,
+                    stake: trueStake,
+                    isBanned: false,
+                },
+            );
         }
 
         if (remainingStake) {
@@ -489,7 +585,14 @@ fun conductElections(mutate storage: Storage): bool {
         return false;
     }
 
-    val res = tryElect(mutate storage.credits, elect.members, stakeLimits.minStake, stakeLimits.maxStake, stakeLimits.minTotalStake, stakeLimits.maxStakeFactor);
+    val res = tryElect(
+        mutate storage.credits,
+        elect.members,
+        stakeLimits.minStake,
+        stakeLimits.maxStake,
+        stakeLimits.minTotalStake,
+        stakeLimits.maxStakeFactor,
+    );
 
     // if count==0, set failed=true, finished=false
     elect.isFailed = (res.count == 0);
@@ -521,15 +624,20 @@ fun conductElections(mutate storage: Storage): bool {
     sendValidatorSetToConfig(configAddr, vset, elect.electionsAt as uint64);
 
     // add frozen to the dictionary of past elections
-    storage.pastElections.set(elect.electionsAt, PastElection {
-        unfreezeAt: start + validatorConf.electedFor + validatorConf.stakeHeldFor,
-        stakeHeld: validatorConf.stakeHeldFor,
-        vsetHash: vset.toCell().hash(),
-        frozenDict: res.frozen,
-        totalStake: res.totalStakes,
-        bonuses: 0,
-        complaints: [],
-    });
+    storage
+        .pastElections
+        .set(
+            elect.electionsAt,
+            PastElection {
+                unfreezeAt: start + validatorConf.electedFor + validatorConf.stakeHeldFor,
+                stakeHeld: validatorConf.stakeHeldFor,
+                vsetHash: vset.toCell().hash(),
+                frozenDict: res.frozen,
+                totalStake: res.totalStakes,
+                bonuses: 0,
+                complaints: [],
+            },
+        );
 
     storage.save();
     return true;
@@ -599,7 +707,10 @@ fun validatorSetInstalled(mutate storage: Storage): bool {
     }
     val pastElection = pastLookup.loadValue();
     val vsetHash = pastElection.vsetHash;
-    if (cellHashEq(blockchain.configParam(34), vsetHash) | cellHashEq(blockchain.configParam(36), vsetHash)) {
+    if (
+        cellHashEq(blockchain.configParam(34), vsetHash) |
+        cellHashEq(blockchain.configParam(36), vsetHash)
+    ) {
         // this validator set has been installed, forget elections
         storage.currectElections = null;
         storage.save();
@@ -620,7 +731,9 @@ fun checkUnfreeze(mutate storage: Storage): bool {
             val pastElection = lookup.loadValue();
             if ((pastElection.unfreezeAt <= blockchain.now()) & (prevId != storage.activeId)) {
                 // unfreeze!
-                val (pastElections, unusedPrizes) = storage.credits.unfreezeAll(storage.pastElections, prevId);
+                val (pastElections, unusedPrizes) = storage
+                    .credits
+                    .unfreezeAll(storage.pastElections, prevId);
                 storage.pastElections = pastElections;
                 storage.grams += unusedPrizes;
                 // unfreeze only one at time, exit loop
@@ -678,17 +791,24 @@ fun announceNewElections(mutate storage: Storage): bool {
     return true;
 }
 
-
 fun onRunTickTock(_isTock: bool) {
     setGasLimitToMaximum();
     var storage = Storage.load();
     if (storage.currectElections != null) {
-        if (conductElections(mutate storage)) { return; }
-        if (validatorSetInstalled(mutate storage)) { return; }
+        if (conductElections(mutate storage)) {
+            return;
+        }
+        if (validatorSetInstalled(mutate storage)) {
+            return;
+        }
     } else {
-        if (announceNewElections(mutate storage)) { return; }
+        if (announceNewElections(mutate storage)) {
+            return;
+        }
     }
-    if (updateActiveVsetId(mutate storage)) { return; }
+    if (updateActiveVsetId(mutate storage)) {
+        return;
+    }
     checkUnfreeze(mutate storage);
 }
 
@@ -720,10 +840,26 @@ get fun participant_list(): lisp_list<array<int>> {
 }
 
 // returns the list of all participants of current elections with their data
-get fun participant_list_extended(): (int, int, coins, coins, lisp_list<ParticipantExtEntry>, bool, bool) {
+get fun participant_list_extended(): (
+    int,
+    int,
+    coins,
+    coins,
+    lisp_list<ParticipantExtEntry>,
+    bool,
+    bool
+) {
     val storage = Storage.load();
     if (storage.currectElections == null) {
-        return (0, 0, 0, 0, [], false, false);
+        return (
+            0,
+            0,
+            0,
+            0,
+            [],
+            false,
+            false,
+        );
     }
     val elect = storage.currectElections.load();
     var l: lisp_list<ParticipantExtEntry> = [];
@@ -737,7 +873,15 @@ get fun participant_list_extended(): (int, int, coins, coins, lisp_list<Particip
         });
         entry = elect.members.iteratePrev(entry);
     }
-    return (elect.electionsAt, elect.electionsCloseAt, elect.minStake, elect.totalStake, l, elect.isFailed, elect.isFinished);
+    return (
+        elect.electionsAt,
+        elect.electionsCloseAt,
+        elect.minStake,
+        elect.totalStake,
+        l,
+        elect.isFailed,
+        elect.isFinished,
+    );
 }
 
 // computes the return stake

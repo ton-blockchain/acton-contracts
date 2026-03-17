@@ -28,19 +28,29 @@ get fun `test upgrade code not mc`() {
         .storeUint(4, 3)
         .storeInt(BASECHAIN, 8)
         .storeUint(configHash, 256)
-        .endCell().beginParse().loadAddress();
+        .endCell()
+        .beginParse()
+        .loadAddress();
     net.topUp(bcAddr, ton("10"));
 
     val body = buildUpgradeCodeBody(1);
 
     // From basechain — should be rejected (0xffffffff response)
     val res1 = elector.sendAny(bcAddr, body, { value: ton("1") });
-    expect(res1).toHaveSuccessfulTx({ from: elector.address, to: bcAddr, opcode: 0xffffffff });
+    expect(res1).toHaveSuccessfulTx({
+        from: elector.address,
+        to: bcAddr,
+        opcode: 0xffffffff,
+    });
 
     // From masterchain config address — should succeed (0xce436f64 response)
     net.topUp(setup.configAddr, ton("10"));
     val res2 = elector.sendAny(setup.configAddr, body, { value: ton("1") });
-    expect(res2).toHaveSuccessfulTx({ from: elector.address, to: setup.configAddr, opcode: 0xce436f64 });
+    expect(res2).toHaveSuccessfulTx({
+        from: elector.address,
+        to: setup.configAddr,
+        opcode: 0xce436f64,
+    });
 }
 
 /// Test that upgrade code from wrong masterchain address is rejected
@@ -55,10 +65,18 @@ get fun `test upgrade code not config`() {
 
     // From wrong masterchain address — should be rejected (0xffffffff response)
     val res1 = elector.sendAny(otherAddr, body, { value: ton("1") });
-    expect(res1).toHaveSuccessfulTx({ from: elector.address, to: otherAddr, opcode: 0xffffffff });
+    expect(res1).toHaveSuccessfulTx({
+        from: elector.address,
+        to: otherAddr,
+        opcode: 0xffffffff,
+    });
 
     // From correct config address — should succeed (0xce436f64 response)
     net.topUp(setup.configAddr, ton("10"));
     val res2 = elector.sendAny(setup.configAddr, body, { value: ton("1") });
-    expect(res2).toHaveSuccessfulTx({ from: elector.address, to: setup.configAddr, opcode: 0xce436f64 });
+    expect(res2).toHaveSuccessfulTx({
+        from: elector.address,
+        to: setup.configAddr,
+        opcode: 0xce436f64,
+    });
 }

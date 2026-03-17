@@ -116,8 +116,16 @@ fun announceElections(elector: Elector): SendResultList {
 }
 
 /// Get active election ID via participant_list_extended
-fun Elector.active_election_id(self): int {
-    val (electAt, _, _, _, _, _, _) = self.participant_list_extended();
+fun Elector.activeElectionId(self): int {
+    val (
+        electAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = self.participantListExtended();
     return electAt;
 }
 
@@ -129,12 +137,7 @@ fun generateStakeSignature(
     srcAddr: uint256,
     adnlAddr: uint256,
 ): bits512 {
-    val dataCell = StakeSubmit {
-        stakeAt,
-        maxFactor,
-        srcAddr,
-        adnlAddr,
-    }.toCell();
+    val dataCell = StakeSubmit { stakeAt, maxFactor, srcAddr, adnlAddr }.toCell();
     var sig = crypto.sign(privateKey, dataCell);
     return sig.loadBits(512) as bits512;
 }
@@ -142,11 +145,13 @@ fun generateStakeSignature(
 /// Submit a valid stake from a random masterchain address.
 /// Returns (result, srcAddr, stakeAt, pubkey, stakeAmount).
 /// If customStake > 0, uses that amount; otherwise computes minimum valid stake.
-fun submitValidStake(
-    elector: Elector,
-    totalStake: coins,
-    customStake: coins = 0,
-): (SendResultList, address, int, uint256, coins) {
+fun submitValidStake(elector: Elector, totalStake: coins, customStake: coins = 0): (
+    SendResultList,
+    address,
+    int,
+    uint256,
+    coins,
+) {
     val kp = crypto.generateKeyPair();
     // Use a random address hash as ADNL address (256-bit random value)
     val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
@@ -156,7 +161,7 @@ fun submitValidStake(
     val minStake = max(stakeLimits.minStake, totalStake >> 12);
     val stake: coins = customStake > 0 ? customStake : minStake + ton("1000");
 
-    val stakeAt = elector.active_election_id();
+    val stakeAt = elector.activeElectionId();
     assert (stakeAt != 0) throw 999;
 
     val srcAddr = net.randomAddress("staker", MASTERCHAIN);
@@ -166,7 +171,11 @@ fun submitValidStake(
 
     val maxFactor: uint32 = (1 << 16) + (1 << 15); // 1.5
     val signature = generateStakeSignature(
-        kp.privateKey, stakeAt as uint32, maxFactor, srcHash, adnlInt,
+        kp.privateKey,
+        stakeAt as uint32,
+        maxFactor,
+        srcHash,
+        adnlInt,
     );
 
     val res = elector.sendNewStakeMessage(
@@ -186,7 +195,7 @@ fun submitValidStake(
 /// Conduct valid elections by submitting enough stakes and advancing time past close.
 /// Needs at least minValidators (5) different validators and minTotalStake (2M TON).
 fun conductValidElections(elector: Elector): int {
-    val stakeAt = elector.active_election_id();
+    val stakeAt = elector.activeElectionId();
     assert (stakeAt != 0) throw 998;
 
     val validatorLimits = defaultValidatorLimits();
@@ -205,7 +214,15 @@ fun conductValidElections(elector: Elector): int {
     }
 
     // Get elections close time and advance past it
-    val (_, closeAt, _, _, _, _, _) = elector.participant_list_extended();
+    val (
+        _,
+        closeAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
     net.setNow(closeAt + 1);
 
     // Run tick-tock to conduct elections
@@ -215,7 +232,11 @@ fun conductValidElections(elector: Elector): int {
 }
 
 /// Create a test Complaint struct with placeholder fields (createdAt, rewardAddr, paid are overwritten by contract)
-fun createComplaint(validatorPubkey: uint256, suggestedFine: coins, suggestedFinePart: uint32): Complaint {
+fun createComplaint(
+    validatorPubkey: uint256,
+    suggestedFine: coins,
+    suggestedFinePart: uint32,
+): Complaint {
     return Complaint {
         validatorPubkey,
         description: beginCell().storeUint(0xDEAD, 32).endCell(),
@@ -229,11 +250,15 @@ fun createComplaint(validatorPubkey: uint256, suggestedFine: coins, suggestedFin
 }
 
 /// Submit a known validator stake. Call BEFORE conductValidElections.
-fun submitKnownValidatorStake(elector: Elector, totalStake: coins, kp: KeyPair): (address, uint256, coins) {
+fun submitKnownValidatorStake(elector: Elector, _totalStake: coins, kp: KeyPair): (
+    address,
+    uint256,
+    coins,
+) {
     val stakeLimits = defaultStakeLimits();
     val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
 
-    val stakeAt = elector.active_election_id();
+    val stakeAt = elector.activeElectionId();
     assert (stakeAt != 0) throw 999;
 
     val srcAddr = net.randomAddress("known-staker", MASTERCHAIN);
@@ -244,12 +269,21 @@ fun submitKnownValidatorStake(elector: Elector, totalStake: coins, kp: KeyPair):
 
     val maxFactor: uint32 = (1 << 16) + (1 << 15); // 1.5
     val signature = generateStakeSignature(
-        kp.privateKey, stakeAt as uint32, maxFactor, srcHash, adnlAddr,
+        kp.privateKey,
+        stakeAt as uint32,
+        maxFactor,
+        srcHash,
+        adnlAddr,
     );
 
     elector.sendNewStakeMessage(
-        srcAddr, 0, kp.publicKey as uint256, stakeAt as uint32,
-        maxFactor, adnlAddr, signature,
+        srcAddr,
+        0,
+        kp.publicKey as uint256,
+        stakeAt as uint32,
+        maxFactor,
+        adnlAddr,
+        signature,
         { value: stakePerValidator + ONECOIN },
     );
 
@@ -260,7 +294,7 @@ fun submitKnownValidatorStake(elector: Elector, totalStake: coins, kp: KeyPair):
 /// Returns (stakeAt, knownPubkey) where knownPubkey is in the frozen dict.
 fun conductElectionsWithKnownValidator(elector: Elector): (int, uint256) {
     val kp = crypto.generateKeyPair();
-    val stakeAt = elector.active_election_id();
+    val stakeAt = elector.activeElectionId();
 
     val stakeLimits = defaultStakeLimits();
     val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
@@ -275,7 +309,15 @@ fun conductElectionsWithKnownValidator(elector: Elector): (int, uint256) {
         i += 1;
     }
 
-    val (_, closeAt, _, _, _, _, _) = elector.participant_list_extended();
+    val (
+        _,
+        closeAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
     net.setNow(closeAt + 1);
     net.runTickTock(elector.address, true);
 

@@ -15,7 +15,14 @@ fun returnStake(to: address, queryId: uint64, reason: StakeReason): void {
     returnMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE);
 }
 
-fun sendMessageBack(to: address, ansTag: uint32, queryId: uint64, body: uint32, value: coins, mode: int): void {
+fun sendMessageBack(
+    to: address,
+    ansTag: uint32,
+    queryId: uint64,
+    body: uint32,
+    value: coins,
+    mode: int,
+): void {
     val returnMsg = createMessage({
         dest: to,
         bounce: BounceMode.Only256BitsOfBody,
@@ -43,8 +50,8 @@ fun sendConfirmation(to: address, queryId: uint64, comment: StakeReason): void {
     returnMsg.send(SEND_MODE_IGNORE_ERRORS);
 }
 
-struct(0x4e565354) VSetWithOpcode {
-    queryId: uint64;
+struct (0x4e565354) VSetWithOpcode {
+    queryId: uint64
     vset: Cell<VSet>
 }
 
@@ -61,15 +68,19 @@ fun sendValidatorSetToConfig(configAddHashPart: uint256, vset: VSet, queryId: ui
         body: VSetWithOpcode {
             queryId,
             vset: vset.toCell(),
-        }
+        },
     });
     returnMsg.send(SEND_MODE_PAY_FEES_SEPARATELY);
 }
 
 // SAFETY: Only one opcode, nothing to comment
-fun InMessage.value(): coins asm "INMSG_VALUE";
+fun InMessage.value(): coins
+    asm "INMSG_VALUE"
+
 // SAFETY: Only one opcode, nothing to comment
-fun InMessage.source(): address asm "INMSG_SRC";
+fun InMessage.source(): address
+    asm "INMSG_SRC"
+
 fun T.getDeclaredPackPrefix(): int {
     return reflect.serializationPrefixOf<T>();
 }

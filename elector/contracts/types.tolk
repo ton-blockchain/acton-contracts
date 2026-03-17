@@ -32,15 +32,15 @@ enum StakeReason {
     LowFactor = 6
 }
 
-type CreditsMap = map<uint256, coins>;
+type CreditsMap = map<uint256, coins>
 
 struct Storage {
-    currectElections: Cell<Elections>?;
-    credits: CreditsMap;
-    pastElections: map<uint32, PastElection>;
-    grams: coins;
-    activeId: uint32;
-    activeHash: uint256;
+    currectElections: Cell<Elections>?
+    credits: CreditsMap
+    pastElections: map<uint32, PastElection>
+    grams: coins
+    activeId: uint32
+    activeHash: uint256
 }
 
 fun Storage.load(): Storage {
@@ -52,67 +52,68 @@ fun Storage.save(self): void {
 }
 
 struct MemberParams {
-    msgValue: coins;
-    timestamp: uint32;
-    maxFactor: uint32;
-    srcAddr: uint256;
-    adnlAddr: uint256;
+    msgValue: coins
+    timestamp: uint32
+    maxFactor: uint32
+    srcAddr: uint256
+    adnlAddr: uint256
 }
 
 struct Elections {
-    electionsAt: uint32;
-    electionsCloseAt: uint32;
-    minStake: coins;
-    totalStake: coins;
-    members: map<uint256, MemberParams>;
-    isFailed: bool;
-    isFinished: bool;
+    electionsAt: uint32
+    electionsCloseAt: uint32
+    minStake: coins
+    totalStake: coins
+    members: map<uint256, MemberParams>
+    isFailed: bool
+    isFinished: bool
 }
 
 struct ValidatorInRound {
-    addr: uint256;
-    weight: uint64;
-    stake: coins;
-    isBanned: bool;
+    addr: uint256
+    weight: uint64
+    stake: coins
+    isBanned: bool
 }
 
-type FrozenDict = map<uint256, ValidatorInRound>;
+type FrozenDict = map<uint256, ValidatorInRound>
+
 type Complaints = map<uint256, ComplaintStatus>
 
 struct PastElection {
-    unfreezeAt: uint32;
-    stakeHeld: uint32;
-    vsetHash: uint256;
-    frozenDict: FrozenDict;
-    totalStake: coins;
-    bonuses: coins;
-    complaints: Complaints;
+    unfreezeAt: uint32
+    stakeHeld: uint32
+    vsetHash: uint256
+    frozenDict: FrozenDict
+    totalStake: coins
+    bonuses: coins
+    complaints: Complaints
 }
 
-struct(0x2d) ComplaintStatus {
-    complaint: Cell<Complaint>;
+struct (0x2d) ComplaintStatus {
+    complaint: Cell<Complaint>
     // id -> timestamp
-    voters: map<uint16, uint32>;
-    vsetId: uint256;
-    weightRemaining: int64;
+    voters: map<uint16, uint32>
+    vsetId: uint256
+    weightRemaining: int64
 }
 
 // TODO not sure about this opcode
-struct(0xbc) Complaint {
-    validatorPubkey: uint256;
-    description: cell;
-    createdAt: uint32;
-    severity: uint8;
-    rewardAddr: uint256;
-    paid: coins;
-    suggestedFine: coins;
-    suggestedFinePart: uint32;
+struct (0xbc) Complaint {
+    validatorPubkey: uint256
+    description: cell
+    createdAt: uint32
+    severity: uint8
+    rewardAddr: uint256
+    paid: coins
+    suggestedFine: coins
+    suggestedFinePart: uint32
 }
 
-struct(0x1a) ComplaintPrices {
-    deposit: coins;
-    bitPrice: coins;
-    cellPrice: coins;
+struct (0x1a) ComplaintPrices {
+    deposit: coins
+    bitPrice: coins
+    cellPrice: coins
 }
 
 fun getComplaintPrices(): ComplaintPrices {
@@ -122,16 +123,16 @@ fun getComplaintPrices(): ComplaintPrices {
             deposit: 1 << 36,
             bitPrice: 1,
             cellPrice: 512,
-        }
+        };
     }
     return ComplaintPrices.fromCell(info);
 }
 
 // Config param 16
 struct ValidatorLimits {
-    maxValidators: uint16;
-    maxMainValidators: uint16;
-    minValidators: uint16;
+    maxValidators: uint16
+    maxMainValidators: uint16
+    minValidators: uint16
 }
 
 fun getValidatorLimits(): ValidatorLimits {
@@ -142,10 +143,10 @@ fun getValidatorLimits(): ValidatorLimits {
 
 // Config param 17
 struct StakeLimits {
-    minStake: coins;
-    maxStake: coins;
-    minTotalStake: coins;
-    maxStakeFactor: uint32;
+    minStake: coins
+    maxStake: coins
+    minTotalStake: coins
+    maxStakeFactor: uint32
 }
 
 fun getStakeLimits(): StakeLimits {
@@ -155,10 +156,10 @@ fun getStakeLimits(): StakeLimits {
 }
 
 struct ValidatorConfig {
-    electedFor: uint32;
-    electionsBeginBefore: uint32;
-    electionsEndBefore: uint32;
-    stakeHeldFor: uint32;
+    electedFor: uint32
+    electionsBeginBefore: uint32
+    electionsEndBefore: uint32
+    stakeHeldFor: uint32
 }
 
 fun getValidatorConf(): ValidatorConfig {
@@ -168,14 +169,14 @@ fun getValidatorConf(): ValidatorConfig {
 }
 
 // Validator set
-struct(0x12) VSet {
-    utimeSince: uint32;
-    utimeUntil: uint32;
+struct (0x12) VSet {
+    utimeSince: uint32
+    utimeUntil: uint32
     // These fields are not used
-    _total: uint16;
-    _main: uint16;
-    totalWeight: uint64;
-    dict: map<uint16, AnyValidatorDescr>;
+    _total: uint16
+    _main: uint16
+    totalWeight: uint64
+    dict: map<uint16, AnyValidatorDescr>
 }
 
 fun getCurrentVset(): (cell, VSet) {
@@ -187,22 +188,22 @@ fun getCurrentVset(): (cell, VSet) {
 // validator#53 public_key:SigPubKey weight:uint64 = ValidatorDescr;
 // validator_addr#73 public_key:SigPubKey weight:uint64 adnl_addr:bits256 = ValidatorDescr;
 // ed25519_pubkey#8e81278a pubkey:bits256 = SigPubKey;
-struct(0x538e81278a) ValidatorDescr {
-    validatorPubkey: uint256;
-    validatorWeight: uint64;
+struct (0x538e81278a) ValidatorDescr {
+    validatorPubkey: uint256
+    validatorWeight: uint64
 }
 
-struct(0x738e81278a) ValidatorDescrWithAdnlAddr {
-    validatorPubkey: uint256;
-    validatorWeight: uint64;
-    adnlAddr: uint256;
+struct (0x738e81278a) ValidatorDescrWithAdnlAddr {
+    validatorPubkey: uint256
+    validatorWeight: uint64
+    adnlAddr: uint256
 }
 
-type AnyValidatorDescr = ValidatorDescr | ValidatorDescrWithAdnlAddr;
+type AnyValidatorDescr = ValidatorDescr | ValidatorDescrWithAdnlAddr
 
 struct ExtendedValidatorDescr {
-    totalWeight: uint64;
-    this: ValidatorDescr;
+    totalWeight: uint64
+    this: ValidatorDescr
 }
 
 fun getValidatorDescr(idx: int): ExtendedValidatorDescr {
@@ -216,7 +217,7 @@ fun getValidatorDescr(idx: int): ExtendedValidatorDescr {
             return ExtendedValidatorDescr {
                 totalWeight: vset.totalWeight,
                 this: thisDescr,
-            }
+            };
         }
         ValidatorDescrWithAdnlAddr => {
             return ExtendedValidatorDescr {
@@ -225,16 +226,15 @@ fun getValidatorDescr(idx: int): ExtendedValidatorDescr {
                     validatorPubkey: thisDescr.validatorPubkey,
                     validatorWeight: thisDescr.validatorWeight,
                 },
-            }
+            };
         }
     }
 }
 
-
 struct ReturnMsg {
-    op: uint32;
-    queryId: uint64;
-    reason: uint32;
+    op: uint32
+    queryId: uint64
+    reason: uint32
 }
 
 fun ReturnMsg.packToBuilder(self, mutate b: builder) {
@@ -245,9 +245,9 @@ fun ReturnMsg.packToBuilder(self, mutate b: builder) {
     }
 }
 
-struct(0x654c5074) StakeSubmit {
-    stakeAt: uint32;
-    maxFactor: uint32;
-    srcAddr: uint256;
-    adnlAddr: uint256;
+struct (0x654c5074) StakeSubmit {
+    stakeAt: uint32
+    maxFactor: uint32
+    srcAddr: uint256
+    adnlAddr: uint256
 }

@@ -13,7 +13,7 @@ get fun `test election announce not elector`() {
     val elector = setup.elector;
 
     // Verify no active elections
-    expect(elector.active_election_id()).toEqual(0);
+    expect(elector.activeElectionId()).toEqual(0);
 
     // Change config param 1 to a different address so elector address doesn't match
     val otherAddr = net.randomAddress("other", MASTERCHAIN);
@@ -23,8 +23,8 @@ get fun `test election announce not elector`() {
     net.setConfig(config);
 
     // Tick-tock should NOT announce elections since address doesn't match
-    val res1 = announceElections(elector);
-    expect(elector.active_election_id()).toEqual(0);
+    val _res1 = announceElections(elector);
+    expect(elector.activeElectionId()).toEqual(0);
 
     // Restore correct elector address in config
     val (_, electorHash) = elector.address.getWorkchainAndHash();
@@ -33,8 +33,8 @@ get fun `test election announce not elector`() {
     net.setConfig(config);
 
     // Now tick-tock should announce elections
-    val res2 = announceElections(elector);
-    val electAt = elector.active_election_id();
+    val _res2 = announceElections(elector);
+    val electAt = elector.activeElectionId();
     expect(electAt).toNotEqual(0);
 }
 
@@ -48,7 +48,6 @@ get fun `test election announce not masterchain`() {
     // Verify elector is on basechain (workchain 0)
     val (wc, _) = elector.address.getWorkchainAndHash();
     expect(wc as int).toEqual(BASECHAIN as int);
-
     // Tick-tock transactions can only run on masterchain accounts.
     // The emulator refuses to execute tick-tock on basechain, which means
     // an elector deployed on basechain can never announce elections.
@@ -60,7 +59,7 @@ get fun `test election announce no curr validators set`() {
     val elector = setup.elector;
 
     // No active elections
-    expect(elector.active_election_id()).toEqual(0);
+    expect(elector.activeElectionId()).toEqual(0);
 
     // Remove config param 34 (current validators set)
     var config = net.getConfig();
@@ -68,17 +67,17 @@ get fun `test election announce no curr validators set`() {
     net.setConfig(config);
 
     // Tick-tock should fail because config param 34 is missing
-    val res1 = announceElections(elector);
+    val _res1 = announceElections(elector);
     // Verify elections were NOT announced (tx should have failed/aborted)
-    expect(elector.active_election_id()).toEqual(0);
+    expect(elector.activeElectionId()).toEqual(0);
 
     // Restore config param 34 and verify elections can now be announced
     config = net.getConfig();
     config.setParamRaw(34, defaultValidators().toCell());
     net.setConfig(config);
 
-    val res2 = announceElections(elector);
-    val electAt = elector.active_election_id();
+    val _res2 = announceElections(elector);
+    val electAt = elector.activeElectionId();
     expect(electAt).toNotEqual(0);
 }
 
@@ -87,30 +86,26 @@ get fun `test election announce not expired`() {
     val elector = setup.elector;
 
     // No active elections
-    expect(elector.active_election_id()).toEqual(0);
+    expect(elector.activeElectionId()).toEqual(0);
 
     val vtimes = defaultValidationTimes();
     val shift = 1000;
     val timeLeft = shift + vtimes.electionsBeginBefore;
 
     // Set a validators set that hasn't expired yet
-    val validYetSet = buildVSet(
-        net.now() - shift,
-        net.now() + timeLeft,
-        5, 5, 0,
-    );
+    val validYetSet = buildVSet(net.now() - shift, net.now() + timeLeft, 5, 5, 0);
     var config = net.getConfig();
     config.setParamRaw(34, validYetSet.toCell());
     net.setConfig(config);
 
     // Tick-tock should NOT announce elections (vset not expired)
-    val res1 = announceElections(elector);
-    expect(elector.active_election_id()).toEqual(0);
+    val _res1 = announceElections(elector);
+    expect(elector.activeElectionId()).toEqual(0);
 
     // Time travel past expiration
     net.setNow(net.now() + timeLeft);
-    val res2 = announceElections(elector);
-    expect(elector.active_election_id()).toNotEqual(0);
+    val _res2 = announceElections(elector);
+    expect(elector.activeElectionId()).toNotEqual(0);
 }
 
 get fun `test election announce next set already elected`() {
@@ -118,7 +113,7 @@ get fun `test election announce next set already elected`() {
     val elector = setup.elector;
 
     // No active elections
-    expect(elector.active_election_id()).toEqual(0);
+    expect(elector.activeElectionId()).toEqual(0);
 
     // Set config param 36 (next validators set) to indicate elections already done
     val nextVset = defaultValidators();
@@ -127,8 +122,8 @@ get fun `test election announce next set already elected`() {
     net.setConfig(config);
 
     // Tick-tock should NOT announce elections
-    val res1 = announceElections(elector);
-    expect(elector.active_election_id()).toEqual(0);
+    val _res1 = announceElections(elector);
+    expect(elector.activeElectionId()).toEqual(0);
 
     // Remove config param 36
     config = net.getConfig();
@@ -136,8 +131,8 @@ get fun `test election announce next set already elected`() {
     net.setConfig(config);
 
     // Now tick-tock should announce elections
-    val res2 = announceElections(elector);
-    expect(elector.active_election_id()).toNotEqual(0);
+    val _res2 = announceElections(elector);
+    expect(elector.activeElectionId()).toNotEqual(0);
 }
 
 get fun `test election announce success`() {
@@ -145,16 +140,23 @@ get fun `test election announce success`() {
     val elector = setup.elector;
 
     // No active elections
-    expect(elector.active_election_id()).toEqual(0);
+    expect(elector.activeElectionId()).toEqual(0);
 
     // Announce
-    val res = announceElections(elector);
-    val electAt = elector.active_election_id();
+    val _res = announceElections(elector);
+    val electAt = elector.activeElectionId();
     expect(electAt).toNotEqual(0);
 
     // Verify via participant_list_extended
-    val (pElectAt, closeAt, minStake, totalStake, plist, isFailed, isFinished)
-        = elector.participant_list_extended();
+    val (
+        pElectAt,
+        closeAt,
+        minStake,
+        totalStake,
+        _plist,
+        isFailed,
+        isFinished,
+    ) = elector.participantListExtended();
 
     val vtimes = defaultValidationTimes();
     val stakes = defaultStakeLimits();
@@ -167,6 +169,5 @@ get fun `test election announce success`() {
     expect(isFailed).toEqual(false);
     expect(isFinished).toEqual(false);
 }
-
 // TODO: test election_announce_validators_set_malformed — commented out in governance_tests (requires malformed vset cell)
 // TODO: test election_announce_before_existed_elections — commented out in governance_tests

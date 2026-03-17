@@ -10,7 +10,7 @@ get fun `test elections ongoing`() {
     val elector = setup.elector;
 
     announceElections(elector);
-    val stakeAt = elector.active_election_id();
+    val stakeAt = elector.activeElectionId();
     expect(stakeAt).toNotEqual(0);
 
     // Submit enough stakes for a valid election
@@ -24,13 +24,29 @@ get fun `test elections ongoing`() {
         i += 1;
     }
 
-    val (_, closeAt, _, _, _, _, _) = elector.participant_list_extended();
+    val (
+        _,
+        closeAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
 
     // Set time BEFORE close — elections should NOT finish
     net.setNow(closeAt - 1);
     net.runTickTock(elector.address, true);
 
-    val (_, _, _, _, _, isFailed1, isFinished1) = elector.participant_list_extended();
+    val (
+        _,
+        _,
+        _,
+        _,
+        _,
+        isFailed1,
+        isFinished1,
+    ) = elector.participantListExtended();
     expect(isFailed1).toEqual(false);
     expect(isFinished1).toEqual(false);
 
@@ -38,7 +54,15 @@ get fun `test elections ongoing`() {
     net.setNow(closeAt + 1);
     net.runTickTock(elector.address, true);
 
-    val (_, _, _, _, _, isFailed2, isFinished2) = elector.participant_list_extended();
+    val (
+        _,
+        _,
+        _,
+        _,
+        _,
+        isFailed2,
+        isFinished2,
+    ) = elector.participantListExtended();
     expect(isFailed2).toEqual(false);
     expect(isFinished2).toEqual(true);
 }
@@ -64,13 +88,29 @@ get fun `test election less min participants`() {
         i += 1;
     }
 
-    val (_, closeAt, _, _, _, _, _) = elector.participant_list_extended();
+    val (
+        _,
+        closeAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
     net.setNow(closeAt + 1);
 
     // Tick-tock — elections should fail (not enough validators)
     // tryElect returns count=0 when n < minValidators, so isFailed=true
     net.runTickTock(elector.address, true);
-    val (_, _, _, _, _, isFailed1, isFinished1) = elector.participant_list_extended();
+    val (
+        _,
+        _,
+        _,
+        _,
+        _,
+        isFailed1,
+        isFinished1,
+    ) = elector.participantListExtended();
     expect(isFailed1).toEqual(true);
     expect(isFinished1).toEqual(false);
 
@@ -83,7 +123,15 @@ get fun `test election less min participants`() {
 
     // Tick-tock again — elections should now succeed (new stake arrived, isFailed reset)
     net.runTickTock(elector.address, true);
-    val (_, _, _, _, _, isFailed2, isFinished2) = elector.participant_list_extended();
+    val (
+        _,
+        _,
+        _,
+        _,
+        _,
+        isFailed2,
+        isFinished2,
+    ) = elector.participantListExtended();
     expect(isFailed2).toEqual(false);
     expect(isFinished2).toEqual(true);
 }
@@ -107,13 +155,29 @@ get fun `test election less min total stake`() {
         i += 1;
     }
 
-    val (_, closeAt, _, tStake, _, _, _) = elector.participant_list_extended();
+    val (
+        _,
+        closeAt,
+        _,
+        tStake,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
     assert (tStake < defaultStakeLimits().minTotalStake) throw 100; // confirm below minTotalStake
     net.setNow(closeAt + 1);
 
     // Tick-tock — elections should NOT finish or fail (just postponed)
     net.runTickTock(elector.address, true);
-    val (_, _, _, _, _, isFailed1, isFinished1) = elector.participant_list_extended();
+    val (
+        _,
+        _,
+        _,
+        _,
+        _,
+        isFailed1,
+        isFinished1,
+    ) = elector.participantListExtended();
     expect(isFailed1).toEqual(false);
     expect(isFinished1).toEqual(false);
 }
@@ -157,13 +221,29 @@ get fun `test true stake less min total stake`() {
         i += 1;
     }
 
-    val (_, closeAt, _, tStake, _, _, _) = elector.participant_list_extended();
+    val (
+        _,
+        closeAt,
+        _,
+        tStake,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
     // Verify nominal total >= minTotalStake
     assert (tStake >= stakeLimits.minTotalStake) throw 100;
     net.setNow(closeAt + 1);
 
     net.runTickTock(elector.address, true);
-    val (_, _, _, _, _, isFailed, isFinished) = elector.participant_list_extended();
+    val (
+        _,
+        _,
+        _,
+        _,
+        _,
+        isFailed,
+        isFinished,
+    ) = elector.participantListExtended();
 
     // Elections should fail: tryElect returns count=0 because bestStake < minTotalStake
     expect(isFailed).toEqual(true);
@@ -176,14 +256,22 @@ get fun `test successful elections`() {
     val elector = setup.elector;
 
     announceElections(elector);
-    val stakeAt = elector.active_election_id();
+    val stakeAt = elector.activeElectionId();
     expect(stakeAt).toNotEqual(0);
 
     // Conduct elections
     conductValidElections(elector);
 
     // Check elections finished
-    val (electAt, _, _, _, _, isFailed, isFinished) = elector.participant_list_extended();
+    val (
+        electAt,
+        _,
+        _,
+        _,
+        _,
+        isFailed,
+        isFinished,
+    ) = elector.participantListExtended();
     expect(electAt).toNotEqual(0);
     expect(isFailed).toEqual(false);
     expect(isFinished).toEqual(true);

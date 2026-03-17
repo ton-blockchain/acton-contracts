@@ -44,7 +44,8 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
         return ComplaintError.ValidatorNotFound as int;
     }
     val validator = frozenLookup.loadValue();
-    val fine = complaint.suggestedFine + mulDivFloor(validator.stake, complaint.suggestedFinePart, 1 << 32);
+    val fine = complaint.suggestedFine +
+    mulDivFloor(validator.stake, complaint.suggestedFinePart, 1 << 32);
     if (fine > validator.stake) {
         return ComplaintError.FineTooLarge as int;
     }
@@ -68,19 +69,23 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     return complaint.paid;
 }
 
-
 struct VoteRegustrationStatus {
-    complaint: Complaint?;
-    status: VoteStatus;
+    complaint: Complaint?
+    status: VoteStatus
 }
 
-fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: int): VoteRegustrationStatus {
+fun Complaints.registerVote(
+    mutate self,
+    chash: uint256,
+    idx: uint16,
+    weight: int,
+): VoteRegustrationStatus {
     val lookupComplaint = self.get(chash);
     if (!lookupComplaint.isFound) {
         return VoteRegustrationStatus {
             complaint: null,
             status: VoteStatus.ComplaintNotFound,
-        }
+        };
     }
     val (rawVset, curVset) = getCurrentVset();
     val curVsetId = rawVset.hash();
@@ -90,7 +95,7 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
         return VoteRegustrationStatus {
             complaint: null,
             status: VoteStatus.OldVset,
-        }
+        };
     }
 
     if (isVsetOld) {
@@ -104,7 +109,7 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
         return VoteRegustrationStatus {
             complaint: null,
             status: VoteStatus.AlreadyVoted,
-        }
+        };
     }
 
     cstatus.voters.set(idx, blockchain.now());
@@ -119,13 +124,13 @@ fun Complaints.registerVote(mutate self, chash: uint256, idx: uint16, weight: in
         return VoteRegustrationStatus {
             complaint: null,
             status: VoteStatus.Accepted,
-        }
+        };
     }
 
     return VoteRegustrationStatus {
         complaint: cstatus.complaint.load(),
         status: VoteStatus.Finished,
-    }
+    };
 }
 
 fun proceedRegisterVote(electionId: uint32, chash: uint256, idx: int, weight: uint64): VoteStatus {
