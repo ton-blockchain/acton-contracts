@@ -1,0 +1,40 @@
+{
+  "name": "counter-project",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["app"],
+  "scripts": {
+    "app:build": "npm run build --workspace app",
+    "app:dev": "npm run dev --workspace app",
+    "app:preview": "npm run preview --workspace app",
+    "app:typecheck": "npm run typecheck --workspace app",
+    "build": "npm run build:actors && npm run app:build",
+    "build:actors": "acton build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test:actors && npm run test:ts",
+    "test:actors": "acton test",
+    "test:ts": "npm run build:actors && jest --runInBand",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@ton-community/func-js": "^0.11.0",
+    "@ton/core": "^0.63.1",
+    "@ton/crypto": "^3.3.0",
+    "@ton/sandbox": "^0.41.0",
+    "@ton/test-utils": "^0.12.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.5.0",
+    "jest": "^30.0.5",
+    "prettier": "^3.8.1",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.9.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": ["<rootDir>/tests"],
+    "testMatch": ["**/*.spec.ts"],
+    "moduleFileExtensions": ["ts", "js", "json"]
+  }
+}

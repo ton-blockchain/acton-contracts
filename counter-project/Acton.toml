@@ -1,0 +1,27 @@
+[package]
+name = "counter-project"
+description = "A TON blockchain project"
+version = "0.1.0"
+license = "MIT"
+
+[contracts.counter]
+name = "counter"
+src = "actors/contracts/counter.tolk"
+depends = []
+
+[test]
+
+[fmt]
+width = 100
+ignore = []
+
+[scripts]
+deploy-emulation = "acton script actors/scripts/deploy.tolk"
+deploy-testnet = "acton script actors/scripts/deploy.tolk --broadcast --net testnet"
+
+[mappings]
+acton = ".acton"
+contracts = "actors/contracts"
+tests = "actors/tests"
+wrappers = "actors/tests/wrappers"
+gen = "gen"

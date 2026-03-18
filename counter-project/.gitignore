@@ -1,0 +1,44 @@
+# Acton main directory
+.acton/
+
+# Build directory
+build/
+
+.DS_Store
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# VS Code
+.vscode/*
+.history/
+*.vsix
+
+# IDEA files
+.idea
+
+# Vim
+Session.vim
+.vim/
+
+# Other private editor folders
+.nvim/
+.emacs/
+.helix/
+
+# Acton related
+.env
+*.mnemonic
+wallets.toml
+global.wallets.toml
+global.libraries.toml
+
+# coverage
+coverage/
+lcov.info
+gen/
