@@ -1,11 +1,10 @@
 import "@acton/io"
-import "@acton/build/build"
 import "@acton/emulation/network"
 import "@contracts/types"
 import "@wrappers/Counter"
 
 fun main() {
-    val deployer = net.wallet("deployer");
+    val deployer = net.wallet("deployer-1");
 
     val counter = Counter.fromStorage(Storage {
         id: 0,

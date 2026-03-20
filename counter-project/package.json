@@ -2,39 +2,35 @@
   "name": "counter-project",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["app"],
+  "type": "module",
   "scripts": {
-    "app:build": "npm run build --workspace app",
-    "app:dev": "npm run dev --workspace app",
-    "app:preview": "npm run preview --workspace app",
-    "app:typecheck": "npm run typecheck --workspace app",
-    "build": "npm run build:actors && npm run app:build",
-    "build:actors": "acton build",
+    "build": "npm run build:contracts && vite build",
+    "build:contracts": "acton build",
+    "dev": "vite",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run test:actors && npm run test:ts",
-    "test:actors": "acton test",
-    "test:ts": "npm run build:actors && jest --runInBand",
+    "preview": "vite preview",
+    "test": "acton test",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
-  "devDependencies": {
-    "@ton-community/func-js": "^0.11.0",
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.21",
+    "@ton/appkit-react": "^0.0.4",
     "@ton/core": "^0.63.1",
-    "@ton/crypto": "^3.3.0",
-    "@ton/sandbox": "^0.41.0",
-    "@ton/test-utils": "^0.12.0",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^25.5.0",
-    "jest": "^30.0.5",
-    "prettier": "^3.8.1",
-    "ts-jest": "^29.4.6",
-    "typescript": "^5.9.3"
+    "@ton/ton": "^16.2.2",
+    "@tonconnect/ui-react": "^2.4.2",
+    "buffer": "^6.0.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tslib": "^2.8.1"
   },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "roots": ["<rootDir>/tests"],
-    "testMatch": ["**/*.spec.ts"],
-    "moduleFileExtensions": ["ts", "js", "json"]
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0"
   }
 }

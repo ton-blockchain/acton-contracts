@@ -3,7 +3,12 @@ import { TonClient } from '@ton/ton';
 import type { SendTransactionParameters } from '@ton/appkit-react';
 
 import { Counter } from '../../../wrappers/Counter';
-import { IS_TESTNET, TONCENTER_API_KEY, TONCENTER_RPC_URL, TON_NETWORK } from './ton';
+import {
+  IS_TESTNET,
+  TONCENTER_API_KEY,
+  TONCENTER_RPC_URL,
+  TON_NETWORK,
+} from './ton';
 
 const tonClient = new TonClient({
   endpoint: TONCENTER_RPC_URL,
@@ -32,7 +37,11 @@ export interface CounterSnapshot {
 
 export type CounterAction = 'increase' | 'decrease';
 
-function parseUint32(value: string, label: string, options?: { allowZero?: boolean }): bigint {
+function parseUint32(
+  value: string,
+  label: string,
+  options?: { allowZero?: boolean },
+): bigint {
   const trimmed = value.trim();
 
   if (!/^\d+$/.test(trimmed)) {
@@ -114,7 +123,9 @@ export async function isCounterDeployed(address: Address): Promise<boolean> {
   return tonClient.isContractDeployed(address);
 }
 
-export async function readCounter(addressValue: string): Promise<CounterSnapshot> {
+export async function readCounter(
+  addressValue: string,
+): Promise<CounterSnapshot> {
   const address = Address.parse(addressValue);
   const normalizedAddress = formatAddress(address);
   const isDeployed = await tonClient.isContractDeployed(address);
@@ -140,7 +151,11 @@ export async function readCounter(addressValue: string): Promise<CounterSnapshot
 export function buildDeployTransaction(
   counterIdValue: string,
   deployAmountValue: string,
-): { address: string; request: SendTransactionParameters; preview: CounterPreview } {
+): {
+  address: string;
+  request: SendTransactionParameters;
+  preview: CounterPreview;
+} {
   const preview = getCounterPreview(counterIdValue);
   const amount = parseTonAmount(deployAmountValue, 'Deploy value');
 
@@ -189,6 +204,20 @@ export function buildCounterActionTransaction(options: {
 }
 
 export function getErrorMessage(error: unknown): string {
+  if (typeof error === 'object' && error !== null) {
+    const errorWithStatus = error as {
+      message?: string;
+      response?: { status?: number };
+      status?: number;
+    };
+    const status =
+      errorWithStatus.response?.status ?? errorWithStatus.status ?? null;
+
+    if (status === 429 || errorWithStatus.message?.includes('status code 429')) {
+      return 'Toncenter rate limit reached (HTTP 429). This app reads chain data through Toncenter, so wait a bit and try again, or add VITE_TONCENTER_API_KEY for higher limits.';
+    }
+  }
+
   if (error instanceof Error) {
     return error.message;
   }

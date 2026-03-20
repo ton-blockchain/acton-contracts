@@ -42,17 +42,23 @@ export default function App() {
   const walletAddress = useAddress();
   const walletBalance = useBalance();
   const walletNetwork = useNetwork();
+
   const [counterId, setCounterId] = useState(DEFAULT_COUNTER_ID);
   const deferredCounterId = useDeferredValue(counterId);
+
   const [counterAddress, setCounterAddress] = useState('');
   const [step, setStep] = useState(DEFAULT_STEP);
+
   const [deployValue, setDeployValue] = useState(DEFAULT_DEPLOY_VALUE);
   const [messageValue, setMessageValue] = useState(DEFAULT_MESSAGE_VALUE);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+
   const [statusMessage, setStatusMessage] = useState(
     'Connect a wallet, deploy a counter, then interact with it.',
   );
-  const [counterValue, setCounterValue] = useState<CounterValueState>(initialCounterValueState);
+  const [counterValue, setCounterValue] = useState<CounterValueState>(
+    initialCounterValueState,
+  );
 
   const preview = useMemo(() => {
     try {
@@ -68,10 +74,12 @@ export default function App() {
     }
   }, [deferredCounterId]);
 
-  const { mutateAsync: sendTransaction, isPending: isWalletPromptOpen } = useSendTransaction();
+  const { mutateAsync: sendTransaction, isPending: isWalletPromptOpen } =
+    useSendTransaction();
   const walletReady = Boolean(walletAddress);
   const walletNetworkMismatch =
-    walletNetwork !== undefined && walletNetwork.chainId !== TON_NETWORK.chainId;
+    walletNetwork !== undefined &&
+    walletNetwork.chainId !== TON_NETWORK.chainId;
   const busy = pendingAction !== null || isWalletPromptOpen;
 
   async function fetchCounter(addressValue: string) {
@@ -103,11 +111,15 @@ export default function App() {
 
     try {
       const deployment = buildDeployTransaction(counterId, deployValue);
-      const alreadyDeployed = await isCounterDeployed(deployment.preview.contract.address);
+      const alreadyDeployed = await isCounterDeployed(
+        deployment.preview.contract.address,
+      );
 
       if (alreadyDeployed) {
         setCounterAddress(deployment.address);
-        setStatusMessage(`Counter ${counterId} is already deployed at ${deployment.address}.`);
+        setStatusMessage(
+          `Counter ${counterId} is already deployed at ${deployment.address}.`,
+        );
         return;
       }
 
@@ -214,13 +226,15 @@ export default function App() {
           <p className="eyebrow">TON React Template</p>
           <h1>Counter dApp</h1>
           <p className="hero-text">
-            Clean AppKit setup, TON Connect wallet flow, deterministic counter deployment, and
-            direct contract reads through the generated wrapper.
+            Clean AppKit setup, TON Connect wallet flow, deterministic counter
+            deployment, and direct contract reads through the generated wrapper.
           </p>
           <div className="network-row">
             <span className="network-pill">{TON_NETWORK_LABEL}</span>
             {walletNetworkMismatch ? (
-              <span className="warning-pill">Connected wallet uses another network</span>
+              <span className="warning-pill">
+                Connected wallet uses another network
+              </span>
             ) : null}
           </div>
         </div>
@@ -233,7 +247,11 @@ export default function App() {
             </div>
             <div>
               <dt>Balance</dt>
-              <dd>{walletBalance.data ? `${walletBalance.data} TON` : 'Connect to load'}</dd>
+              <dd>
+                {walletBalance.data
+                  ? `${walletBalance.data} TON`
+                  : 'Connect to load'}
+              </dd>
             </div>
           </dl>
         </div>
@@ -281,7 +299,9 @@ export default function App() {
               onClick={handleDeploy}
               type="button"
             >
-              {pendingAction === 'deploy' ? 'Creating...' : 'Create New Counter'}
+              {pendingAction === 'deploy'
+                ? 'Creating...'
+                : 'Create New Counter'}
             </button>
             <button
               className="ghost-button"
@@ -353,7 +373,9 @@ export default function App() {
                 : '—'}
             </strong>
             <p>{counterValue.message}</p>
-            {counterValue.fetchedAt ? <span>Updated at {counterValue.fetchedAt}</span> : null}
+            {counterValue.fetchedAt ? (
+              <span>Updated at {counterValue.fetchedAt}</span>
+            ) : null}
           </div>
 
           <div className="button-row">
