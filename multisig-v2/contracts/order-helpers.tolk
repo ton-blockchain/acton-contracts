@@ -150,6 +150,7 @@ fun OrderStorageInitialized.tryExecute(mutate self, queryId: uint64) {
 
 // TODO: bug with inline
 @inline_ref
+// @inline
 fun OrderStorageInitialized.approve(
     mutate self,
     signerIndex: uint8,

@@ -5,6 +5,7 @@ const MAX_ORDER_SEQNO = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffff
 type IndexedAddressMap = map<uint8, address>
 
 type DirectIndexedAddressMap = map<uint8, address>
+// type DirectIndexedAddressMap = IndexedAddressMap
 type DirectOrderActionsMap = map<uint8, cell>
 
 fun DirectIndexedAddressMap.packToBuilder(self, mutate b: builder) {
