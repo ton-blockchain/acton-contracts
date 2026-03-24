@@ -1,0 +1,7 @@
+{
+  "buildCommand": "bun run build && cp public/tonconnect-manifest.json public/favicon.svg dist/",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
