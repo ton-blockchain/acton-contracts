@@ -1,7 +1,9 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "@acton/types/big_array"
 import "test_utils"
+import "wrappers/ConfigContract"
 import "../contracts/messages"
 import "../contracts/storage"
 

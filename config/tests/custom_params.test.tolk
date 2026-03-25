@@ -1,9 +1,12 @@
 import "@stdlib/exotic-cells"
+import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "@acton/types/big_array"
 import "@acton/vm/vm"
 import "test_utils"
+import "wrappers/ConfigContract"
 import "../contracts/messages"
 import "../contracts/storage"
 

@@ -1,6 +1,7 @@
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
+import "wrappers/DnsRoot"
 import "../contracts/dns-utils"
 
 get fun `test root: accepts plain top-up messages`() {

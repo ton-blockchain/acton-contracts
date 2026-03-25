@@ -1,6 +1,7 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "@acton/tlb/maybe"
 import "@acton/types/out_actions"
 import "test_utils"
 import "wrappers/HighloadWalletV3"

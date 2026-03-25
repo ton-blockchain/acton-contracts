@@ -2,7 +2,9 @@ import "@acton/crypto/crypto"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "@acton/types/big_array"
 import "test_utils"
+import "wrappers/HighloadWalletV3"
 import "../contracts/messages"
 
 get fun `test deploy`() {

@@ -2,6 +2,8 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
+import "wrappers/JettonMinter"
+import "wrappers/JettonWallet"
 import "../contracts/errors"
 import "../contracts/messages"
 

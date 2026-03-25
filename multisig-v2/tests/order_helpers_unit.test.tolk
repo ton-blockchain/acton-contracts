@@ -1,6 +1,7 @@
 import "@stdlib/gas-payments"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
+import "@acton/types/message"
 import "@acton/types/out_actions"
 import "@acton/vm/vm"
 import "../contracts/errors"
