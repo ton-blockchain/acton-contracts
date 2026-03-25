@@ -9,7 +9,7 @@ import "types"
 contract NotcoinWalletContract {
     author: "The Tolk Team"
     version: "1.0.0"
-    description: "Notcoin Jetton Wallet. Modified TEP-74 implementation"
+    description: "Notcoin Jetton Wallet. Modern TEP-74 & TEP-89 compliant implementation. Contract is similar to USDT but doesn't have governance logic"
     incomingMessages: AllowedMessageToWallet
     storage: WalletStorage
 }

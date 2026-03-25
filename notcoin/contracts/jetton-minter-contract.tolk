@@ -8,7 +8,7 @@ import "types"
 contract NotcoinMinterContract {
     author: "The Tolk Team"
     version: "1.0.0"
-    description: "Notcoin Jetton Minter. Modified TEP-74 implementation"
+    description: "Notcoin Jetton Minter. Modern TEP-74 & TEP-89 compliant implementation. Contract is similar to USDT but doesn't have governance logic"
     incomingMessages: AllowedMessageToMinter
     storage: MinterStorage
 }

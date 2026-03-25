@@ -5,7 +5,7 @@ import "types"
 contract NftCollectionContract {
     author: "The Tolk Team"
     version: "1.0.0"
-    description: "Standard NFT Collection. TEP-62 compliant"
+    description: "Standard NFT Collection. TEP-62 and TEP-64 compliant"
     incomingMessages: AllowedMessageToNftCollection
     storage: NftCollectionStorage
 }
