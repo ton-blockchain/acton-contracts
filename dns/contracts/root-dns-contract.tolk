@@ -2,6 +2,13 @@ import "dns-utils"
 import "errors"
 import "storage"
 
+contract RootDnsContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "Root DNS resolver. Entry point for TON DNS resolution"
+    storage: RootDnsStorage
+}
+
 fun getPrefixLengthByDomain(domainLength: int, startsWithZeroByte: bool) {
     return (domainLength - 1) * BYTE_SIZE + (startsWithZeroByte ? BYTE_SIZE : 0);
 }

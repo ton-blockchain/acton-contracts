@@ -4,6 +4,14 @@ import "errors"
 import "messages"
 import "storage"
 
+contract WalletV5Contract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "Wallet V5. Extensible wallet with plugins support"
+    incomingMessages: AllowedMessageToWalletV5
+    storage: Storage
+}
+
 const SIZE_SIGNATURE = 512
 
 @inline_ref

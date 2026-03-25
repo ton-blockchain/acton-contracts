@@ -3,6 +3,14 @@ import "errors"
 import "messages"
 import "storage"
 
+contract DnsCollectionContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "DNS NFT Collection. Manages .ton domain auctions and minting"
+    incomingMessages: AllowedCollectionMessage
+    storage: CollectionStorage
+}
+
 type AllowedCollectionMessage = DeployDnsDomain | FillUp
 
 fun onInternalMessage(in: InMessage) {

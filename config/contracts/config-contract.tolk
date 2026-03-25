@@ -6,6 +6,14 @@ import "errors"
 import "messages"
 import "storage"
 
+contract ConfigContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "TON Config contract. Manages network configuration parameters"
+    incomingMessages: AllowedInternalMessage
+    storage: Storage
+}
+
 type AllowedInternalMessage =
     | SetNextValidatorSetRequest
     | SetCustomParamRequest

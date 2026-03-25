@@ -6,6 +6,14 @@ import "order-state"
 import "storage"
 import "types"
 
+contract MultisigContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "Multisig V2. Multi-signature wallet with order-based approval"
+    incomingMessages: AllowedMessageToMultisig
+    storage: MultisigStorage
+}
+
 type AllowedOrderAction = SendMessageAction | UpdateMultisigParamsAction
 
 @inline
