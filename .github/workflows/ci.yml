@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Acton
-        uses: i582/setup-acton@master
+        uses: ton-blockchain/setup-acton@master
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
           acton-version: 'trunk'
