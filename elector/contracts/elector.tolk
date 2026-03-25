@@ -7,6 +7,14 @@ import "messages"
 import "types"
 import "utils"
 
+contract ElectorContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "TON Elector contract. Manages validator elections and stakes"
+    incomingMessages: AllowedMessages
+    storage: Storage
+}
+
 fun processNewStake(msg: NewStakeMessage): void {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
     var storage = Storage.load();

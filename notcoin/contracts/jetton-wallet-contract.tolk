@@ -6,6 +6,14 @@ import "messages"
 import "storage"
 import "types"
 
+contract NotcoinWalletContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "Notcoin Jetton Wallet. Modified TEP-74 implementation"
+    incomingMessages: AllowedMessageToWallet
+    storage: WalletStorage
+}
+
 type AllowedMessageToWallet = AskToTransfer | AskToBurn | InternalTransferStep | TopUpTons
 
 type BounceOpToHandle = InternalTransferStep | BurnNotificationForMinter

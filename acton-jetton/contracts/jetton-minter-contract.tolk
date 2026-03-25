@@ -6,6 +6,14 @@ import "messages"
 import "sharding"
 import "storage"
 
+contract JettonMinterContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "Standard Jetton Minter. TEP-74 and TEP-89 compiant"
+    incomingMessages: AllowedMessageToMinter
+    storage: MinterStorage
+}
+
 type AllowedMessageToMinter =
     | MintNewJettons
     | BurnNotificationForMinter

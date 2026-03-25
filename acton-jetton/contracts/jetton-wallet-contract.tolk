@@ -6,6 +6,14 @@ import "messages"
 import "sharding"
 import "storage"
 
+contract JettonWalletContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "Standard Jetton Wallet. TEP-74 and TEP-89 compliant"
+    incomingMessages: AllowedMessageToWallet
+    storage: WalletStorage
+}
+
 type AllowedMessageToWallet = AskToTransfer | AskToBurn | InternalTransferStep | TopUpTons
 
 type BounceOpToHandle = InternalTransferStep | BurnNotificationForMinter

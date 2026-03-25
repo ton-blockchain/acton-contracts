@@ -1,5 +1,13 @@
 import "types"
 
+contract CounterContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "Simple counter. Example contract for learning Tolk"
+    incomingMessages: AllowedMessage
+    storage: Storage
+}
+
 type AllowedMessage = IncreaseCounter | ResetCounter
 
 fun onInternalMessage(in: InMessage) {

@@ -5,6 +5,14 @@ import "messages"
 import "storage"
 import "types"
 
+contract NotcoinMinterContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "Notcoin Jetton Minter. Modified TEP-74 implementation"
+    incomingMessages: AllowedMessageToMinter
+    storage: MinterStorage
+}
+
 type AllowedMessageToMinter =
     | MintNewJettons
     | BurnNotificationForMinter

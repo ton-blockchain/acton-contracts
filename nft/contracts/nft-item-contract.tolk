@@ -3,6 +3,14 @@ import "fees-management"
 import "messages"
 import "types"
 
+contract NftItemContract {
+    author: "The Tolk Team"
+    version: "1.0.0"
+    description: "Standard NFT Item. TEP-62 compliant"
+    incomingMessages: AllowedMessageToNftItem
+    storage: NftItemStorage
+}
+
 type AllowedMessageToNftItem = AskToChangeOwnership | RequestStaticData
 
 fun onInternalMessage(in: InMessage) {
