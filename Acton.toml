@@ -27,15 +27,15 @@ name = "notcoin_wallet"
 src = "notcoin/contracts/jetton-wallet-contract.tolk"
 depends = []
 
-# Acton Jetton
-[contracts.acton_jetton_minter]
-name = "acton_jetton_minter"
-src = "acton-jetton/contracts/jetton-minter-contract.tolk"
-depends = [{ name = "acton_jetton_wallet", function = "actonJettonWalletCompiledCode" }]
+# Jetton 2.0
+[contracts.jetton20_minter]
+name = "jetton20_minter"
+src = "jetton2.0/contracts/jetton-minter-contract.tolk"
+depends = [{ name = "jetton20_wallet", function = "jetton20WalletCompiledCode" }]
 
-[contracts.acton_jetton_wallet]
-name = "acton_jetton_wallet"
-src = "acton-jetton/contracts/jetton-wallet-contract.tolk"
+[contracts.jetton20_wallet]
+name = "jetton20_wallet"
+src = "jetton2.0/contracts/jetton-wallet-contract.tolk"
 depends = []
 
 # DNS
@@ -93,7 +93,7 @@ name = "Wallet W5"
 src = "w5/contracts/wallet-v5-contract.tolk"
 depends = []
 
-[lint.acton_jetton_minter]
+[lint.jetton20_minter]
 asm-function-missing-safety-comment = "allow"
 
 [test]
@@ -116,7 +116,7 @@ ignore = []
 test-counter = "acton test counter/tests"
 test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
-test-acton-jetton = "acton test acton-jetton/tests"
+"test-jetton2.0" = "acton test jetton2.0/tests"
 test-dns = "acton test dns/tests"
 test-w5 = "acton test w5/tests"
 test-highload = "acton test highload-v3/tests"
