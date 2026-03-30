@@ -54,7 +54,7 @@ fun highloadBuildWallet(): HighloadWalletV3 {
     val timeout = highloadTimeout();
     val explicitAddress = highloadWalletAddress();
 
-    if (net.isBroadcasting() && explicitAddress != null) {
+    if (explicitAddress != null) {
         return HighloadWalletV3.fromAddress(explicitAddress!);
     }
 
@@ -63,7 +63,7 @@ fun highloadBuildWallet(): HighloadWalletV3 {
 
 fun highloadDeployWallet(deployer: address): HighloadWalletV3 {
     val wallet = highloadBuildWallet();
-    if (!net.isBroadcasting() || highloadWalletAddress() == null) {
+    if (wallet.stateInit != null) {
         val res = wallet.deploy(deployer, { value: highloadDeployValue(), bounce: false });
         res.wait();
     }

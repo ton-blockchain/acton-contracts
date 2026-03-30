@@ -56,7 +56,7 @@ fun main() {
 
     val senderWallet = JettonWallet { address: minter.getWalletAddress(deployer.address) };
     val senderWalletDeployed = net.isDeployed(senderWallet.address);
-    val senderBalanceBefore = senderWalletDeployed ? senderWallet.getJettonBalance() : 0;
+    val senderBalanceBefore = senderWalletDeployed ? senderWallet.getJettonBalance() : 0 as coins;
     if (!senderWalletDeployed || senderBalanceBefore < transferAmount) {
         println1("Prefunding sender wallet with {}", prefundMintAmount);
         val prefundRes = minter.sendMint(

@@ -47,7 +47,7 @@ fun w5BuildWallet(): WalletV5Contract {
     val keyPair = w5KeyPair();
     val explicitAddress = w5WalletAddress();
 
-    if (net.isBroadcasting() && explicitAddress != null) {
+    if (explicitAddress != null) {
         return WalletV5Contract { address: explicitAddress! };
     }
 
@@ -62,7 +62,7 @@ fun w5BuildWallet(): WalletV5Contract {
 
 fun w5DeployWallet(deployer: address): WalletV5Contract {
     val wallet = w5BuildWallet();
-    if (!net.isBroadcasting() || w5WalletAddress() == null) {
+    if (wallet.init != null) {
         val res = wallet.deploy(deployer, { value: w5DeployValue(), bounce: false });
         res.wait();
     }
