@@ -12,6 +12,8 @@ fun main() {
         "JETTON_METADATA_URI",
         "https://ton.org/download/ton_symbol.svg",
     );
+    val nextAdmin = envOr<address>("JETTON_NEXT_ADMIN", deployer.address);
+    val claimSender = envOr<address>("JETTON_PENDING_ADMIN_ADDRESS", nextAdmin);
     val deployValue = envOr<int>("JETTON_DEPLOY_VALUE", ton("0.05"));
 
     val expectedMinter = JettonMinter.fromStorage({
@@ -44,8 +46,9 @@ fun main() {
 
     println1("Minter address: {}", minter.address);
     println1("Admin before claim: {}", minter.getAdminAddress());
+    println1("Claim sender: {}", claimSender);
 
-    val claimRes = minter.sendClaimAdmin(deployer.address);
+    val claimRes = minter.sendClaimAdmin(claimSender);
     if (!claimRes.wait()) {
         println("Claim admin failed");
         return;

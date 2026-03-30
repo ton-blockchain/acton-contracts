@@ -44,6 +44,11 @@ fun main() {
 
     println1("Expected minter address: {}", minter.address);
     if (minterAddress == null && !net.isDeployed(minter.address)) {
+        if (net.isBroadcasting()) {
+            println("JETTON_MINTER_ADDRESS is required in broadcast mode; info stays read-only and will not deploy a new minter.");
+            return;
+        }
+
         val deployValue = envOr<int>("JETTON_DEPLOY_VALUE", ton("0.05"));
         println1("Deploying local minter for inspection with value {}", deployValue);
         val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });

@@ -4,6 +4,16 @@ import "@acton/emulation/network"
 import "./_helpers"
 
 fun main() {
+    if (!electorDeployAllowed()) {
+        printElectorDeployBlocker();
+        return;
+    }
+
     val elector = prepareElectorScriptContract();
-    printElectorSummary(elector);
+    if (elector == null) {
+        return;
+    }
+
+    val preparedElector = elector!;
+    printElectorSummary(preparedElector);
 }

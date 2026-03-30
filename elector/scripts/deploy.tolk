@@ -13,12 +13,16 @@ fun main() {
     println1("Target elector address: {}", target.address);
     println1("Deploy value: {}", electorDeployValue());
 
-    if (envOr<int>("ELECTOR_ALLOW_DEPLOY", 0) == 0) {
-        println("Blocker: elector masterchain deployment with deployer is not supported by the current emulator path.");
-        println("Set ELECTOR_ALLOW_DEPLOY=1 to attempt the send path in a different environment.");
+    if (!electorDeployAllowed()) {
+        printElectorDeployBlocker();
         return;
     }
 
     val elector = prepareElectorScriptContract();
-    printElectorSummary(elector);
+    if (elector == null) {
+        return;
+    }
+
+    val preparedElector = elector!;
+    printElectorSummary(preparedElector);
 }

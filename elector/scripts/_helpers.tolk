@@ -66,12 +66,29 @@ fun electorTransferValue(): coins {
     return envOr<int>("ELECTOR_TRANSFER_VALUE_NANOS", 100000000) as coins;
 }
 
-fun prepareElectorScriptContract(): Elector {
+fun electorDeployAllowed(): bool {
+    return envOr<int>("ELECTOR_ALLOW_DEPLOY", 0) != 0;
+}
+
+fun printElectorDeployBlocker() {
+    println("Blocker: elector masterchain deployment with deployer is not supported by the current emulator path.");
+    println("Set ELECTOR_ALLOW_DEPLOY=1 to attempt the send path in a different environment.");
+}
+
+fun prepareElectorScriptContract(): Elector? {
+    if (!electorDeployAllowed()) {
+        return null;
+    }
+
     net.setNow(SCRIPT_ELECTOR_NOW);
 
     val elector = Elector.fromStorage(defaultScriptStorage(), null, MASTERCHAIN);
     val deployer = net.wallet("deployer");
-    elector.deploy(deployer.address, { value: electorDeployValue() }).wait();
+    val deployRes = elector.deploy(deployer.address, { value: electorDeployValue() });
+    if (!deployRes.wait()) {
+        println("Elector deployment failed");
+        return null;
+    }
 
     var config = net.getConfig();
     val configAddr = net.randomAddress("elector-config", MASTERCHAIN);

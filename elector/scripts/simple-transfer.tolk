@@ -13,16 +13,21 @@ fun main() {
     println1("Target elector address: {}", target.address);
     println1("Transfer value: {}", electorTransferValue());
 
-    if (envOr<int>("ELECTOR_ALLOW_DEPLOY", 0) == 0) {
+    if (!electorDeployAllowed()) {
         println("Blocker: elector masterchain message sends with deployer are not supported by the current emulator path.");
         println("Set ELECTOR_ALLOW_DEPLOY=1 to attempt the send path in a different environment.");
         return;
     }
 
     val elector = prepareElectorScriptContract();
-    elector
+    if (elector == null) {
+        return;
+    }
+    val preparedElector = elector!;
+
+    preparedElector
         .sendSimpleTransfer(deployer.address, { value: electorTransferValue(), bounce: true })
         .wait();
 
-    printElectorSummary(elector);
+    printElectorSummary(preparedElector);
 }
