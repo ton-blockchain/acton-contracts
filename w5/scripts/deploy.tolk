@@ -4,7 +4,7 @@ import "@acton/emulation/network"
 import "common"
 
 fun main() {
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val wallet = w5DeployWallet(deployer.address);
 
     println1("Broadcast mode: {}", net.isBroadcasting());

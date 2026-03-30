@@ -6,7 +6,7 @@ import "@acton/types/out_actions"
 import "common"
 
 fun main() {
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val keyPair = highloadKeyPair();
     val subwalletId = highloadSubwalletId();
     val timeout = highloadTimeout();

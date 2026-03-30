@@ -26,7 +26,7 @@ fun targetCounter(): Counter {
 
 fun main() {
     val delta = envOr<int>("COUNTER_DELTA", 1);
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val deployValue = counterDeployValue();
     val counter = targetCounter();
     println1("Deploy value: {}", deployValue);

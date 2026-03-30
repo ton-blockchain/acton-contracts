@@ -6,7 +6,7 @@ import "./_helpers"
 import "../tests/wrappers/Elector"
 
 fun main() {
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val target = Elector.fromStorage(defaultScriptStorage(), null, MASTERCHAIN);
 
     println1("Sending simple transfer from {}", deployer.address);
@@ -14,7 +14,7 @@ fun main() {
     println1("Transfer value: {}", electorTransferValue());
 
     if (envOr<int>("ELECTOR_ALLOW_DEPLOY", 0) == 0) {
-        println("Blocker: elector masterchain message sends with deployer-1 are not supported by the current emulator path.");
+        println("Blocker: elector masterchain message sends with deployer are not supported by the current emulator path.");
         println("Set ELECTOR_ALLOW_DEPLOY=1 to attempt the send path in a different environment.");
         return;
     }

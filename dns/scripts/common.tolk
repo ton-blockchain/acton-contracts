@@ -17,7 +17,7 @@ const DNS_DEFAULT_COLLECTION_URI = "https://example.com/dns/collection.json"
 const DNS_DEFAULT_DOMAIN_UPDATED_URI = "https://example.com/dns/benchflow-updated.json"
 
 fun dnsWalletName(): string {
-    return envOr<string>("DEPLOYER_WALLET", "deployer-1");
+    return envOr<string>("DEPLOYER_WALLET", "deployer");
 }
 
 fun dnsWallet(): Wallet {

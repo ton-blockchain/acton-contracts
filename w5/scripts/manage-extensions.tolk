@@ -7,7 +7,7 @@ import "../contracts/messages"
 import "../tests/wrappers/WalletV5Contract"
 
 fun main() {
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val keyPair = w5KeyPair();
     val wallet = w5DeployWallet(deployer.address);
     val extension = envOr<address>("W5_EXTENSION", deployer.address);

@@ -14,7 +14,7 @@ const NFT_DEFAULT_ITEM_CONTENT = "item-0.json"
 const NFT_DEFAULT_BATCH_CONTENT_PREFIX = "batch-"
 
 fun nftWalletName(): string {
-    return envOr<string>("DEPLOYER_WALLET", "deployer-1");
+    return envOr<string>("DEPLOYER_WALLET", "deployer");
 }
 
 fun nftWallet(): Wallet {

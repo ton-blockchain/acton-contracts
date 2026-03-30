@@ -5,7 +5,7 @@ import "@acton/emulation/network"
 import "./_helpers"
 
 fun main() {
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val contract = prepareConfigScriptContract();
 
     println1("Deploying config contract from {}", deployer.address);

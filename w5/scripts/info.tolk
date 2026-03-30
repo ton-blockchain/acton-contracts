@@ -5,7 +5,7 @@ import "@acton/emulation/network"
 import "common"
 
 fun main() {
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val wallet = w5DeployWallet(deployer.address);
     val targetAddress = env<address>("W5_WALLET_ADDRESS");
 

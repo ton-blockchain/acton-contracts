@@ -70,7 +70,7 @@ fun prepareElectorScriptContract(): Elector {
     net.setNow(SCRIPT_ELECTOR_NOW);
 
     val elector = Elector.fromStorage(defaultScriptStorage(), null, MASTERCHAIN);
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     elector.deploy(deployer.address, { value: electorDeployValue() }).wait();
 
     var config = net.getConfig();

@@ -4,7 +4,7 @@ import "@acton/emulation/network"
 import "common"
 
 fun main() {
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val keyPair = highloadKeyPair();
     val wallet = highloadDeployWallet(deployer.address);
 

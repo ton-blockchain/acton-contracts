@@ -12,7 +12,7 @@ fun main() {
         println("Set W5_WALLET_ADDRESS to the deployed wallet before broadcasting transfers.");
         return;
     }
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val wallet = w5DeployWallet(deployer.address);
     val seqno = wallet.getSeqno();
     val recipient = envOr<address>("W5_RECIPIENT", deployer.address);

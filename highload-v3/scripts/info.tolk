@@ -5,7 +5,7 @@ import "@acton/emulation/network"
 import "common"
 
 fun main() {
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val wallet = highloadDeployWallet(deployer.address);
     val queryId = envOr<int>("HIGHLOAD_QUERY_ID", HIGHLOAD_DEFAULT_QUERY_ID);
 

@@ -5,7 +5,7 @@ import "@acton/emulation/network"
 import "./_helpers"
 
 fun main() {
-    val deployer = net.wallet("deployer-1");
+    val deployer = net.wallet("deployer");
     val contract = prepareConfigScriptContract();
     contract.deploy(deployer.address, { value: configDeployValue(), bounce: false }).wait();
 
@@ -18,7 +18,7 @@ fun main() {
 
     if (deployer.address.getWorkchain() != MASTERCHAIN) {
         println("Blocker: config proposal submission requires a masterchain sender.");
-        println("deployer-1 is not masterchain in this workspace, so this path is intentionally not sent.");
+        println("deployer is not masterchain in this workspace, so this path is intentionally not sent.");
         return;
     }
 

@@ -5,7 +5,7 @@ import "@acton/emulation/network"
 import "../tests/wrappers/JettonMinter"
 
 fun main() {
-    val walletName = "deployer-1";
+    val walletName = "deployer";
     val deployer = net.wallet(walletName);
     val initialSupply = envOr<int>("JETTON_INITIAL_SUPPLY", 0);
     val metadataUri = envOr<string>(

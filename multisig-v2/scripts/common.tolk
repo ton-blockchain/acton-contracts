@@ -14,7 +14,7 @@ const DEFAULT_TRANSFER_VALUE = ton("0.01")
 const DEFAULT_ORDER_TTL = 1200
 
 fun deployerWallet(): Wallet {
-    return net.wallet("deployer-1");
+    return net.wallet("deployer");
 }
 
 fun baselineSigners(deployer: address): array<address> {
