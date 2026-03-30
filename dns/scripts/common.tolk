@@ -1,5 +1,4 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
@@ -17,7 +16,7 @@ const DNS_DEFAULT_COLLECTION_URI = "https://example.com/dns/collection.json"
 const DNS_DEFAULT_DOMAIN_UPDATED_URI = "https://example.com/dns/benchflow-updated.json"
 
 fun dnsWalletName(): string {
-    return envOr<string>("DEPLOYER_WALLET", "deployer");
+    return envOr("DEPLOYER_WALLET", "deployer");
 }
 
 fun dnsWallet(): Wallet {
@@ -29,15 +28,15 @@ fun dnsSenderAddress(): address {
 }
 
 fun envString(key: string, fallback: string): string {
-    return envOr<string>(key, fallback);
+    return envOr(key, fallback);
 }
 
 fun envCoins(key: string, fallbackNanos: int): coins {
-    return envOr<int>(key, fallbackNanos);
+    return envOr(key, fallbackNanos);
 }
 
 fun envAddressOrNull(key: string): address? {
-    return env<address>(key);
+    return env(key);
 }
 
 fun dnsRootDeployValue(): coins {
@@ -53,7 +52,7 @@ fun dnsDomainBid(): coins {
 }
 
 fun dnsShouldDeployItem(): bool {
-    return envOr<int>("DNS_DEPLOY_ITEM", 0) != 0;
+    return envOr("DNS_DEPLOY_ITEM", 0) != 0;
 }
 
 fun makeDnsCollectionContentCell(uri: string): cell {
@@ -236,33 +235,33 @@ fun printRootInfo(root: RootDnsContract, label: string) {
     val tonWww = root.dnsresolve(makeTonWwwDomainSlice(), 0);
     val tMe = root.dnsresolve(makeTMeDomainSlice(), 0);
 
-    println(format2("{} ROOT_ADDRESS={}", label, root.address));
-    println(format2("{} TON_PREFIX_BITS={}", label, ton.resolvedPrefixLengthBits));
-    println(format2("{} TON_RESOLVER={}", label, makeNextResolverAddress(ton)));
-    println(format2("{} TON_WWW_PREFIX_BITS={}", label, tonWww.resolvedPrefixLengthBits));
-    println(format2("{} TON_WWW_RESOLVER={}", label, makeNextResolverAddress(tonWww)));
-    println(format2("{} TME_PREFIX_BITS={}", label, tMe.resolvedPrefixLengthBits));
-    println(format2("{} TME_RESOLVER={}", label, makeNextResolverAddress(tMe)));
+    println2("{} ROOT_ADDRESS={}", label, root.address);
+    println2("{} TON_PREFIX_BITS={}", label, ton.resolvedPrefixLengthBits);
+    println2("{} TON_RESOLVER={}", label, makeNextResolverAddress(ton));
+    println2("{} TON_WWW_PREFIX_BITS={}", label, tonWww.resolvedPrefixLengthBits);
+    println2("{} TON_WWW_RESOLVER={}", label, makeNextResolverAddress(tonWww));
+    println2("{} TME_PREFIX_BITS={}", label, tMe.resolvedPrefixLengthBits);
+    println2("{} TME_RESOLVER={}", label, makeNextResolverAddress(tMe));
 }
 
 fun printCollectionInfo(collection: NftCollectionContract, label: string) {
     val data = collection.getCollectionData();
-    println(format2("{} COLLECTION_ADDRESS={}", label, collection.address));
-    println(format2("{} NEXT_ITEM_INDEX={}", label, data.nextItemIndex));
-    println(format2("{} CONTENT_HASH={}", label, data.content.hash()));
+    println2("{} COLLECTION_ADDRESS={}", label, collection.address);
+    println2("{} NEXT_ITEM_INDEX={}", label, data.nextItemIndex);
+    println2("{} CONTENT_HASH={}", label, data.content.hash());
 }
 
 fun printDnsItemInfo(item: NftItemContract, label: string) {
     val data = item.getNftData();
-    println(format2("{} ITEM_ADDRESS={}", label, item.address));
-    println(format2("{} INITIALIZED={}", label, data.isInitialized));
-    println(format2("{} INDEX={}", label, data.index));
-    println(format2("{} COLLECTION_ADDRESS={}", label, data.collectionAddress));
-    println(format2("{} OWNER_ADDRESS={}", label, data.ownerAddress));
-    println(format2("{} CONTENT_PRESENT={}", label, data.content != null));
+    println2("{} ITEM_ADDRESS={}", label, item.address);
+    println2("{} INITIALIZED={}", label, data.isInitialized);
+    println2("{} INDEX={}", label, data.index);
+    println2("{} COLLECTION_ADDRESS={}", label, data.collectionAddress);
+    println2("{} OWNER_ADDRESS={}", label, data.ownerAddress);
+    println2("{} CONTENT_PRESENT={}", label, data.content != null);
     if (data.isInitialized) {
-        println(format2("{} EDITOR={}", label, item.getEditor()));
-        println(format2("{} LAST_FILL_UP_TIME={}", label, item.getLastFillUpTime()));
-        println(format2("{} AUCTION_INFO={}", label, item.getAuctionInfo()));
+        println2("{} EDITOR={}", label, item.getEditor());
+        println2("{} LAST_FILL_UP_TIME={}", label, item.getLastFillUpTime());
+        println2("{} AUCTION_INFO={}", label, item.getAuctionInfo());
     }
 }

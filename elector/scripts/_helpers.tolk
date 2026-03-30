@@ -59,15 +59,15 @@ fun defaultScriptValidators(): VSet {
 }
 
 fun electorDeployValue(): coins {
-    return envOr<int>("ELECTOR_DEPLOY_VALUE_NANOS", 1000000000) as coins;
+    return envOr("ELECTOR_DEPLOY_VALUE_NANOS", 1000000000) as coins;
 }
 
 fun electorTransferValue(): coins {
-    return envOr<int>("ELECTOR_TRANSFER_VALUE_NANOS", 100000000) as coins;
+    return envOr("ELECTOR_TRANSFER_VALUE_NANOS", 100000000) as coins;
 }
 
 fun electorDeployAllowed(): bool {
-    return envOr<int>("ELECTOR_ALLOW_DEPLOY", 0) != 0;
+    return envOr("ELECTOR_ALLOW_DEPLOY", 0) != 0;
 }
 
 fun printElectorDeployBlocker() {

@@ -19,7 +19,7 @@ fun main() {
     val newOwner = newOwnerMaybe == null ? net.treasury("nft-new-owner").address : newOwnerMaybe;
     val batchOwnerMaybe = nftAddressOrNull("NFT_BATCH_OWNER_ADDRESS");
     val batchOwner = batchOwnerMaybe == null ? deployer.address : batchOwnerMaybe;
-    val batchCount = envOr<int>("NFT_BATCH_COUNT", 3);
+    val batchCount = envOr("NFT_BATCH_COUNT", 3);
 
     val collectionAddress = nftAddressOrNull("COLLECTION_ADDRESS");
     val itemAddress = nftAddressOrNull("ITEM_ADDRESS");

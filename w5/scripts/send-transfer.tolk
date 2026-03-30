@@ -1,5 +1,4 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/emulation/network"
 import "common"
@@ -15,8 +14,8 @@ fun main() {
     val deployer = net.wallet("deployer");
     val wallet = w5DeployWallet(deployer.address);
     val seqno = wallet.getSeqno();
-    val recipient = envOr<address>("W5_RECIPIENT", deployer.address);
-    val value = envOr<int>("W5_TRANSFER_VALUE", w5ActionValue());
+    val recipient = envOr("W5_RECIPIENT", deployer.address);
+    val value = envOr("W5_TRANSFER_VALUE", w5ActionValue());
 
     var outActions: array<SendAction> = [];
     outActions.push(w5SendAction(recipient, value));

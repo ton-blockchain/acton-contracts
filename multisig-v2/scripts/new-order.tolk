@@ -11,16 +11,16 @@ fun main() {
     val deployer = deployerWallet();
     vm.registerLibrary(build("multisig_v2_order"));
 
-    val existingAddress = env<address>("MSIG_ADDRESS");
+    val existingAddress: address? = env("MSIG_ADDRESS");
     val multisig = existingAddress == null
         ? deployBaselineMultisig(deployer)
         : MultisigV2.fromAddress(existingAddress!);
 
-    val transferTarget = env<address>("MSIG_TARGET");
+    val transferTarget: address? = env("MSIG_TARGET");
     val target = transferTarget == null
         ? net.randomAddress("multisig-transfer-target")
         : transferTarget!;
-    val marker = envOr<int>("MSIG_MARKER", 0x4d534947);
+    val marker = envOr("MSIG_MARKER", 0x4d534947);
     val expirationDate = currentBaselineExpiration();
     val order = oneActionOrder(makeTransferAction(target, DEFAULT_TRANSFER_VALUE, marker).toCell());
 
@@ -39,7 +39,7 @@ fun main() {
         true,
         0,
         MAX_ORDER_SEQNO,
-        envOr<int>("MSIG_QUERY_ID", 0) as uint64,
+        envOr("MSIG_QUERY_ID", 0) as uint64,
         { value: DEFAULT_ORDER_VALUE, bounce: true },
     );
 

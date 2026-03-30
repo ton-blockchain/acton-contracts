@@ -1,5 +1,4 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/emulation/network"
 import "common"
@@ -10,7 +9,7 @@ fun main() {
     val deployer = net.wallet("deployer");
     val keyPair = w5KeyPair();
     val wallet = w5DeployWallet(deployer.address);
-    val extension = envOr<address>("W5_EXTENSION", deployer.address);
+    val extension = envOr("W5_EXTENSION", deployer.address);
     val value = w5AdminValue();
 
     println1("Managing extensions for wallet: {}", wallet.address);

@@ -1,5 +1,4 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/types/out_actions"
@@ -11,12 +10,12 @@ fun main() {
     val subwalletId = highloadSubwalletId();
     val timeout = highloadTimeout();
     val wallet = highloadDeployWallet(deployer.address);
-    val queryId = envOr<int>("HIGHLOAD_QUERY_ID", HIGHLOAD_DEFAULT_QUERY_ID);
-    val createdAt = envOr<int>("HIGHLOAD_CREATED_AT", blockchain.now());
+    val queryId = envOr("HIGHLOAD_QUERY_ID", HIGHLOAD_DEFAULT_QUERY_ID);
+    val createdAt = envOr("HIGHLOAD_CREATED_AT", blockchain.now());
     val recipient1 = highloadRecipient("highload-recipient-1", "HIGHLOAD_RECIPIENT");
     val recipient2 = highloadRecipient("highload-recipient-2", "HIGHLOAD_RECIPIENT_2");
-    val value1 = envOr<int>("HIGHLOAD_VALUE_1", HIGHLOAD_DEFAULT_ACTION_VALUE);
-    val value2 = envOr<int>("HIGHLOAD_VALUE_2", HIGHLOAD_DEFAULT_RECIPIENT_2_VALUE);
+    val value1 = envOr("HIGHLOAD_VALUE_1", HIGHLOAD_DEFAULT_ACTION_VALUE);
+    val value2 = envOr("HIGHLOAD_VALUE_2", HIGHLOAD_DEFAULT_RECIPIENT_2_VALUE);
 
     var actions: array<OutActionSendMessage> = [];
     actions.push(highloadMakeAction(recipient1, value1));

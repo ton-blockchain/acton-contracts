@@ -1,4 +1,3 @@
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/emulation/network"
 import "common"

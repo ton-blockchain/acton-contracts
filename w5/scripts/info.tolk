@@ -1,5 +1,4 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/emulation/network"
 import "common"
@@ -7,7 +6,7 @@ import "common"
 fun main() {
     val deployer = net.wallet("deployer");
     val wallet = w5DeployWallet(deployer.address);
-    val targetAddress = env<address>("W5_WALLET_ADDRESS");
+    val targetAddress: address? = env("W5_WALLET_ADDRESS");
 
     println1("Broadcast mode: {}", net.isBroadcasting());
     println1("Deployer wallet: {}", deployer.address);

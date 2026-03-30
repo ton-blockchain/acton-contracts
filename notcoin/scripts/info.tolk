@@ -1,5 +1,4 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
@@ -25,13 +24,10 @@ fun getWalletStatus(wallet: JettonWallet): int {
 fun main() {
     val walletName = "deployer";
     val deployer = net.wallet(walletName);
-    val initialSupply = envOr<int>("JETTON_INITIAL_SUPPLY", 0);
-    val metadataUri = envOr<string>(
-        "JETTON_METADATA_URI",
-        "https://ton.org/download/ton_symbol.svg",
-    );
-    val minterAddress = env<address>("JETTON_MINTER_ADDRESS");
-    val ownerAddress = envOr<address>("JETTON_OWNER_ADDRESS", deployer.address);
+    val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
+    val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
+    val minterAddress: address? = env("JETTON_MINTER_ADDRESS");
+    val ownerAddress = envOr("JETTON_OWNER_ADDRESS", deployer.address);
 
     val expectedMinter = JettonMinter.fromStorage({
         totalSupply: initialSupply,
@@ -50,7 +46,7 @@ fun main() {
 
     println1("Expected minter address: {}", minter.address);
     if (minterAddress == null && !net.isDeployed(minter.address)) {
-        val deployValue = envOr<int>("JETTON_DEPLOY_VALUE", ton("0.05"));
+        val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
         println1("Deploying local minter for inspection with value {}", deployValue);
         val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
         if (!deployRes.wait()) {
@@ -77,7 +73,7 @@ fun main() {
     }
     println1("Owner address: {}", ownerAddress);
     println1("Owner wallet: {}", wallet.address);
-    if (envOr<int>("JETTON_SHOW_WALLET_DETAILS", 0) == 0) {
+    if (envOr("JETTON_SHOW_WALLET_DETAILS", 0) == 0) {
         println("Wallet detail getters skipped by default. Set JETTON_SHOW_WALLET_DETAILS=1 to query wallet state.");
         return;
     }

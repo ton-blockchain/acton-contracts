@@ -6,11 +6,11 @@ import "../contracts/types"
 import "../tests/wrappers/Counter"
 
 fun counterDeployValue(): coins {
-    return envOr<int>("COUNTER_DEPLOY_VALUE_NANOS", 5000000) as coins;
+    return envOr("COUNTER_DEPLOY_VALUE_NANOS", 5000000) as coins;
 }
 
 fun explicitCounterAddress(): address? {
-    return env<address>("COUNTER_ADDRESS");
+    return env("COUNTER_ADDRESS");
 }
 
 fun targetCounter(): Counter {

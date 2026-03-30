@@ -1,4 +1,3 @@
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
@@ -112,13 +111,13 @@ fun printMultisigData(multisig: MultisigV2) {
 
     var signerItems = signers.findFirst();
     while (signerItems.isFound) {
-        println(format2("  signer[{}]: {}", signerItems.getKey(), signerItems.loadValue()));
+        println2("  signer[{}]: {}", signerItems.getKey(), signerItems.loadValue());
         signerItems = signers.iterateNext(signerItems);
     }
 
     var proposerItems = proposers.findFirst();
     while (proposerItems.isFound) {
-        println(format2("  proposer[{}]: {}", proposerItems.getKey(), proposerItems.loadValue()));
+        println2("  proposer[{}]: {}", proposerItems.getKey(), proposerItems.loadValue());
         proposerItems = proposers.iterateNext(proposerItems);
     }
 }

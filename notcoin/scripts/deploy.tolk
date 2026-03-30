@@ -1,5 +1,4 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
@@ -9,12 +8,9 @@ import "../tests/wrappers/JettonWallet"
 fun main() {
     val walletName = "deployer";
     val deployer = net.wallet(walletName);
-    val initialSupply = envOr<int>("JETTON_INITIAL_SUPPLY", 0);
-    val metadataUri = envOr<string>(
-        "JETTON_METADATA_URI",
-        "https://ton.org/download/ton_symbol.svg",
-    );
-    val deployValue = envOr<int>("JETTON_DEPLOY_VALUE", ton("0.05"));
+    val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
+    val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
+    val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
 
     println1("Using wallet: {}", walletName);
     println1("Broadcast mode: {}", net.isBroadcasting());

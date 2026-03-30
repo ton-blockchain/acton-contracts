@@ -1,5 +1,4 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/emulation/network"
 import "../contracts/types"
@@ -19,16 +18,13 @@ fun metadataUriFromContent(contentCell: cell): string? {
 fun main() {
     val walletName = "deployer";
     val deployer = net.wallet(walletName);
-    val initialSupply = envOr<int>("JETTON_INITIAL_SUPPLY", 0);
-    val metadataUri = envOr<string>(
-        "JETTON_METADATA_URI",
-        "https://ton.org/download/ton_symbol.svg",
-    );
-    val newMetadataUri = envOr<string>(
+    val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
+    val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
+    val newMetadataUri = envOr(
         "JETTON_NEW_METADATA_URI",
         "https://ton.org/download/ton_symbol.svg?updated=1",
     );
-    val deployValue = envOr<int>("JETTON_DEPLOY_VALUE", ton("0.05"));
+    val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
 
     val expectedMinter = JettonMinter.fromStorage({
         totalSupply: initialSupply,
@@ -36,7 +32,7 @@ fun main() {
         metadataUri,
         nextAdminAddress: null,
     });
-    val minterAddress = env<address>("JETTON_MINTER_ADDRESS");
+    val minterAddress: address? = env("JETTON_MINTER_ADDRESS");
     var minter = expectedMinter;
     if (minterAddress != null) {
         minter = JettonMinter {

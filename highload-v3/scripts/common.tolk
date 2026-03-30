@@ -1,5 +1,4 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/build/build"
 import "@acton/crypto/crypto"
@@ -17,7 +16,7 @@ const HIGHLOAD_DEFAULT_RECIPIENT_2_VALUE = ton("0.005")
 const HIGHLOAD_DEFAULT_QUERY_ID = 0
 
 fun highloadSeed(): int {
-    return envOr<int>("HIGHLOAD_SEED", HIGHLOAD_DEFAULT_SEED);
+    return envOr("HIGHLOAD_SEED", HIGHLOAD_DEFAULT_SEED);
 }
 
 fun highloadKeyPair(): KeyPair {
@@ -25,27 +24,27 @@ fun highloadKeyPair(): KeyPair {
 }
 
 fun highloadSubwalletId(): int {
-    return envOr<int>("HIGHLOAD_SUBWALLET_ID", HIGHLOAD_DEFAULT_SUBWALLET_ID);
+    return envOr("HIGHLOAD_SUBWALLET_ID", HIGHLOAD_DEFAULT_SUBWALLET_ID);
 }
 
 fun highloadTimeout(): int {
-    return envOr<int>("HIGHLOAD_TIMEOUT", HIGHLOAD_DEFAULT_TIMEOUT);
+    return envOr("HIGHLOAD_TIMEOUT", HIGHLOAD_DEFAULT_TIMEOUT);
 }
 
 fun highloadDeployValue(): int {
-    return envOr<int>("HIGHLOAD_DEPLOY_VALUE", HIGHLOAD_DEFAULT_DEPLOY_VALUE);
+    return envOr("HIGHLOAD_DEPLOY_VALUE", HIGHLOAD_DEFAULT_DEPLOY_VALUE);
 }
 
 fun highloadBatchValue(): int {
-    return envOr<int>("HIGHLOAD_BATCH_VALUE", HIGHLOAD_DEFAULT_BATCH_VALUE);
+    return envOr("HIGHLOAD_BATCH_VALUE", HIGHLOAD_DEFAULT_BATCH_VALUE);
 }
 
 fun highloadWalletAddress(): address? {
-    return env<address>("HIGHLOAD_WALLET_ADDRESS");
+    return env("HIGHLOAD_WALLET_ADDRESS");
 }
 
 fun highloadRecipient(name: string, envName: string): address {
-    return envOr<address>(envName, net.treasury(name).address);
+    return envOr(envName, net.treasury(name).address);
 }
 
 fun highloadBuildWallet(): HighloadWalletV3 {
@@ -98,11 +97,9 @@ fun printHighloadInfo(wallet: HighloadWalletV3, queryId: int = HIGHLOAD_DEFAULT_
     println1("Subwallet id: {}", wallet.getSubwalletId());
     println1("Timeout: {}", wallet.getTimeout());
     println1("Last clean time: {}", wallet.getLastCleanTime());
-    println(
-        format2(
-            "processed?(queryId={}, needClean=false): {}",
-            queryId,
-            wallet.isProcessed(queryId, false),
-        ),
+    println2(
+        "processed?(queryId={}, needClean=false): {}",
+        queryId,
+        wallet.isProcessed(queryId, false),
     );
 }

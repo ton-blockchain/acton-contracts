@@ -11,13 +11,13 @@ fun main() {
     val deployer = deployerWallet();
     vm.registerLibrary(build("multisig_v2_order"));
 
-    val existingAddress = env<address>("MSIG_ADDRESS");
+    val existingAddress: address? = env("MSIG_ADDRESS");
     val multisig = existingAddress == null
         ? deployBaselineMultisig(deployer)
         : MultisigV2.fromAddress(existingAddress!);
 
-    val signerSeed = env<address>("MSIG_NEW_SIGNER");
-    val proposerSeed = env<address>("MSIG_NEW_PROPOSER");
+    val signerSeed: address? = env("MSIG_NEW_SIGNER");
+    val proposerSeed: address? = env("MSIG_NEW_PROPOSER");
     val newSigner = signerSeed == null ? net.randomAddress("multisig-new-signer") : signerSeed!;
     val newProposer = proposerSeed == null
         ? net.randomAddress("multisig-new-proposer")
@@ -49,7 +49,7 @@ fun main() {
         true,
         0,
         MAX_ORDER_SEQNO,
-        envOr<int>("MSIG_QUERY_ID", 0) as uint64,
+        envOr("MSIG_QUERY_ID", 0) as uint64,
         { value: DEFAULT_ORDER_VALUE, bounce: true },
     );
 

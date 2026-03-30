@@ -6,7 +6,7 @@ import "../tests/wrappers/MultisigV2"
 
 fun main() {
     val deployer = deployerWallet();
-    val existingAddress = env<address>("MSIG_ADDRESS");
+    val existingAddress: address? = env("MSIG_ADDRESS");
     val multisig = existingAddress == null
         ? deployBaselineMultisig(deployer)
         : MultisigV2.fromAddress(existingAddress!);

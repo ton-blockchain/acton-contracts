@@ -98,19 +98,19 @@ fun buildScriptCriticalParamsCell(): cell {
 }
 
 fun configDeployValue(): coins {
-    return envOr<int>("CONFIG_DEPLOY_VALUE_NANOS", 1000000000) as coins;
+    return envOr("CONFIG_DEPLOY_VALUE_NANOS", 1000000000) as coins;
 }
 
 fun configProposalValue(): coins {
-    return envOr<int>("CONFIG_PROPOSAL_VALUE_NANOS", 1000000000) as coins;
+    return envOr("CONFIG_PROPOSAL_VALUE_NANOS", 1000000000) as coins;
 }
 
 fun configProposalText(): string {
-    return envOr<string>("CONFIG_PROPOSAL_TEXT", "config-script");
+    return envOr("CONFIG_PROPOSAL_TEXT", "config-script");
 }
 
 fun configProposalParamId(): int32 {
-    return envOr<int>("CONFIG_PROPOSAL_PARAM_ID", -42) as int32;
+    return envOr("CONFIG_PROPOSAL_PARAM_ID", -42) as int32;
 }
 
 fun prepareConfigScriptContract(): ConfigContract {
