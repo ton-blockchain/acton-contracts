@@ -25,16 +25,20 @@ fun targetCounter(): Counter {
 }
 
 fun main() {
+    val delta = envOr<int>("COUNTER_DELTA", 1);
     val deployer = net.wallet("deployer-1");
     val deployValue = counterDeployValue();
     val counter = targetCounter();
     println1("Deploy value: {}", deployValue);
     if (!net.isDeployed(counter.address)) {
-        val res = counter.deploy(deployer.address, { value: deployValue });
-        res.wait();
+        counter.deploy(deployer.address, { value: deployValue }).wait();
     }
 
-    println1("Deployed counter to {}", counter.address);
+    println1("Increasing counter by {}", delta);
+    val res = counter.sendIncreaseCounter(deployer.address, delta as uint32);
+    res.wait();
+
+    println1("Counter address: {}", counter.address);
     println1("COUNTER_ADDRESS={}", counter.address);
     println1("Current counter value: {}", counter.currentCounter());
 }

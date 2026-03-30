@@ -30,11 +30,17 @@ fun main() {
     val counter = targetCounter();
     println1("Deploy value: {}", deployValue);
     if (!net.isDeployed(counter.address)) {
-        val res = counter.deploy(deployer.address, { value: deployValue });
-        res.wait();
+        counter.deploy(deployer.address, { value: deployValue }).wait();
     }
 
-    println1("Deployed counter to {}", counter.address);
+    val inc = counter.sendIncreaseCounter(deployer.address, 7);
+    inc.wait();
+
+    println1("Counter before reset: {}", counter.currentCounter());
+    val res = counter.sendResetCounter(deployer.address);
+    res.wait();
+
+    println1("Counter address: {}", counter.address);
     println1("COUNTER_ADDRESS={}", counter.address);
-    println1("Current counter value: {}", counter.currentCounter());
+    println1("Counter after reset: {}", counter.currentCounter());
 }
