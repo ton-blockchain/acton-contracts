@@ -1,40 +1,56 @@
 import "@acton/env"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "../tests/wrappers/JettonMinter"
+import "../tests/wrappers/JettonWallet"
 
 fun main() {
-    val supply = envOr<int>("JETTON_SUPPLY", 1000000000);
+    val walletName = "deployer";
+    val deployer = net.wallet(walletName);
+    val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
+    val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
+    val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
 
-    val deployer = net.wallet("deployer");
+    println1("Using wallet: {}", walletName);
+    println1("Broadcast mode: {}", net.isBroadcasting());
+    println1("Metadata URI: {}", metadataUri);
+    println1("Deploy value: {}", deployValue);
 
     val minter = JettonMinter.fromStorage({
-        totalSupply: supply,
+        totalSupply: initialSupply,
         adminAddress: deployer.address,
         jettonWalletCode: build("notcoin_wallet"),
-        metadataUri: "https://ton.org/download/ton_symbol.svg",
+        metadataUri,
         nextAdminAddress: null,
     });
+    println1("Prepared minter address: {}", minter.address);
 
-    println("Deploying Jetton contract...");
-    val deployRes = minter.sendDeploy(deployer.address, { value: ton("0.03") });
-    deployRes.wait();
-
-    println1("Minting tokens: {}", supply);
-    val mintRes = minter.sendMint(
-        deployer.address,
-        deployer.address,
-        supply,
-        ton("0.01"),
-        ton("0.02"),
-    );
-    if (!mintRes.wait()) {
+    val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
+    if (!deployRes.wait()) {
+        println("Deployment failed");
         return;
     }
 
-    println(
-        format2("Successfully minted and transferred {} tokens to {}", supply, deployer.address),
-    );
+    val adminWallet = JettonWallet { address: minter.getWalletAddress(deployer.address) };
+    val adminWalletDeployed = net.isDeployed(adminWallet.address);
+
+    println1("Deployed notcoin minter at {}", minter.address);
+    println1("JETTON_MINTER_ADDRESS={}", minter.address);
+    println1("MINTER_ADDRESS={}", minter.address);
+    println1("Admin: {}", deployer.address);
+    println1("ADMIN_WALLET_ADDRESS={}", adminWallet.address);
+    println1("Admin wallet: {}", adminWallet.address);
+    if (net.isBroadcasting()) {
+        println("Admin wallet getters are skipped in broadcast mode; rerun info after minting if needed.");
+    } else {
+        println1("ADMIN_WALLET_DEPLOYED={}", adminWalletDeployed);
+        if (adminWalletDeployed) {
+            println1("Admin wallet balance: {}", adminWallet.getJettonBalance());
+        } else {
+            println("Admin wallet balance: <unavailable>");
+        }
+    }
+    println1("Total supply: {}", minter.getTotalSupply());
+    println1("Mintable: {}", minter.getJettonData().mintable);
 }

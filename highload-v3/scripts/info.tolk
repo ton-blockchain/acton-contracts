@@ -1,17 +1,18 @@
+import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "common"
 
 fun main() {
     val deployer = net.wallet("deployer");
-    val wallet = w5DeployWallet(deployer.address);
+    val wallet = highloadDeployWallet(deployer.address);
+    val queryId = envOr("HIGHLOAD_QUERY_ID", HIGHLOAD_DEFAULT_QUERY_ID);
 
     println1("Broadcast mode: {}", net.isBroadcasting());
     println1("Deployer wallet: {}", deployer.address);
-    val targetAddress = w5WalletAddress();
+    val targetAddress = highloadWalletAddress();
     if (targetAddress != null) {
         println1("Target wallet from env: {}", targetAddress!);
     }
-    println1("Wallet v5 address: {}", wallet.address);
-    w5PrintInfo(wallet);
+    printHighloadInfo(wallet, queryId);
 }
