@@ -280,7 +280,7 @@ get fun `test admin: non-admin should not be able to upgrade minter`() {
         nextAdminAddress: null,
         metadataUri: "meta-upgrade",
     }.toCell();
-    val newCode = build("jetton20_minter");
+    val newCode = build("jetton_v2_minter");
     val oldContentHash = minter.getContent().hash();
 
     val res = minter.sendUpgrade(notDeployer.address, newCode, newData);
@@ -302,7 +302,7 @@ get fun `test admin: admin should be able to upgrade minter code and data`() {
         nextAdminAddress: null,
         metadataUri: upgradedUri,
     }.toCell();
-    val newCode = build("jetton20_minter");
+    val newCode = build("jetton_v2_minter");
 
     val res = minter.sendUpgrade(deployer.address, newCode, newData);
     expect(res).toHaveSuccessfulTx<UpgradeMinterCode>({

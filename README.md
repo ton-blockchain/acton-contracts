@@ -8,7 +8,7 @@ This monorepo collects reference implementations for main TON ecosystem contract
 
 - Protocol contracts: [`config`](./config/), [`elector`](./elector/), [`dns`](./dns/)
 - Wallets: [`w5`](./w5/), [`highload-v3`](./highload-v3/), [`multisig-v2`](./multisig-v2/)
-- Tokens and assets: [`nft`](./nft/), [`jetton-2.0`](./jetton-2.0/), [`notcoin`](./notcoin/)
+- Tokens and assets: [`nft`](./nft/), [`jetton-v2`](./jetton-v2/), [`notcoin`](./notcoin/)
 - Minimal example: [`counter`](./counter/)
 
 Each suite is organized as a self-contained package with `contracts/`, `tests/`, and, where needed, `scripts/`. Selected suites also carry benchmark baselines for regression tracking.

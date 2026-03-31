@@ -1,4 +1,4 @@
-import "@gen/jetton20_wallet_code"
+import "@gen/jetton_v2_wallet_code"
 import "errors"
 import "fees-management"
 import "jetton-utils"
@@ -52,7 +52,7 @@ fun onInternalMessage(in: InMessage) {
     match (msg) {
         BurnNotificationForMinter => {
             var storage = lazy MinterStorage.load();
-            val jettonWalletCode = jetton20WalletCompiledCode();
+            val jettonWalletCode = jettonV2WalletCompiledCode();
             assert (
                 in.senderAddress ==
                 calcAddressOfJettonWallet(
@@ -84,7 +84,7 @@ fun onInternalMessage(in: InMessage) {
 
             var walletAddress: address? = null;
             if (msg.ownerAddress.getWorkchain() == MY_WORKCHAIN) {
-                val jettonWalletCode = jetton20WalletCompiledCode();
+                val jettonWalletCode = jettonV2WalletCompiledCode();
                 walletAddress = calcAddressOfJettonWallet(
                     msg.ownerAddress,
                     contract.getAddress(),
@@ -129,7 +129,7 @@ fun onInternalMessage(in: InMessage) {
                 RESERVE_MODE_EXACT_AMOUNT,
             );                                                                // reserve for storage fees
 
-            val jettonWalletCode = jetton20WalletCompiledCode();
+            val jettonWalletCode = jettonV2WalletCompiledCode();
             val deployMsg = createMessage({
                 bounce: BounceMode.Only256BitsOfBody,
                 dest: calcDeployedJettonWallet(
@@ -206,7 +206,7 @@ struct (0x00) SnakeDataReply {
 
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
-    val jettonWalletCode = jetton20WalletCompiledCode();
+    val jettonWalletCode = jettonV2WalletCompiledCode();
     var metadata: OnchainMetadataReply = { contentDict: [] };
     metadata
         .contentDict
@@ -223,7 +223,7 @@ get fun get_jetton_data(): JettonDataReply {
 }
 
 get fun get_wallet_address(ownerAddress: address): address {
-    val jettonWalletCode = jetton20WalletCompiledCode();
+    val jettonWalletCode = jettonV2WalletCompiledCode();
     return calcAddressOfJettonWallet(ownerAddress, contract.getAddress(), jettonWalletCode);
 }
 

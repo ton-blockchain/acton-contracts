@@ -31,7 +31,7 @@ fun JettonMinter.sendDiscovery(
 
 fun JettonMinter.fromStorage(storage: MinterStorage) {
     val init = ContractState {
-        code: build("jetton20_minter"),
+        code: build("jetton_v2_minter"),
         data: storage.toCell(),
     };
     val addr = AutoDeployAddress { stateInit: init }.calculateAddress();
