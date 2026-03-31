@@ -13,7 +13,7 @@ struct NftCollectionContract {
 /// Creates a contract wrapper instance from the storage data
 fun NftCollectionContract.fromStorage(storage: NftCollectionStorage) {
     val init = ContractState {
-        code: build("nft-collection"),
+        code: build("nft_collection"),
         data: storage.toCell(),
     };
     val address = AutoDeployAddress { stateInit: init }.calculateAddress();

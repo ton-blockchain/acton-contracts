@@ -72,24 +72,24 @@ src = "multisig-v2/contracts/order-contract.tolk"
 depends = []
 
 # NFT
-[contracts.nft-collection]
-name = "Collection"
+[contracts.nft_collection]
+name = "collection"
 src = "nft/contracts/nft-collection-contract.tolk"
-depends = ["nft-item"]
+depends = ["nft_item"]
 
-[contracts.nft-item]
-name = "Item"
+[contracts.nft_item]
+name = "item"
 src = "nft/contracts/nft-item-contract.tolk"
 depends = []
 
 # Elector
 [contracts.elector]
-name = "Elector"
+name = "elector"
 src = "elector/contracts/elector.tolk"
 
 # W5
 [contracts.w5]
-name = "Wallet W5"
+name = "w5"
 src = "w5/contracts/wallet-v5-contract.tolk"
 depends = []
 
