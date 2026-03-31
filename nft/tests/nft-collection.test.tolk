@@ -109,7 +109,7 @@ fun setupTest() {
             collectionMetadata: createEmptyCell(),
             commonContent: "",
         }.toCell(),
-        nftItemCode: build("nft-item"),
+        nftItemCode: build("nft_item"),
         royaltyParams: royaltyParams.toCell(),
     });
 

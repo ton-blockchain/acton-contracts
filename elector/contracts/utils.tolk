@@ -82,5 +82,5 @@ fun InMessage.source(): address
     asm "INMSG_SRC"
 
 fun T.getDeclaredPackPrefix(): int {
-    return reflect.serializationPrefixOf<T>();
+    return reflect.serializationPrefixOf<T>().0;
 }

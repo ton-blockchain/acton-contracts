@@ -27,15 +27,15 @@ name = "notcoin_wallet"
 src = "notcoin/contracts/jetton-wallet-contract.tolk"
 depends = []
 
-# Jetton 2.0
-[contracts.jetton20_minter]
-name = "jetton20_minter"
-src = "jetton2.0/contracts/jetton-minter-contract.tolk"
-depends = [{ name = "jetton20_wallet", function = "jetton20WalletCompiledCode" }]
+# Jetton v2
+[contracts.jetton_v2_minter]
+name = "jetton_v2_minter"
+src = "jetton-v2/contracts/jetton-minter-contract.tolk"
+depends = [{ name = "jetton_v2_wallet", function = "jettonV2WalletCompiledCode" }]
 
-[contracts.jetton20_wallet]
-name = "jetton20_wallet"
-src = "jetton2.0/contracts/jetton-wallet-contract.tolk"
+[contracts.jetton_v2_wallet]
+name = "jetton_v2_wallet"
+src = "jetton-v2/contracts/jetton-wallet-contract.tolk"
 depends = []
 
 # DNS
@@ -54,13 +54,13 @@ name = "dns_root"
 src = "dns/contracts/root-dns-contract.tolk"
 depends = []
 
-# Highload V3
+# Highload v3
 [contracts.highload_wallet_v3]
 name = "highload_wallet_v3"
 src = "highload-v3/contracts/highload-wallet.tolk"
 depends = []
 
-# Multisig V2
+# Multisig v2
 [contracts.multisig_v2]
 name = "multisig_v2"
 src = "multisig-v2/contracts/multisig-contract.tolk"
@@ -72,28 +72,28 @@ src = "multisig-v2/contracts/order-contract.tolk"
 depends = []
 
 # NFT
-[contracts.nft-collection]
-name = "Collection"
+[contracts.nft_collection]
+name = "collection"
 src = "nft/contracts/nft-collection-contract.tolk"
-depends = ["nft-item"]
+depends = ["nft_item"]
 
-[contracts.nft-item]
-name = "Item"
+[contracts.nft_item]
+name = "item"
 src = "nft/contracts/nft-item-contract.tolk"
 depends = []
 
 # Elector
 [contracts.elector]
-name = "Elector"
+name = "elector"
 src = "elector/contracts/elector.tolk"
 
 # W5
 [contracts.w5]
-name = "Wallet W5"
+name = "w5"
 src = "w5/contracts/wallet-v5-contract.tolk"
 depends = []
 
-[lint.jetton20_minter]
+[lint.jetton_v2_minter]
 asm-function-missing-safety-comment = "allow"
 
 [test]
@@ -116,7 +116,7 @@ ignore = []
 test-counter = "acton test counter/tests"
 test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
-"test-jetton2.0" = "acton test jetton2.0/tests"
+"test-jetton-v2" = "acton test jetton-v2/tests"
 test-dns = "acton test dns/tests"
 test-w5 = "acton test w5/tests"
 test-highload = "acton test highload-v3/tests"

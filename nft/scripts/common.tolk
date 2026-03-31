@@ -40,7 +40,7 @@ fun makeNftCollectionStorage(admin: address, collectionMetadataUri: string): Nft
             collectionMetadata: makeNftCollectionMetadataCell(collectionMetadataUri),
             commonContent: NFT_DEFAULT_COMMON_CONTENT,
         }.toCell(),
-        nftItemCode: build("nft-item"),
+        nftItemCode: build("nft_item"),
         royaltyParams: RoyaltyParams {
             numerator: 5,
             denominator: 100,
