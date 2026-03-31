@@ -30,12 +30,12 @@ depends = []
 # Jetton 2.0
 [contracts.jetton20_minter]
 name = "jetton20_minter"
-src = "jetton2.0/contracts/jetton-minter-contract.tolk"
+src = "jetton-2.0/contracts/jetton-minter-contract.tolk"
 depends = [{ name = "jetton20_wallet", function = "jetton20WalletCompiledCode" }]
 
 [contracts.jetton20_wallet]
 name = "jetton20_wallet"
-src = "jetton2.0/contracts/jetton-wallet-contract.tolk"
+src = "jetton-2.0/contracts/jetton-wallet-contract.tolk"
 depends = []
 
 # DNS
@@ -116,7 +116,7 @@ ignore = []
 test-counter = "acton test counter/tests"
 test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
-"test-jetton2.0" = "acton test jetton2.0/tests"
+"test-jetton-2.0" = "acton test jetton-2.0/tests"
 test-dns = "acton test dns/tests"
 test-w5 = "acton test w5/tests"
 test-highload = "acton test highload-v3/tests"

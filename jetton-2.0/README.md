@@ -4,4 +4,4 @@ Original FunC: [jetton-2.0 branch](https://github.com/ton-blockchain/jetton-cont
 
 This package ports the official Jetton 2.0 minter and wallet design to Tolk for the Acton workflow, with explicit storage, sharding, fee management, and protocol message types. Tests cover admin and governance controls, bounce handling, gas profile, protocol validation, state init, and wallet behavior.
 
-Scripts in `scripts/` cover deployment, state inspection, minting, transfers, and admin or metadata updates via `deploy.tolk`, `info.tolk`, `mint.tolk`, `transfer.tolk`, `change-admin.tolk`, `claim-admin.tolk`, and `change-metadata.tolk`. Run them with `acton script jetton2.0/scripts/<name>.tolk`.
+Scripts in `scripts/` cover deployment, state inspection, minting, transfers, and admin or metadata updates via `deploy.tolk`, `info.tolk`, `mint.tolk`, `transfer.tolk`, `change-admin.tolk`, `claim-admin.tolk`, and `change-metadata.tolk`. Run them with `acton script jetton-2.0/scripts/<name>.tolk`.

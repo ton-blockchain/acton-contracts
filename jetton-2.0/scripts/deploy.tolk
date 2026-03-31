@@ -24,7 +24,7 @@ fun main() {
     });
     println1("Prepared minter address: {}", minter.address);
 
-    println1("Deploying jetton2.0 minter at {}", minter.address);
+    println1("Deploying jetton-2.0 minter at {}", minter.address);
     val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
     if (!deployRes.wait()) {
         println("Deployment failed");
