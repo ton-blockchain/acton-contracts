@@ -22,7 +22,7 @@ fun setupVsetWithKnownValidators(numValidators: int): array<KeyPair> {
         dict.set(
             i,
             ValidatorDescrWithAdnlAddr {
-                validatorPubkey: kp.publicKey as uint256,
+                validatorPubkey: kp.publicKey,
                 validatorWeight: weight,
                 adnlAddr: 0,
             },
@@ -31,10 +31,10 @@ fun setupVsetWithKnownValidators(numValidators: int): array<KeyPair> {
         i += 1;
     }
     val vset = VSet {
-        utimeSince: (blockchain.now() - 1000) as uint32,
-        utimeUntil: (blockchain.now() + 9000) as uint32,
-        _total: numValidators as uint16,
-        _main: numValidators as uint16,
+        utimeSince: (blockchain.now() - 1000),
+        utimeUntil: (blockchain.now() + 9000),
+        _total: numValidators,
+        _main: numValidators,
         totalWeight,
         dict,
     };
@@ -63,12 +63,12 @@ fun registerTestComplaintFull(
     elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("500") },
     );
 
-    val complaints = elector.getPastComplaints(stakeAt as uint32);
+    val complaints = elector.getPastComplaints(stakeAt);
     val first = complaints.findFirst();
     assert (first.isFound) throw 500;
     return ComplaintRegistration {
@@ -161,7 +161,7 @@ get fun `test vote invalid signature`() {
     val vote = VoteForComplaint {
         signTag: 0x56744350,
         idx: 0,
-        electId: stakeAt as uint32,
+        electId: stakeAt,
         chash: 0,
     };
     val voteCell = vote.toCell();
@@ -189,7 +189,7 @@ get fun `test vote no such elections`() {
     val kps = setupVsetWithKnownValidators(5);
     registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
 
-    val wrongElectId: uint32 = (stakeAt + 999) as uint32;
+    val wrongElectId: uint32 = (stakeAt + 999);
     val res = sendVote(
         elector,
         1,
@@ -217,7 +217,7 @@ get fun `test vote no such complaint`() {
         1,
         kps.get(0).privateKey,
         0,
-        stakeAt as uint32,
+        stakeAt,
         fakeChash,
     );
     // registerVote returns -1 (complaint not found), response = -1 + 0xd6745240 = 0xd674523f
@@ -253,10 +253,10 @@ get fun `test vote success`() {
     while (i <= 4) {
         val res = sendVote(
             elector,
-            i as uint64,
+            i,
             kps.get(i).privateKey,
-            i as uint16,
-            stakeAt as uint32,
+            i,
+            stakeAt,
             chash,
         );
         if (i < 4) {
@@ -268,7 +268,7 @@ get fun `test vote success`() {
         }
 
         // Verify intermediate complaint state via show_complaint
-        val complaintInfo = elector.showComplaint(stakeAt as uint32, chash);
+        val complaintInfo = elector.showComplaint(stakeAt, chash);
         assert (complaintInfo != null) throw (600 + i);
 
         i += 1;
@@ -279,12 +279,12 @@ get fun `test vote success`() {
     val trueFine = min(stakeBefore, fine + mulDivFloor(stakeBefore, finePart, 1 << 32));
 
     // reward = min(trueFine >> 3, paid * 8)
-    val info = elector.showComplaint(stakeAt as uint32, chash);
+    val info = elector.showComplaint(stakeAt, chash);
     assert (info != null) throw 630;
     val paid = info.complaint.paid;
     val expectedReward = min(trueFine >> 3, paid * 8);
     val creditAfter = elector.computeReturnedStake(rewardAddr);
-    expect(creditAfter as int).toEqual((creditBefore + expectedReward) as int);
+    expect(creditAfter).toEqual((creditBefore + expectedReward));
 }
 
 /// Test that voting twice is rejected
@@ -303,7 +303,7 @@ get fun `test vote already voted`() {
         2,
         kps.get(0).privateKey,
         0,
-        stakeAt as uint32,
+        stakeAt,
         chash,
     );
     expect(res1).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
@@ -315,7 +315,7 @@ get fun `test vote already voted`() {
         3,
         kps.get(0).privateKey,
         0,
-        stakeAt as uint32,
+        stakeAt,
         chash,
     );
     expect(res2).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745240 });
@@ -338,10 +338,10 @@ get fun `test vote old vset finished`() {
     while (i <= 4) {
         val res = sendVote(
             elector,
-            i as uint64,
+            i,
             kps.get(i).privateKey,
-            i as uint16,
-            stakeAt as uint32,
+            i,
+            stakeAt,
             chash,
         );
         if (i < 4) {
@@ -364,7 +364,7 @@ get fun `test vote old vset finished`() {
         dict.set(
             i,
             ValidatorDescrWithAdnlAddr {
-                validatorPubkey: kps.get(i).publicKey as uint256,
+                validatorPubkey: kps.get(i).publicKey,
                 validatorWeight: weight,
                 adnlAddr: 0,
             },
@@ -373,10 +373,10 @@ get fun `test vote old vset finished`() {
         i += 1;
     }
     val newVset = VSet {
-        utimeSince: (blockchain.now() + 100) as uint32,
-        utimeUntil: (blockchain.now() + 10100) as uint32,
-        _total: 5 as uint16,
-        _main: 5 as uint16,
+        utimeSince: (blockchain.now() + 100),
+        utimeUntil: (blockchain.now() + 10100),
+        _total: 5,
+        _main: 5,
         totalWeight,
         dict,
     };
@@ -391,7 +391,7 @@ get fun `test vote old vset finished`() {
         10,
         kps.get(0).privateKey,
         0,
-        stakeAt as uint32,
+        stakeAt,
         chash,
     );
     expect(lateres).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd674523d });
@@ -413,7 +413,7 @@ get fun `test vote old vset reset`() {
         1,
         kps.get(1).privateKey,
         1,
-        stakeAt as uint32,
+        stakeAt,
         chash,
     );
     expect(res1).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
@@ -427,7 +427,7 @@ get fun `test vote old vset reset`() {
         dict.set(
             i,
             ValidatorDescrWithAdnlAddr {
-                validatorPubkey: kps.get(i).publicKey as uint256,
+                validatorPubkey: kps.get(i).publicKey,
                 validatorWeight: weight,
                 adnlAddr: 0,
             },
@@ -436,10 +436,10 @@ get fun `test vote old vset reset`() {
         i += 1;
     }
     val newVset = VSet {
-        utimeSince: (blockchain.now() + 100) as uint32,
-        utimeUntil: (blockchain.now() + 10100) as uint32,
-        _total: 5 as uint16,
-        _main: 5 as uint16,
+        utimeSince: (blockchain.now() + 100),
+        utimeUntil: (blockchain.now() + 10100),
+        _total: 5,
+        _main: 5,
         totalWeight,
         dict,
     };
@@ -454,13 +454,13 @@ get fun `test vote old vset reset`() {
         2,
         kps.get(2).privateKey,
         2,
-        stakeAt as uint32,
+        stakeAt,
         chash,
     );
     expect(res2).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
 
     // Verify vote was reset: show_complaint should show updated vsetId
-    val info = elector.showComplaint(stakeAt as uint32, chash);
+    val info = elector.showComplaint(stakeAt, chash);
     assert (info != null) throw 600;
     // The vsetId should now match the new vset hash
     expect(info.vsetId).toEqual(newVset.toCell().hash());

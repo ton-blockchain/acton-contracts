@@ -12,7 +12,7 @@ get fun `test item auction: initializes only from collection and handles repeate
     val owner = newActor("item_init_owner", ton("100000"));
     val outsider = newActor("item_init_outsider", ton("100000"));
 
-    net.setNow((AUCTION_START_TIME + 1) as uint32);
+    net.setNow((AUCTION_START_TIME + 1));
     val itemTemplate = NftItemContract.fromStorage(makeItemStorageNonInit(collection.address));
     expect(itemTemplate.stateInit).toBeNotNull();
     val initBody = makeItemInitBody(owner.address, DEFAULT_DOMAIN);
@@ -54,7 +54,7 @@ get fun `test item auction: initializes only from collection and handles repeate
     expect(auctionInfo.maxBidAddress).toEqual(owner.address);
     expect(auctionInfo.maxBidAmount).toEqual(ton("1000"));
     expect(auctionInfo.auctionEndTime).toEqual(
-        (AUCTION_START_TIME + 1 + expectedAuctionDurationAt(AUCTION_START_TIME + 1)) as uint64,
+        (AUCTION_START_TIME + 1 + expectedAuctionDurationAt(AUCTION_START_TIME + 1)),
     );
 
     val repeatedInit = item.sendAny(
@@ -103,13 +103,13 @@ get fun `test item auction: prolongs end time when bid arrives in prolongation w
 
     val auctionBefore = item.getAuctionInfo();
     val nowAt = auctionBefore.auctionEndTime - AUCTION_PROLONGATION / 2;
-    net.setNow(nowAt as uint32);
+    net.setNow(nowAt);
 
     val bid = item.sendAny(bidder.address, createEmptyCell(), { value: ton("2000"), bounce: true });
     expect(bid).toHaveSuccessfulTx<OutbidNotification>({ from: item.address, to: owner.address });
 
     val auctionAfter = item.getAuctionInfo();
-    expect(auctionAfter.auctionEndTime).toEqual((net.now() + AUCTION_PROLONGATION) as uint64);
+    expect(auctionAfter.auctionEndTime).toEqual((net.now() + AUCTION_PROLONGATION));
 }
 
 get fun `test item auction: completion sets owner and enforces top-up permissions`() {

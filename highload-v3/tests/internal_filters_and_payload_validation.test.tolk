@@ -13,12 +13,7 @@ get fun `test ignore internal transfer from non-self address`() {
 
     var actions = array<OutAction> [];
     actions.push(
-        sendAction(
-            testAddr,
-            ton("1000"),
-            createEmptyCell(),
-            SEND_MODE_PAY_FEES_SEPARATELY,
-        ) as OutAction,
+        sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
     val transferBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
 
@@ -61,12 +56,7 @@ get fun `test ignore bounced messages`() {
 
     var actions = array<OutAction> [];
     actions.push(
-        sendAction(
-            testAddr,
-            ton("1000"),
-            createEmptyCell(),
-            SEND_MODE_PAY_FEES_SEPARATELY,
-        ) as OutAction,
+        sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
     val transferBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
 

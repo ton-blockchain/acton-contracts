@@ -18,7 +18,7 @@ get fun `test voting: should process votes for code update and regular parameter
         ctx.contract,
         codeProposal,
         true,
-        (net.now() + 86400) as uint32,
+        (net.now() + 86400),
         0,
         VOTE_HASH_CODE_PROPOSAL,
     );
@@ -28,7 +28,7 @@ get fun `test voting: should process votes for code update and regular parameter
     expect(codeProposalView!.value).toEqual(codeProposalValue);
 
     val acceptedCodeVote = voteUntilAccepted(ctx, codeProposalHash);
-    expect(ctx.contract.getProposal(codeProposalHash as int)).toBeNull();
+    expect(ctx.contract.getProposal(codeProposalHash)).toBeNull();
     expect(hasSetCodeAction(acceptedCodeVote, ctx.contract.address)).toEqual(true);
 
     val regularValue = beginCell()
@@ -40,14 +40,14 @@ get fun `test voting: should process votes for code update and regular parameter
         ctx.contract,
         regularProposal,
         false,
-        (net.now() + 86400) as uint32,
+        (net.now() + 86400),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
 
     voteUntilAccepted(ctx, regularHash);
 
-    expect(ctx.contract.getProposal(regularHash as int)).toBeNull();
+    expect(ctx.contract.getProposal(regularHash)).toBeNull();
     assertConfigParam(ctx.contract, -42, regularValue);
 }
 
@@ -68,7 +68,7 @@ get fun `test voting: custom-slot proposals should not change slots even if prop
             ctx.contract,
             proposal,
             false,
-            (net.now() + 86400) as uint32,
+            (net.now() + 86400),
             0,
             slot == CUSTOM_SLOT_1 ? VOTE_HASH_CUSTOM_SLOT_1 : VOTE_HASH_CUSTOM_SLOT_2,
         );
@@ -86,13 +86,13 @@ get fun `test voting: custom-slot proposals should not change slots even if prop
         ctx.contract,
         codeProposal,
         true,
-        (net.now() + 86400) as uint32,
+        (net.now() + 86400),
         0,
         VOTE_HASH_CODE_PROPOSAL,
     );
 
     voteUntilAccepted(ctx, codeHash);
-    expect(ctx.contract.getProposal(codeHash as int)).toBeNull();
+    expect(ctx.contract.getProposal(codeHash)).toBeNull();
 
     i = 0;
     while (i < slots.size()) {
@@ -101,7 +101,7 @@ get fun `test voting: custom-slot proposals should not change slots even if prop
             .contract
             .sendSetCustomParamRequest(
                 ADMIN_ADDRESS_FOR_CUSTOM_PARAMS,
-                i as uint64,
+                i,
                 slot,
                 ctx.deployer.address,
                 originalSlotValue,
@@ -124,7 +124,7 @@ get fun `test voting: custom-slot proposals should not change slots even if prop
         val slot = slots.get(i);
 
         voteUntilAccepted(ctx, hash);
-        expect(ctx.contract.getProposal(hash as int)).toBeNull();
+        expect(ctx.contract.getProposal(hash)).toBeNull();
         assertConfigParam(ctx.contract, slot, originalSlotValue);
 
         i += 1;
@@ -143,7 +143,7 @@ get fun `test voting invariant: duplicate vote from same validator should return
         ctx.contract,
         proposal,
         false,
-        (net.now() + 86400) as uint32,
+        (net.now() + 86400),
         0,
         VOTE_HASH_DUPLICATE_CASE,
     );
@@ -152,17 +152,17 @@ get fun `test voting invariant: duplicate vote from same validator should return
     expect(first).toHaveTx({
         from: ctx.contract.address,
         to: ctx.validatorSender,
-        opcode: (TAG_VOTE_PROCESSED_BASE + 2) as uint32,
+        opcode: (TAG_VOTE_PROCESSED_BASE + 2),
     });
 
     val second = sendSignedVote(ctx, 0, hash, 6);
     expect(second).toHaveTx({
         from: ctx.contract.address,
         to: ctx.validatorSender,
-        opcode: (TAG_VOTE_PROCESSED_BASE - 2) as uint32,
+        opcode: (TAG_VOTE_PROCESSED_BASE - 2),
     });
 
-    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash) == null).toEqual(false);
 }
 
 get fun `test voting unit: set_next_validators should accept elector and reject non-elector in masterchain`() {

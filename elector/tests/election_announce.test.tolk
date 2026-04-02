@@ -47,7 +47,7 @@ get fun `test election announce not masterchain`() {
 
     // Verify elector is on basechain (workchain 0)
     val (wc, _) = elector.address.getWorkchainAndHash();
-    expect(wc as int).toEqual(BASECHAIN as int);
+    expect(wc).toEqual(BASECHAIN);
     // Tick-tock transactions can only run on masterchain accounts.
     // The emulator refuses to execute tick-tock on basechain, which means
     // an elector deployed on basechain can never announce elections.

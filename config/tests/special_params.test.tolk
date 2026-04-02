@@ -22,7 +22,7 @@ get fun `test special params int: should apply -999 proposal and update stored p
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -31,7 +31,7 @@ get fun `test special params int: should apply -999 proposal and update stored p
     expect(before.publicKey).toEqual(0);
 
     voteUntilAccepted(ctx, hash);
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
     assertConfigParam(ctx.contract, -999, pubCell);
 
     val after = getStorage(ctx.contract);
@@ -49,7 +49,7 @@ get fun `test special params ext: should apply -999 proposal and update stored p
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -58,7 +58,7 @@ get fun `test special params ext: should apply -999 proposal and update stored p
     applyCurrentValidatorSet(ctx.validators, 1);
     sendExternalVote(ctx, 1, EXTERNAL_VALID_UNTIL_FUTURE, 0, hash);
 
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
     assertConfigParam(ctx.contract, -999, pubCell);
     val after = getStorage(ctx.contract);
     expect(after.publicKey).toEqual(TEST_SPECIAL_PUBKEY_EXT);
@@ -72,7 +72,7 @@ get fun `test special params int: should emit elector code-change action for -10
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -93,7 +93,7 @@ get fun `test special params ext: should emit elector code-change action for -10
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -141,7 +141,7 @@ get fun `test special params ext: should execute -1000 code upgrade action`() {
         ctx.contract,
         proposal,
         true,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -150,6 +150,6 @@ get fun `test special params ext: should execute -1000 code upgrade action`() {
     applyCurrentValidatorSet(ctx.validators, 1);
     val accepted = sendExternalVote(ctx, 1, EXTERNAL_VALID_UNTIL_FUTURE, 0, hash);
 
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
     expect(hasSetCodeAction(accepted, ctx.contract.address)).toEqual(true);
 }

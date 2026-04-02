@@ -26,7 +26,7 @@ fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cel
     val stakeLimits = defaultStakeLimits();
 
     var totalStake: coins = 0;
-    val numValidators = max(validatorLimits.minValidators as int, 5);
+    val numValidators = max(validatorLimits.minValidators, 5);
     val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
     var firstStakerHash: uint256 = 0;
     var i = 0;
@@ -58,7 +58,7 @@ fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cel
     val tx = tickResult.findTransaction<ElectedVSetMsg>({ from: elector.address, to: configAddr });
     val body = tx.unwrap().loadBody<ElectedVSetMsg>();
 
-    return (stakeAt, body.vset as cell, firstStakerHash);
+    return (stakeAt, body.vset, firstStakerHash);
 }
 
 /// Test that vset is not installed before elections finish
@@ -131,9 +131,9 @@ get fun `test vset bonus distribution`() {
 
     // Now promote to new vset so stakes can eventually unfreeze
     val validatorConf = defaultValidationTimes();
-    val stakeHeld = validatorConf.stakeHeldFor as int;
+    val stakeHeld = validatorConf.stakeHeldFor;
 
-    val newVset = buildVSet(blockchain.now() as int, blockchain.now() + 10000, 1, 1, 0);
+    val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
     config = net.getConfig();
     config.setParamRaw(34, newVset.toCell());
     config.setParamRaw(36, newVset.toCell());
@@ -198,10 +198,10 @@ get fun `test stakes not unfrozen before time`() {
     expect(elector.computeReturnedStake(stakerHash)).toEqual(0);
 
     val validatorConf = defaultValidationTimes();
-    val stakeHeld = validatorConf.stakeHeldFor as int;
+    val stakeHeld = validatorConf.stakeHeldFor;
 
     // Promote to new vset so active_id changes (needed for unfreeze condition)
-    val newVset = buildVSet(blockchain.now() as int, blockchain.now() + 10000, 1, 1, 0);
+    val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
     config = net.getConfig();
     config.setParamRaw(34, newVset.toCell());
     config.setParamRaw(36, newVset.toCell());
@@ -217,7 +217,7 @@ get fun `test stakes not unfrozen before time`() {
     expect(elector.computeReturnedStake(stakerHash)).toEqual(0);
 
     // Verify past election entry still exists via get_past_complaints (non-null = entry exists)
-    val _complaints = elector.getPastComplaints(stakeAt as uint32);
+    val _complaints = elector.getPastComplaints(stakeAt);
     // Even if no complaints, the call should succeed (entry exists)
     // The fact that compute_returned_stake returns 0 proves the entry is still frozen
 }
@@ -238,10 +238,10 @@ get fun `test stakes unfrozen after time`() {
     expect(elector.activeElectionId()).toEqual(0);
 
     val validatorConf = defaultValidationTimes();
-    val stakeHeld = validatorConf.stakeHeldFor as int;
+    val stakeHeld = validatorConf.stakeHeldFor;
 
     // Promote to new vset so active_id changes
-    val newVset = buildVSet(blockchain.now() as int, blockchain.now() + 10000, 1, 1, 0);
+    val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
     config = net.getConfig();
     config.setParamRaw(34, newVset.toCell());
     config.setParamRaw(36, newVset.toCell());
@@ -260,7 +260,7 @@ get fun `test stakes unfrozen after time`() {
 
     // Verify past election entry was removed: get_past_complaints for this election
     // should return empty complaints (the entry was removed during unfreeze)
-    val complaints = elector.getPastComplaints(stakeAt as uint32);
+    val complaints = elector.getPastComplaints(stakeAt);
     val lookupResult = complaints.findFirst();
     expect(lookupResult.isFound).toEqual(false);
 }
@@ -330,10 +330,10 @@ get fun `test vset update prolong current vset`() {
     expect(elector.computeReturnedStake(stakerHash)).toEqual(0);
 
     val validatorConf = defaultValidationTimes();
-    val stakeHeld = validatorConf.stakeHeldFor as int;
+    val stakeHeld = validatorConf.stakeHeldFor;
 
     // Create a new non-expired vset and promote it to current
-    val newVset = buildVSet(blockchain.now() as int, blockchain.now() + 10000, 1, 1, 0);
+    val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
     config = net.getConfig();
     config.setParamRaw(34, newVset.toCell());
     // Set param 36 to prevent announceNewElections from firing before updateActiveVsetId

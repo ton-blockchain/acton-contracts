@@ -38,7 +38,7 @@ get fun `test proposals ext: should reject hash mismatch and accept matching has
     expect(rejected).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_BAD_CURRENT_VALUE_HASH) as uint32,
+        opcode: (-ERROR_TAG_BAD_CURRENT_VALUE_HASH),
     });
 
     val goodProposal = createProposal(CONFIG_PARAM_CURRENT_VALIDATOR_SET, newValue, currentHash);
@@ -48,7 +48,7 @@ get fun `test proposals ext: should reject hash mismatch and accept matching has
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash) == null).toEqual(false);
 }
 
 get fun `test proposals ext: should reject nullification of mandatory param`() {
@@ -60,7 +60,7 @@ get fun `test proposals ext: should reject nullification of mandatory param`() {
     expect(rejected).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_MANDATORY_PARAM_CANNOT_BE_NULL) as uint32,
+        opcode: (-ERROR_TAG_MANDATORY_PARAM_CANNOT_BE_NULL),
     });
 
     val nonMandatoryNull = createProposal(-200, null, null);
@@ -70,7 +70,7 @@ get fun `test proposals ext: should reject nullification of mandatory param`() {
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash) == null).toEqual(false);
 }
 
 get fun `test proposals ext: should reject overly deep value`() {
@@ -81,7 +81,7 @@ get fun `test proposals ext: should reject overly deep value`() {
     expect(rejected).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_BAD_VALUE) as uint32,
+        opcode: (-ERROR_TAG_BAD_VALUE),
     });
 
     val acceptableDepth = createProposal(-202, deepCell(120), 0);
@@ -91,7 +91,7 @@ get fun `test proposals ext: should reject overly deep value`() {
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash) == null).toEqual(false);
 }
 
 get fun `test proposals ext: should enforce critical flag for critical params`() {
@@ -104,7 +104,7 @@ get fun `test proposals ext: should enforce critical flag for critical params`()
     expect(rejected).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_CRITICAL_FLAG_REQUIRED) as uint32,
+        opcode: (-ERROR_TAG_CRITICAL_FLAG_REQUIRED),
     });
 
     val (accepted, hash) = submitProposal(ctx, noCriticalFlag, true, 7200, 2);
@@ -113,7 +113,7 @@ get fun `test proposals ext: should enforce critical flag for critical params`()
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash) == null).toEqual(false);
 }
 
 get fun `test proposals ext: should enforce minimal storage duration`() {
@@ -126,7 +126,7 @@ get fun `test proposals ext: should enforce minimal storage duration`() {
     expect(rejected).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_PROPOSAL_EXPIRED) as uint32,
+        opcode: (-ERROR_TAG_PROPOSAL_EXPIRED),
     });
 
     val (accepted, hash) = submitProposal(ctx, proposal, false, 30, 2);
@@ -135,7 +135,7 @@ get fun `test proposals ext: should enforce minimal storage duration`() {
         to: ctx.proposer,
         opcode: TAG_NEW_VOTING_CREATED,
     });
-    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash) == null).toEqual(false);
 }
 
 get fun `test proposals ext invariant: update requires matching criticality and enough funds`() {
@@ -149,7 +149,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             1,
-            (net.now() + 1200) as uint32,
+            (net.now() + 1200),
             false,
             proposal,
             { value: ton("100"), bounce: true },
@@ -165,7 +165,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             2,
-            (net.now() + 2400) as uint32,
+            (net.now() + 2400),
             true,
             proposal,
             { value: ton("100"), bounce: true },
@@ -173,7 +173,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
     expect(criticalMismatch).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_CANNOT_DOWNGRADE_CRITICALITY) as uint32,
+        opcode: (-ERROR_TAG_CANNOT_DOWNGRADE_CRITICALITY),
     });
 
     val alreadyExists = ctx
@@ -181,7 +181,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             3,
-            (net.now() + 1200) as uint32,
+            (net.now() + 1200),
             false,
             proposal,
             { value: ton("100"), bounce: true },
@@ -189,7 +189,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
     expect(alreadyExists).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_PROPOSAL_ALREADY_EXISTS) as uint32,
+        opcode: (-ERROR_TAG_PROPOSAL_ALREADY_EXISTS),
     });
 
     val lowFunds = ctx
@@ -197,7 +197,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             4,
-            (net.now() + 3600) as uint32,
+            (net.now() + 3600),
             false,
             proposal,
             { value: ton("0.5"), bounce: true },
@@ -205,7 +205,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
     expect(lowFunds).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_NOT_ENOUGH_FUNDS) as uint32,
+        opcode: (-ERROR_TAG_NOT_ENOUGH_FUNDS),
     });
 
     val extended = ctx
@@ -213,7 +213,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             5,
-            (net.now() + 3600) as uint32,
+            (net.now() + 3600),
             false,
             proposal,
             { value: ton("100"), bounce: true },

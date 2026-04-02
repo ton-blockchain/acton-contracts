@@ -102,7 +102,7 @@ get fun get_timeout(): int {
 }
 
 fun queryIdShift(queryId: int): uint13 {
-    return (queryId >> BIT_NUMBER_SIZE) as uint13;
+    return (queryId >> BIT_NUMBER_SIZE);
 }
 
 fun queryIdBitNumber(queryId: int): int {

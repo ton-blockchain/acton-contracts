@@ -91,7 +91,7 @@ fun deployNftBatch(
     val nextItemIndex = collection.getCollectionData().nextItemIndex;
 
     while (i < count) {
-        val index = (nextItemIndex + i) as uint64;
+        val index = (nextItemIndex + i);
         deployList.set(
             index,
             BatchDeployDictItem {

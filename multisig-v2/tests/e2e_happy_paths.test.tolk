@@ -36,11 +36,7 @@ fun deployMultisigStage(): MultisigTestContext {
 fun createOrderStage(ctx: MultisigTestContext): MultisigE2eFixture {
     val recipient = net.randomAddress("multisig-e2e-recipient");
     val orderBody = singleActionOrder(
-        makeTransferAction(
-            recipient,
-            DEFAULT_TRANSFER_VALUE,
-            MULTISIG_E2E_ACTION_MARKER,
-        ) as GenericOrderAction,
+        makeTransferAction(recipient, DEFAULT_TRANSFER_VALUE, MULTISIG_E2E_ACTION_MARKER),
     );
 
     val orderSeqno = ctx.multisig.getData().nextOrderSeqno;
@@ -86,7 +82,7 @@ fun voteForOrderStage(fixture: MultisigE2eFixture) {
         .sendApprove(
             signerAddress,
             signerIndex,
-            MULTISIG_E2E_FIRST_APPROVE_QUERY_ID as uint64,
+            MULTISIG_E2E_FIRST_APPROVE_QUERY_ID,
             { value: DEFAULT_APPROVE_VALUE, bounce: true },
         );
 
@@ -122,7 +118,7 @@ fun executeOrderStage(fixture: MultisigE2eFixture) {
         .sendApprove(
             signerAddress,
             signerIndex,
-            MULTISIG_E2E_FINAL_APPROVE_QUERY_ID as uint64,
+            MULTISIG_E2E_FINAL_APPROVE_QUERY_ID,
             { value: DEFAULT_APPROVE_VALUE, bounce: true },
         );
 

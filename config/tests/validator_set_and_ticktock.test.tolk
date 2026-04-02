@@ -10,11 +10,11 @@ import "../contracts/messages"
 get fun `test vset: should reject already-current set and accept future set`() {
     val ctx = setupConfigTest();
 
-    val now = net.now() as int;
+    val now = net.now();
 
     val currentLike = ValidatorSetExt {
-        utimeSince: now as uint32,
-        utimeUntil: (now + 4000) as uint32,
+        utimeSince: now,
+        utimeUntil: (now + 4000),
         total: 1,
         main: 1,
         totalWeight: 1,
@@ -38,8 +38,8 @@ get fun `test vset: should reject already-current set and accept future set`() {
     expect(getConfigParam(ctx.contract, CONFIG_PARAM_NEXT_VALIDATOR_SET)).toBeNull();
 
     val future = ValidatorSetExt {
-        utimeSince: (now + 1000) as uint32,
-        utimeUntil: (now + 5000) as uint32,
+        utimeSince: (now + 1000),
+        utimeUntil: (now + 5000),
         total: 1,
         main: 1,
         totalWeight: 1,
@@ -66,11 +66,11 @@ get fun `test vset: should reject already-current set and accept future set`() {
 get fun `test vset: should reject expired window and accept valid window`() {
     val ctx = setupConfigTest();
 
-    val now = net.now() as int;
+    val now = net.now();
 
     val badWindow = ValidatorSetExt {
-        utimeSince: (now + 1000) as uint32,
-        utimeUntil: (now + 999) as uint32,
+        utimeSince: (now + 1000),
+        utimeUntil: (now + 999),
         total: 1,
         main: 1,
         totalWeight: 1,
@@ -94,8 +94,8 @@ get fun `test vset: should reject expired window and accept valid window`() {
     expect(getConfigParam(ctx.contract, CONFIG_PARAM_NEXT_VALIDATOR_SET)).toBeNull();
 
     val validWindow = ValidatorSetExt {
-        utimeSince: (now + 1200) as uint32,
-        utimeUntil: (now + 6200) as uint32,
+        utimeSince: (now + 1200),
+        utimeUntil: (now + 6200),
         total: 1,
         main: 1,
         totalWeight: 1,
@@ -122,7 +122,7 @@ get fun `test vset: should reject expired window and accept valid window`() {
 get fun `test ticktock invariant: should roll proposal round on validator-set change`() {
     val ctx = setupConfigTest();
 
-    val customValidators = buildValidatorsWithWeights([1, 5] as array<int>);
+    val customValidators = buildValidatorsWithWeights([1, 5]);
     val beforeVset = applyCurrentValidatorSet(customValidators, 0);
 
     val proposal = createProposal(-81, beginCell().storeSlice("tick".beginParse()).endCell(), 0);
@@ -130,14 +130,14 @@ get fun `test ticktock invariant: should roll proposal round on validator-set ch
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600) as uint32,
+        (net.now() + 3600),
         0,
         UINT256_MAX,
     );
 
     val before = getProposalFullOrNull(ctx.contract, hash);
     expect(before == null).toEqual(false);
-    expect(before!.validatorSetId).toEqual(beforeVset.hash() as int);
+    expect(before!.validatorSetId).toEqual(beforeVset.hash());
     expect(before!.losses).toEqual(0);
 
     val afterVset = applyCurrentValidatorSet(customValidators, 1);
@@ -145,7 +145,7 @@ get fun `test ticktock invariant: should roll proposal round on validator-set ch
 
     val after = getProposalFullOrNull(ctx.contract, hash);
     expect(after == null).toEqual(false);
-    expect(after!.validatorSetId).toEqual(afterVset.hash() as int);
+    expect(after!.validatorSetId).toEqual(afterVset.hash());
     expect(after!.roundsRemaining).toEqual(before!.roundsRemaining - 1);
     expect(after!.losses).toEqual(before!.losses + 1);
     expect(proposalVotersCount(after!)).toEqual(0);

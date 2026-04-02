@@ -195,7 +195,7 @@ fun deployDnsRootContract(
 }
 
 fun deployDnsCollectionContract(deployer: address, collectionUri: string): NftCollectionContract {
-    net.setNow((AUCTION_START_TIME - 1000) as uint32);
+    net.setNow((AUCTION_START_TIME - 1000));
     val collection = NftCollectionContract.fromStorage(makeDnsCollectionStorage(collectionUri));
     val deployMsg = createMessage({
         bounce: false,
@@ -214,7 +214,7 @@ fun deployDnsDomainContract(
     domain: string,
     bid: coins,
 ): NftItemContract {
-    net.setNow((AUCTION_START_TIME + 1) as uint32);
+    net.setNow((AUCTION_START_TIME + 1));
     val deployTx = collection.sendAny(
         deployer,
         makeDnsDeployBodyFromDomain(makeDnsDomainCell(domain)),
@@ -226,7 +226,7 @@ fun deployDnsDomainContract(
 
 fun completeDnsAuction(item: NftItemContract, requester: address): SendResultList {
     val auction = item.getAuctionInfo();
-    net.setNow((auction.auctionEndTime + 1) as uint32);
+    net.setNow((auction.auctionEndTime + 1));
     return item.sendGetStaticData(requester, 1, { value: ton("0.1"), bounce: true });
 }
 

@@ -145,7 +145,7 @@ fun main() {
     );
     governanceResult.wait();
 
-    net.setNow((item.getLastFillUpTime() + ONE_YEAR + 1) as uint32);
+    net.setNow((item.getLastFillUpTime() + ONE_YEAR + 1));
     val releaseResult = item.sendDnsRecordRelease(
         governanceOwner.address,
         15,

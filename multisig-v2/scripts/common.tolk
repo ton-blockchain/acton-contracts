@@ -32,7 +32,7 @@ fun addressArrayToIndexedMap(addresses: array<address>): map<uint8, address> {
     var result: map<uint8, address> = [];
     var i = 0;
     while (i < addresses.size()) {
-        result.set(i as uint8, addresses.get(i));
+        result.set(i, addresses.get(i));
         i += 1;
     }
     return result;
@@ -62,7 +62,7 @@ fun makeTransferAction(to: address, value: coins, marker: int): SendMessageActio
         body: beginCell().storeUint(marker, 32).endCell(),
     });
 
-    return { mode: SEND_MODE_PAY_FEES_SEPARATELY as uint8, message: transferMessage.messageCell };
+    return { mode: SEND_MODE_PAY_FEES_SEPARATELY, message: transferMessage.messageCell };
 }
 
 fun makeUpdateParamsAction(

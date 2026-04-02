@@ -44,11 +44,7 @@ get fun `test invariants: order unknown opcode should fail with ERROR_UNKNOWN_OP
     signers.push(createFundedAddress());
 
     val orderBody = singleActionOrder(
-        makeTransferAction(
-            net.randomAddress("inv_order_target"),
-            DEFAULT_TRANSFER_VALUE,
-            111,
-        ) as GenericOrderAction,
+        makeTransferAction(net.randomAddress("inv_order_target"), DEFAULT_TRANSFER_VALUE, 111),
     );
 
     val order = MultisigV2Order.fromConfig(multisig.address, 0);
@@ -78,9 +74,7 @@ get fun `test invariants: proposer compromise does not allow approvals`() {
     val ctx = setupMultisig(2, 2, 1, false);
 
     val target = net.randomAddress("proposer_compromise_target");
-    val orderBody = singleActionOrder(
-        makeTransferAction(target, DEFAULT_TRANSFER_VALUE, 123123) as GenericOrderAction,
-    );
+    val orderBody = singleActionOrder(makeTransferAction(target, DEFAULT_TRANSFER_VALUE, 123123));
 
     val seqno = ctx.multisig.getData().nextOrderSeqno;
     val orderAddress = ctx.multisig.getOrderAddress(seqno);
@@ -135,7 +129,7 @@ get fun `test invariants: less than threshold compromised signers can be removed
 
     val cleanSigners = array<address> [ctx.signers.get(1), ctx.signers.get(2)];
     val update = makeUpdateAction(2, cleanSigners, ctx.proposers);
-    val orderBody = singleActionOrder(update as GenericOrderAction);
+    val orderBody = singleActionOrder(update);
 
     val create = sendOrderBySigner(ctx, orderBody, nowPlus(1000), 1);
     expect(create).toHaveSuccessfulTx<NewOrderRequest>({

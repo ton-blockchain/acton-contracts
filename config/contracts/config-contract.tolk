@@ -72,7 +72,7 @@ fun onInternalMessage(in: InMessage) {
             val isCustomParam = msg.paramId == CUSTOM_PARAM_1 || msg.paramId == CUSTOM_PARAM_2;
 
             if (!isExotic && msg.value.depth() == 0 && isCustomParam && isAdminOfCustomParam) {
-                Storage.setConfigParam(msg.paramId as int, msg.value);
+                Storage.setConfigParam(msg.paramId, msg.value);
                 sendConfirmation(msg.receiverAddress, msg.queryId, TAG_SET_CUSTOM_PARAM_ACCEPTED);
             } else {
                 sendError(msg.receiverAddress, msg.queryId, TAG_SET_CUSTOM_PARAM_REJECTED);
@@ -269,7 +269,7 @@ fun unpackProposal(statusSlice: slice): ProposalView {
 }
 
 fun proposalParameterViewToTuple(proposal: ProposalParameterView): tuple {
-    return [proposal.paramId, proposal.paramValue, proposal.paramHash] as tuple;
+    return [proposal.paramId, proposal.paramValue, proposal.paramHash];
 }
 
 fun proposalViewToTuple(proposal: ProposalView): tuple {
@@ -283,12 +283,12 @@ fun proposalViewToTuple(proposal: ProposalView): tuple {
         proposal.roundsRemaining,
         proposal.wins,
         proposal.losses,
-    ] as tuple;
+    ];
 }
 
 get fun get_proposal(proposalHash: int): tuple? {
     val storage = lazy Storage.load();
-    val lookup = storage.voteDict.get(proposalHash as uint256);
+    val lookup = storage.voteDict.get(proposalHash);
     if (!lookup.isFound) {
         return null;
     }
@@ -301,9 +301,7 @@ get fun list_proposals(): lisp_list<tuple> {
     var list = [] as lisp_list<tuple>;
     var entry = storage.voteDict.findLast();
     while (entry.isFound) {
-        list.prependHead(
-            [entry.getKey(), proposalViewToTuple(unpackProposal(entry.loadValue()))] as tuple,
-        );
+        list.prependHead([entry.getKey(), proposalViewToTuple(unpackProposal(entry.loadValue()))]);
         entry = storage.voteDict.iteratePrev(entry);
     }
 

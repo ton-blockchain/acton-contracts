@@ -44,13 +44,13 @@ fun makeTransferActionLocal(to: address, marker: int): SendMessageAction {
         dest: to,
         body: beginCell().storeUint(marker, 32).endCell(),
     });
-    return { mode: SEND_MODE_PAY_FEES_SEPARATELY as uint8, message: transferMessage.messageCell };
+    return { mode: SEND_MODE_PAY_FEES_SEPARATELY, message: transferMessage.messageCell };
 }
 
 fun makeProbeOrder(): DirectOrderActionsMap {
     val action = makeTransferActionLocal(net.randomAddress("fee_probe_dest"), 424242);
     var order: DirectOrderActionsMap = [];
-    order.set(0 as uint8, action.toCell());
+    order.set(0, action.toCell());
     return order;
 }
 
@@ -120,7 +120,7 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
     );
 
     val orderAddress = multisig.getOrderAddress(orderSeqno);
-    net.setNow(expiration as uint32);
+    net.setNow(expiration);
 
     val approve = net.send(
         signer1.address,

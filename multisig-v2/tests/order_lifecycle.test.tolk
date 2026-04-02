@@ -32,9 +32,7 @@ fun setupOrderFixture(threshold: int = 5, signerCount: int = 10): OrderFixture {
     }
 
     val recipient = net.randomAddress("order_recipient");
-    val orderBody = singleActionOrder(
-        makeTransferAction(recipient, DEFAULT_TRANSFER_VALUE, 12345) as GenericOrderAction,
-    );
+    val orderBody = singleActionOrder(makeTransferAction(recipient, DEFAULT_TRANSFER_VALUE, 12345));
 
     val order = MultisigV2Order.fromConfig(multisig.address, 0);
     val expirationDate = nowPlus(1000);
@@ -223,16 +221,12 @@ get fun `test order: order contract should accept init message only once if appr
 
 get fun `test order: order contract should reject secondary init vote if any order info has changed`() {
     val fixture = setupOrderFixture();
-    val signerIndex = 0 as uint8;
+    val signerIndex = 0;
 
     val changedSigners = createSignerAddresses(fixture.signers.size(), createFundedAddress());
 
     val changedOrder = singleActionOrder(
-        makeTransferAction(
-            net.randomAddress("changed_order"),
-            DEFAULT_TRANSFER_VALUE,
-            777777,
-        ) as GenericOrderAction,
+        makeTransferAction(net.randomAddress("changed_order"), DEFAULT_TRANSFER_VALUE, 777777),
     );
 
     val changedThreshold = fixture.threshold + 1;
@@ -344,8 +338,8 @@ get fun `test order: order contract should treat multiple init messages as votes
                 toAddressMap(fixture.signers),
                 fixture.expirationDate,
                 fixture.orderBody,
-                i as uint8,
-                i as uint64,
+                i,
+                i,
                 { value: ton("2"), bounce: true },
             );
 
@@ -381,7 +375,7 @@ get fun `test order: should not be possible to use multiple init msg to approve 
             toAddressMap(fixture.signers),
             fixture.expirationDate,
             fixture.orderBody,
-            signerIndex as uint8,
+            signerIndex,
             100,
             { value: ton("2"), bounce: true },
         );
@@ -402,7 +396,7 @@ get fun `test order: should not be possible to use multiple init msg to approve 
             toAddressMap(fixture.signers),
             fixture.expirationDate,
             fixture.orderBody,
-            signerIndex as uint8,
+            signerIndex,
             101,
             { value: ton("2"), bounce: true },
         );
@@ -425,7 +419,7 @@ get fun `test order: should approve order`() {
 
     var i = 0;
     while (i < fixture.threshold) {
-        val queryId = (1000 + i) as uint64;
+        val queryId = (1000 + i);
         val signer = fixture.signers.get(i);
 
         val res = fixture
@@ -640,7 +634,7 @@ get fun `test order: should reject approval if already approved`() {
     var i = 0;
     while (i < 3) {
         val signer = fixture.signers.get(i);
-        val firstQid = (3000 + i) as uint64;
+        val firstQid = (3000 + i);
 
         val accepted = fixture
             .order
@@ -649,7 +643,7 @@ get fun `test order: should reject approval if already approved`() {
 
         val beforeRepeat = fixture.order.getData();
 
-        val secondQid = (4000 + i) as uint64;
+        val secondQid = (4000 + i);
         val rejected = fixture
             .order
             .sendApprove(signer, i, secondQid, { value: DEFAULT_APPROVE_VALUE, bounce: true });
@@ -675,7 +669,7 @@ get fun `test order: should reject execution when executed once`() {
     var i = 0;
     while (i < fixture.threshold) {
         val signer = fixture.signers.get(i);
-        val qid = (5000 + i) as uint64;
+        val qid = (5000 + i);
 
         val res = fixture.order.sendApprove(signer, i, qid, { value: ton("1"), bounce: true });
         assertApproveAccepted(res, fixture.order.address, signer, qid);
@@ -720,11 +714,7 @@ get fun `test order: should handle 255 signers`() {
     }
 
     val orderBody = singleActionOrder(
-        makeTransferAction(
-            net.randomAddress("order_255_target"),
-            DEFAULT_TRANSFER_VALUE,
-            42,
-        ) as GenericOrderAction,
+        makeTransferAction(net.randomAddress("order_255_target"), DEFAULT_TRANSFER_VALUE, 42),
     );
 
     val jumboOrder = MultisigV2Order.fromConfig(multisig.address, 1);
@@ -748,11 +738,11 @@ get fun `test order: should handle 255 signers`() {
         lastRes = jumboOrder.sendApprove(
             signer,
             idx,
-            idx as uint64,
+            idx,
             { value: DEFAULT_APPROVE_VALUE, bounce: true },
         );
 
-        assertApproveAccepted(lastRes, jumboOrder.address, signer, idx as uint64);
+        assertApproveAccepted(lastRes, jumboOrder.address, signer, idx);
 
         val data = jumboOrder.getData();
         expect(data.approvalsNum).toEqual(idx + 1);

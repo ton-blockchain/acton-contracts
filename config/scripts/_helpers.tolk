@@ -20,7 +20,7 @@ fun buildScriptValidators(count: int = 1): array<ScriptValidatorFixture> {
     var i = 0;
     while (i < count) {
         validators.push(ScriptValidatorFixture {
-            keyPair: crypto.seedToKeyPair((i + 1) as uint256),
+            keyPair: crypto.seedToKeyPair((i + 1)),
             weight: 1,
         });
         i += 1;
@@ -34,11 +34,11 @@ fun validatorsToRawDict(validators: array<ScriptValidatorFixture>): dict {
     while (i < validators.size()) {
         val validator = validators.get(i);
         validatorMap.set(
-            i as uint16,
+            i,
             ValidatorDescrSimple {
                 pubkeyTag: OP_ED25519_PUBKEY,
-                publicKey: validator.keyPair.publicKey as uint256,
-                weight: validator.weight as uint64,
+                publicKey: validator.keyPair.publicKey,
+                weight: validator.weight,
             }.toCell()
                 .beginParse(),
         );
@@ -48,16 +48,16 @@ fun validatorsToRawDict(validators: array<ScriptValidatorFixture>): dict {
 }
 
 fun buildScriptValidatorSetCell(validators: array<ScriptValidatorFixture>, round: int = 0): cell {
-    val now = net.now() as int;
+    val now = net.now();
     val since = now + 100 + (round * 100);
     val until = since + 65536;
 
     return ValidatorSetExt {
-        utimeSince: since as uint32,
-        utimeUntil: until as uint32,
-        total: validators.size() as uint16,
-        main: validators.size() as uint16,
-        totalWeight: validators.size() as uint64,
+        utimeSince: since,
+        utimeUntil: until,
+        total: validators.size(),
+        main: validators.size(),
+        totalWeight: validators.size(),
         validators: validatorsToRawDict(validators),
     }.toCell();
 }
@@ -98,11 +98,11 @@ fun buildScriptCriticalParamsCell(): cell {
 }
 
 fun configDeployValue(): coins {
-    return envOr("CONFIG_DEPLOY_VALUE_NANOS", 1000000000) as coins;
+    return envOr("CONFIG_DEPLOY_VALUE_NANOS", 1000000000);
 }
 
 fun configProposalValue(): coins {
-    return envOr("CONFIG_PROPOSAL_VALUE_NANOS", 1000000000) as coins;
+    return envOr("CONFIG_PROPOSAL_VALUE_NANOS", 1000000000);
 }
 
 fun configProposalText(): string {
@@ -110,7 +110,7 @@ fun configProposalText(): string {
 }
 
 fun configProposalParamId(): int32 {
-    return envOr("CONFIG_PROPOSAL_PARAM_ID", -42) as int32;
+    return envOr("CONFIG_PROPOSAL_PARAM_ID", -42);
 }
 
 fun prepareConfigScriptContract(): ConfigContract {

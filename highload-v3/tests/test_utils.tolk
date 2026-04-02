@@ -167,7 +167,7 @@ fun activeDataCell(addr: address): cell {
 
 fun storedIsProcessed(wallet: HighloadWalletV3, queryId: int): bool {
     val st = HighloadWalletStorage.fromCell(activeDataCell(wallet.address));
-    val shift = (queryId >> 10) as uint13;
+    val shift = (queryId >> 10);
     val bitNumber = queryId & 1023;
     if (st.oldQueries.isProcessedInQueryMap(shift, bitNumber)) {
         return true;
@@ -189,7 +189,7 @@ fun setActiveDataCell(addr: address, newData: cell) {
     var active = info.storage.state;
     active.stateInit.data = newData;
     info.storage.state = active;
-    net.setAccount(addr, info as Account);
+    net.setAccount(addr, info);
 }
 
 fun emptyInternalTransferMessage(
@@ -305,7 +305,7 @@ fun makeDenseQueriesLeftAligned(): QueryBitmapMap {
         var b = beginCell();
         b.storeUint(i, 13);
         b.storeZeroes(paddingLen);
-        queries.set(i as uint13, b.endCell());
+        queries.set(i, b.endCell());
         i += 1;
     }
     return queries;
@@ -319,7 +319,7 @@ fun makeDenseQueriesRightAligned(): QueryBitmapMap {
         var b = beginCell();
         b.storeZeroes(paddingLen);
         b.storeUint(i, 13);
-        queries.set(i as uint13, b.endCell());
+        queries.set(i, b.endCell());
         i += 1;
     }
     return queries;
@@ -329,7 +329,7 @@ fun preloadDenseQueryMaps(wallet: HighloadWalletV3, now: int) {
     var st = HighloadWalletStorage.fromCell(activeDataCell(wallet.address));
     st.oldQueries = makeDenseQueriesRightAligned();
     st.queries = makeDenseQueriesLeftAligned();
-    st.lastCleanTime = now as uint64;
+    st.lastCleanTime = now;
     setActiveDataCell(wallet.address, st.toCell());
 }
 

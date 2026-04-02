@@ -152,6 +152,6 @@ fun ConfigContract.proposalStoragePrice(
     return net.runGetMethod(
         self.address,
         "proposal_storage_price",
-        [critical, seconds, bits, refs] as tuple,
+        [critical, seconds, bits, refs],
     );
 }

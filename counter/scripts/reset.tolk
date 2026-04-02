@@ -6,7 +6,7 @@ import "../contracts/types"
 import "../tests/wrappers/Counter"
 
 fun counterDeployValue(): coins {
-    return envOr("COUNTER_DEPLOY_VALUE_NANOS", 5000000) as coins;
+    return envOr("COUNTER_DEPLOY_VALUE_NANOS", 5000000);
 }
 
 fun explicitCounterAddress(): address? {

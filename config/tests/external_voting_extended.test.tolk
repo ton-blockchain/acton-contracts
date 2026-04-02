@@ -22,7 +22,7 @@ get fun `test voting ext: should reject bad signature before acceptance`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600) as uint32,
+        (net.now() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -48,7 +48,7 @@ get fun `test voting ext: should accept message and return not-found semantics f
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600) as uint32,
+        (net.now() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -81,7 +81,7 @@ get fun `test voting ext: should remove expired proposal on accepted external vo
         ctx.contract,
         proposal,
         false,
-        (net.now() - 1) as uint32,
+        (net.now() - 1),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -89,7 +89,7 @@ get fun `test voting ext: should remove expired proposal on accepted external vo
     val res = sendExternalVote(ctx, 0, EXTERNAL_VALID_UNTIL_FUTURE, 0, hash);
     expect(res.size() > 0).toEqual(true);
     expect(ctx.contract.seqno()).toEqual(1);
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
 }
 
 get fun `test voting ext invariant: duplicate vote should not mutate proposal status`() {
@@ -103,7 +103,7 @@ get fun `test voting ext invariant: duplicate vote should not mutate proposal st
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600) as uint32,
+        (net.now() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -126,7 +126,7 @@ get fun `test voting ext invariant: duplicate vote should not mutate proposal st
 
 get fun `test voting ext invariant: round transition on vote should reset voters and bump losses`() {
     val ctx = setupConfigTest();
-    val weighted = buildValidatorsWithWeights([1, 5] as array<int>);
+    val weighted = buildValidatorsWithWeights([1, 5]);
     val firstVset = applyCurrentValidatorSet(weighted, 0);
 
     val proposal = createProposal(
@@ -138,7 +138,7 @@ get fun `test voting ext invariant: round transition on vote should reset voters
         ctx.contract,
         proposal,
         true,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -146,7 +146,7 @@ get fun `test voting ext invariant: round transition on vote should reset voters
     sendExternalVote(ctx, 0, EXTERNAL_VALID_UNTIL_FUTURE, 0, hash);
     val before = getProposalFullOrNull(ctx.contract, hash);
     expect(before == null).toEqual(false);
-    expect(before!.validatorSetId).toEqual(firstVset.hash() as int);
+    expect(before!.validatorSetId).toEqual(firstVset.hash());
     expect(before!.remainingWeight).toEqual(3);
     expect(before!.losses).toEqual(0);
     expect(proposalVotersCount(before!)).toEqual(1);
@@ -157,7 +157,7 @@ get fun `test voting ext invariant: round transition on vote should reset voters
 
     val after = getProposalFullOrNull(ctx.contract, hash);
     expect(after == null).toEqual(false);
-    expect(after!.validatorSetId).toEqual(secondVset.hash() as int);
+    expect(after!.validatorSetId).toEqual(secondVset.hash());
     expect(after!.remainingWeight).toEqual(3);
     expect(after!.roundsRemaining).toEqual(before!.roundsRemaining - 1);
     expect(after!.losses).toEqual(before!.losses + 1);
@@ -172,7 +172,7 @@ get fun `test voting ext: should accept proposal across rounds and apply config`
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -182,6 +182,6 @@ get fun `test voting ext: should accept proposal across rounds and apply config`
     sendExternalVote(ctx, 1, EXTERNAL_VALID_UNTIL_FUTURE, 0, hash);
 
     expect(ctx.contract.seqno()).toEqual(2);
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
     assertConfigParam(ctx.contract, -406, value);
 }

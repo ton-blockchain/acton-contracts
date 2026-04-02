@@ -39,7 +39,7 @@ fun main() {
         true,
         0,
         MAX_ORDER_SEQNO,
-        envOr("MSIG_QUERY_ID", 0) as uint64,
+        envOr("MSIG_QUERY_ID", 0),
         { value: DEFAULT_ORDER_VALUE, bounce: true },
     );
 

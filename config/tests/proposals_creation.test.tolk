@@ -20,23 +20,23 @@ fun assertProposalCreateOutcome(
         val paramId = paramIds.get(i);
         val beforeData = contractDataHash(ctx.contract);
 
-        val currentValue = getConfigParam(ctx.contract, paramId as int32);
+        val currentValue = getConfigParam(ctx.contract, paramId);
         var expectedHash: uint256 = 0;
         if (currentValue != null) {
             expectedHash = currentValue!.hash();
         }
 
-        val proposal = createProposal(paramId as int32, value, expectedHash);
+        val proposal = createProposal(paramId, value, expectedHash);
         val hash = proposalHash(proposal);
 
-        expect(ctx.contract.getProposal(hash as int)).toBeNull();
+        expect(ctx.contract.getProposal(hash)).toBeNull();
 
         val res = ctx
             .contract
             .sendNewVotingProposalRequest(
                 ctx.proposer,
-                i as uint64,
-                (net.now() + 86400) as uint32,
+                i,
+                (net.now() + 86400),
                 false,
                 proposal,
                 { value: ton("100"), bounce: true },
@@ -51,11 +51,11 @@ fun assertProposalCreateOutcome(
         expect(res).toHaveTx({
             from: ctx.contract.address,
             to: ctx.proposer,
-            opcode: expectedTag as uint32,
+            opcode: expectedTag,
         });
 
         if (expectedTag == TAG_NEW_VOTING_CREATED) {
-            expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
+            expect(ctx.contract.getProposal(hash) == null).toEqual(false);
         } else {
             expect(contractDataHash(ctx.contract)).toEqual(beforeData);
         }
@@ -78,10 +78,10 @@ get fun `test proposals: should not allow voting creation for -1024 and -1025`()
         -1,
         -42,
         -94,
-    ] as array<int>;
+    ];
     assertProposalCreateOutcome(ctx, regularParams, testCell, TAG_NEW_VOTING_CREATED);
 
-    val slotParams = [CUSTOM_SLOT_1, CUSTOM_SLOT_2] as array<int>;
+    val slotParams = [CUSTOM_SLOT_1, CUSTOM_SLOT_2];
     assertProposalCreateOutcome(ctx, slotParams, testCell, -ERROR_TAG_CUSTOM_SLOT_VOTING_REJECTED);
 
     var i = 0;
@@ -93,8 +93,8 @@ get fun `test proposals: should not allow voting creation for -1024 and -1025`()
             .contract
             .sendSetCustomParamRequest(
                 ADMIN_ADDRESS_FOR_CUSTOM_PARAMS,
-                i as uint64,
-                slot as int32,
+                i,
+                slot,
                 ctx.deployer.address,
                 slotValue,
                 { value: ton("10"), bounce: true },
@@ -105,7 +105,7 @@ get fun `test proposals: should not allow voting creation for -1024 and -1025`()
             to: ctx.deployer.address,
             opcode: TAG_SET_CUSTOM_PARAM_ACCEPTED,
         });
-        assertConfigParam(ctx.contract, slot as int32, slotValue);
+        assertConfigParam(ctx.contract, slot, slotValue);
 
         i += 1;
     }
@@ -127,7 +127,7 @@ get fun `test proposals invariant: proposal list should track creation and avoid
         opcode: TAG_NEW_VOTING_CREATED,
     });
     expect(proposalCount(ctx.contract)).toEqual(before + 1);
-    expect(ctx.contract.getProposal(createdHash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(createdHash) == null).toEqual(false);
 
     val rejectBefore = proposalCount(ctx.contract);
     val rejectedProposal = createProposal(
@@ -140,10 +140,10 @@ get fun `test proposals invariant: proposal list should track creation and avoid
     expect(rejected).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_CUSTOM_SLOT_VOTING_REJECTED) as uint32,
+        opcode: (-ERROR_TAG_CUSTOM_SLOT_VOTING_REJECTED),
     });
     expect(proposalCount(ctx.contract)).toEqual(rejectBefore);
-    expect(ctx.contract.getProposal(rejectedHash as int)).toBeNull();
+    expect(ctx.contract.getProposal(rejectedHash)).toBeNull();
 }
 
 get fun `test proposals invariant: duplicate proposal should be rejected when expiration is not extended`() {
@@ -157,7 +157,7 @@ get fun `test proposals invariant: duplicate proposal should be rejected when ex
         .sendNewVotingProposalRequest(
             ctx.proposer,
             1,
-            (net.now() + 2000) as uint32,
+            (net.now() + 2000),
             false,
             proposal,
             { value: ton("100"), bounce: true },
@@ -174,7 +174,7 @@ get fun `test proposals invariant: duplicate proposal should be rejected when ex
         .sendNewVotingProposalRequest(
             ctx.proposer,
             2,
-            (net.now() + 2000) as uint32,
+            (net.now() + 2000),
             false,
             proposal,
             { value: ton("100"), bounce: true },
@@ -183,7 +183,7 @@ get fun `test proposals invariant: duplicate proposal should be rejected when ex
     expect(second).toHaveTx({
         from: ctx.contract.address,
         to: ctx.proposer,
-        opcode: (-ERROR_TAG_PROPOSAL_ALREADY_EXISTS) as uint32,
+        opcode: (-ERROR_TAG_PROPOSAL_ALREADY_EXISTS),
     });
 }
 

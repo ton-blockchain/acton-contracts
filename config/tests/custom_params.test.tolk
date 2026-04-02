@@ -16,7 +16,7 @@ get fun `test custom params: should set custom slot -1024`() {
     val testCellA = beginCell().storeSlice("Hop hey La La Ley".beginParse()).endCell();
     val testCellB = beginCell().storeUint(testCellA.hash(), 256).endCell();
 
-    val testCells = [testCellA, testCellB] as array<cell>;
+    val testCells = [testCellA, testCellB];
     var i = 0;
     while (i < testCells.size()) {
         val testCell = testCells.get(i);
@@ -57,7 +57,7 @@ get fun `test custom params: should set custom slot -1025`() {
     val testCellA = beginCell().storeSlice("Hop hey La La Ley".beginParse()).endCell();
     val testCellB = beginCell().storeUint(testCellA.hash(), 256).endCell();
 
-    val testCells = [testCellA, testCellB] as array<cell>;
+    val testCells = [testCellA, testCellB];
     var i = 0;
     while (i < testCells.size()) {
         val testCell = testCells.get(i);
@@ -104,7 +104,7 @@ get fun `test custom params: only admin should be able to set slots`() {
         net.randomAddress("cfg_random_wc0", BASECHAIN),
         senderWithSameHashInMasterchain,
         senderWithDifferentHashInMasterchain,
-    ] as array<address>;
+    ];
 
     val slots = customSlots();
     var i = 0;
@@ -267,7 +267,7 @@ get fun `test custom params: should not allow setting other parameters`() {
         -10,
         -1023,
         -94,
-    ] as array<int>;
+    ];
 
     var i = 0;
     while (i < disallowedParams.size()) {
@@ -325,7 +325,7 @@ get fun `test custom params: should reject exotic cells for custom slots`() {
         .endCellSpecial();
 
     val slots = customSlots();
-    val exoticPayloads = [libraryRef, merkleProof, merkleUpdate] as array<cell>;
+    val exoticPayloads = [libraryRef, merkleProof, merkleUpdate];
     var i = 0;
     while (i < slots.size()) {
         val slot = slots.get(i);

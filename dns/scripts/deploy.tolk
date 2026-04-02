@@ -2,6 +2,7 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "common"
+import "../tests/wrappers/DnsCollection.tolk"
 
 fun main() {
     val deployer = dnsSenderAddress();

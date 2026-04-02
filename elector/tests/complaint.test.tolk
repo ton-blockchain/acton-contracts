@@ -23,7 +23,7 @@ get fun `test new complaint not mc`() {
     val res1 = elector.sendNewComplaint(
         bcAddr,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("50") },
     );
@@ -35,7 +35,7 @@ get fun `test new complaint not mc`() {
     val res2 = elector.sendNewComplaint(
         mcAddr,
         2,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("50") },
     );
@@ -58,7 +58,7 @@ get fun `test new complaint wrong elections`() {
     val res1 = elector.sendNewComplaint(
         sender,
         1,
-        (stakeAt + 1) as uint32,
+        (stakeAt + 1),
         complaint.toCell().beginParse(),
         { value: ton("50") },
     );
@@ -68,7 +68,7 @@ get fun `test new complaint wrong elections`() {
     val res2 = elector.sendNewComplaint(
         sender,
         2,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("50") },
     );
@@ -91,7 +91,7 @@ get fun `test new complaint fine too large`() {
     val res1 = elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint1.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -114,7 +114,7 @@ get fun `test new complaint fine too large`() {
     val res2 = elector.sendNewComplaint(
         sender,
         2,
-        stakeAt as uint32,
+        stakeAt,
         complaint2.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -125,7 +125,7 @@ get fun `test new complaint fine too large`() {
     val res3 = elector.sendNewComplaint(
         sender,
         3,
-        stakeAt as uint32,
+        stakeAt,
         complaint3.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -152,7 +152,7 @@ get fun `test new complaint already expired`() {
     val res = elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("50") },
     );
@@ -174,7 +174,7 @@ get fun `test new complaint no money`() {
     val res = elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("0.1") },
     );
@@ -197,7 +197,7 @@ get fun `test new complaint paid more than fine`() {
     val res1 = elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         zeroFineComplaint.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -208,7 +208,7 @@ get fun `test new complaint paid more than fine`() {
     val res2 = elector.sendNewComplaint(
         sender,
         2,
-        stakeAt as uint32,
+        stakeAt,
         goodComplaint.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -231,7 +231,7 @@ get fun `test new complaint duplicate`() {
     val res1 = elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -241,7 +241,7 @@ get fun `test new complaint duplicate`() {
     val res2 = elector.sendNewComplaint(
         sender,
         2,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -261,7 +261,7 @@ get fun `test new complaint duplicate`() {
     val res3 = elector.sendNewComplaint(
         sender,
         3,
-        stakeAt as uint32,
+        stakeAt,
         diffDescr.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -281,7 +281,7 @@ get fun `test new complaint duplicate`() {
     val res4 = elector.sendNewComplaint(
         sender,
         4,
-        stakeAt as uint32,
+        stakeAt,
         diffSeverity.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -292,7 +292,7 @@ get fun `test new complaint duplicate`() {
     val res5 = elector.sendNewComplaint(
         sender,
         5,
-        stakeAt as uint32,
+        stakeAt,
         diffFine.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -303,7 +303,7 @@ get fun `test new complaint duplicate`() {
     val res6 = elector.sendNewComplaint(
         sender,
         6,
-        stakeAt as uint32,
+        stakeAt,
         diffFinePart.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -327,36 +327,36 @@ get fun `test new complaint success`() {
     val res = elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("500") },
     );
     expect(res).toHaveSuccessfulTx({ from: elector.address, to: sender });
 
     // Verify via get_past_complaints
-    val complaints = elector.getPastComplaints(stakeAt as uint32);
+    val complaints = elector.getPastComplaints(stakeAt);
     val first = complaints.findFirst();
     assert (first.isFound) throw 500;
 
     // Verify via show_complaint — check ALL fields
     val chash = first.getKey();
-    val info = elector.showComplaint(stakeAt as uint32, chash);
+    val info = elector.showComplaint(stakeAt, chash);
     assert (info != null) throw 501;
-    expect(info.complaint.validatorPubkey as int).toEqual(knownPubkey as int);
+    expect(info.complaint.validatorPubkey).toEqual(knownPubkey);
     expect(info.complaint.suggestedFine).toEqual(fine);
-    expect(info.complaint.suggestedFinePart as int).toEqual(finePart as int);
+    expect(info.complaint.suggestedFinePart).toEqual(finePart);
     // createdAt should be overwritten by contract (non-zero)
-    expect(info.complaint.createdAt as int).toNotEqual(0);
+    expect(info.complaint.createdAt).toNotEqual(0);
     // rewardAddr should be overwritten to sender's address hash
     val (_, senderHash) = sender.getWorkchainAndHash();
-    expect(info.complaint.rewardAddr as int).toEqual(senderHash as int);
+    expect(info.complaint.rewardAddr).toEqual(senderHash);
     // description cell hash should match
     expect(info.complaint.description.hash()).toEqual(
         beginCell().storeUint(0xDEAD, 32).endCell().hash(),
     );
 
     // Verify via list_complaints — must contain this complaint
-    val clist = elector.listComplaints(stakeAt as uint32);
+    val clist = elector.listComplaints(stakeAt);
     assert (clist != null) throw 502;
 
     // Verify via get_past_complaints raw map — complaint cell must be present
@@ -399,7 +399,7 @@ get fun `test new complaint cell too deep`() {
     val res1 = elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         deepComplaint.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -414,7 +414,7 @@ get fun `test new complaint cell too deep`() {
     val res2 = elector.sendNewComplaint(
         sender,
         2,
-        stakeAt as uint32,
+        stakeAt,
         normalComplaint.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -437,7 +437,7 @@ get fun `test new complaint wrong validator`() {
     val res = elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("50") },
     );

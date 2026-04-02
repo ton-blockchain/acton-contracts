@@ -68,7 +68,7 @@ struct ProposalFullView {
 }
 
 fun customSlots(): array<int32> {
-    return [CUSTOM_SLOT_1, CUSTOM_SLOT_2] as array<int32>;
+    return [CUSTOM_SLOT_1, CUSTOM_SLOT_2];
 }
 
 fun buildVotingSetup(): cell {
@@ -118,7 +118,7 @@ fun buildValidators(count: int = 1): array<ValidatorFixture> {
     var i = 0;
     while (i < count) {
         validators.push(ValidatorFixture {
-            keyPair: crypto.seedToKeyPair((i + 1) as uint256),
+            keyPair: crypto.seedToKeyPair((i + 1)),
             weight: 1,
         });
         i += 1;
@@ -131,7 +131,7 @@ fun buildValidatorsWithWeights(weights: array<int>): array<ValidatorFixture> {
     var i = 0;
     while (i < weights.size()) {
         validators.push(ValidatorFixture {
-            keyPair: crypto.seedToKeyPair((i + 1) as uint256),
+            keyPair: crypto.seedToKeyPair((i + 1)),
             weight: weights.get(i),
         });
         i += 1;
@@ -156,11 +156,11 @@ fun validatorsToRawDict(validators: array<ValidatorFixture>): dict {
     while (i < validators.size()) {
         val validator = validators.get(i);
         validatorMap.set(
-            i as uint16,
+            i,
             ValidatorDescrSimple {
                 pubkeyTag: OP_ED25519_PUBKEY,
-                publicKey: validator.keyPair.publicKey as uint256,
-                weight: validator.weight as uint64,
+                publicKey: validator.keyPair.publicKey,
+                weight: validator.weight,
             }.toCell()
                 .beginParse(),
         );
@@ -171,16 +171,16 @@ fun validatorsToRawDict(validators: array<ValidatorFixture>): dict {
 }
 
 fun buildValidatorSetCell(validators: array<ValidatorFixture>, round: int = 0): cell {
-    val now = net.now() as int;
+    val now = net.now();
     val since = now + 100 + (round * 100);
     val until = since + 65536;
 
     return ValidatorSetExt {
-        utimeSince: since as uint32,
-        utimeUntil: until as uint32,
-        total: validators.size() as uint16,
-        main: validators.size() as uint16,
-        totalWeight: totalValidatorWeight(validators) as uint64,
+        utimeSince: since,
+        utimeUntil: until,
+        total: validators.size(),
+        main: validators.size(),
+        totalWeight: totalValidatorWeight(validators),
         validators: validatorsToRawDict(validators),
     }.toCell();
 }
@@ -295,7 +295,7 @@ fun setActiveDataCell(addr: address, newData: cell) {
     var active = info.storage.state;
     active.stateInit.data = newData;
     info.storage.state = active;
-    net.setAccount(addr, info as Account);
+    net.setAccount(addr, info);
 }
 
 fun getStorage(contract: ConfigContract): Storage {
@@ -362,7 +362,7 @@ fun parseProposalFull(raw: tuple): ProposalFullView {
 }
 
 fun getProposalOrNull(contract: ConfigContract, hash: uint256): ProposalTupleView? {
-    val raw = contract.getProposal(hash as int);
+    val raw = contract.getProposal(hash);
     if (raw == null) {
         return null;
     }
@@ -370,7 +370,7 @@ fun getProposalOrNull(contract: ConfigContract, hash: uint256): ProposalTupleVie
 }
 
 fun getProposalFullOrNull(contract: ConfigContract, hash: uint256): ProposalFullView? {
-    val raw = contract.getProposal(hash as int);
+    val raw = contract.getProposal(hash);
     if (raw == null) {
         return null;
     }
@@ -401,7 +401,7 @@ fun submitProposal(
         .sendNewVotingProposalRequest(
             ctx.proposer,
             queryId,
-            (net.now() + expireInSec) as uint32,
+            (net.now() + expireInSec),
             critical,
             proposal,
             { value: DEFAULT_PROPOSAL_VALUE, bounce: true },
@@ -435,8 +435,8 @@ fun precomputedVoteSignature(hash: uint256, validatorIndex: int): slice {
         Assert.fail("Only validator index 0 is supported for precomputed signatures");
     }
 
-    var hi = 0 as uint256;
-    var lo = 0 as uint256;
+    var hi = 0;
+    var lo = 0;
 
     if (hash == VOTE_HASH_CODE_PROPOSAL) {
         hi = 0x2111629a827d8f81861aa03ba9d9780514ea1c4dff6a06b5a7a788e4de9f34b1;
@@ -473,8 +473,8 @@ fun precomputedExternalVoteSignature(
         Assert.fail("Only validator index 0 is supported for precomputed signatures");
     }
 
-    var hi = 0 as uint256;
-    var lo = 0 as uint256;
+    var hi = 0;
+    var lo = 0;
 
     if (
         hash == VOTE_HASH_CODE_PROPOSAL && seqno == 0 && validUntil == EXTERNAL_VALID_UNTIL_FUTURE
@@ -608,14 +608,14 @@ fun voteUntilAccepted(ctx: ConfigTestContext, hash: uint256): SendResultList {
     while (guard < 128) {
         var i = 0;
         while (i < ctx.validators.size()) {
-            val res = sendSignedVote(ctx, i, hash, ((round << 16) + i) as uint64);
+            val res = sendSignedVote(ctx, i, hash, ((round << 16) + i));
             expect(res).toHaveTx({
                 from: ctx.validatorSender,
                 to: ctx.contract.address,
                 opcode: OP_VOTE_FOR_PROPOSAL,
             });
 
-            if (ctx.contract.getProposal(hash as int) == null) {
+            if (ctx.contract.getProposal(hash) == null) {
                 return res;
             }
 
@@ -677,7 +677,7 @@ fun injectProposalStatus(
                 proposal: proposal.toCell(),
                 isCritical,
                 voters: [],
-                remainingWeight: currentThreshold() as int64,
+                remainingWeight: currentThreshold(),
                 validatorSetId: currentVset.hash(),
                 roundsRemaining,
                 wins,
