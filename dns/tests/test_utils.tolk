@@ -12,6 +12,7 @@ import "../contracts/dns-utils"
 import "../contracts/messages"
 import "../contracts/storage"
 
+// values from actual dns config
 const ROOT_TON_RESOLVER_HASH = 0x348bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
 const ROOT_TME_RESOLVER_HASH = 0xa48bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
 const ROOT_TON_WWW_RESOLVER_HASH = 0xb48bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
