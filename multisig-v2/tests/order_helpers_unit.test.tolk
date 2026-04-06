@@ -18,7 +18,7 @@ fun toSignerMap(signers: array<address>): DirectIndexedAddressMap {
     var m: DirectIndexedAddressMap = [];
     var i = 0;
     while (i < signers.size()) {
-        m.set(i as uint8, signers.get(i));
+        m.set(i, signers.get(i));
         i += 1;
     }
     return m;
@@ -32,12 +32,12 @@ fun makeSingleActionOrder(marker: int = 777): DirectOrderActionsMap {
         body: beginCell().storeUint(marker, 32).endCell(),
     });
     val action = SendMessageAction {
-        mode: SEND_MODE_PAY_FEES_SEPARATELY as uint8,
+        mode: SEND_MODE_PAY_FEES_SEPARATELY,
         message: outbound.messageCell,
     };
 
     var actions: DirectOrderActionsMap = [];
-    actions.set(0 as uint8, action.toCell());
+    actions.set(0, action.toCell());
     return actions;
 }
 
@@ -45,7 +45,7 @@ fun makeOrderWithActions(count: int): DirectOrderActionsMap {
     var actions: DirectOrderActionsMap = [];
     var i = 0;
     while (i < count) {
-        actions.set(i as uint8, makeSingleActionOrder(1000 + i).get(0 as uint8).loadValue());
+        actions.set(i, makeSingleActionOrder(1000 + i).get(0).loadValue());
         i += 1;
     }
     return actions;
@@ -68,7 +68,7 @@ fun buildStorage(signers: DirectIndexedAddressMap, threshold: uint8 = 2): OrderS
 }
 
 fun approvalBit(mask: uint256, idx: int): bool {
-    return (((mask >> idx) as int) & 1) == 1;
+    return (((mask >> idx)) & 1) == 1;
 }
 
 fun getSingleMessageAction(actions: OutActionList): OutActionSendMessage {
@@ -191,7 +191,7 @@ get fun `test helpers: calculateOrderProcessingCost should match manual formula`
     val actual = calculateOrderProcessingCost(order, signers, duration);
     val expected = manualOrderProcessingCost(order, signers, duration);
 
-    expect(actual as int).toBeApproxEqRel(expected as int, 5);
+    expect(actual as int).toBeApproxEqRel(expected, 5);
 }
 
 get fun `test helpers: OrderStorageInitialized.approve should accept and then execute on threshold`() {

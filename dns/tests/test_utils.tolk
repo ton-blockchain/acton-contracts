@@ -12,6 +12,7 @@ import "../contracts/dns-utils"
 import "../contracts/messages"
 import "../contracts/storage"
 
+// values from actual dns config
 const ROOT_TON_RESOLVER_HASH = 0x348bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
 const ROOT_TME_RESOLVER_HASH = 0xa48bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
 const ROOT_TON_WWW_RESOLVER_HASH = 0xb48bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
@@ -216,7 +217,7 @@ fun deployRootContract() {
 }
 
 fun deployCollectionContract() {
-    net.setNow((AUCTION_START_TIME - 1000) as uint32);
+    net.setNow((AUCTION_START_TIME - 1000));
     val deployer = newActor("dns_collection_deployer", ton("100000"));
     val user = newActor("dns_collection_user", ton("100000"));
 
@@ -239,7 +240,7 @@ fun deployCollectionContract() {
 
 fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = ton("1000")) {
     val (collection, deployer, bidder) = deployCollectionContract();
-    net.setNow((AUCTION_START_TIME + 1) as uint32);
+    net.setNow((AUCTION_START_TIME + 1));
 
     val deployRes = collection.sendAny(
         deployer.address,
@@ -259,9 +260,9 @@ fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = 
 
 fun completeAuction(item: NftItemContract, sender: address, queryId: int = 1): SendResultList {
     val auction = item.getAuctionInfo();
-    net.setNow((auction.auctionEndTime + 1) as uint32);
+    net.setNow((auction.auctionEndTime + 1));
 
-    return item.sendGetStaticData(sender, queryId as uint64, { value: ton("1"), bounce: true });
+    return item.sendGetStaticData(sender, queryId, { value: ton("1"), bounce: true });
 }
 
 fun makeTransferData(

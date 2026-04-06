@@ -319,7 +319,7 @@ fun onInternalMessage(in: InMessage) {
             );
             sendMessageBack(
                 InMessage.source(),
-                (res as int + 0xd6745240) as uint32,
+                (res as int + 0xd6745240),
                 msg.queryId,
                 SignedVoteForComplaint.getDeclaredPackPrefix(),
                 0,

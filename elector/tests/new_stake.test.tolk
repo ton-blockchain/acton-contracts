@@ -26,20 +26,14 @@ get fun `test new stake no elections`() {
     val stake: coins = 11000 * ONECOIN;
     val maxFactor: uint32 = (1 << 16) + (1 << 15); // 1.5
 
-    val signature = generateStakeSignature(
-        kp.privateKey,
-        net.now() as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val signature = generateStakeSignature(kp.privateKey, net.now(), maxFactor, srcHash, adnlInt);
 
     // Send stake when no elections — should be rejected (reason 0)
     val res = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        net.now() as uint32,
+        kp.publicKey,
+        net.now(),
         maxFactor,
         adnlInt,
         signature,
@@ -53,19 +47,13 @@ get fun `test new stake no elections`() {
     val stakeAt = elector.activeElectionId();
     expect(stakeAt).toNotEqual(0);
 
-    val signature2 = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val signature2 = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     val res2 = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature2,
@@ -94,20 +82,14 @@ get fun `test new stake not masterchain`() {
     val stake: coins = 11000 * ONECOIN;
     val maxFactor: uint32 = (1 << 16) + (1 << 15);
 
-    val signature = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val signature = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     // Send from basechain — should be rejected (reason 0)
     val res = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,
@@ -120,19 +102,13 @@ get fun `test new stake not masterchain`() {
     net.topUp(mcSrcAddr, ton("100000"));
     val (_, mcSrcHash) = mcSrcAddr.getWorkchainAndHash();
 
-    val signature2 = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        mcSrcHash,
-        adnlInt,
-    );
+    val signature2 = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, mcSrcHash, adnlInt);
 
     val res2 = elector.sendNewStakeMessage(
         mcSrcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature2,
@@ -194,19 +170,13 @@ get fun `test new stake invalid signature`() {
     val maxFactor: uint32 = (1 << 16) + (1 << 15);
 
     // Sign with wrong private key
-    val wrongSig = generateStakeSignature(
-        wrongKp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val wrongSig = generateStakeSignature(wrongKp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     val res = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         wrongSig,
@@ -216,19 +186,13 @@ get fun `test new stake invalid signature`() {
     expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
 
     // Now sign with correct key — should succeed
-    val correctSig = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val correctSig = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     val res2 = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         correctSig,
@@ -255,20 +219,14 @@ get fun `test new stake low factor`() {
     val stake: coins = 11000 * ONECOIN;
     val lowFactor: uint32 = 0x10000 - 1; // Just below minimum factor (1.0)
 
-    val signature = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        lowFactor,
-        srcHash,
-        adnlInt,
-    );
+    val signature = generateStakeSignature(kp.privateKey, stakeAt, lowFactor, srcHash, adnlInt);
 
     // Should be rejected (reason 6 — low factor)
     val res = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         lowFactor,
         adnlInt,
         signature,
@@ -294,7 +252,7 @@ get fun `test new stake wrong elections`() {
 
     val stake: coins = 11000 * ONECOIN;
     val maxFactor: uint32 = (1 << 16) + (1 << 15);
-    val wrongStakeAt: uint32 = (stakeAt + 12345) as uint32;
+    val wrongStakeAt: uint32 = (stakeAt + 12345);
 
     val signature = generateStakeSignature(
         kp.privateKey,
@@ -308,7 +266,7 @@ get fun `test new stake wrong elections`() {
     val res = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
+        kp.publicKey,
         wrongStakeAt,
         maxFactor,
         adnlInt,
@@ -318,19 +276,13 @@ get fun `test new stake wrong elections`() {
     expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
 
     // Correct election ID — should succeed
-    val correctSig = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val correctSig = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     val res2 = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         correctSig,
@@ -361,18 +313,12 @@ get fun `test new stake pkey addr pair`() {
     val maxFactor: uint32 = (1 << 16) + (1 << 15);
 
     // First stake from srcAddr1 — should succeed
-    val sig1 = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash1,
-        adnlInt,
-    );
+    val sig1 = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash1, adnlInt);
     val res1 = elector.sendNewStakeMessage(
         srcAddr1,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         sig1,
@@ -381,22 +327,16 @@ get fun `test new stake pkey addr pair`() {
     expect(res1).toNotHaveTx({ from: elector.address, to: srcAddr1 });
 
     // Verify stake is recorded
-    val curStake = elector.participatesIn(kp.publicKey as uint256);
+    val curStake = elector.participatesIn(kp.publicKey);
     expect(curStake).toEqual(stake);
 
     // Same pubkey from different address — should be rejected (reason 4)
-    val sig2 = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash2,
-        adnlInt,
-    );
+    val sig2 = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash2, adnlInt);
     val res2 = elector.sendNewStakeMessage(
         srcAddr2,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         sig2,
@@ -407,18 +347,12 @@ get fun `test new stake pkey addr pair`() {
     // Same pubkey from original address — should succeed (adds to existing stake)
     val adnlAddr2 = net.randomAddress("adnl2", MASTERCHAIN);
     val (_, adnlInt2) = adnlAddr2.getWorkchainAndHash();
-    val sig3 = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash1,
-        adnlInt2,
-    );
+    val sig3 = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash1, adnlInt2);
     val res3 = elector.sendNewStakeMessage(
         srcAddr1,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt2,
         sig3,
@@ -427,7 +361,7 @@ get fun `test new stake pkey addr pair`() {
     expect(res3).toNotHaveTx({ from: elector.address, to: srcAddr1 });
 
     // Verify total stake increased
-    val newStake = elector.participatesIn(kp.publicKey as uint256);
+    val newStake = elector.participatesIn(kp.publicKey);
     expect(newStake).toEqual(stake + stake);
 }
 
@@ -451,20 +385,14 @@ get fun `test new stake lower min stake`() {
     val lowStake: coins = stakeLimits.minStake / 2;
     val maxFactor: uint32 = (1 << 16) + (1 << 15);
 
-    val signature = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val signature = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     // Should be rejected (reason 5 — stake too low)
     val res = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,
@@ -476,8 +404,8 @@ get fun `test new stake lower min stake`() {
     val res2 = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,
@@ -536,19 +464,13 @@ get fun `test new stake success query id`() {
     val maxFactor: uint32 = (1 << 16) + (1 << 15);
     val queryId: uint64 = 12345;
 
-    val signature = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val signature = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     val res = elector.sendNewStakeMessage(
         srcAddr,
         queryId,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,
@@ -559,7 +481,7 @@ get fun `test new stake success query id`() {
     expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
 
     // Verify stake recorded
-    val curStake = elector.participatesIn(kp.publicKey as uint256);
+    val curStake = elector.participatesIn(kp.publicKey);
     expect(curStake).toEqual(stake);
 }
 
@@ -592,20 +514,14 @@ get fun `test new stake low fraction confirmation fee`() {
     // Stake exactly 1/4096 of totalStake — without adding ONECOIN fee
     val tinyStake: coins = totalStake >> 12;
 
-    val signature = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val signature = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     // Without ONECOIN fee — after 1 TON deduction, effective stake < 1/4096 → rejected (reason 2)
     val res = elector.sendNewStakeMessage(
         srcAddr,
         1,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,
@@ -617,8 +533,8 @@ get fun `test new stake low fraction confirmation fee`() {
     val res2 = elector.sendNewStakeMessage(
         srcAddr,
         2,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,
@@ -647,13 +563,7 @@ get fun `test new stake lower min stake confirmation fee`() {
     val stakeLimits = defaultStakeLimits();
     val maxFactor: uint32 = (1 << 16) + (1 << 15);
 
-    val signature = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val signature = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     // Send min_stake without ONECOIN — after 1 TON deduction, effective < min_stake → rejected (reason 5)
     // But msg_value must be at least ONECOIN to avoid fraction issues on empty elections
@@ -661,8 +571,8 @@ get fun `test new stake lower min stake confirmation fee`() {
     val res = elector.sendNewStakeMessage(
         srcAddr,
         1,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,
@@ -674,8 +584,8 @@ get fun `test new stake lower min stake confirmation fee`() {
     val res2 = elector.sendNewStakeMessage(
         srcAddr,
         2,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,
@@ -727,20 +637,14 @@ get fun `test new stake low fraction`() {
     // i.e. msgValue < totalStake / 4096
     val tinyStake: coins = totalStake >> 13; // Half of 1/4096 of totalStake
 
-    val signature = generateStakeSignature(
-        kp.privateKey,
-        stakeAt as uint32,
-        maxFactor,
-        srcHash,
-        adnlInt,
-    );
+    val signature = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
 
     // Should be rejected (reason 2 — low fraction)
     val res = elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,

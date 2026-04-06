@@ -170,12 +170,12 @@ fun processChainedBatchWithCleanupStage(
         .wallet
         .createInternalTransferMessageFromActionsCell(queryId, tailActionsCell, 0);
     val chainAction = OutActionSendMessage {
-        mode: SEND_MODE_CARRY_ALL_BALANCE as uint8,
+        mode: SEND_MODE_CARRY_ALL_BALANCE,
         outMsg: tailTransfer.messageCell,
     };
     rootActionsCell = OutList {
         prev: rootActionsCell,
-        action: chainAction as OutAction,
+        action: chainAction,
     }.toCell();
 
     val rootTransfer = ctx

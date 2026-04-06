@@ -167,7 +167,7 @@ fun submitValidStake(elector: Elector, totalStake: coins, customStake: coins = 0
     val maxFactor: uint32 = (1 << 16) + (1 << 15); // 1.5
     val signature = generateStakeSignature(
         kp.privateKey,
-        stakeAt as uint32,
+        stakeAt,
         maxFactor,
         srcHash,
         adnlInt,
@@ -176,15 +176,15 @@ fun submitValidStake(elector: Elector, totalStake: coins, customStake: coins = 0
     val res = elector.sendNewStakeMessage(
         srcAddr,
         0, // queryId
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlInt,
         signature,
         { value: stake + ONECOIN },
     );
 
-    return (res, srcAddr, stakeAt, kp.publicKey as uint256, stake);
+    return (res, srcAddr, stakeAt, kp.publicKey, stake);
 }
 
 /// Conduct valid elections by submitting enough stakes and advancing time past close.
@@ -199,7 +199,7 @@ fun conductValidElections(elector: Elector): int {
     // Submit enough validators to meet both minValidators and minTotalStake.
     // Each validator stakes enough so that minValidators * stakePerValidator >= minTotalStake.
     var totalStake: coins = 0;
-    val numValidators = max(validatorLimits.minValidators as int, 5);
+    val numValidators = max(validatorLimits.minValidators, 5);
     val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
     var i = 0;
     while (i < numValidators) {
@@ -262,7 +262,7 @@ fun submitKnownValidatorStake(elector: Elector, _totalStake: coins, kp: KeyPair)
     val maxFactor: uint32 = (1 << 16) + (1 << 15); // 1.5
     val signature = generateStakeSignature(
         kp.privateKey,
-        stakeAt as uint32,
+        stakeAt,
         maxFactor,
         srcHash,
         adnlAddr,
@@ -271,15 +271,15 @@ fun submitKnownValidatorStake(elector: Elector, _totalStake: coins, kp: KeyPair)
     elector.sendNewStakeMessage(
         srcAddr,
         0,
-        kp.publicKey as uint256,
-        stakeAt as uint32,
+        kp.publicKey,
+        stakeAt,
         maxFactor,
         adnlAddr,
         signature,
         { value: stakePerValidator + ONECOIN },
     );
 
-    return (srcAddr, kp.publicKey as uint256, stakePerValidator);
+    return (srcAddr, kp.publicKey, stakePerValidator);
 }
 
 /// Conduct elections with a known first validator.
@@ -319,10 +319,10 @@ fun conductElectionsWithKnownValidator(elector: Elector): (int, uint256) {
 /// Build a validators set cell from parameters
 fun buildVSet(validSince: int, validUntil: int, total: int, main: int, totalWeight: int): VSet {
     return VSet {
-        utimeSince: validSince as uint32,
-        utimeUntil: validUntil as uint32,
-        _total: total as uint16,
-        _main: min(main, total) as uint16,
+        utimeSince: validSince,
+        utimeUntil: validUntil,
+        _total: total,
+        _main: min(main, total),
         totalWeight: totalWeight as uint64,
         dict: [],
     };

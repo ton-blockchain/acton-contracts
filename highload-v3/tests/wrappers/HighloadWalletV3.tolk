@@ -109,16 +109,16 @@ fun HighloadWalletV3.getLastCleanTime(self): int {
 
 fun HighloadWalletV3.isProcessed(self, queryId: int, needClean: bool = true): bool {
     val cleanFlag = needClean ? -1 : 0;
-    val res: int = net.runGetMethod(self.address, "processed?", [queryId, cleanFlag] as tuple);
+    val res: int = net.runGetMethod(self.address, "processed?", [queryId, cleanFlag]);
     return res != 0;
 }
 
 fun HighloadWalletV3.queryIdShift(queryId: int): uint13 {
-    return (queryId >> HIGHLOAD_BIT_NUMBER_SIZE) as uint13;
+    return (queryId >> HIGHLOAD_BIT_NUMBER_SIZE);
 }
 
 fun HighloadWalletV3.queryIdBitNumber(queryId: int): uint10 {
-    return (queryId & 1023) as uint10;
+    return (queryId & 1023);
 }
 
 fun packOutActions(actions: array<OutAction>): cell {
@@ -127,7 +127,7 @@ fun packOutActions(actions: array<OutAction>): cell {
     while (i < actions.size()) {
         head = OutList {
             prev: head,
-            action: actions.get(i) as OutAction,
+            action: actions.get(i),
         }.toCell();
         i += 1;
     }
@@ -141,7 +141,7 @@ fun packSendActionsToCell(messages: array<OutActionSendMessage>, start: int, cou
         val action = messages.get(start + i);
         head = OutList {
             prev: head,
-            action: action as OutActionSendMessage as OutAction,
+            action: action as OutActionSendMessage,
         }.toCell();
         i += 1;
     }
@@ -223,9 +223,9 @@ fun HighloadWalletV3.packActionsRange(
         head = OutList {
             prev: head,
             action: OutActionSendMessage {
-                mode: chainMode as uint8,
+                mode: chainMode,
                 outMsg: chained.messageCell,
-            } as OutAction,
+            },
         }.toCell();
 
         return self.createInternalTransferMessageFromActionsCell(queryId, head, value);
@@ -240,13 +240,13 @@ fun HighloadWalletV3.buildExternalRequestBody(
     req: HighloadExternalRequest,
 ): cell {
     val inner = MsgInner {
-        subwalletId: req.subwalletId as uint32,
+        subwalletId: req.subwalletId,
         messageToSend: req.messageToSend,
-        sendMode: req.mode as uint8,
+        sendMode: req.mode,
         shift: HighloadWalletV3.queryIdShift(req.queryId),
         bitNumber: HighloadWalletV3.queryIdBitNumber(req.queryId),
-        createdAt: req.createdAt as uint64,
-        timeout: req.timeout as uint22,
+        createdAt: req.createdAt,
+        timeout: req.timeout,
     }.toCell();
 
     val signature = crypto.sign(keyPair.privateKey, inner);
@@ -283,7 +283,7 @@ fun HighloadWalletV3.trySendRawExternalBodySingle(self, body: cell): SendResult?
     if (raw == null) {
         return null;
     }
-    return SendResult.fromTuple(raw as tuple);
+    return SendResult.fromTuple(raw);
 }
 
 fun HighloadWalletV3.sendBatch(

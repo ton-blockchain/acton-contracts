@@ -251,9 +251,5 @@ fun Elector.listComplaints(self, electionId: uint32): lisp_list<ComplaintListEnt
 }
 
 fun Elector.complaintStoragePrice(self, bits: int, refs: int, expireIn: int): int {
-    return net.runGetMethod(
-        self.address,
-        "complaint_storage_price",
-        [bits, refs, expireIn] as tuple,
-    );
+    return net.runGetMethod(self.address, "complaint_storage_price", [bits, refs, expireIn]);
 }

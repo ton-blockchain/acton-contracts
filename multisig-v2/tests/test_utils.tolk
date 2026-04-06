@@ -157,7 +157,7 @@ fun packActionCells(actions: array<cell>): DirectOrderActionsMap {
     var result: DirectOrderActionsMap = [];
     var i = 0;
     while (i < actions.size()) {
-        result.set(i as uint8, actions.get(i));
+        result.set(i, actions.get(i));
         i += 1;
     }
     return result;
@@ -340,7 +340,7 @@ fun buildLargeOrderRange(
 
     headCells.push(
         SendMessageAction {
-            mode: SEND_MODE_PAY_FEES_SEPARATELY as uint8,
+            mode: SEND_MODE_PAY_FEES_SEPARATELY,
             message: chainMsg.messageCell,
         }.toCell(),
     );

@@ -28,7 +28,7 @@ get fun `test voting int: should reject malformed signed-vote payload tag`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600) as uint32,
+        (net.now() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -52,7 +52,7 @@ get fun `test voting int: should reject malformed signed-vote payload tag`() {
         opcode: OP_VOTE_FOR_PROPOSAL,
         aborted: true,
     });
-    expect(ctx.contract.getProposal(hash as int) == null).toEqual(false);
+    expect(ctx.contract.getProposal(hash) == null).toEqual(false);
 }
 
 get fun `test voting int: should reject bad signature`() {
@@ -62,7 +62,7 @@ get fun `test voting int: should reject bad signature`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600) as uint32,
+        (net.now() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -89,7 +89,7 @@ get fun `test voting int: should reject bad signature`() {
     expect(res).toNotHaveTx({
         from: ctx.contract.address,
         to: ctx.validatorSender,
-        opcode: (TAG_VOTE_PROCESSED_BASE + 2) as uint32,
+        opcode: (TAG_VOTE_PROCESSED_BASE + 2),
     });
 }
 
@@ -100,7 +100,7 @@ get fun `test voting int: should return not-found status for unknown proposal`()
     expect(res).toHaveTx({
         from: ctx.contract.address,
         to: ctx.validatorSender,
-        opcode: (TAG_VOTE_PROCESSED_BASE - 1) as uint32,
+        opcode: (TAG_VOTE_PROCESSED_BASE - 1),
     });
 }
 
@@ -115,7 +115,7 @@ get fun `test voting int: should remove expired proposal on vote attempt`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() - 1) as uint32,
+        (net.now() - 1),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -124,14 +124,14 @@ get fun `test voting int: should remove expired proposal on vote attempt`() {
     expect(res).toHaveTx({
         from: ctx.contract.address,
         to: ctx.validatorSender,
-        opcode: (TAG_VOTE_PROCESSED_BASE - 1) as uint32,
+        opcode: (TAG_VOTE_PROCESSED_BASE - 1),
     });
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
 }
 
 get fun `test voting int invariant: round transition on vote should reset voters and bump losses`() {
     val ctx = setupConfigTest();
-    val weighted = buildValidatorsWithWeights([1, 5] as array<int>);
+    val weighted = buildValidatorsWithWeights([1, 5]);
 
     val firstVset = applyCurrentValidatorSet(weighted, 0);
     val proposal = createProposal(
@@ -143,7 +143,7 @@ get fun `test voting int invariant: round transition on vote should reset voters
         ctx.contract,
         proposal,
         true,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -152,12 +152,12 @@ get fun `test voting int invariant: round transition on vote should reset voters
     expect(firstVote).toHaveTx({
         from: ctx.contract.address,
         to: ctx.validatorSender,
-        opcode: (TAG_VOTE_PROCESSED_BASE + 2) as uint32,
+        opcode: (TAG_VOTE_PROCESSED_BASE + 2),
     });
 
     val before = getProposalFullOrNull(ctx.contract, hash);
     expect(before == null).toEqual(false);
-    expect(before!.validatorSetId).toEqual(firstVset.hash() as int);
+    expect(before!.validatorSetId).toEqual(firstVset.hash());
     expect(before!.remainingWeight).toEqual(3);
     expect(before!.losses).toEqual(0);
     expect(proposalVotersCount(before!)).toEqual(1);
@@ -167,12 +167,12 @@ get fun `test voting int invariant: round transition on vote should reset voters
     expect(secondVote).toHaveTx({
         from: ctx.contract.address,
         to: ctx.validatorSender,
-        opcode: (TAG_VOTE_PROCESSED_BASE + 2) as uint32,
+        opcode: (TAG_VOTE_PROCESSED_BASE + 2),
     });
 
     val after = getProposalFullOrNull(ctx.contract, hash);
     expect(after == null).toEqual(false);
-    expect(after!.validatorSetId).toEqual(secondVset.hash() as int);
+    expect(after!.validatorSetId).toEqual(secondVset.hash());
     expect(after!.remainingWeight).toEqual(3);
     expect(after!.roundsRemaining).toEqual(before!.roundsRemaining - 1);
     expect(after!.losses).toEqual(before!.losses + 1);
@@ -181,7 +181,7 @@ get fun `test voting int invariant: round transition on vote should reset voters
 
 get fun `test voting int invariant: proposal should be removed after too many losses`() {
     val ctx = setupConfigTest();
-    val weighted = buildValidatorsWithWeights([1, 5] as array<int>);
+    val weighted = buildValidatorsWithWeights([1, 5]);
     applyCurrentValidatorSet(weighted, 0);
 
     setVotingSetup(
@@ -213,7 +213,7 @@ get fun `test voting int invariant: proposal should be removed after too many lo
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
         1,
@@ -228,14 +228,14 @@ get fun `test voting int invariant: proposal should be removed after too many lo
     expect(removed).toHaveTx({
         from: ctx.contract.address,
         to: ctx.validatorSender,
-        opcode: (TAG_VOTE_PROCESSED_BASE - 1) as uint32,
+        opcode: (TAG_VOTE_PROCESSED_BASE - 1),
     });
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
 }
 
 get fun `test voting int invariant: proposal should be removed after too many rounds`() {
     val ctx = setupConfigTest();
-    val weighted = buildValidatorsWithWeights([1, 5] as array<int>);
+    val weighted = buildValidatorsWithWeights([1, 5]);
     applyCurrentValidatorSet(weighted, 0);
 
     setVotingSetup(
@@ -267,7 +267,7 @@ get fun `test voting int invariant: proposal should be removed after too many ro
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
         1,
@@ -277,7 +277,7 @@ get fun `test voting int invariant: proposal should be removed after too many ro
     val lookup = storage.voteDict.get(hash);
     expect(lookup.isFound).toEqual(true);
     var status = ConfigProposalStatus.fromSlice(lookup.loadValue());
-    status.validatorSetId = (hash + 1) as uint256;
+    status.validatorSetId = (hash + 1);
     status.roundsRemaining = 0;
     storage.voteDict.set(hash, status.toCell().beginParse());
     setStorage(ctx.contract, storage);
@@ -286,14 +286,14 @@ get fun `test voting int invariant: proposal should be removed after too many ro
     expect(removed).toHaveTx({
         from: ctx.contract.address,
         to: ctx.validatorSender,
-        opcode: (TAG_VOTE_PROCESSED_BASE - 1) as uint32,
+        opcode: (TAG_VOTE_PROCESSED_BASE - 1),
     });
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
 }
 
 get fun `test voting int acceptance invariant: should not apply value when current hash changed`() {
     val ctx = setupConfigTest();
-    val idx = -307 as int32;
+    val idx = -307;
     val newVal = beginCell().storeSlice("new".beginParse()).endCell();
     val changedVal = beginCell().storeSlice("changed".beginParse()).endCell();
 
@@ -303,7 +303,7 @@ get fun `test voting int acceptance invariant: should not apply value when curre
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -311,13 +311,13 @@ get fun `test voting int acceptance invariant: should not apply value when curre
     setStorageConfigParam(ctx.contract, idx, changedVal);
     voteUntilAccepted(ctx, hash);
 
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
     assertConfigParam(ctx.contract, idx, changedVal);
 }
 
 get fun `test voting int acceptance invariant: should not nullify param that became mandatory`() {
     val ctx = setupConfigTest();
-    val idx = -308 as int32;
+    val idx = -308;
     val prevVal = beginCell().storeSlice("prev".beginParse()).endCell();
 
     setStorageConfigParam(ctx.contract, idx, prevVal);
@@ -326,7 +326,7 @@ get fun `test voting int acceptance invariant: should not nullify param that bec
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -334,13 +334,13 @@ get fun `test voting int acceptance invariant: should not nullify param that bec
     setStorageConfigParam(ctx.contract, CONFIG_PARAM_MANDATORY_PARAMS, singleIndexDictCell(idx));
     voteUntilAccepted(ctx, hash);
 
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
     assertConfigParam(ctx.contract, idx, prevVal);
 }
 
 get fun `test voting int acceptance invariant: should not apply non-critical vote after param became critical`() {
     val ctx = setupConfigTest();
-    val idx = -309 as int32;
+    val idx = -309;
     val prevVal = beginCell().storeSlice("prev-crit".beginParse()).endCell();
 
     setStorageConfigParam(ctx.contract, idx, prevVal);
@@ -349,7 +349,7 @@ get fun `test voting int acceptance invariant: should not apply non-critical vot
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200) as uint32,
+        (net.now() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -357,6 +357,6 @@ get fun `test voting int acceptance invariant: should not apply non-critical vot
     setStorageConfigParam(ctx.contract, CONFIG_PARAM_CRITICAL_PARAMS, singleIndexDictCell(idx));
     voteUntilAccepted(ctx, hash);
 
-    expect(ctx.contract.getProposal(hash as int)).toBeNull();
+    expect(ctx.contract.getProposal(hash)).toBeNull();
     assertConfigParam(ctx.contract, idx, prevVal);
 }

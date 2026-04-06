@@ -26,7 +26,7 @@ struct FeeContext {
 }
 
 fun setupFeeContext(): FeeContext {
-    net.setNow(FEE_TEST_NOW as uint32);
+    net.setNow(FEE_TEST_NOW);
     vm.registerLibrary(build("multisig_v2_order"));
 
     val deployer = net.treasury("fee_deployer");
@@ -109,7 +109,7 @@ fun executeEstimatedOrder(
         0,
         MAX_ORDER_SEQNO,
         0,
-        { value: (estimate + extraValue) as coins, bounce: true },
+        { value: (estimate + extraValue), bounce: true },
     );
 
     expect(create).toHaveSuccessfulTx<NewOrderRequest>({ from: firstSigner, to: wallet.address });
@@ -129,7 +129,7 @@ fun executeEstimatedOrder(
         to: wallet.address,
     });
 
-    return (estimate as coins, create, approve);
+    return (estimate, create, approve);
 }
 
 get fun `test fee: should send new order with contract estimated message value`() {
@@ -278,7 +278,7 @@ fun runCommonCase(
     expirationDate: int,
     signerCreates: bool,
 ): SendResultList {
-    net.setNow(FEE_TEST_NOW as uint32);
+    net.setNow(FEE_TEST_NOW);
     vm.registerLibrary(build("multisig_v2_order"));
 
     val deployer = net.treasury("fee_case_deployer");
@@ -317,7 +317,7 @@ fun runCommonCase(
         creatorIndex,
         MAX_ORDER_SEQNO,
         0,
-        { value: (estimate + FEE_DEFAULT_CREATE_VALUE) as coins, bounce: true },
+        { value: (estimate + FEE_DEFAULT_CREATE_VALUE), bounce: true },
     );
     expect(create).toHaveSuccessfulTx<NewOrderRequest>({ from: creator, to: wallet.address });
 
@@ -330,7 +330,7 @@ fun runCommonCase(
         approveRes = order.sendApprove(
             signers.get(signerIdx),
             signerIdx,
-            signerIdx as uint64,
+            signerIdx,
             { value: ton("0.2"), bounce: true },
         );
         signerIdx += 1;
@@ -382,13 +382,13 @@ get fun `test fee: should be enough for 75 years`() {
             0,
             MAX_ORDER_SEQNO,
             0,
-            { value: (estimate + ton("5")) as coins, bounce: true },
+            { value: (estimate + ton("5")), bounce: true },
         );
 
     val orderContract = MultisigV2Order.fromAddress(ctx.wallet.getOrderAddress(seqno));
     expect(create).toHaveSuccessfulDeploy({ to: orderContract.address });
 
-    net.setNow((expirationDate - 10) as uint32);
+    net.setNow((expirationDate - 10));
 
     val approve = orderContract.sendApprove(
         ctx.second.address,

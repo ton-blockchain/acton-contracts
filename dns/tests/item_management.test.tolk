@@ -193,7 +193,7 @@ get fun `test item management: static data, governance guard, and release flow i
     });
 
     val lastFillUp = item.getLastFillUpTime();
-    net.setNow((lastFillUp + ONE_YEAR + 1) as uint32);
+    net.setNow((lastFillUp + ONE_YEAR + 1));
 
     val release = item.sendDnsRecordRelease(
         bidder.address,
@@ -210,5 +210,5 @@ get fun `test item management: static data, governance guard, and release flow i
     val restartedAuction = item.getAuctionInfo();
     expect(restartedAuction.maxBidAddress).toEqual(bidder.address);
     expect(restartedAuction.maxBidAmount).toEqual(ton("20000"));
-    expect(restartedAuction.auctionEndTime).toEqual((net.now() + AUCTION_START_DURATION) as uint64);
+    expect(restartedAuction.auctionEndTime).toEqual((net.now() + AUCTION_START_DURATION));
 }

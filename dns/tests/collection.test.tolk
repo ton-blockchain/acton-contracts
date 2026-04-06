@@ -11,7 +11,7 @@ import "../contracts/errors"
 get fun `test collection: validates domain format and minimum bid rules`() {
     val (collection, _, user) = deployCollectionContract();
 
-    net.setNow((AUCTION_START_TIME - 1) as uint32);
+    net.setNow((AUCTION_START_TIME - 1));
     val beforeStart = collection.sendAny(
         user.address,
         makeDeployBody("appl"),
@@ -22,7 +22,7 @@ get fun `test collection: validates domain format and minimum bid rules`() {
         exitCode: ERROR_AUCTION_NOT_STARTED,
     });
 
-    net.setNow((AUCTION_START_TIME + 1) as uint32);
+    net.setNow((AUCTION_START_TIME + 1));
 
     val tooShort = collection.sendAny(
         user.address,
@@ -80,13 +80,13 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val deployedItem = atMinBid.findTransaction({ from: collection.address, deploy: true });
     expect(deployedItem).toBeDefined();
 
-    val expectedAddress = collection.getNftAddressByIndex(domainIndex("appl") as int);
+    val expectedAddress = collection.getNftAddressByIndex(domainIndex("appl"));
     expect(deployedItem.unwrap().getAccountAddress()).toEqual(expectedAddress);
 }
 
 get fun `test collection: denies deployment for blacklisted domains via config param 80`() {
     val (collection, _, user) = deployCollectionContract();
-    net.setNow((AUCTION_START_TIME + 1) as uint32);
+    net.setNow((AUCTION_START_TIME + 1));
 
     val blockedDomain = "evil";
     setDnsBlacklist(domainIndex(blockedDomain));
@@ -106,7 +106,7 @@ get fun `test collection: dnsresolve returns next-resolver for top label and dot
     expect(dotResolved.resolvedPrefixLengthBits).toEqual(BYTE_SIZE);
     expect(dotResolved.resolvedRecord).toBeNull();
 
-    val expectedItem = collection.getNftAddressByIndex(domainIndex("alice") as int);
+    val expectedItem = collection.getNftAddressByIndex(domainIndex("alice"));
 
     val aliceResolved = collection.dnsresolve(makeLabelDomainSlice("alice"), 1234);
     expect(aliceResolved.resolvedPrefixLengthBits).toEqual(5 * BYTE_SIZE);
@@ -132,7 +132,7 @@ get fun `test collection: getters are stable and content getter is pass-through`
     expect(data.ownerAddress).toBeNull();
     expect(data.content.hash()).toEqual(makeCollectionContentCell().hash());
 
-    val idx = domainIndex("alice") as int;
+    val idx = domainIndex("alice");
     val addr1 = collection.getNftAddressByIndex(idx);
     val addr2 = collection.getNftAddressByIndex(idx);
     expect(addr1).toEqual(addr2);

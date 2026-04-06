@@ -133,7 +133,7 @@ get fun `test bench new complaint`() {
     val res = elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("500") },
     );
@@ -155,16 +155,16 @@ get fun `test bench complaint vote`() {
     while (i <= 4) {
         sendVote(
             elector,
-            i as uint64,
+            i,
             kps.get(i).privateKey,
-            i as uint16,
-            stakeAt as uint32,
+            i,
+            stakeAt,
             chash,
         );
         i += 1;
     }
 
-    val info = elector.showComplaint(stakeAt as uint32, chash);
+    val info = elector.showComplaint(stakeAt, chash);
     assert (info != null) throw 700;
     expect(info.weightRemaining < 0).toEqual(true);
 }
@@ -183,7 +183,7 @@ fun setupVsetWithKnownValidators(numValidators: int): array<KeyPair> {
         dict.set(
             i,
             ValidatorDescrWithAdnlAddr {
-                validatorPubkey: kp.publicKey as uint256,
+                validatorPubkey: kp.publicKey,
                 validatorWeight: weight,
                 adnlAddr: 0,
             },
@@ -192,10 +192,10 @@ fun setupVsetWithKnownValidators(numValidators: int): array<KeyPair> {
         i += 1;
     }
     val vset = VSet {
-        utimeSince: (blockchain.now() - 1000) as uint32,
-        utimeUntil: (blockchain.now() + 9000) as uint32,
-        _total: numValidators as uint16,
-        _main: numValidators as uint16,
+        utimeSince: (blockchain.now() - 1000),
+        utimeUntil: (blockchain.now() + 9000),
+        _total: numValidators,
+        _main: numValidators,
         totalWeight,
         dict,
     };
@@ -218,12 +218,12 @@ fun registerTestComplaint(
     elector.sendNewComplaint(
         sender,
         1,
-        stakeAt as uint32,
+        stakeAt,
         complaint.toCell().beginParse(),
         { value: ton("500") },
     );
 
-    val complaints = elector.getPastComplaints(stakeAt as uint32);
+    val complaints = elector.getPastComplaints(stakeAt);
     val first = complaints.findFirst();
     assert (first.isFound) throw 500;
     return first.getKey();
@@ -273,7 +273,7 @@ fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cel
     val stakeLimits = defaultStakeLimits();
 
     var totalStake: coins = 0;
-    val numValidators = max(validatorLimits.minValidators as int, 5);
+    val numValidators = max(validatorLimits.minValidators, 5);
     val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
     var firstStakerHash: uint256 = 0;
     var i = 0;
@@ -303,5 +303,5 @@ fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cel
     val tx = tickResult.findTransaction<ElectedVSetMsg>({ from: elector.address, to: configAddr });
     val body = tx.unwrap().loadBody<ElectedVSetMsg>();
 
-    return (stakeAt, body.vset as cell, firstStakerHash);
+    return (stakeAt, body.vset, firstStakerHash);
 }

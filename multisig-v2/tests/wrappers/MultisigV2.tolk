@@ -21,7 +21,7 @@ fun toDirectIndexedAddressMap(addresses: array<address>): DirectIndexedAddressMa
     var result: DirectIndexedAddressMap = [];
     var i = 0;
     while (i < addresses.size()) {
-        result.set(i as uint8, addresses.get(i));
+        result.set(i, addresses.get(i));
         i += 1;
     }
     return result;
@@ -31,7 +31,7 @@ fun toIndexedAddressMap(addresses: array<address>): IndexedAddressMap {
     var result: IndexedAddressMap = [];
     var i = 0;
     while (i < addresses.size()) {
-        result.set(i as uint8, addresses.get(i));
+        result.set(i, addresses.get(i));
         i += 1;
     }
     return result;
@@ -65,7 +65,7 @@ fun MultisigV2.fromConfig(
         nextOrderSeqno: nextOrderSeqno as uint256,
         threshold: threshold as uint8,
         signers: toDirectIndexedAddressMap(signers),
-        signersNum: signers.size() as uint8,
+        signersNum: signers.size(),
         proposers: toIndexedAddressMap(proposers),
         allowArbitraryOrderSeqno,
     };

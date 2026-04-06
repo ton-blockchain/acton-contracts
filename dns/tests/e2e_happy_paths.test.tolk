@@ -28,7 +28,7 @@ fun setGovernanceDecision(index: uint256, decision: RemainingBitsAndRefs) {
 fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL_BID) {
     val (collection, deployer, bidder) = deployCollectionContract();
     val governanceCaller = newActor("dns_e2e_governance_caller", ton("100000"));
-    net.setNow((AUCTION_START_TIME + 1) as uint32);
+    net.setNow((AUCTION_START_TIME + 1));
 
     val deploy = collection.sendDeployDnsDomain(
         deployer.address,

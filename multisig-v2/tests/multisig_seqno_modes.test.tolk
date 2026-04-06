@@ -18,7 +18,7 @@ get fun `test multisig: multisig parameters update with threshold = 0 should fai
     val update = makeUpdateAction(0, ctx.signers, mapToAddressArray(dataBefore.proposersMap()));
     val transfer = makeTransferAction(target, DEFAULT_TRANSFER_VALUE, 33333);
 
-    val order = pairActionsOrder(update as GenericOrderAction, transfer as GenericOrderAction);
+    val order = pairActionsOrder(update, transfer);
 
     val orderAddress = ctx.multisig.getOrderAddress(dataBefore.nextOrderSeqno);
     val res = sendOrderBySigner(ctx, order, nowPlus(1000));
@@ -36,14 +36,12 @@ get fun `test multisig: multisig parameters update with threshold = 0 should fai
 
 get fun `test multisig: should not allow to create order with seqno other than next order seqno`() {
     val ctx = setupMultisig();
-    val order = singleActionOrder(
-        makeTransferAction(net.randomAddress("seqno_fixed_target")) as GenericOrderAction,
-    );
+    val order = singleActionOrder(makeTransferAction(net.randomAddress("seqno_fixed_target")));
 
     val before = ctx.multisig.getData();
     expect(before.nextOrderSeqno).toBeGreater(-1);
 
-    val validSeqno = before.nextOrderSeqno as uint256;
+    val validSeqno = before.nextOrderSeqno;
     val validOrderAddress = ctx.multisig.getOrderAddress(before.nextOrderSeqno);
 
     val ok = sendOrderBySigner(
@@ -76,7 +74,7 @@ get fun `test multisig: should not allow to create order with seqno other than n
         exitCode: ERROR_INVALID_NEW_ORDER,
     });
 
-    val invalidHigherSeqno = (afterOk.nextOrderSeqno + 100) as uint256;
+    val invalidHigherSeqno = (afterOk.nextOrderSeqno + 100);
     val invalidHigher = sendOrderBySigner(
         ctx,
         order,
@@ -91,7 +89,7 @@ get fun `test multisig: should not allow to create order with seqno other than n
         exitCode: ERROR_INVALID_NEW_ORDER,
     });
 
-    val invalidLowerSeqno = (afterOk.nextOrderSeqno - 1) as uint256;
+    val invalidLowerSeqno = (afterOk.nextOrderSeqno - 1);
     val invalidLower = sendOrderBySigner(
         ctx,
         order,
@@ -112,9 +110,7 @@ get fun `test multisig: should not allow to create order with seqno other than n
 
 get fun `test multisig: should allow to create orders with arbitrary seqno`() {
     val ctx = setupMultisig(4, 6, 1, true);
-    val order = singleActionOrder(
-        makeTransferAction(net.randomAddress("seqno_arbitrary_target")) as GenericOrderAction,
-    );
+    val order = singleActionOrder(makeTransferAction(net.randomAddress("seqno_arbitrary_target")));
 
     val data = ctx.multisig.getData();
     expect(data.nextOrderSeqno).toEqual(-1);
@@ -124,7 +120,7 @@ get fun `test multisig: should allow to create orders with arbitrary seqno`() {
     var i = 0;
     while (i < seqnos.size()) {
         val signerIndex = i % ctx.signers.size();
-        val seqno = seqnos.get(i) as uint256;
+        val seqno = seqnos.get(i);
         val expectedOrderAddress = ctx.multisig.getOrderAddress(seqnos.get(i));
 
         val res = sendOrderBySigner(
@@ -151,11 +147,9 @@ get fun `test multisig: should allow to create orders with arbitrary seqno`() {
 
 get fun `test multisig: should allow to create order with maximum possible seqno`() {
     val ctx = setupMultisig(2, 3, 1, true);
-    val order = singleActionOrder(
-        makeTransferAction(net.randomAddress("max_seqno_target")) as GenericOrderAction,
-    );
+    val order = singleActionOrder(makeTransferAction(net.randomAddress("max_seqno_target")));
 
-    val orderAddress = ctx.multisig.getOrderAddress(MAX_ORDER_SEQNO as int);
+    val orderAddress = ctx.multisig.getOrderAddress(MAX_ORDER_SEQNO);
 
     val res = sendOrderBySigner(
         ctx,
@@ -175,11 +169,9 @@ get fun `test multisig: should allow to create order with maximum possible seqno
 
 get fun `test multisig: subsequent order creation with same seqno should result in vote`() {
     val ctx = setupMultisig(3, 5, 1, true);
-    val order = singleActionOrder(
-        makeTransferAction(net.randomAddress("same_seqno_vote_target")) as GenericOrderAction,
-    );
+    val order = singleActionOrder(makeTransferAction(net.randomAddress("same_seqno_vote_target")));
 
-    val targetSeqno = 4242 as uint256;
+    val targetSeqno = 4242;
     val orderAddress = ctx.multisig.getOrderAddress(4242);
     val orderContract = MultisigV2Order.fromAddress(orderAddress);
 

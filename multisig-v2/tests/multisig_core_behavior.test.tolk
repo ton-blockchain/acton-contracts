@@ -24,9 +24,7 @@ get fun `test multisig: should deploy`() {
 
 get fun `test multisig: only signers and proposers should be able to create order`() {
     val ctx = setupMultisig();
-    val order = singleActionOrder(
-        makeTransferAction(net.randomAddress("create_order_target")) as GenericOrderAction,
-    );
+    val order = singleActionOrder(makeTransferAction(net.randomAddress("create_order_target")));
 
     val seqnoBefore = ctx.multisig.getData().nextOrderSeqno;
     val expectedOrderAddress = ctx.multisig.getOrderAddress(seqnoBefore);
@@ -142,9 +140,7 @@ get fun `test multisig: only signers and proposers should be able to create orde
 
 get fun `test multisig: order expiration time should exceed current time`() {
     val ctx = setupMultisig();
-    val order = singleActionOrder(
-        makeTransferAction(net.randomAddress("expired_target")) as GenericOrderAction,
-    );
+    val order = singleActionOrder(makeTransferAction(net.randomAddress("expired_target")));
 
     val seqno = ctx.multisig.getData().nextOrderSeqno;
     val orderAddress = ctx.multisig.getOrderAddress(seqno);
@@ -160,9 +156,7 @@ get fun `test multisig: order expiration time should exceed current time`() {
 
 get fun `test multisig: should reject order creation with insufficient incoming value`() {
     val ctx = setupMultisig();
-    val order = singleActionOrder(
-        makeTransferAction(net.randomAddress("value_target")) as GenericOrderAction,
-    );
+    val order = singleActionOrder(makeTransferAction(net.randomAddress("value_target")));
 
     val expiration = 2000000000;
     val estimate = ctx.multisig.getOrderEstimate(order, expiration);
@@ -176,7 +170,7 @@ get fun `test multisig: should reject order creation with insufficient incoming 
         expiration,
         0,
         MAX_ORDER_SEQNO,
-        (estimate / 2) as coins,
+        (estimate / 2),
     );
 
     expect(res).toHaveFailedTx<NewOrderRequest>({
@@ -190,9 +184,7 @@ get fun `test multisig: should reject order creation with insufficient incoming 
 get fun `test multisig: deployed order state should match requested`() {
     val ctx = setupMultisig(7, 12, 8, false);
     val recipient = net.randomAddress("order_state_target");
-    val orderBody = singleActionOrder(
-        makeTransferAction(recipient, DEFAULT_TRANSFER_VALUE, 9876) as GenericOrderAction,
-    );
+    val orderBody = singleActionOrder(makeTransferAction(recipient, DEFAULT_TRANSFER_VALUE, 9876));
 
     val signerIndex = 3;
     val seqno = ctx.multisig.getData().nextOrderSeqno;
@@ -219,7 +211,7 @@ get fun `test multisig: should execute new message order`() {
     val target = net.randomAddress("execute_target");
     val marker = 12345;
     val action = makeTransferAction(target, DEFAULT_TRANSFER_VALUE, marker);
-    val order = singleActionOrder(action as GenericOrderAction);
+    val order = singleActionOrder(action);
 
     val seqno = ctx.multisig.getData().nextOrderSeqno;
     val orderAddress = ctx.multisig.getOrderAddress(seqno);
@@ -243,7 +235,7 @@ get fun `test multisig: expired order execution should be denied`() {
     val ctx = setupMultisig();
     val target = net.randomAddress("expired_exec_target");
     val action = makeTransferAction(target, DEFAULT_TRANSFER_VALUE, 100500);
-    val orderBody = singleActionOrder(action as GenericOrderAction);
+    val orderBody = singleActionOrder(action);
 
     val seqno = ctx.multisig.getData().nextOrderSeqno;
     val orderAddress = ctx.multisig.getOrderAddress(seqno);
@@ -271,7 +263,7 @@ get fun `test multisig: should be possible to execute order by post init approva
     val ctx = setupMultisig();
     val target = net.randomAddress("post_approve_target");
     val action = makeTransferAction(target, DEFAULT_TRANSFER_VALUE, 6789);
-    val orderBody = singleActionOrder(action as GenericOrderAction);
+    val orderBody = singleActionOrder(action);
 
     val seqno = ctx.multisig.getData().nextOrderSeqno;
     val orderAddress = ctx.multisig.getOrderAddress(seqno);
@@ -299,9 +291,7 @@ get fun `test multisig: should be possible to execute order by post init approva
 
 get fun `test multisig: order estimate should work`() {
     val ctx = setupMultisig();
-    val order = singleActionOrder(
-        makeTransferAction(net.randomAddress("estimate_target")) as GenericOrderAction,
-    );
+    val order = singleActionOrder(makeTransferAction(net.randomAddress("estimate_target")));
 
     val oneHour = ctx.multisig.getOrderEstimate(order, 2000003600);
     val oneYear = ctx.multisig.getOrderEstimate(order, 2031536000);
@@ -318,7 +308,7 @@ get fun `test multisig: should send new order with many actions in specified ord
     val action1 = makeTransferAction(target1, ton("0.015"), 12345);
     val action2 = makeTransferAction(target2, ton("0.016"), 12346);
 
-    val order12 = pairActionsOrder(action1 as GenericOrderAction, action2 as GenericOrderAction);
+    val order12 = pairActionsOrder(action1, action2);
     val res12 = sendOrderBySigner(ctx, order12, nowPlus(1000));
 
     val tx1Lt = getTxLt(
@@ -339,7 +329,7 @@ get fun `test multisig: should send new order with many actions in specified ord
     );
     expect(tx2Lt).toBeGreater(tx1Lt);
 
-    val order21 = pairActionsOrder(action2 as GenericOrderAction, action1 as GenericOrderAction);
+    val order21 = pairActionsOrder(action2, action1);
     val res21 = sendOrderBySigner(ctx, order21, nowPlus(1000));
 
     val tx1LtInv = getTxLt(
@@ -372,7 +362,7 @@ get fun `test multisig: should execute update multisig parameters correctly`() {
     }
 
     val update = makeUpdateAction(4, newSigners, []);
-    val order = singleActionOrder(update as GenericOrderAction);
+    val order = singleActionOrder(update);
 
     val seqno = ctx.multisig.getData().nextOrderSeqno;
     val orderAddress = ctx.multisig.getOrderAddress(seqno);
@@ -437,7 +427,7 @@ get fun `test multisig: should reject multisig parameters with inconsistently or
     malformedProposers.set(2, createFundedAddress());
 
     val malformedProposersAction = UpdateMultisigParamsAction {
-        threshold: after1.threshold as uint8,
+        threshold: after1.threshold,
         signers: after1.signersMap(),
         proposers: malformedProposers,
     };
@@ -478,9 +468,7 @@ get fun `test multisig: should accept execute internal only from self address`()
     val ctx = setupMultisig();
 
     val recipient = net.randomAddress("execute_internal_recipient");
-    val innerOrder = singleActionOrder(
-        makeTransferAction(recipient, ton("0.01"), 0x12345) as GenericOrderAction,
-    );
+    val innerOrder = singleActionOrder(makeTransferAction(recipient, ton("0.01"), 0x12345));
 
     val resSigner = ctx
         .multisig
@@ -533,9 +521,7 @@ get fun `test multisig: chained execution should work`() {
     val ctx = setupMultisig();
 
     val chainedRecipient = net.randomAddress("chained_recipient");
-    val innerOrder = singleActionOrder(
-        makeTransferAction(chainedRecipient, ton("0.01"), 0x22222) as GenericOrderAction,
-    );
+    val innerOrder = singleActionOrder(makeTransferAction(chainedRecipient, ton("0.01"), 0x22222));
 
     val triggerBody = ExecuteInternalRequest {
         queryId: 0,
@@ -549,7 +535,7 @@ get fun `test multisig: chained execution should work`() {
         true,
     );
 
-    val order = singleActionOrder(trigger as GenericOrderAction);
+    val order = singleActionOrder(trigger);
 
     val res = sendOrderBySigner(
         ctx,
@@ -575,11 +561,7 @@ get fun `test multisig: multisig should invalidate previous orders if signers ch
     val ctx = setupMultisig();
 
     val pendingOrder = singleActionOrder(
-        makeTransferAction(
-            ctx.multisig.address,
-            DEFAULT_TRANSFER_VALUE,
-            11111,
-        ) as GenericOrderAction,
+        makeTransferAction(ctx.multisig.address, DEFAULT_TRANSFER_VALUE, 11111),
     );
 
     val pendingSeqno = ctx.multisig.getData().nextOrderSeqno;
@@ -599,7 +581,7 @@ get fun `test multisig: multisig should invalidate previous orders if signers ch
         mapToAddressArray(oldData.proposersMap()),
     );
 
-    val updateOrder = singleActionOrder(update as GenericOrderAction);
+    val updateOrder = singleActionOrder(update);
     val updateRes = sendOrderBySigner(ctx, updateOrder, nowPlus(1000));
     expect(updateRes).toHaveSuccessfulTx<ExecuteOrderRequest>({ to: ctx.multisig.address });
 
@@ -617,11 +599,7 @@ get fun `test multisig: multisig should invalidate previous orders if threshold 
     val ctx = setupMultisig(1, 3, 1, false);
 
     val pendingOrder = singleActionOrder(
-        makeTransferAction(
-            ctx.multisig.address,
-            DEFAULT_TRANSFER_VALUE,
-            22222,
-        ) as GenericOrderAction,
+        makeTransferAction(ctx.multisig.address, DEFAULT_TRANSFER_VALUE, 22222),
     );
 
     val pendingSeqno = ctx.multisig.getData().nextOrderSeqno;
@@ -635,7 +613,7 @@ get fun `test multisig: multisig should invalidate previous orders if threshold 
 
     val dataBefore = ctx.multisig.getData();
     val update = makeUpdateAction(2, ctx.signers, mapToAddressArray(dataBefore.proposersMap()));
-    val updateOrder = singleActionOrder(update as GenericOrderAction);
+    val updateOrder = singleActionOrder(update);
     sendOrderBySigner(ctx, updateOrder, nowPlus(1000));
 
     val order = MultisigV2Order.fromAddress(pendingOrderAddress);
@@ -673,12 +651,12 @@ get fun `test multisig: multisig should not execute orders deployed by other mul
     val legitSignersHash = legitData.signersMap().hashCell();
 
     val evilPayload = singleActionOrder(
-        makeTransferAction(hackerWallet.address, ton("100000"), 1337) as GenericOrderAction,
+        makeTransferAction(hackerWallet.address, ton("100000"), 1337),
     );
 
     val execBody = ExecuteOrderRequest {
         queryId: 0,
-        orderSeqno: legitData.nextOrderSeqno as uint256,
+        orderSeqno: legitData.nextOrderSeqno,
         expirationDate: 0xffffffffffff,
         approvalsNum: 255,
         signersHash: legitSignersHash,
@@ -693,7 +671,7 @@ get fun `test multisig: multisig should not execute orders deployed by other mul
         true,
     );
 
-    val evilOrder = singleActionOrder(trigger as GenericOrderAction);
+    val evilOrder = singleActionOrder(trigger);
     val _evilOrderAddress = hackerMultisig.getOrderAddress(0);
 
     val res = hackerMultisig.sendNewOrder(
@@ -725,7 +703,7 @@ get fun `test multisig: should handle more than 255 orders`() {
     var i = 0;
     while (i < 253) {
         rootOrder.set(
-            i as uint8,
+            i,
             makeTransferAction(
                 ctx.deployer.address,
                 ton("0.01"),
@@ -741,7 +719,7 @@ get fun `test multisig: should handle more than 255 orders`() {
     var tailIdx = 0;
     while (marker < orderCount) {
         tailOrder.set(
-            tailIdx as uint8,
+            tailIdx,
             makeTransferAction(
                 ctx.deployer.address,
                 ton("0.01"),
@@ -759,7 +737,7 @@ get fun `test multisig: should handle more than 255 orders`() {
         order: tailOrder,
     }.toCell();
     rootOrder.set(
-        253 as uint8,
+        253,
         makeTransferActionWithBody(
             ctx.multisig.address,
             ton("0.01"),
