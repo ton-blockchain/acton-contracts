@@ -134,7 +134,10 @@ get fun `test item auction: exact end time still accepts bids before completion`
         createEmptyCell(),
         { value: ton("1050"), bounce: true },
     );
-    expect(edgeBid).toHaveSuccessfulTx<OutbidNotification>({ from: item.address, to: owner.address });
+    expect(edgeBid).toHaveSuccessfulTx<OutbidNotification>({
+        from: item.address,
+        to: owner.address,
+    });
 
     val auctionAfter = item.getAuctionInfo();
     expect(auctionAfter.maxBidAddress).toEqual(bidder.address);

@@ -9,13 +9,11 @@ import "wrappers/HighloadWalletV3"
 import "../contracts/messages"
 
 fun messageWithInternalSource(src: address, dest: address): cell {
-    var msg = (
-        createMessage({
-            bounce: false,
-            value: ton("0.1"),
-            dest,
-        }).messageCell as Cell<MessageRelaxedGeneric>
-    ).load();
+    var msg = (createMessage({
+        bounce: false,
+        value: ton("0.1"),
+        dest,
+    }).messageCell as Cell<MessageRelaxedGeneric>).load();
     msg.info.src = src as any_address;
     return msg.toCell();
 }
@@ -29,13 +27,11 @@ fun messageWithStateInit(stateInit: ContractState, value: coins = ton("0.1")): c
 }
 
 fun messageWithTrailingDataAfterBodyRef(dest: address, value: coins = ton("0.1")): cell {
-    var msg = (
-        createMessage({
-            bounce: false,
-            value,
-            dest,
-        }).messageCell as Cell<MessageRelaxedGeneric>
-    ).load();
+    var msg = (createMessage({
+        bounce: false,
+        value,
+        dest,
+    }).messageCell as Cell<MessageRelaxedGeneric>).load();
     val actualBody = beginCell().storeUint(0xabcdef01, 32).endCell();
     msg.body = beginCell()
         .storeBool(true)
@@ -260,7 +256,11 @@ get fun `test ignore outgoing message with internal source in payload`() {
 get fun `test ignore outgoing message with state init in payload`() {
     val ctx = setupHighloadTest();
     val queryId = HighloadQueryId.fromShiftAndBitNumber(5, 501).toInt();
-    val otherWallet = HighloadWalletV3.fromConfig(ctx.keyPair.publicKey, SUBWALLET_ID + 1, DEFAULT_TIMEOUT);
+    val otherWallet = HighloadWalletV3.fromConfig(
+        ctx.keyPair.publicKey,
+        SUBWALLET_ID + 1,
+        DEFAULT_TIMEOUT,
+    );
 
     val res = sendSignedExternal(
         ctx.wallet,
@@ -328,7 +328,9 @@ get fun `test ignore bounced outgoing message in payload`() {
         bounce: false,
         value: ton("0.1"),
         dest: net.randomAddress("bounced-outgoing-dest"),
-    }).bounced().messageCell;
+    })
+        .bounced()
+        .messageCell;
 
     val res = sendSignedExternal(
         ctx.wallet,

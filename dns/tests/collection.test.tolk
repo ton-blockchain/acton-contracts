@@ -93,7 +93,10 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
         makeDeployBody("edge"),
         { value: ton("1000"), bounce: true },
     );
-    expect(exactStart).toHaveFailedTx({ to: collection.address, exitCode: ERROR_AUCTION_NOT_STARTED });
+    expect(exactStart).toHaveFailedTx({
+        to: collection.address,
+        exitCode: ERROR_AUCTION_NOT_STARTED,
+    });
 
     net.setNow((AUCTION_START_TIME + 1));
 
@@ -103,7 +106,9 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
         { value: ton("10"), bounce: true },
     );
     expect(maxLengthDeploy).toHaveSuccessfulTx({ from: user.address, to: collection.address });
-    expect(maxLengthDeploy.findTransaction({ from: collection.address, deploy: true })).toBeDefined();
+    expect(
+        maxLengthDeploy.findTransaction({ from: collection.address, deploy: true }),
+    ).toBeDefined();
 
     val hyphenValid = collection.sendAny(
         user.address,

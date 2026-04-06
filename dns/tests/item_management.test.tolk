@@ -287,7 +287,8 @@ get fun `test item management: governance requires an existing config entry`() {
         domainIndex("othergov"),
         GovernanceTransfer {
             transferData: makeTransferData(owner.address, null, 0, createEmptyCell().beginParse()),
-        }.toCell().beginParse(),
+        }.toCell()
+            .beginParse(),
     );
 
     val missingEntry = item.sendProcessGovernanceDecision(

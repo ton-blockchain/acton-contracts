@@ -112,13 +112,11 @@ get fun `test preserve ignore errors flag when outbound action fails`() {
     val ctx = setupHighloadTest();
     val queryId = HighloadQueryId.fromShiftAndBitNumber(22, 112).toInt();
     val target = net.randomAddress("ignore-errors-failure-target");
-    var outMsg = (
-        createMessage({
-            bounce: false,
-            value: ton("0.1"),
-            dest: target,
-        }).messageCell as Cell<MessageRelaxedGeneric>
-    ).load();
+    var outMsg = (createMessage({
+        bounce: false,
+        value: ton("0.1"),
+        dest: target,
+    }).messageCell as Cell<MessageRelaxedGeneric>).load();
     outMsg.info.ihrDisabled = false;
 
     val res = sendSignedExternal(
