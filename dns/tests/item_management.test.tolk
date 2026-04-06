@@ -18,6 +18,25 @@ fun setupCompletedItem() {
     return (item, collection, owner, bidder);
 }
 
+fun setupGovernanceReadyItem() {
+    val (item, collection, owner, bidder) = deployItemThroughCollection();
+
+    val higherBid = item.sendAny(
+        bidder.address,
+        createEmptyCell(),
+        { value: ton("1050"), bounce: true },
+    );
+    expect(higherBid).toHaveSuccessfulTx<OutbidNotification>({
+        from: item.address,
+        to: owner.address,
+    });
+
+    val complete = completeAuction(item, bidder.address, 2);
+    expect(complete).toHaveSuccessfulTx<FillUp>({ from: item.address, to: collection.address });
+
+    return (item, collection, owner, bidder);
+}
+
 get fun `test item management: ownership transfer updates editor and blocks old owner`() {
     val (item, _, owner, outsider) = setupCompletedItem();
     val newOwner = newActor("item_transfer_new_owner", ton("100"));
@@ -46,6 +65,109 @@ get fun `test item management: ownership transfer updates editor and blocks old 
         to: item.address,
         exitCode: ERROR_NOT_OWNER,
     });
+}
+
+get fun `test item management: ownership transfer covers payout branches and rejects invalid params`() {
+    val (item, _, owner, _) = setupCompletedItem();
+    val newOwner = newActor("item_transfer_branch_owner", ton("100"));
+    val responseDestination = newActor("item_transfer_response_destination", ton("100"));
+
+    val transferWithPayouts = item.sendTransferOwnership(
+        owner.address,
+        321,
+        makeTransferData(
+            newOwner.address,
+            responseDestination.address,
+            ton("0.5"),
+            createEmptyCell().beginParse(),
+        ),
+        { value: ton("5"), bounce: true },
+    );
+    expect(transferWithPayouts).toHaveSuccessfulTx<OwnershipAssigned>({
+        from: item.address,
+        to: newOwner.address,
+    });
+    expect(transferWithPayouts).toHaveSuccessfulTx<Excesses>({
+        from: item.address,
+        to: responseDestination.address,
+    });
+
+    val assignedTx = transferWithPayouts.findTransaction<OwnershipAssigned>({
+        from: item.address,
+        to: newOwner.address,
+        success: true,
+    });
+    expect(assignedTx).toBeDefined();
+    val assignedTxValue = assignedTx.unwrap().loadInMsg<OwnershipAssigned>();
+    val assignedBody = assignedTx.unwrap().loadBody<OwnershipAssigned>();
+    expect(assignedBody.queryId).toEqual(321);
+    expect(assignedBody.oldOwnerAddress).toEqual(owner.address);
+    expect(assignedTxValue.info.value.grams).toEqual(ton("0.5"));
+
+    val excessTx = transferWithPayouts.findTransaction<Excesses>({
+        from: item.address,
+        to: responseDestination.address,
+        success: true,
+    });
+    expect(excessTx).toBeDefined();
+    val excessTxValue = excessTx.unwrap().loadInMsg<Excesses>();
+    val excessBody = excessTx.unwrap().loadBody<Excesses>();
+    expect(excessBody.queryId).toEqual(321);
+    expect(excessTxValue.info.value.grams).toBeGreater(0);
+
+    expect(item.getEditor()).toEqual(newOwner.address);
+
+    val invalidNewOwner = masterchainAddressOf(newActor("item_transfer_master_owner").address);
+    val wrongOwnerTransfer = item.sendTransferOwnership(
+        newOwner.address,
+        322,
+        makeTransferData(invalidNewOwner, null, 0, createEmptyCell().beginParse()),
+        { value: ton("1"), bounce: true },
+    );
+    expect(wrongOwnerTransfer).toHaveFailedTx({
+        from: newOwner.address,
+        to: item.address,
+        exitCode: ERROR_WRONG_WORKCHAIN,
+    });
+
+    val invalidResponseDestination = masterchainAddressOf(
+        newActor("item_transfer_master_response").address,
+    );
+    val wrongResponseTransfer = item.sendTransferOwnership(
+        newOwner.address,
+        323,
+        makeTransferData(
+            owner.address,
+            invalidResponseDestination,
+            0,
+            createEmptyCell().beginParse(),
+        ),
+        { value: ton("1"), bounce: true },
+    );
+    expect(wrongResponseTransfer).toHaveFailedTx({
+        from: newOwner.address,
+        to: item.address,
+        exitCode: ERROR_WRONG_WORKCHAIN,
+    });
+
+    val insufficientBalance = item.sendTransferOwnership(
+        newOwner.address,
+        324,
+        makeTransferData(
+            owner.address,
+            responseDestination.address,
+            ton("10000"),
+            createEmptyCell().beginParse(),
+        ),
+        { value: ton("1"), bounce: true },
+    );
+    expect(insufficientBalance).toHaveFailedTx({
+        from: newOwner.address,
+        to: item.address,
+        exitCode: ERROR_NOT_ENOUGH_BALANCE,
+    });
+
+    expect(item.getEditor()).toEqual(newOwner.address);
 }
 
 get fun `test item management: owner can edit content and mutate DNS records`() {
@@ -139,6 +261,172 @@ get fun `test item management: dnsresolve follows TEP-81 category and next-resol
 
     val missing = item.dnsresolve(makeDotSlice(), "site".toBase256());
     expect(missing.resolvedRecord).toBeNull();
+}
+
+get fun `test item management: governance is blocked while auction is active`() {
+    val (item, _, _, caller) = deployItemThroughCollection();
+    expect(net.isDeployed(item.address)).toEqual(true);
+
+    val governanceDuringAuction = item.sendProcessGovernanceDecision(
+        caller.address,
+        900,
+        { value: ton("1"), bounce: true },
+    );
+    expect(governanceDuringAuction).toHaveFailedTx({
+        from: caller.address,
+        to: item.address,
+        exitCode: ERROR_GOVERNANCE_REQUIRES_NO_AUCTION,
+    });
+}
+
+get fun `test item management: governance requires an existing config entry`() {
+    val (item, _, owner, _) = setupGovernanceReadyItem();
+    val caller = newActor("item_governance_missing_entry_caller", ton("100000"));
+
+    setGovernanceDecision(
+        domainIndex("othergov"),
+        GovernanceTransfer {
+            transferData: makeTransferData(owner.address, null, 0, createEmptyCell().beginParse()),
+        }.toCell().beginParse(),
+    );
+
+    val missingEntry = item.sendProcessGovernanceDecision(
+        caller.address,
+        901,
+        { value: ton("1"), bounce: true },
+    );
+    expect(missingEntry).toHaveFailedTx({
+        from: caller.address,
+        to: item.address,
+        exitCode: ERROR_CONFIG_ENTRY_NOT_FOUND,
+    });
+}
+
+get fun `test item management: governance release destroys the item and refunds collection`() {
+    val (item, collection, _, _) = setupGovernanceReadyItem();
+    val caller = newActor("item_governance_release_caller", ton("100000"));
+
+    val collectionBalanceBefore = net.balance(collection.address);
+    val nftData = item.getNftData();
+    setGovernanceDecision(nftData.index, GovernanceRelease {}.toCell().beginParse());
+
+    val governanceRelease = item.sendProcessGovernanceDecision(
+        caller.address,
+        902,
+        { value: ton("1"), bounce: true },
+    );
+    expect(governanceRelease).toHaveSuccessfulTx<ProcessGovernanceDecision>({
+        from: caller.address,
+        to: item.address,
+    });
+    expect(governanceRelease).toHaveSuccessfulTx<FillUp>({
+        from: item.address,
+        to: collection.address,
+    });
+
+    val collectionFillUpTx = governanceRelease.findTransaction<FillUp>({
+        from: item.address,
+        to: collection.address,
+        success: true,
+    });
+    expect(collectionFillUpTx).toBeDefined();
+    val collectionFillUp = collectionFillUpTx.unwrap().loadInMsg<FillUp>();
+    expect(collectionFillUp.info.value.grams).toBeGreater(0);
+    expect(net.balance(collection.address)).toBeGreater(collectionBalanceBefore);
+    expect(net.isDeployed(item.address)).toEqual(false);
+}
+
+get fun `test item management: release boundaries, refunds, and unknown op handling`() {
+    val (item, _, owner, bidder) = setupCompletedItem();
+
+    val unknownOp = item.sendAny(
+        owner.address,
+        beginCell().storeUint(0x7FFFFFFF, 32).storeUint(1, 64).endCell(),
+        { value: ton("1"), bounce: true },
+    );
+    expect(unknownOp).toHaveFailedTx({
+        from: owner.address,
+        to: item.address,
+        exitCode: ERROR_UNKNOWN_OP,
+    });
+
+    val ownerTopUp = item.sendAny(
+        owner.address,
+        createEmptyCell(),
+        { value: ton("2"), bounce: true },
+    );
+    expect(ownerTopUp).toHaveSuccessfulTx({ from: owner.address, to: item.address });
+
+    val lastFillUp = item.getLastFillUpTime();
+    net.setNow((lastFillUp + ONE_YEAR));
+
+    val releaseAtExactYear = item.sendDnsRecordRelease(
+        bidder.address,
+        700,
+        { value: ton("20000"), bounce: true },
+    );
+    expect(releaseAtExactYear).toHaveFailedTx({
+        from: bidder.address,
+        to: item.address,
+        exitCode: ERROR_DNS_BALANCE_RELEASE_FORBIDDEN,
+    });
+
+    net.setNow((lastFillUp + ONE_YEAR + 1));
+    val minReleaseBid = getMinPrice(item.getDomain().remainingBitsCount(), net.now());
+
+    val releaseBelowMin = item.sendDnsRecordRelease(
+        bidder.address,
+        701,
+        { value: (minReleaseBid - 1), bounce: true },
+    );
+    expect(releaseBelowMin).toHaveFailedTx({
+        from: bidder.address,
+        to: item.address,
+        exitCode: ERROR_BID_TOO_LOW,
+    });
+
+    val balanceBeforeRelease = net.balance(item.address);
+    val releaseAtMin = item.sendDnsRecordRelease(
+        bidder.address,
+        702,
+        { value: minReleaseBid, bounce: true },
+    );
+    expect(releaseAtMin).toHaveSuccessfulTx<DnsRecordRelease>({
+        from: bidder.address,
+        to: item.address,
+    });
+
+    val releaseRefundTx = releaseAtMin.findTransaction<DnsRecordRelease>({
+        from: item.address,
+        to: owner.address,
+        success: true,
+    });
+    expect(releaseRefundTx).toBeDefined();
+    val releaseRefund = releaseRefundTx.unwrap().loadInMsg<DnsRecordRelease>();
+    val maxReleaseRefund = balanceBeforeRelease - MIN_TONS_FOR_STORAGE;
+    expect(releaseRefund.info.value.grams).toBeGreater(0);
+    expect(releaseRefund.info.value.grams).toBeLessOrEqual(maxReleaseRefund);
+
+    expect(item.getEditor()).toBeNull();
+    val restartedAuction = item.getAuctionInfo();
+    expect(restartedAuction.maxBidAddress).toEqual(bidder.address);
+    expect(restartedAuction.maxBidAmount).toEqual(minReleaseBid);
+    expect(restartedAuction.auctionEndTime).toEqual((net.now() + AUCTION_START_DURATION));
+}
+
+get fun `test item management: uninitialized getters expose default nft data`() {
+    val (uninitItem, uninitCollection, _, _) = deployItemThroughCollection("ghost");
+    setActiveDataCell(
+        uninitItem.address,
+        makeItemStorageNonInit(uninitCollection.address, "ghost").toCell(),
+    );
+    val uninitializedData = uninitItem.getNftData();
+    expect(uninitializedData.isInitialized).toEqual(false);
+    expect(uninitializedData.index).toEqual(domainIndex("ghost"));
+    expect(uninitializedData.collectionAddress).toEqual(uninitCollection.address);
+    expect(uninitializedData.ownerAddress).toBeNull();
+    expect(uninitializedData.content).toBeNull();
+    expect(uninitItem.getEditor()).toBeNull();
 }
 
 get fun `test item management: static data, governance guard, and release flow invariants`() {

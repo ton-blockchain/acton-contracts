@@ -47,6 +47,22 @@ get fun `test root: resolves ton, t.me, and ton.www according to resolver mappin
     );
 }
 
+get fun `test root: keeps short and shape-mismatched domains unresolved`() {
+    val (root, _) = deployRootContract();
+
+    val shortPlain = root.dnsresolve(makeLabelDomainSlice("a"), 0);
+    expect(shortPlain.resolvedPrefixLengthBits).toEqual(0);
+    expect(shortPlain.resolvedRecord).toBeNull();
+
+    val shortLeading = root.dnsresolve(makeLeadingZero(makeLabelDomainSlice("a")), 0);
+    expect(shortLeading.resolvedPrefixLengthBits).toEqual(0);
+    expect(shortLeading.resolvedRecord).toBeNull();
+
+    val fakeTelegram = root.dnsresolve(makeLabelAndTailSlice("me", "x"), 0);
+    expect(fakeTelegram.resolvedPrefixLengthBits).toEqual(0);
+    expect(fakeTelegram.resolvedRecord).toBeNull();
+}
+
 get fun `test root: resolves dot and unknown domains per TEP-81 behavior`() {
     val (root, _) = deployRootContract();
 
