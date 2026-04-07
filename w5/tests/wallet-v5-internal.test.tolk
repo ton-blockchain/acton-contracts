@@ -56,8 +56,11 @@ get fun `test w5: Add an extension`() {
 
     val ext = walletV5.getExtensions();
     val (_, extHash) = testExtension.getWorkchainAndHash();
+    var expected: map<uint256, bool> = [];
+    expected.set(extHash, true);
     expect(ext).toHaveLength(1);
     expect(ext.exists(extHash)).toEqual(true);
+    expect(ext).toEqual(expected);
 }
 
 get fun `test w5: Send two transfers`() {
@@ -467,6 +470,39 @@ get fun `test w5: Should fail if valid_until is expired`() {
     expect(receiverBalanceAfter).toEqual(receiverBalanceBefore);
 }
 
+get fun `test w5: Should fail if valid_until equals now`() {
+    val keyPair = crypto.generateKeyPair();
+    val (walletV5, deployer) = deployWalletWithKey(keyPair);
+
+    val testReceiver = net.randomAddress("test-receiver");
+    val forwardValue = ton("0.001");
+    val receiverBalanceBefore = net.balance(testReceiver);
+
+    var outActions: array<SendAction> = [];
+    outActions.push(sendMsgAction(testReceiver, forwardValue));
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
+
+    val payload = SignedPayload {
+        subwalletId: DEFAULT_SUBWALLET_ID,
+        now: blockchain.now(),
+        seqno: 0,
+        actions,
+    };
+
+    val signature = crypto.sign(keyPair.privateKey, payload.toCell()) as bytes64;
+    val body = SignedBody { payload, signature };
+
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+
+    expect(receipt).toHaveTx({ exitCode: ERROR_EXPIRED });
+
+    val receiverBalanceAfter = net.balance(testReceiver);
+    expect(receiverBalanceAfter).toEqual(receiverBalanceBefore);
+}
+
 get fun `test w5: Should fail if walletId is wrong`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
@@ -532,6 +568,12 @@ get fun `test w5: Should skip message if auth kind not given`() {
     expect(walletV5.getSeqno()).toEqual(0);
 }
 
+fun buildSignedInternalBodyWithPayloadBits(keyPair: KeyPair, payloadBits: int): cell {
+    val payload = beginCell().storeUint(0x73696E74, 32).storeUint(0, payloadBits - 32).endCell();
+    val signature = crypto.sign(keyPair.privateKey, payload);
+    return beginCell().storeSlice(payload.beginParse()).storeSlice(signature).endCell();
+}
+
 get fun `test w5: Should not revert on short sint messages`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
@@ -545,6 +587,36 @@ get fun `test w5: Should not revert on short sint messages`() {
         to: walletV5.address,
         exitCode: 0,
     });
+}
+
+get fun `test w5: Should ignore sint messages shorter than signed header boundary`() {
+    val keyPair = crypto.generateKeyPair();
+    val (walletV5, deployer) = deployWalletWithKey(keyPair);
+
+    val body = buildSignedInternalBodyWithPayloadBits(keyPair, 127);
+
+    val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
+
+    expect(receipt).toHaveSuccessfulTx({
+        from: deployer.address,
+        to: walletV5.address,
+        exitCode: 0,
+    });
+
+    expect(walletV5.getSeqno()).toEqual(0);
+}
+
+get fun `test w5: Should parse sint messages at signed header boundary`() {
+    val keyPair = crypto.generateKeyPair();
+    val (walletV5, deployer) = deployWalletWithKey(keyPair);
+
+    val body = buildSignedInternalBodyWithPayloadBits(keyPair, 128);
+
+    val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
+
+    expect(receipt).toHaveTx({ exitCode: ERROR_EXPIRED });
+
+    expect(walletV5.getSeqno()).toEqual(0);
 }
 
 get fun `test w5: Should not revert on long incorrect sint messages`() {

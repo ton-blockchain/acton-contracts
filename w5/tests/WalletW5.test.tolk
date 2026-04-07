@@ -1293,6 +1293,40 @@ get fun `test w5: ext_action should not be able to install extension from differ
     expect(ext).toHaveLength(1);
 }
 
+get fun `test w5: ext_action should not be able to remove extension from different chain`() {
+    val keyPair = crypto.generateKeyPair();
+    val (walletV5, deployer) = deployWalletWithKey(keyPair);
+    addExtensionSigned(walletV5, deployer.address, deployer.address, keyPair, 0);
+
+    val (_, deployerHash) = deployer.address.getWorkchainAndHash();
+    val mcAlias = beginCell()
+        .storeUint(4, 3)
+        .storeInt(-1, 8)
+        .storeUint(deployerHash, 256)
+        .toSlice() as address;
+
+    var extraActions: array<ExtraAction> = [];
+    extraActions.push(RemoveExtensionExtraAction { addr: mcAlias });
+
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions,
+    }.toCell();
+
+    val receipt = walletV5.sendExtensionActionRequest(
+        deployer.address,
+        actionsBody,
+        0,
+        { value: ton("0.1") },
+    );
+
+    expect(receipt).toHaveTx({ exitCode: ERROR_EXTENSION_WRONG_WORKCHAIN });
+
+    val ext = walletV5.getExtensions();
+    expect(ext).toHaveLength(1);
+    expect(ext.exists(deployerHash)).toEqual(true);
+}
+
 // ==================== External-out: internal & extension ====================
 
 get fun `test w5: int should be able to send external-out message`() {
