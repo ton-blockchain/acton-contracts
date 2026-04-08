@@ -3,8 +3,6 @@ import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "@acton/tlb/maybe"
-import "@acton/types/transaction"
 import "test_utils"
 import "wrappers/Elector"
 import "../contracts/messages"
@@ -256,52 +254,4 @@ fun sendVote(
         voteCell.beginParse(),
         { value: ton("1") },
     );
-}
-
-/// Message format for elected validator set sent to config contract
-struct (0x4e565354) ElectedVSetMsg {
-    queryId: uint64
-    vset: Cell<VSet>
-}
-
-/// Conduct elections and extract the elected vset cell from the outgoing message to config.
-fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cell, uint256) {
-    val stakeAt = elector.activeElectionId();
-    assert (stakeAt != 0) throw 998;
-
-    val validatorLimits = defaultValidatorLimits();
-    val stakeLimits = defaultStakeLimits();
-
-    var totalStake: coins = 0;
-    val numValidators = max(validatorLimits.minValidators, 5);
-    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
-    var firstStakerHash: uint256 = 0;
-    var i = 0;
-    while (i < numValidators) {
-        val (_, srcAddr, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
-        if (i == 0) {
-            val (_, hash) = srcAddr.getWorkchainAndHash();
-            firstStakerHash = hash;
-        }
-        totalStake += stake;
-        i += 1;
-    }
-
-    val (
-        _,
-        closeAt,
-        _,
-        _,
-        _,
-        _,
-        _,
-    ) = elector.participantListExtended();
-    net.setNow(closeAt + 1);
-
-    val tickResult = net.runTickTock(elector.address, true);
-
-    val tx = tickResult.findTransaction<ElectedVSetMsg>({ from: elector.address, to: configAddr });
-    val body = tx.unwrap().loadBody<ElectedVSetMsg>();
-
-    return (stakeAt, body.vset, firstStakerHash);
 }

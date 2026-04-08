@@ -1,12 +1,19 @@
 import "@acton/crypto/crypto"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
-import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "@acton/tlb/maybe"
+import "@acton/types/transaction"
 import "wrappers/Elector"
 import "../contracts/messages"
 import "../contracts/types"
+
+/// Message format for elected validator set sent to config contract.
+struct (0x4e565354) ElectedVSetMsg {
+    queryId: uint64
+    vset: Cell<VSet>
+}
 
 const NOW_CONST = 1667388240 // Expired timestamp matching default data
 const ONECOIN: coins = 1000000000
@@ -326,4 +333,79 @@ fun buildVSet(validSince: int, validUntil: int, total: int, main: int, totalWeig
         totalWeight: totalWeight as uint64,
         dict: [],
     };
+}
+
+/// Conduct elections and extract the elected vset cell from the outgoing message to config.
+fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cell, uint256) {
+    val stakeAt = elector.activeElectionId();
+    assert (stakeAt != 0) throw 998;
+
+    val validatorLimits = defaultValidatorLimits();
+    val stakeLimits = defaultStakeLimits();
+
+    var totalStake: coins = 0;
+    val numValidators = max(validatorLimits.minValidators, 5);
+    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
+    var firstStakerHash: uint256 = 0;
+    var i = 0;
+    while (i < numValidators) {
+        val (_, srcAddr, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
+        if (i == 0) {
+            val (_, hash) = srcAddr.getWorkchainAndHash();
+            firstStakerHash = hash;
+        }
+        totalStake += stake;
+        i += 1;
+    }
+
+    val (
+        _,
+        closeAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
+    net.setNow(closeAt + 1);
+    val tickResult = net.runTickTock(elector.address, true);
+
+    val tx = tickResult.findTransaction<ElectedVSetMsg>({ from: elector.address, to: configAddr });
+    val body = tx.unwrap().loadBody<ElectedVSetMsg>();
+
+    return (stakeAt, body.vset, firstStakerHash);
+}
+
+/// Install vset → promote → unfreeze.
+fun doInstallPromoteUnfreeze(elector: Elector, vsetCell: cell) {
+    val stakeHeld = defaultValidationTimes().stakeHeldFor;
+
+    var cfg = net.getConfig();
+    cfg.setParamRaw(34, vsetCell);
+    net.setConfig(cfg);
+    net.runTickTock(elector.address, true);
+
+    val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
+    cfg = net.getConfig();
+    cfg.setParamRaw(34, newVset.toCell());
+    cfg.setParamRaw(36, newVset.toCell());
+    net.setConfig(cfg);
+
+    val promoteTime = blockchain.now() + 100;
+    net.setNow(promoteTime);
+    net.runTickTock(elector.address, true);
+
+    net.setNow(promoteTime + stakeHeld + 1);
+    net.runTickTock(elector.address, true);
+}
+
+/// Set expired vset and announce new elections.
+fun prepareNextRound(elector: Elector) {
+    val now = blockchain.now();
+    val expiredVset = buildVSet(now - 1000, now - 100, 1, 1, 0);
+    var cfg = net.getConfig();
+    cfg.setParamRaw(34, expiredVset.toCell());
+    cfg.delete(36);
+    net.setConfig(cfg);
+    net.runTickTock(elector.address, true);
 }

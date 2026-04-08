@@ -9,58 +9,6 @@ import "wrappers/Elector"
 import "../contracts/messages"
 import "../contracts/types"
 
-/// Message format for elected validator set sent to config contract (matches ElectedVSetMsg in utils.tolk)
-struct (0x4e565354) ElectedVSetMsg {
-    queryId: uint64
-    vset: Cell<VSet>
-}
-
-/// Conduct elections and extract the elected vset cell from the outgoing message to config.
-/// Returns (stakeAt, vsetCell, stakerHash) where vsetCell can be set as config param 34 or 36
-/// and stakerHash is the address hash of a known staker (for compute_returned_stake).
-fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cell, uint256) {
-    val stakeAt = elector.activeElectionId();
-    assert (stakeAt != 0) throw 998;
-
-    val validatorLimits = defaultValidatorLimits();
-    val stakeLimits = defaultStakeLimits();
-
-    var totalStake: coins = 0;
-    val numValidators = max(validatorLimits.minValidators, 5);
-    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
-    var firstStakerHash: uint256 = 0;
-    var i = 0;
-    while (i < numValidators) {
-        val (_, srcAddr, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
-        if (i == 0) {
-            val (_, hash) = srcAddr.getWorkchainAndHash();
-            firstStakerHash = hash;
-        }
-        totalStake += stake;
-        i += 1;
-    }
-
-    val (
-        _,
-        closeAt,
-        _,
-        _,
-        _,
-        _,
-        _,
-    ) = elector.participantListExtended();
-    net.setNow(closeAt + 1);
-
-    // Run tick-tock to conduct elections — captures the outgoing VSet message
-    val tickResult = net.runTickTock(elector.address, true);
-
-    // Find the ElectedVSetMsg message sent to config contract
-    val tx = tickResult.findTransaction<ElectedVSetMsg>({ from: elector.address, to: configAddr });
-    val body = tx.unwrap().loadBody<ElectedVSetMsg>();
-
-    return (stakeAt, body.vset, firstStakerHash);
-}
-
 /// Test that vset is not installed before elections finish
 get fun `test vset installed not finished`() {
     val setup = setupElector();
