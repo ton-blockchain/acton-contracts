@@ -255,5 +255,3 @@ fun sendVote(
         { value: ton("1") },
     );
 }
-
-

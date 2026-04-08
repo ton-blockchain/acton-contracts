@@ -1,7 +1,6 @@
 import "@acton/crypto/crypto"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
-import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
@@ -359,7 +358,15 @@ fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cel
         i += 1;
     }
 
-    val (_, closeAt, _, _, _, _, _) = elector.participantListExtended();
+    val (
+        _,
+        closeAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
     net.setNow(closeAt + 1);
     val tickResult = net.runTickTock(elector.address, true);
 
