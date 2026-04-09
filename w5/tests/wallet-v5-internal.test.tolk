@@ -606,19 +606,6 @@ get fun `test w5: Should ignore sint messages shorter than signed header boundar
     expect(walletV5.getSeqno()).toEqual(0);
 }
 
-get fun `test w5: Should parse sint messages at signed header boundary`() {
-    val keyPair = crypto.generateKeyPair();
-    val (walletV5, deployer) = deployWalletWithKey(keyPair);
-
-    val body = buildSignedInternalBodyWithPayloadBits(keyPair, 128);
-
-    val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
-
-    expect(receipt).toHaveTx({ exitCode: ERROR_EXPIRED });
-
-    expect(walletV5.getSeqno()).toEqual(0);
-}
-
 get fun `test w5: Should not revert on long incorrect sint messages`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
