@@ -38,12 +38,7 @@ fun expectSendActionMode(
 
 fun makeBadEitherPayload() {
     val payloadRef = beginCell().endCell();
-    return beginCell()
-        .storeUint(1, 1)
-        .storeRef(payloadRef)
-        .storeUint(1, 1)
-        .endCell()
-        .beginParse();
+    return beginCell().storeUint(1, 1).storeRef(payloadRef).storeUint(1, 1).endCell().beginParse();
 }
 
 fun estimateMinimalMintTonAmount(
@@ -104,12 +99,7 @@ fun mintAmountMeetsExpectedThreshold(
             forwardPayload,
         }.toCell(),
     };
-    val fwdFee = estimateMessageForwardFee(
-        body,
-        minterAddress,
-        false,
-        tonAmount + ton("0.015"),
-    );
+    val fwdFee = estimateMessageForwardFee(body, minterAddress, false, tonAmount + ton("0.015"));
     return tonAmount > calcMinimalTransferAmount(forwardTonAmount, fwdFee);
 }
 
@@ -159,20 +149,26 @@ get fun `test mutation: direct wallet internal transfer should persist balance a
     val startBalance = ton("2");
     val (wallet, owner, minter, _) = setupDirectWallet(startBalance);
 
-    val res = net.send(minter.address, createMessage({
-        bounce: true,
-        value: ton("0.4"),
-        dest: wallet.address,
-        body: InternalTransferStep {
-            queryId: 0,
-            jettonAmount: ton("1"),
-            transferInitiator: null,
-            sendExcessesTo: owner.address,
-            forwardTonAmount: DEFAULT_FORWARD_TON_AMOUNT,
-            forwardPayload: makeRichForwardPayload(),
-        },
-    }));
-    expect(res).toHaveSuccessfulTx<InternalTransferStep>({ from: minter.address, to: wallet.address });
+    val res = net.send(
+        minter.address,
+        createMessage({
+            bounce: true,
+            value: ton("0.4"),
+            dest: wallet.address,
+            body: InternalTransferStep {
+                queryId: 0,
+                jettonAmount: ton("1"),
+                transferInitiator: null,
+                sendExcessesTo: owner.address,
+                forwardTonAmount: DEFAULT_FORWARD_TON_AMOUNT,
+                forwardPayload: makeRichForwardPayload(),
+            },
+        }),
+    );
+    expect(res).toHaveSuccessfulTx<InternalTransferStep>({
+        from: minter.address,
+        to: wallet.address,
+    });
     expect(wallet.getJettonBalance()).toEqual(startBalance + ton("1"));
 
     val walletTx = findSendResultForAccount(res, wallet.address);
@@ -210,49 +206,61 @@ get fun `test mutation: direct wallet should accept sibling transfers and reject
     val receiverOwner = net.treasury("direct_wallet_receiver_owner");
     val outsider = net.treasury("direct_wallet_pair_outsider");
 
-    val senderWallet = deployWalletFromStorage(WalletStorage {
-        jettonBalance: 0,
-        ownerAddress: senderOwner.address,
-        minterAddress: minter.address,
-    }, senderOwner.address);
-    val receiverWallet = deployWalletFromStorage(WalletStorage {
-        jettonBalance: 0,
-        ownerAddress: receiverOwner.address,
-        minterAddress: minter.address,
-    }, receiverOwner.address);
-
-    val ok = net.send(senderWallet.address, createMessage({
-        bounce: true,
-        value: ton("0.3"),
-        dest: receiverWallet.address,
-        body: InternalTransferStep {
-            queryId: 0,
-            jettonAmount: ton("2"),
-            transferInitiator: senderOwner.address,
-            sendExcessesTo: null,
-            forwardTonAmount: 0,
-            forwardPayload: makeTinyForwardPayload(),
+    val senderWallet = deployWalletFromStorage(
+        WalletStorage {
+            jettonBalance: 0,
+            ownerAddress: senderOwner.address,
+            minterAddress: minter.address,
         },
-    }));
+        senderOwner.address,
+    );
+    val receiverWallet = deployWalletFromStorage(
+        WalletStorage {
+            jettonBalance: 0,
+            ownerAddress: receiverOwner.address,
+            minterAddress: minter.address,
+        },
+        receiverOwner.address,
+    );
+
+    val ok = net.send(
+        senderWallet.address,
+        createMessage({
+            bounce: true,
+            value: ton("0.3"),
+            dest: receiverWallet.address,
+            body: InternalTransferStep {
+                queryId: 0,
+                jettonAmount: ton("2"),
+                transferInitiator: senderOwner.address,
+                sendExcessesTo: null,
+                forwardTonAmount: 0,
+                forwardPayload: makeTinyForwardPayload(),
+            },
+        }),
+    );
     expect(ok).toHaveSuccessfulTx<InternalTransferStep>({
         from: senderWallet.address,
         to: receiverWallet.address,
     });
     expect(receiverWallet.getJettonBalance()).toEqual(ton("2"));
 
-    val bad = net.send(outsider.address, createMessage({
-        bounce: true,
-        value: ton("0.3"),
-        dest: receiverWallet.address,
-        body: InternalTransferStep {
-            queryId: 0,
-            jettonAmount: ton("1"),
-            transferInitiator: senderOwner.address,
-            sendExcessesTo: null,
-            forwardTonAmount: 0,
-            forwardPayload: makeTinyForwardPayload(),
-        },
-    }));
+    val bad = net.send(
+        outsider.address,
+        createMessage({
+            bounce: true,
+            value: ton("0.3"),
+            dest: receiverWallet.address,
+            body: InternalTransferStep {
+                queryId: 0,
+                jettonAmount: ton("1"),
+                transferInitiator: senderOwner.address,
+                sendExcessesTo: null,
+                forwardTonAmount: 0,
+                forwardPayload: makeTinyForwardPayload(),
+            },
+        }),
+    );
     expect(bad).toHaveFailedTx<InternalTransferStep>({
         from: outsider.address,
         to: receiverWallet.address,
@@ -264,20 +272,26 @@ get fun `test mutation: direct wallet should accept sibling transfers and reject
 get fun `test mutation: direct wallet zero forward ton should not notify owner`() {
     val (wallet, owner, minter, _) = setupDirectWallet();
 
-    val res = net.send(minter.address, createMessage({
-        bounce: true,
-        value: ton("0.3"),
-        dest: wallet.address,
-        body: InternalTransferStep {
-            queryId: 0,
-            jettonAmount: ton("1"),
-            transferInitiator: null,
-            sendExcessesTo: null,
-            forwardTonAmount: 0,
-            forwardPayload: makeTinyForwardPayload(),
-        },
-    }));
-    expect(res).toHaveSuccessfulTx<InternalTransferStep>({ from: minter.address, to: wallet.address });
+    val res = net.send(
+        minter.address,
+        createMessage({
+            bounce: true,
+            value: ton("0.3"),
+            dest: wallet.address,
+            body: InternalTransferStep {
+                queryId: 0,
+                jettonAmount: ton("1"),
+                transferInitiator: null,
+                sendExcessesTo: null,
+                forwardTonAmount: 0,
+                forwardPayload: makeTinyForwardPayload(),
+            },
+        }),
+    );
+    expect(res).toHaveSuccessfulTx<InternalTransferStep>({
+        from: minter.address,
+        to: wallet.address,
+    });
     expect(res).toNotHaveTx<TransferNotificationForRecipient>({
         from: wallet.address,
         to: owner.address,
@@ -334,16 +348,22 @@ get fun `test mutation: direct wallet should reject overspending jettons`() {
     val owner = net.treasury("direct_wallet_overspend_owner");
     val minter = net.treasury("direct_wallet_overspend_minter");
     val recipientOwner = net.treasury("direct_wallet_overspend_recipient");
-    val wallet = deployWalletFromStorage(WalletStorage {
-        jettonBalance: ton("2"),
-        ownerAddress: owner.address,
-        minterAddress: minter.address,
-    }, owner.address);
-    val recipientWallet = deployWalletFromStorage(WalletStorage {
-        jettonBalance: 0,
-        ownerAddress: recipientOwner.address,
-        minterAddress: minter.address,
-    }, recipientOwner.address);
+    val wallet = deployWalletFromStorage(
+        WalletStorage {
+            jettonBalance: ton("2"),
+            ownerAddress: owner.address,
+            minterAddress: minter.address,
+        },
+        owner.address,
+    );
+    val recipientWallet = deployWalletFromStorage(
+        WalletStorage {
+            jettonBalance: 0,
+            ownerAddress: recipientOwner.address,
+            minterAddress: minter.address,
+        },
+        recipientOwner.address,
+    );
 
     val res = wallet.sendTransfer(
         owner.address,
@@ -388,12 +408,21 @@ get fun `test mutation: direct wallet should reject masterchain recipients`() {
 get fun `test mutation: direct wallet should reject malformed forward payload`() {
     val (wallet, owner, _, _) = setupDirectWallet(DEFAULT_MINTED_JETTONS);
 
-    val res = net.send(owner.address, createMessage({
-        bounce: true,
-        value: DEFAULT_TRANSFER_MSG_VALUE,
-        dest: wallet.address,
-        body: buildTransferBody(ton("1"), 0, owner.address, owner.address, makeBadEitherPayload()),
-    }));
+    val res = net.send(
+        owner.address,
+        createMessage({
+            bounce: true,
+            value: DEFAULT_TRANSFER_MSG_VALUE,
+            dest: wallet.address,
+            body: buildTransferBody(
+                ton("1"),
+                0,
+                owner.address,
+                owner.address,
+                makeBadEitherPayload(),
+            ),
+        }),
+    );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
         to: wallet.address,
@@ -404,12 +433,15 @@ get fun `test mutation: direct wallet should reject malformed forward payload`()
 get fun `test mutation: direct wallet unknown opcode should fail`() {
     val (wallet, owner, _, _) = setupDirectWallet(ton("1"));
 
-    val res = net.send(owner.address, createMessage({
-        bounce: true,
-        value: ton("0.1"),
-        dest: wallet.address,
-        body: beginCell().storeUint(0x7fffffff, 32).storeUint(1, 64).endCell(),
-    }));
+    val res = net.send(
+        owner.address,
+        createMessage({
+            bounce: true,
+            value: ton("0.1"),
+            dest: wallet.address,
+            body: beginCell().storeUint(0x7fffffff, 32).storeUint(1, 64).endCell(),
+        }),
+    );
     expect(res).toHaveFailedTx({
         from: owner.address,
         to: wallet.address,
@@ -458,19 +490,16 @@ get fun `test mutation: direct wallet should reject non-owner burns`() {
 get fun `test mutation: direct wallet should reject overburning jettons`() {
     val owner = net.treasury("direct_wallet_overburn_owner");
     val minter = net.treasury("direct_wallet_overburn_minter");
-    val wallet = deployWalletFromStorage(WalletStorage {
-        jettonBalance: ton("1"),
-        ownerAddress: owner.address,
-        minterAddress: minter.address,
-    }, owner.address);
-
-    val res = wallet.sendBurn(
+    val wallet = deployWalletFromStorage(
+        WalletStorage {
+            jettonBalance: ton("1"),
+            ownerAddress: owner.address,
+            minterAddress: minter.address,
+        },
         owner.address,
-        DEFAULT_BURN_MSG_VALUE,
-        ton("5"),
-        owner.address,
-        null,
     );
+
+    val res = wallet.sendBurn(owner.address, DEFAULT_BURN_MSG_VALUE, ton("5"), owner.address, null);
     expect(res).toHaveFailedTx<AskToBurn>({
         from: owner.address,
         to: wallet.address,
@@ -483,16 +512,22 @@ get fun `test mutation: direct wallet bounced transfer should restore balance pe
     val owner = net.treasury("direct_wallet_bounce_owner");
     val minter = net.treasury("direct_wallet_bounce_minter");
     val recipientOwner = net.treasury("direct_wallet_bounce_recipient");
-    val senderWallet = deployWalletFromStorage(WalletStorage {
-        jettonBalance: ton("3"),
-        ownerAddress: owner.address,
-        minterAddress: minter.address,
-    }, owner.address);
-    val receiverWallet = deployWalletFromStorage(WalletStorage {
-        jettonBalance: 0,
-        ownerAddress: recipientOwner.address,
-        minterAddress: minter.address,
-    }, recipientOwner.address);
+    val senderWallet = deployWalletFromStorage(
+        WalletStorage {
+            jettonBalance: ton("3"),
+            ownerAddress: owner.address,
+            minterAddress: minter.address,
+        },
+        owner.address,
+    );
+    val receiverWallet = deployWalletFromStorage(
+        WalletStorage {
+            jettonBalance: 0,
+            ownerAddress: recipientOwner.address,
+            minterAddress: minter.address,
+        },
+        recipientOwner.address,
+    );
     val forwardPayload = makeTinyForwardPayload();
 
     val transferMsg = createMessage({
@@ -537,20 +572,26 @@ get fun `test mutation: direct wallet transfer minimal value edge`() {
     val fwdFee = estimateBodyForwardFee(body);
     val minimalTonValue = calcMinimalTransferAmount(0, fwdFee) + MIN_EDGE_DELTA;
 
-    val enough = net.send(owner.address, createMessage({
-        body,
-        bounce: false,
-        dest: wallet.address,
-        value: minimalTonValue,
-    }));
+    val enough = net.send(
+        owner.address,
+        createMessage({
+            body,
+            bounce: false,
+            dest: wallet.address,
+            value: minimalTonValue,
+        }),
+    );
     expect(enough).toHaveSuccessfulTx<AskToTransfer>({ from: owner.address, to: wallet.address });
 
-    val fail = net.send(owner.address, createMessage({
-        body,
-        bounce: false,
-        dest: wallet.address,
-        value: minimalTonValue - MIN_EDGE_DELTA,
-    }));
+    val fail = net.send(
+        owner.address,
+        createMessage({
+            body,
+            bounce: false,
+            dest: wallet.address,
+            value: minimalTonValue - MIN_EDGE_DELTA,
+        }),
+    );
     expect(fail).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
         to: wallet.address,
@@ -577,24 +618,30 @@ get fun `test mutation: direct wallet transfer with forward amount requires seco
 
     expect(minWithForward).toEqual(minWithoutForward + DEFAULT_FORWARD_TON_AMOUNT + fwdFee);
 
-    val missingFee = net.send(owner.address, createMessage({
-        body,
-        bounce: false,
-        dest: wallet.address,
-        value: minMissingSecondFee,
-    }));
+    val missingFee = net.send(
+        owner.address,
+        createMessage({
+            body,
+            bounce: false,
+            dest: wallet.address,
+            value: minMissingSecondFee,
+        }),
+    );
     expect(missingFee).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
         to: wallet.address,
         exitCode: ERROR_NOT_ENOUGH_GAS,
     });
 
-    val enough = net.send(owner.address, createMessage({
-        body,
-        bounce: false,
-        dest: wallet.address,
-        value: minWithForward,
-    }));
+    val enough = net.send(
+        owner.address,
+        createMessage({
+            body,
+            bounce: false,
+            dest: wallet.address,
+            value: minWithForward,
+        }),
+    );
     expect(enough).toHaveSuccessfulTx<AskToTransfer>({ from: owner.address, to: wallet.address });
 }
 
@@ -632,20 +679,26 @@ get fun `test mutation: direct wallet transfer gas and storage fees should follo
     MIN_EDGE_DELTA;
     expect(minimalBefore).toBeLess(minimalAfter);
 
-    val enough = net.send(owner.address, createMessage({
-        body,
-        bounce: false,
-        dest: wallet.address,
-        value: minimalAfter,
-    }));
+    val enough = net.send(
+        owner.address,
+        createMessage({
+            body,
+            bounce: false,
+            dest: wallet.address,
+            value: minimalAfter,
+        }),
+    );
     expect(enough).toHaveSuccessfulTx<AskToTransfer>({ from: owner.address, to: wallet.address });
 
-    val fail = net.send(owner.address, createMessage({
-        body,
-        bounce: false,
-        dest: wallet.address,
-        value: minimalAfter - MIN_EDGE_DELTA,
-    }));
+    val fail = net.send(
+        owner.address,
+        createMessage({
+            body,
+            bounce: false,
+            dest: wallet.address,
+            value: minimalAfter - MIN_EDGE_DELTA,
+        }),
+    );
     expect(fail).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
         to: wallet.address,
@@ -748,12 +801,15 @@ get fun `test mutation: minter should report mintable and emit set-code action o
 get fun `test mutation: minter unknown opcode should fail`() {
     val (minter, deployer, _) = setupTest();
 
-    val res = net.send(deployer.address, createMessage({
-        bounce: true,
-        value: ton("0.1"),
-        dest: minter.address,
-        body: beginCell().storeUint(0x7fffffff, 32).storeUint(1, 64).endCell(),
-    }));
+    val res = net.send(
+        deployer.address,
+        createMessage({
+            bounce: true,
+            value: ton("0.1"),
+            dest: minter.address,
+            body: beginCell().storeUint(0x7fffffff, 32).storeUint(1, 64).endCell(),
+        }),
+    );
     expect(res).toHaveFailedTx({
         from: deployer.address,
         to: minter.address,
@@ -793,17 +849,20 @@ get fun `test mutation: minter should reject malformed mint forward payload`() {
         forwardPayload: makeBadEitherPayload(),
     }.toCell();
 
-    val res = net.send(deployer.address, createMessage({
-        bounce: false,
-        value: ton("0.4"),
-        dest: minter.address,
-        body: MintNewJettons {
-            queryId: 0,
-            mintRecipient: deployer.address,
-            tonAmount: ton("0.3"),
-            internalTransferMsg: badInternalTransfer,
-        },
-    }));
+    val res = net.send(
+        deployer.address,
+        createMessage({
+            bounce: false,
+            value: ton("0.4"),
+            dest: minter.address,
+            body: MintNewJettons {
+                queryId: 0,
+                mintRecipient: deployer.address,
+                tonAmount: ton("0.3"),
+                internalTransferMsg: badInternalTransfer,
+            },
+        }),
+    );
     expect(res).toHaveFailedTx<MintNewJettons>({
         from: deployer.address,
         to: minter.address,
@@ -823,7 +882,13 @@ get fun `test mutation: minter discovery and burn paths should use expected send
         SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE + SEND_MODE_BOUNCE_ON_ACTION_FAIL,
     );
 
-    val burn = wallet.sendBurn(deployer.address, DEFAULT_BURN_MSG_VALUE, ton("1"), deployer.address, null);
+    val burn = wallet.sendBurn(
+        deployer.address,
+        DEFAULT_BURN_MSG_VALUE,
+        ton("1"),
+        deployer.address,
+        null,
+    );
     expectSendActionMode(
         burn,
         minter.address,
@@ -857,7 +922,10 @@ get fun `test mutation: minter mint minimal value edge and deploy mode`() {
         0,
         minimalTonAmount,
     );
-    expect(enough).toHaveSuccessfulTx<MintNewJettons>({ from: deployer.address, to: minter.address });
+    expect(enough).toHaveSuccessfulTx<MintNewJettons>({
+        from: deployer.address,
+        to: minter.address,
+    });
     expectSendActionMode(
         enough,
         minter.address,
@@ -941,7 +1009,10 @@ get fun `test mutation: minter mint fees should follow forward gas and storage c
         minimalAfterUpperBound + ton("0.01"),
         customPayload,
     );
-    expect(enough).toHaveSuccessfulTx<MintNewJettons>({ from: deployer.address, to: minter.address });
+    expect(enough).toHaveSuccessfulTx<MintNewJettons>({
+        from: deployer.address,
+        to: minter.address,
+    });
 
     val fail = minter.sendMint(
         deployer.address,

@@ -32,10 +32,7 @@ fun makeRichCustomPayload() {
 }
 
 fun makeRichForwardPayload() {
-    return beginCell()
-        .storeMaybeRef(makeRichCustomPayload())
-        .endCell()
-        .beginParse();
+    return beginCell().storeMaybeRef(makeRichCustomPayload()).endCell().beginParse();
 }
 
 fun buildTransferBody(
@@ -57,12 +54,7 @@ fun buildTransferBody(
     };
 }
 
-fun estimateMessageForwardFee<T>(
-    body: T,
-    dest: address,
-    bounce: bool,
-    value: coins,
-) {
+fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: coins) {
     val estMsg = createMessage({
         body,
         dest,
@@ -118,12 +110,15 @@ fun deployWalletFromStorage(
         : AutoDeployAddress { stateInit: walletStateInit(storage) };
     val address = init.calculateAddress();
 
-    val deployResult = net.send(from, createMessage({
-        bounce: false,
-        value,
-        dest: init,
-        body: TopUpTons {},
-    }));
+    val deployResult = net.send(
+        from,
+        createMessage({
+            bounce: false,
+            value,
+            dest: init,
+            body: TopUpTons {},
+        }),
+    );
     expect(deployResult).toHaveSuccessfulDeploy({ to: address });
 
     return JettonWallet { address };
@@ -133,27 +128,33 @@ fun setupDirectWallet(initialBalance: coins = 0): (JettonWallet, Treasury, Treas
     val owner = net.treasury("direct_wallet_owner");
     val minter = net.treasury("direct_wallet_minter");
     val outsider = net.treasury("direct_wallet_outsider");
-    val wallet = deployWalletFromStorage(WalletStorage {
-        status: 0,
-        jettonBalance: 0,
-        ownerAddress: owner.address,
-        minterAddress: minter.address,
-    }, owner.address);
+    val wallet = deployWalletFromStorage(
+        WalletStorage {
+            status: 0,
+            jettonBalance: 0,
+            ownerAddress: owner.address,
+            minterAddress: minter.address,
+        },
+        owner.address,
+    );
 
     if (initialBalance) {
-        val topUp = net.send(minter.address, createMessage({
-            bounce: true,
-            value: ton("0.3"),
-            dest: wallet.address,
-            body: InternalTransferStep {
-                queryId: 0,
-                jettonAmount: initialBalance,
-                transferInitiator: null,
-                sendExcessesTo: null,
-                forwardTonAmount: 0,
-                forwardPayload: makeTinyForwardPayload(),
-            },
-        }));
+        val topUp = net.send(
+            minter.address,
+            createMessage({
+                bounce: true,
+                value: ton("0.3"),
+                dest: wallet.address,
+                body: InternalTransferStep {
+                    queryId: 0,
+                    jettonAmount: initialBalance,
+                    transferInitiator: null,
+                    sendExcessesTo: null,
+                    forwardTonAmount: 0,
+                    forwardPayload: makeTinyForwardPayload(),
+                },
+            }),
+        );
         expect(topUp).toHaveSuccessfulTx<InternalTransferStep>({
             from: minter.address,
             to: wallet.address,

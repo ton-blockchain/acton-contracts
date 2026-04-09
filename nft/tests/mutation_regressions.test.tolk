@@ -41,10 +41,13 @@ fun setActiveDataCell(addr: address, newData: cell) {
 
 fun forceItemUninitialized(item: NftItemContract, collection: NftCollectionContract) {
     val data = item.getNftData();
-    setActiveDataCell(item.address, NftItemStorageNotInitialized {
-        itemIndex: data.itemIndex as uint64,
-        collectionAddress: collection.address,
-    }.toCell());
+    setActiveDataCell(
+        item.address,
+        NftItemStorageNotInitialized {
+            itemIndex: data.itemIndex as uint64,
+            collectionAddress: collection.address,
+        }.toCell(),
+    );
 }
 
 fun makeBatchDeployList(
@@ -60,10 +63,7 @@ fun makeBatchDeployList(
             indexes.get(i),
             BatchDeployDictItem {
                 attachTonAmount,
-                initParams: NftItemInitAtDeployment {
-                    ownerAddress,
-                    content,
-                }.toCell(),
+                initParams: NftItemInitAtDeployment { ownerAddress, content }.toCell(),
             },
         );
         i += 1;
@@ -175,7 +175,11 @@ get fun `test mutation: batch deploy should reject action-list overflow and pres
 get fun `test mutation: batch deploy should report exact failing counter for skipped indexes`() {
     val (nftCollection, deployer, _) = setupTest();
     val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
-    val deployList = makeBatchDeployList([nextItemIndex, nextItemIndex + 2], net.randomAddress(), "gap");
+    val deployList = makeBatchDeployList(
+        [nextItemIndex, nextItemIndex + 2],
+        net.randomAddress(),
+        "gap",
+    );
     val skippedAddress = nftCollection.getNftAddressByIndex(nextItemIndex);
     val result = nftCollection.sendBatchDeployNfts(
         deployer.address,
@@ -333,10 +337,7 @@ get fun `test mutation: ownership transfer with zero forward amount should exhau
         from: owner.address,
         to: nftItem.address,
     });
-    expect(result).toNotHaveTx<NotificationForNewOwner>({
-        from: nftItem.address,
-        to: nextOwner,
-    });
+    expect(result).toNotHaveTx<NotificationForNewOwner>({ from: nftItem.address, to: nextOwner });
     expect(result).toHaveTx<ReturnExcessesBack>({
         from: nftItem.address,
         to: excessesAddress,
