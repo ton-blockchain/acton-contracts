@@ -72,13 +72,13 @@ fun makeBatchDeployList(
 }
 
 fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: coins) {
-    val msg = createMessage({
+    val outgoingMessage = createMessage({
         body,
         dest,
         bounce,
         value,
     });
-    return msg.estimateFeeWithoutSending(SEND_MODE_REGULAR);
+    return outgoingMessage.estimateFeeWithoutSending(SEND_MODE_REGULAR);
 }
 
 fun makeOwnershipTransferBody(
