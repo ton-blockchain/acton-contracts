@@ -15,16 +15,6 @@ const E2E_INITIAL_BID = ton("1000")
 const E2E_NEXT_BID = ton("1050")
 const E2E_GOVERNANCE_QUERY_ID = 7001
 
-fun setGovernanceDecision(index: uint256, decision: RemainingBitsAndRefs) {
-    var config = net.getConfig();
-    var governanceMap: map<uint256, RemainingBitsAndRefs> = [];
-    governanceMap.set(index, decision);
-
-    val paramCell = beginCell().storeDict(governanceMap.toLowLevelDict()).endCell();
-    config.setParamRaw(DNS_CONFIG_ID, paramCell);
-    expect(net.setConfig(config)).toEqual(true);
-}
-
 fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL_BID) {
     val (collection, deployer, bidder) = deployCollectionContract();
     val governanceCaller = newActor("dns_e2e_governance_caller", ton("100000"));

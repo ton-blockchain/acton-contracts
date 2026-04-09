@@ -2,6 +2,8 @@ import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "@acton/tlb/maybe"
+import "@acton/types/transaction"
 import "test_utils"
 import "wrappers/JettonMinter"
 import "wrappers/JettonWallet"
@@ -132,12 +134,14 @@ get fun `test admin: non-admin cannot drop admin access`() {
 
 get fun `test admin: admin can change metadata`() {
     val (minter, deployer, _) = setupTest();
+    val oldContentHash = minter.getContent().hash();
 
     val changeResult = minter.sendChangeMetadata(deployer.address, "https://new.meta");
     expect(changeResult).toHaveSuccessfulTx<ChangeMinterMetadataUri>({
         from: deployer.address,
         to: minter.address,
     });
+    expect(minter.getContent().hash() == oldContentHash).toEqual(false);
 }
 
 get fun `test admin: non-admin cannot change metadata`() {
@@ -157,28 +161,82 @@ get fun `test admin: discovery should return wallet address with and without own
     val (minter, deployer, notDeployer) = setupTest();
     mintTo(minter, deployer, deployer.address, ton("1"));
 
-    val withOwner = minter.sendDiscovery(deployer.address, deployer.address, true);
-    expect(withOwner).toHaveSuccessfulTx<RequestWalletAddress>({
-        from: deployer.address,
-        to: minter.address,
-    });
-    expect(withOwner).toHaveSuccessfulTx<ResponseWalletAddress>({
+    val expectedDeployerWallet = userWallet(minter, deployer.address).address;
+    val withOwnerRes = minter.sendDiscovery(deployer.address, deployer.address, true);
+    val withOwnerTx = withOwnerRes.findTransaction<ResponseWalletAddress>({
         from: minter.address,
         to: deployer.address,
+        success: true,
+        exitCode: 0,
     });
+    expect(withOwnerTx).toBeDefined();
+    if (withOwnerTx is None) {
+        return;
+    }
 
-    val withoutOwner = minter.sendDiscovery(deployer.address, notDeployer.address, false);
-    expect(withoutOwner).toHaveSuccessfulTx<ResponseWalletAddress>({
-        from: minter.address,
-        to: deployer.address,
-    });
+    val withOwnerBody = withOwnerTx.value.loadBody<ResponseWalletAddress>();
+    expect(withOwnerBody.jettonWalletAddress).toEqual(expectedDeployerWallet);
+    expect(withOwnerBody.ownerAddress).toBeNotNull();
+    if (withOwnerBody.ownerAddress == null) {
+        return;
+    }
+    expect(withOwnerBody.ownerAddress.load()).toEqual(deployer.address);
 
-    val invalidAddr = address.fromWorkchainAndHash(-1, 0);
-    val invalid = minter.sendDiscovery(deployer.address, invalidAddr, true);
-    expect(invalid).toHaveSuccessfulTx<ResponseWalletAddress>({
+    val expectedOtherWallet = userWallet(minter, notDeployer.address).address;
+    val withoutOwnerRes = minter.sendDiscovery(deployer.address, notDeployer.address, false);
+    val withoutOwnerTx = withoutOwnerRes.findTransaction<ResponseWalletAddress>({
         from: minter.address,
         to: deployer.address,
+        success: true,
+        exitCode: 0,
     });
+    expect(withoutOwnerTx).toBeDefined();
+    if (withoutOwnerTx is None) {
+        return;
+    }
+
+    val withoutOwnerBody = withoutOwnerTx.value.loadBody<ResponseWalletAddress>();
+    expect(withoutOwnerBody.jettonWalletAddress).toEqual(expectedOtherWallet);
+    expect(withoutOwnerBody.ownerAddress).toEqual(null);
+}
+
+get fun `test admin: discovery should return none for non-basechain owner`() {
+    val (minter, deployer, _) = setupTest();
+    val invalidOwner = address.fromWorkchainAndHash(-1, 0);
+
+    val noOwnerRes = minter.sendDiscovery(deployer.address, invalidOwner, false);
+    val noOwnerTx = noOwnerRes.findTransaction<ResponseWalletAddress>({
+        from: minter.address,
+        to: deployer.address,
+        success: true,
+        exitCode: 0,
+    });
+    expect(noOwnerTx).toBeDefined();
+    if (noOwnerTx is None) {
+        return;
+    }
+    val noOwnerBody = noOwnerTx.value.loadBody<ResponseWalletAddress>();
+    expect(noOwnerBody.jettonWalletAddress).toEqual(null);
+    expect(noOwnerBody.ownerAddress).toEqual(null);
+
+    val withOwnerRes = minter.sendDiscovery(deployer.address, invalidOwner, true);
+    val withOwnerTx = withOwnerRes.findTransaction<ResponseWalletAddress>({
+        from: minter.address,
+        to: deployer.address,
+        success: true,
+        exitCode: 0,
+    });
+    expect(withOwnerTx).toBeDefined();
+    if (withOwnerTx is None) {
+        return;
+    }
+    val withOwnerBody = withOwnerTx.value.loadBody<ResponseWalletAddress>();
+    expect(withOwnerBody.jettonWalletAddress).toEqual(null);
+    expect(withOwnerBody.ownerAddress).toBeNotNull();
+    if (withOwnerBody.ownerAddress == null) {
+        return;
+    }
+    expect(withOwnerBody.ownerAddress.load()).toEqual(invalidOwner);
 }
 
 get fun `test admin: non-admin should not be able to upgrade minter`() {
@@ -202,8 +260,9 @@ get fun `test admin: non-admin should not be able to upgrade minter`() {
 
 get fun `test admin: admin should be able to upgrade minter`() {
     val (minter, deployer, _) = setupTest();
+    val oldContentHash = minter.getContent().hash();
     val newData = MinterStorage {
-        totalSupply: minter.getTotalSupply(),
+        totalSupply: ton("99"),
         adminAddress: deployer.address,
         nextAdminAddress: null,
         jettonWalletCode: build("notcoin_wallet"),
@@ -216,4 +275,6 @@ get fun `test admin: admin should be able to upgrade minter`() {
         from: deployer.address,
         to: minter.address,
     });
+    expect(minter.getTotalSupply()).toEqual(ton("99"));
+    expect(minter.getContent().hash() == oldContentHash).toEqual(false);
 }

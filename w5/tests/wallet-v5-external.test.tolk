@@ -61,8 +61,11 @@ get fun `test w5: Add an extension`() {
 
     val ext = walletV5.getExtensions();
     val (_, extHash) = testExtension.getWorkchainAndHash();
+    var expected: map<uint256, bool> = [];
+    expected.set(extHash, true);
     expect(ext).toHaveLength(1);
     expect(ext.exists(extHash)).toEqual(true);
+    expect(ext).toEqual(expected);
 }
 
 get fun `test w5: Send single transfer to a deployed wallet`() {
@@ -468,6 +471,36 @@ get fun `test w5: Should fail if valid_until is expired`() {
     walletV5.sendExternalSigned(body);
 
     expect(walletV5.getSeqno()).toEqual(0);
+}
+
+get fun `test w5: Should fail if valid_until equals now`() {
+    val keyPair = crypto.generateKeyPair();
+    val (walletV5, _) = deployWalletWithKey(keyPair);
+
+    val testReceiver = net.randomAddress("test-receiver");
+    val forwardValue = ton("0.001");
+    val receiverBalanceBefore = net.balance(testReceiver);
+
+    var outActions: array<SendAction> = [];
+    outActions.push(sendMsgAction(testReceiver, forwardValue));
+    val actions = ActionsList {
+        outActions,
+        extraActions: [],
+    };
+
+    val body = createExternalSignedBody(
+        keyPair,
+        DEFAULT_SUBWALLET_ID,
+        0,
+        actions,
+        blockchain.now(),
+    );
+
+    walletV5.sendExternalSigned(body);
+    expect(walletV5.getSeqno()).toEqual(0);
+
+    val receiverBalanceAfter = net.balance(testReceiver);
+    expect(receiverBalanceAfter).toEqual(receiverBalanceBefore);
 }
 
 get fun `test w5: Should fail if walletId is wrong`() {

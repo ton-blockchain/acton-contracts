@@ -1,3 +1,4 @@
+import "@stdlib/gas-payments"
 import "@acton/build/build"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
@@ -10,6 +11,7 @@ import "test_utils"
 import "wrappers/MultisigV2"
 import "wrappers/MultisigV2Order"
 import "../contracts/messages"
+import "../contracts/order-helpers"
 import "../contracts/types"
 
 const FEE_BASE_EXPIRATION = 2000000000
@@ -90,6 +92,45 @@ fun buildTransferActions(count: int, markerBase: int = 1000): DirectOrderActions
     return packActionCells(actionCells);
 }
 
+fun manualOrderProcessingCost(
+    orderBody: DirectOrderActionsMap,
+    signers: DirectIndexedAddressMap,
+    duration: int,
+): coins {
+    val orderDict = orderBody.toLowLevelDict()!;
+    val signersDict = signers.toLowLevelDict()!;
+
+    val gasBefore = getGasConsumedAtTheMoment();
+    val (orderCells, orderBits, _) = orderDict.calculateSizeStrict(8192);
+    val (signersCells, signersBits, _) = signersDict.calculateSizeStrict(512);
+    val sizeCountingGas = getGasConsumedAtTheMoment() - gasBefore;
+
+    val gasFees = calculateGasFee(BASECHAIN, MULTISIG_INIT_ORDER_GAS + sizeCountingGas) +
+    calculateGasFee(BASECHAIN, ORDER_INIT_GAS) +
+    calculateGasFee(BASECHAIN, ORDER_EXECUTE_GAS) +
+    calculateGasFee(BASECHAIN, MULTISIG_EXECUTE_GAS);
+
+    val forwardFees = calculateForwardFee(
+        BASECHAIN,
+        INIT_ORDER_BIT_OVERHEAD + orderBits + signersBits,
+        INIT_ORDER_CELL_OVERHEAD + orderCells + signersCells,
+    ) +
+    calculateForwardFee(
+        BASECHAIN,
+        EXECUTE_ORDER_BIT_OVERHEAD + orderBits,
+        EXECUTE_ORDER_CELL_OVERHEAD + orderCells,
+    );
+
+    val storageFees = calculateStorageFee(
+        BASECHAIN,
+        duration,
+        ORDER_STATE_BIT_OVERHEAD + orderBits + signersBits,
+        ORDER_STATE_CELL_OVERHEAD + orderCells + signersCells,
+    );
+
+    return gasFees + forwardFees + storageFees;
+}
+
 fun executeEstimatedOrder(
     wallet: MultisigV2,
     firstSigner: address,
@@ -146,6 +187,41 @@ get fun `test fee: should send new order with contract estimated message value`(
 
     expect(create).toHaveSuccessfulDeploy({ from: ctx.wallet.address });
     expect(approve).toHaveSuccessfulTx({ from: ctx.wallet.address });
+}
+
+get fun `test fee: getter estimate should match manual formula on representative scenarios`() {
+    val ctx = setupFeeContext();
+
+    val smallOrder = buildTransferActions(1, 9100);
+    val smallDuration = FEE_BASE_EXPIRATION - net.now();
+    val smallExpected = manualOrderProcessingCost(
+        smallOrder,
+        toDirectIndexedAddressMap(array<address> [ctx.deployer.address, ctx.second.address]),
+        smallDuration,
+    );
+    val smallActual = ctx.wallet.getOrderEstimate(smallOrder, FEE_BASE_EXPIRATION);
+    expect(smallActual as int).toBeApproxEqRel(smallExpected, 5);
+
+    val jumboOrder = buildTransferActions(1, 9200);
+    val jumboDuration = FEE_BASE_EXPIRATION - net.now();
+    val jumboExpected = manualOrderProcessingCost(
+        jumboOrder,
+        toDirectIndexedAddressMap(ctx.jumboSigners),
+        jumboDuration,
+    );
+    val jumboActual = ctx.jumboWallet.getOrderEstimate(jumboOrder, FEE_BASE_EXPIRATION);
+    expect(jumboActual as int).toBeApproxEqRel(jumboExpected, 5);
+
+    val largeExpiration = FEE_BASE_EXPIRATION + (14 * 24 * 3600);
+    val largeOrder = buildTransferActions(100, 9300);
+    val largeDuration = largeExpiration - net.now();
+    val largeExpected = manualOrderProcessingCost(
+        largeOrder,
+        toDirectIndexedAddressMap(ctx.jumboSigners),
+        largeDuration,
+    );
+    val largeActual = ctx.jumboWallet.getOrderEstimate(largeOrder, largeExpiration);
+    expect(largeActual as int).toBeApproxEqRel(largeExpected, 5);
 }
 
 get fun `test fee: should estimate correctly with 255 signers multisig`() {

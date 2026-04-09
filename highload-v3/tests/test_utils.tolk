@@ -175,6 +175,20 @@ fun storedIsProcessed(wallet: HighloadWalletV3, queryId: int): bool {
     return st.queries.isProcessedInQueryMap(shift, bitNumber);
 }
 
+fun storedIsProcessedInOldQueries(wallet: HighloadWalletV3, queryId: int): bool {
+    val st = HighloadWalletStorage.fromCell(activeDataCell(wallet.address));
+    val shift = (queryId >> 10);
+    val bitNumber = queryId & 1023;
+    return st.oldQueries.isProcessedInQueryMap(shift, bitNumber);
+}
+
+fun storedIsProcessedInCurrentQueries(wallet: HighloadWalletV3, queryId: int): bool {
+    val st = HighloadWalletStorage.fromCell(activeDataCell(wallet.address));
+    val shift = (queryId >> 10);
+    val bitNumber = queryId & 1023;
+    return st.queries.isProcessedInQueryMap(shift, bitNumber);
+}
+
 fun setActiveDataCell(addr: address, newData: cell) {
     val account = net.getAccount(addr);
     if (account !is AccountInfo) {

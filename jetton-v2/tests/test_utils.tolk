@@ -1,8 +1,13 @@
+import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "@acton/types/big_array"
+import "@acton/types/out_actions"
+import "@acton/types/transaction"
 import "wrappers/JettonMinter"
 import "wrappers/JettonWallet"
+import "../contracts/jetton-utils"
 import "../contracts/messages"
 import "../contracts/storage"
 
@@ -22,11 +27,12 @@ fun makeTinyForwardPayload() {
     return beginCell().storeUint(0, 1).toSlice();
 }
 
+fun makeRichCustomPayload() {
+    return beginCell().storeUint(0x123456789abcdef, 128).endCell();
+}
+
 fun makeRichForwardPayload() {
-    return beginCell()
-        .storeMaybeRef(beginCell().storeUint(0x123456789abcdef, 128).endCell())
-        .endCell()
-        .beginParse();
+    return beginCell().storeMaybeRef(makeRichCustomPayload()).endCell().beginParse();
 }
 
 fun buildTransferBody(
@@ -48,15 +54,19 @@ fun buildTransferBody(
     };
 }
 
-fun estimateBodyForwardFee<T>(body: T) {
+fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: coins) {
     val estMsg = createMessage({
         body,
-        dest: net.randomAddress(),
-        bounce: true,
-        value: ton("1"),
+        dest,
+        bounce,
+        value,
     });
 
     return estMsg.estimateFeeWithoutSending(SEND_MODE_REGULAR);
+}
+
+fun estimateBodyForwardFee<T>(body: T) {
+    return estimateMessageForwardFee(body, net.randomAddress(), true, ton("1"));
 }
 
 fun sendRawTransferPayload(
@@ -77,6 +87,111 @@ fun sendRawTransferPayload(
 fun userWallet(minter: JettonMinter, userAddress: address): JettonWallet {
     val address = minter.getWalletAddress(userAddress);
     return JettonWallet { address };
+}
+
+fun walletStateInit(storage: WalletStorage): ContractState {
+    return ContractState {
+        code: build("jetton_v2_wallet"),
+        data: storage.toCell(),
+    };
+}
+
+fun deployWalletFromStorage(
+    storage: WalletStorage,
+    from: address,
+    value: coins = ton("10"),
+): JettonWallet {
+    val init = storage.jettonBalance == 0
+        ? calcDeployedJettonWallet(
+            storage.ownerAddress,
+            storage.minterAddress,
+            build("jetton_v2_wallet"),
+        )
+        : AutoDeployAddress { stateInit: walletStateInit(storage) };
+    val address = init.calculateAddress();
+
+    val deployResult = net.send(
+        from,
+        createMessage({
+            bounce: false,
+            value,
+            dest: init,
+            body: TopUpTons {},
+        }),
+    );
+    expect(deployResult).toHaveSuccessfulDeploy({ to: address });
+
+    return JettonWallet { address };
+}
+
+fun setupDirectWallet(initialBalance: coins = 0): (JettonWallet, Treasury, Treasury, Treasury) {
+    val owner = net.treasury("direct_wallet_owner");
+    val minter = net.treasury("direct_wallet_minter");
+    val outsider = net.treasury("direct_wallet_outsider");
+    val wallet = deployWalletFromStorage(
+        WalletStorage {
+            jettonBalance: 0,
+            ownerAddress: owner.address,
+            minterAddress: minter.address,
+        },
+        owner.address,
+    );
+
+    if (initialBalance) {
+        val topUp = net.send(
+            minter.address,
+            createMessage({
+                bounce: true,
+                value: ton("0.3"),
+                dest: wallet.address,
+                body: InternalTransferStep {
+                    queryId: 0,
+                    jettonAmount: initialBalance,
+                    transferInitiator: null,
+                    sendExcessesTo: null,
+                    forwardTonAmount: 0,
+                    forwardPayload: makeTinyForwardPayload(),
+                },
+            }),
+        );
+        expect(topUp).toHaveSuccessfulTx<InternalTransferStep>({
+            from: minter.address,
+            to: wallet.address,
+        });
+    }
+
+    return (wallet, owner, minter, outsider);
+}
+
+fun findSendResultForAccount(res: SendResultList, account: address): SendResult? {
+    var i = 0;
+    while (i < res.size()) {
+        val item = res.at(i);
+        if (item.tx.load().getAccountAddress() == account) {
+            return item;
+        }
+        i += 1;
+    }
+
+    return null;
+}
+
+fun hasSetCodeAction(res: SendResultList, account: address): bool {
+    val item = findSendResultForAccount(res, account);
+    if (item == null) {
+        return false;
+    }
+
+    val actions = item.allOutActions();
+    var i = 0;
+    while (i < actions.size()) {
+        if (actions.at(i) is OutActionSetCode) {
+            return true;
+        }
+        i += 1;
+    }
+
+    return false;
 }
 
 fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {

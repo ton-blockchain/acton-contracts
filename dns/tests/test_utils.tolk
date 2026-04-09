@@ -1,6 +1,7 @@
 import "@acton/build/build"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
@@ -24,6 +25,11 @@ const DNS_WALLET_CATEGORY = "wallet".toBase256()
 
 fun addrFromHash(hash: uint256): address {
     return address.fromWorkchainAndHash(BASECHAIN, hash);
+}
+
+fun masterchainAddressOf(addr: address): address {
+    val (_, hash) = addr.getWorkchainAndHash();
+    return address.fromWorkchainAndHash(MASTERCHAIN, hash);
 }
 
 fun rootTonResolverAddress(): address {
@@ -256,6 +262,53 @@ fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = 
     val item = NftItemContract.fromAddress(itemAddress);
 
     return (item, collection, deployer, bidder);
+}
+
+fun activeAccountInfo(addr: address): AccountInfo {
+    val acc = net.getAccount(addr);
+    if (acc is AccountInfo) {
+        return acc;
+    }
+    Assert.fail("Expected AccountInfo");
+}
+
+fun activeDataCell(addr: address): cell {
+    val info = activeAccountInfo(addr);
+    if (info.storage.state is AccountStateActive) {
+        val active = info.storage.state;
+        if (active.stateInit.data == null) {
+            Assert.fail("Expected active state data");
+        }
+        return active.stateInit.data!;
+    }
+    Assert.fail("Expected active account state");
+}
+
+fun setActiveDataCell(addr: address, newData: cell) {
+    val account = net.getAccount(addr);
+    if (account !is AccountInfo) {
+        Assert.fail("Expected AccountInfo when setting data");
+    }
+
+    var info = account;
+    if (info.storage.state !is AccountStateActive) {
+        Assert.fail("Expected AccountStateActive when setting data");
+    }
+
+    var active = info.storage.state;
+    active.stateInit.data = newData;
+    info.storage.state = active;
+    net.setAccount(addr, info);
+}
+
+fun setGovernanceDecision(index: uint256, decision: RemainingBitsAndRefs) {
+    var config = net.getConfig();
+    var governanceMap: map<uint256, RemainingBitsAndRefs> = [];
+    governanceMap.set(index, decision);
+
+    val paramCell = beginCell().storeDict(governanceMap.toLowLevelDict()).endCell();
+    config.setParamRaw(DNS_CONFIG_ID, paramCell);
+    expect(net.setConfig(config)).toEqual(true);
 }
 
 fun completeAuction(item: NftItemContract, sender: address, queryId: int = 1): SendResultList {

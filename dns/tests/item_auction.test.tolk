@@ -1,6 +1,8 @@
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
+import "@acton/tlb/maybe"
+import "@acton/types/transaction"
 import "test_utils"
 import "wrappers/DnsItem"
 import "../contracts/dns-utils"
@@ -71,6 +73,7 @@ get fun `test item auction: initializes only from collection and handles repeate
 
 get fun `test item auction: bids require 5 percent and notify previous bidder`() {
     val (item, _, owner, bidder) = deployItemThroughCollection();
+    val auctionBeforeBid = item.getAuctionInfo();
 
     val lowBid = item.sendAny(
         bidder.address,
@@ -92,6 +95,14 @@ get fun `test item auction: bids require 5 percent and notify previous bidder`()
         from: item.address,
         to: owner.address,
     });
+    val refundTx = validBid.findTransaction<OutbidNotification>({
+        from: item.address,
+        to: owner.address,
+        success: true,
+    });
+    expect(refundTx).toBeDefined();
+    val refundMsg = refundTx.unwrap().loadInMsg<OutbidNotification>();
+    expect(refundMsg.info.value.grams).toEqual(auctionBeforeBid.maxBidAmount);
 
     val auctionAfterBid = item.getAuctionInfo();
     expect(auctionAfterBid.maxBidAddress).toEqual(bidder.address);
@@ -112,13 +123,47 @@ get fun `test item auction: prolongs end time when bid arrives in prolongation w
     expect(auctionAfter.auctionEndTime).toEqual((net.now() + AUCTION_PROLONGATION));
 }
 
+get fun `test item auction: exact end time still accepts bids before completion`() {
+    val (item, _, owner, bidder) = deployItemThroughCollection();
+
+    val auctionBefore = item.getAuctionInfo();
+    net.setNow(auctionBefore.auctionEndTime as uint32);
+
+    val edgeBid = item.sendAny(
+        bidder.address,
+        createEmptyCell(),
+        { value: ton("1050"), bounce: true },
+    );
+    expect(edgeBid).toHaveSuccessfulTx<OutbidNotification>({
+        from: item.address,
+        to: owner.address,
+    });
+
+    val auctionAfter = item.getAuctionInfo();
+    expect(auctionAfter.maxBidAddress).toEqual(bidder.address);
+    expect(auctionAfter.maxBidAmount).toEqual(ton("1050"));
+    expect(item.getEditor()).toBeNull();
+}
+
 get fun `test item auction: completion sets owner and enforces top-up permissions`() {
     val (item, collection, owner, outsider) = deployItemThroughCollection();
 
     val complete = completeAuction(item, owner.address, 77);
     expect(complete).toHaveSuccessfulTx<FillUp>({ from: item.address, to: collection.address });
+    val fillUpTx = complete.findTransaction<FillUp>({
+        from: item.address,
+        to: collection.address,
+        success: true,
+    });
+    expect(fillUpTx).toBeDefined();
+    val fillUpMsg = fillUpTx.unwrap().loadInMsg<FillUp>();
+    expect(fillUpMsg.info.value.grams).toBeGreater(0);
 
     expect(item.getEditor()).toEqual(owner.address);
+    expect(net.balance(item.address)).toEqual(MIN_TONS_FOR_STORAGE);
+
+    val ownerTopUpNow = net.now() + 10;
+    net.setNow(ownerTopUpNow);
 
     val ownerTopUp = item.sendAny(
         owner.address,
@@ -126,6 +171,7 @@ get fun `test item auction: completion sets owner and enforces top-up permission
         { value: ton("1"), bounce: true },
     );
     expect(ownerTopUp).toHaveSuccessfulTx({ from: owner.address, to: item.address });
+    expect(item.getLastFillUpTime()).toEqual(ownerTopUpNow);
 
     val outsiderTopUp = item.sendAny(
         outsider.address,

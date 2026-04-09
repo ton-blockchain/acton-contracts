@@ -86,6 +86,39 @@ get fun `test fail created time check`() {
     expect(res).toBeNull();
 }
 
+get fun `test fail created time at lower boundary`() {
+    val ctx = setupHighloadTest();
+    val msg = emptyInternalTransferMessage(ctx.wallet, 0, 0);
+    val queryId = HighloadQueryId.fromShiftAndBitNumber(2, 12).toInt();
+    val timeout = ctx.wallet.getTimeout();
+
+    val res = trySendSignedExternalSingle(
+        ctx.wallet,
+        ctx.keyPair,
+        msg,
+        SEND_MODE_CARRY_ALL_BALANCE,
+        queryId,
+        1000 - timeout,
+    );
+    expect(res).toBeNull();
+}
+
+get fun `test fail created time in future`() {
+    val ctx = setupHighloadTest();
+    val msg = emptyInternalTransferMessage(ctx.wallet, 0, 0);
+    val queryId = HighloadQueryId.fromShiftAndBitNumber(2, 13).toInt();
+
+    val res = trySendSignedExternalSingle(
+        ctx.wallet,
+        ctx.keyPair,
+        msg,
+        SEND_MODE_CARRY_ALL_BALANCE,
+        queryId,
+        1001,
+    );
+    expect(res).toBeNull();
+}
+
 get fun `test fail query id in actual queries`() {
     val ctx = setupHighloadTest();
     val msg = emptyInternalTransferMessage(ctx.wallet, 0, 0);

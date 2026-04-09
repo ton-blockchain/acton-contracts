@@ -108,6 +108,35 @@ get fun `test send external message`() {
     expect(ctx.wallet.isProcessed(extQueryId, false)).toBeTrue();
 }
 
+get fun `test preserve ignore errors flag when outbound action fails`() {
+    val ctx = setupHighloadTest();
+    val queryId = HighloadQueryId.fromShiftAndBitNumber(22, 112).toInt();
+    val target = net.randomAddress("ignore-errors-failure-target");
+    var outMsg = (createMessage({
+        bounce: false,
+        value: ton("0.1"),
+        dest: target,
+    }).messageCell as Cell<MessageRelaxedGeneric>).load();
+    outMsg.info.ihrDisabled = false;
+
+    val res = sendSignedExternal(
+        ctx.wallet,
+        ctx.keyPair,
+        outMsg.toCell(),
+        SEND_MODE_PAY_FEES_SEPARATELY | SEND_MODE_IGNORE_ERRORS | SEND_MODE_BOUNCE_ON_ACTION_FAIL,
+        queryId,
+        1000,
+    );
+
+    expect(ctx.wallet.isProcessed(queryId, false)).toBeTrue();
+    expect(res).toHaveTx({
+        bounce: false,
+        from: ctx.wallet.address,
+        to: target,
+        success: false,
+    });
+}
+
 get fun `test handle 254 actions in one go`() {
     val ctx = setupHighloadTest();
     val queryId = queryIdZero().toInt();
