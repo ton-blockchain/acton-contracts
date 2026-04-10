@@ -1,7 +1,7 @@
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "../../contracts/storage"
+import "../contracts/storage"
 
 struct RootDnsContract {
     address: address

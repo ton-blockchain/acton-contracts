@@ -2,8 +2,8 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
-import "wrappers/HighloadWalletV3"
 import "../contracts/messages"
+import "../wrappers/HighloadWalletV3"
 
 get fun `test queries hashmaps are cleared`() {
     val ctx = setupHighloadTest();

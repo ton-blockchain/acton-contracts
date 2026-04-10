@@ -6,9 +6,9 @@ import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "@acton/vm/vm"
 import "test_utils"
-import "wrappers/ConfigContract"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/ConfigContract"
 
 get fun `test custom params: should set custom slot -1024`() {
     val ctx = setupConfigTest();

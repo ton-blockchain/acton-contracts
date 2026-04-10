@@ -6,10 +6,10 @@ import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "@acton/vm/vm"
-import "wrappers/MultisigV2"
 import "../contracts/messages"
 import "../contracts/order-helpers"
 import "../contracts/types"
+import "../wrappers/MultisigV2"
 
 const PROBE_NOW = 1000
 

@@ -5,7 +5,7 @@ import "@acton/crypto/crypto"
 import "@acton/emulation/network"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../tests/wrappers/WalletV5Contract"
+import "../wrappers/WalletV5Contract"
 
 const W5_DEFAULT_SEED = 0x2222222222222222222222222222222222222222222222222222222222222222
 const W5_DEFAULT_SUBWALLET_ID = 0

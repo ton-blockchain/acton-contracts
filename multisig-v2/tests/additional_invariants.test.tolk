@@ -2,10 +2,10 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
-import "wrappers/MultisigV2"
-import "wrappers/MultisigV2Order"
 import "../contracts/errors"
 import "../contracts/messages"
+import "../wrappers/MultisigV2"
+import "../wrappers/MultisigV2Order"
 
 get fun `test invariants: multisig unknown opcode should keep state unchanged`() {
     val ctx = setupMultisig(2, 3, 1, false);

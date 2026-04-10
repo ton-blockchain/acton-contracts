@@ -4,8 +4,8 @@ import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/out_actions"
 import "test_utils"
-import "wrappers/HighloadWalletV3"
 import "../contracts/messages"
+import "../wrappers/HighloadWalletV3"
 
 const HIGHLOAD_E2E_DIRECT_SEND_VALUE = ton("1")
 const HIGHLOAD_E2E_BATCH_SEND_VALUE = ton("0.015")

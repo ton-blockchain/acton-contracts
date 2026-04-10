@@ -2,8 +2,8 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 
-import "wrappers/Counter"
 import "../contracts/types"
+import "../wrappers/Counter"
 
 get fun `test increase counter`() {
     val (contract, deployer, _) = setupTest();

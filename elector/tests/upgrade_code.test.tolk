@@ -3,8 +3,8 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
-import "wrappers/Elector"
 import "../contracts/messages"
+import "../wrappers/Elector"
 
 /// Build an upgrade code message body (op=0x4e436f64, queryId, newCode, empty remaining)
 fun buildUpgradeCodeBody(queryId: uint64): cell {

@@ -4,10 +4,10 @@ import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test_utils"
-import "wrappers/DnsItem"
 import "../contracts/dns-utils"
 import "../contracts/errors"
 import "../contracts/messages"
+import "../wrappers/DnsItem"
 
 fun setupCompletedItem() {
     val (item, collection, owner, bidder) = deployItemThroughCollection();

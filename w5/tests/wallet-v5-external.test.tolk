@@ -4,9 +4,9 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
-import "./wrappers/WalletV5Contract"
 import "../contracts/errors"
 import "../contracts/messages"
+import "../wrappers/WalletV5Contract"
 
 get fun `test w5: Send a simple transfer`() {
     val keyPair = crypto.generateKeyPair();

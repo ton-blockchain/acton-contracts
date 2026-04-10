@@ -8,12 +8,12 @@ import "@acton/types/message"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
 import "test_utils"
-import "wrappers/JettonMinter"
-import "wrappers/JettonWallet"
 import "../contracts/errors"
 import "../contracts/fees-management"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/JettonMinter"
+import "../wrappers/JettonWallet"
 
 fun expectSendActionMode(
     res: SendResultList,

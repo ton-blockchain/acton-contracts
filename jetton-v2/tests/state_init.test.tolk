@@ -6,11 +6,11 @@ import "@acton/tlb/either"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test_utils"
-import "wrappers/JettonMinter"
-import "wrappers/JettonWallet"
 import "../contracts/fees-management"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/JettonMinter"
+import "../wrappers/JettonWallet"
 
 const MAX_JETTON_VALUE = 0xffffffffffffffffffffffffffffff
 

@@ -3,8 +3,8 @@ import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
 import "@acton/types/message"
-import "../../contracts/messages"
-import "../../contracts/storage"
+import "../contracts/messages"
+import "../contracts/storage"
 
 struct ConfigContract {
     address: address

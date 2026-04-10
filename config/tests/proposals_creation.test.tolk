@@ -4,10 +4,10 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test_utils"
-import "wrappers/ConfigContract"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/ConfigContract"
 
 fun assertProposalCreateOutcome(
     ctx: ConfigTestContext,

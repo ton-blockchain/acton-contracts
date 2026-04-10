@@ -3,7 +3,7 @@ import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "../contracts/types"
-import "../tests/wrappers/JettonMinter"
+import "../wrappers/JettonMinter"
 
 fun metadataUriFromContent(contentCell: cell): string? {
     val metadata = OnchainMetadataReply.fromCell(contentCell);

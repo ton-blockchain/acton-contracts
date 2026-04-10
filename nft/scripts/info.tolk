@@ -2,8 +2,8 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "common"
-import "../tests/wrappers/NftCollectionContract"
-import "../tests/wrappers/NftItemContract"
+import "../wrappers/NftCollectionContract"
+import "../wrappers/NftItemContract"
 
 fun main() {
     val deployer = nftWallet();

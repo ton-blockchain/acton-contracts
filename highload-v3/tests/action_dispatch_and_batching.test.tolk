@@ -5,8 +5,8 @@ import "@acton/tlb/maybe"
 import "@acton/types/message"
 import "@acton/types/out_actions"
 import "test_utils"
-import "wrappers/HighloadWalletV3"
 import "../contracts/messages"
+import "../wrappers/HighloadWalletV3"
 
 get fun `test send internal message`() {
     val ctx = setupHighloadTest();

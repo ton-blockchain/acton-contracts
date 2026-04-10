@@ -5,10 +5,10 @@ import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test_utils"
-import "wrappers/DnsCollection"
-import "wrappers/DnsItem"
 import "../contracts/dns-utils"
 import "../contracts/messages"
+import "../wrappers/DnsCollection"
+import "../wrappers/DnsItem"
 
 const E2E_DOMAIN = "benchflow"
 const E2E_INITIAL_BID = ton("1000")

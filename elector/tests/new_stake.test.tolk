@@ -5,9 +5,9 @@ import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
-import "wrappers/Elector"
 import "../contracts/messages"
 import "../contracts/types"
+import "../wrappers/Elector"
 
 get fun `test new stake no elections`() {
     val setup = setupElector();

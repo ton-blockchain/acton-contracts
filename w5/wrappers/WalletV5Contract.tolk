@@ -6,8 +6,8 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/message"
 import "@acton/vm/vm"
-import "../../contracts/messages"
-import "../../contracts/storage"
+import "../contracts/messages"
+import "../contracts/storage"
 
 fun constructAddressFromWorkchainAndHash(wc: int8, hash: uint256): address {
     return beginCell().storeUint(4, 3).storeUint(wc, 8).storeUint(hash, 256).toSlice() as address;

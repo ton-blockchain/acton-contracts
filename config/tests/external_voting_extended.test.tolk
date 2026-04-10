@@ -4,8 +4,8 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test_utils"
-import "wrappers/ConfigContract"
 import "../contracts/messages"
+import "../wrappers/ConfigContract"
 
 fun zeroSignature(): slice {
     return beginCell().storeUint(0, 256).storeUint(0, 256).endCell().beginParse();

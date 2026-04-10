@@ -3,9 +3,9 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
-import "wrappers/Elector"
 import "../contracts/messages"
 import "../contracts/types"
+import "../wrappers/Elector"
 
 /// Test that complaint from basechain is rejected
 get fun `test new complaint not mc`() {

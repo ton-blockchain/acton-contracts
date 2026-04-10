@@ -4,8 +4,8 @@ import "@acton/emulation/network"
 import "@acton/ffi/ffi"
 import "@acton/testing/assert"
 import "@acton/types/out_actions"
-import "../../contracts/messages"
-import "../../contracts/storage"
+import "../contracts/messages"
+import "../contracts/storage"
 
 const HIGHLOAD_BIT_NUMBER_SIZE = 10
 const HIGHLOAD_MAX_INLINE_ACTIONS = 254

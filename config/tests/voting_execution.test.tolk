@@ -4,9 +4,9 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test_utils"
-import "wrappers/ConfigContract"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/ConfigContract"
 
 get fun `test voting: should process votes for code update and regular parameter`() {
     val ctx = setupConfigTest();

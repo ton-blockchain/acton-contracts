@@ -5,12 +5,12 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/transaction"
 import "./nft-collection.test"
-import "./wrappers/NftCollectionContract"
-import "./wrappers/NftItemContract"
 import "../contracts/errors"
 import "../contracts/fees-management"
 import "../contracts/messages"
 import "../contracts/types"
+import "../wrappers/NftCollectionContract"
+import "../wrappers/NftItemContract"
 
 const MIN_EDGE_DELTA = 1
 

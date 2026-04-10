@@ -5,11 +5,11 @@ import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test_utils"
-import "wrappers/JettonMinter"
-import "wrappers/JettonWallet"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/JettonMinter"
+import "../wrappers/JettonWallet"
 
 get fun `test admin: deploy should create minter without bounce`() {
     val deployer = net.treasury("deployer_manual_deploy");

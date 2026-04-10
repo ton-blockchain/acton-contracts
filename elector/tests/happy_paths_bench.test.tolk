@@ -4,9 +4,9 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
-import "wrappers/Elector"
 import "../contracts/messages"
 import "../contracts/types"
+import "../wrappers/Elector"
 
 /// Benchmark: announce elections via tick-tock
 get fun `test bench announce elections`() {

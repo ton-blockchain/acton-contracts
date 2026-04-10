@@ -4,10 +4,10 @@ import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test_utils"
-import "wrappers/JettonMinter"
-import "wrappers/JettonWallet"
 import "../contracts/errors"
 import "../contracts/messages"
+import "../wrappers/JettonMinter"
+import "../wrappers/JettonWallet"
 
 get fun `test wallet: owner can send jettons`() {
     val (minter, deployer, notDeployer) = setupTest();

@@ -3,10 +3,10 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "test_utils"
-import "wrappers/MultisigV2Order"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/types"
+import "../wrappers/MultisigV2Order"
 
 struct OrderFixture {
     multisig: Treasury

@@ -5,7 +5,7 @@ import "@acton/build/build"
 import "@acton/emulation/network"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../tests/wrappers/DnsCollection"
+import "../wrappers/DnsCollection"
 
 fun main() {
     val deployer = net.wallet("deployer-2");

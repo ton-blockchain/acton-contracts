@@ -5,13 +5,13 @@ import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test_utils"
-import "wrappers/JettonMinter"
-import "wrappers/JettonWallet"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/sharding"
 import "../contracts/storage"
 import "../contracts/types"
+import "../wrappers/JettonMinter"
+import "../wrappers/JettonWallet"
 
 fun extractUriString(contentCell: cell): string? {
     val metadata = OnchainMetadataReply.fromCell(contentCell);

@@ -5,10 +5,10 @@ import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
-import "./wrappers/WalletV5Contract"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/WalletV5Contract"
 
 // ==================== Basic ====================
 

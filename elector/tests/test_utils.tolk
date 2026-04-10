@@ -5,9 +5,9 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
-import "wrappers/Elector"
 import "../contracts/messages"
 import "../contracts/types"
+import "../wrappers/Elector"
 
 /// Message format for elected validator set sent to config contract.
 struct (0x4e565354) ElectedVSetMsg {

@@ -3,7 +3,7 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "common"
 import "../contracts/messages"
-import "../tests/wrappers/WalletV5Contract"
+import "../wrappers/WalletV5Contract"
 
 fun main() {
     val deployer = net.wallet("deployer");

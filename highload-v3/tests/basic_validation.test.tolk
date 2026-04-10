@@ -4,8 +4,8 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test_utils"
-import "wrappers/HighloadWalletV3"
 import "../contracts/messages"
+import "../wrappers/HighloadWalletV3"
 
 get fun `test deploy`() {
     val ctx = setupHighloadTest();

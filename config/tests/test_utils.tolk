@@ -9,9 +9,9 @@ import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
-import "wrappers/ConfigContract"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/ConfigContract"
 
 const CUSTOM_SLOT_1 = -1024
 const CUSTOM_SLOT_2 = -1025

@@ -3,9 +3,9 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
-import "wrappers/Elector"
 import "../contracts/messages"
 import "../contracts/types"
+import "../wrappers/Elector"
 
 /// Test that config rejected (alt) from non-config address is ignored
 get fun `test vset rejected not config`() {

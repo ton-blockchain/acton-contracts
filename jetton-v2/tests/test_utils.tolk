@@ -5,11 +5,11 @@ import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
-import "wrappers/JettonMinter"
-import "wrappers/JettonWallet"
 import "../contracts/jetton-utils"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/JettonMinter"
+import "../wrappers/JettonWallet"
 
 // Common values used across tests (nanotons for TON amounts)
 const TEST_JETTON_UNIT = 1

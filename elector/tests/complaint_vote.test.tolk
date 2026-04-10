@@ -4,9 +4,9 @@ import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
-import "wrappers/Elector"
 import "../contracts/messages"
 import "../contracts/types"
+import "../wrappers/Elector"
 
 /// Set up config param 34 with known validators (with ADNL addresses).
 /// Returns array of KeyPairs used for the validators.

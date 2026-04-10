@@ -7,9 +7,9 @@ import "@acton/tlb/maybe"
 import "@acton/types/big_array"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
-import "wrappers/HighloadWalletV3"
 import "../contracts/bitmap"
 import "../contracts/storage"
+import "../wrappers/HighloadWalletV3"
 
 const SUBWALLET_ID = 239
 const DEFAULT_TIMEOUT = 128

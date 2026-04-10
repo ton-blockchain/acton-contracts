@@ -2,9 +2,9 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "../tests/test_utils"
-import "../tests/wrappers/DnsCollection"
-import "../tests/wrappers/DnsItem"
-import "../tests/wrappers/DnsRoot"
+import "../wrappers/DnsCollection"
+import "../wrappers/DnsItem"
+import "../wrappers/DnsRoot"
 
 fun main() {
     val rootAddress: address? = env("ROOT_ADDRESS");

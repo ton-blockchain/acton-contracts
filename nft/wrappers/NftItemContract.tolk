@@ -1,9 +1,9 @@
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "../../contracts/messages"
-import "../../contracts/types"
-import "../../contracts/types"
+import "../contracts/messages"
+import "../contracts/types"
+import "../contracts/types"
 
 struct NftItemContract {
     address: address

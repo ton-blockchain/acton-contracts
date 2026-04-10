@@ -4,8 +4,8 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test_utils"
-import "wrappers/ConfigContract"
 import "../contracts/messages"
+import "../wrappers/ConfigContract"
 
 fun singleIndexDictCell(idx: int32): cell {
     var m: map<int32, slice> = [];

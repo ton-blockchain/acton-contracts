@@ -8,11 +8,11 @@ import "@acton/tlb/maybe"
 import "@acton/types/big_array"
 import "@acton/vm/vm"
 import "test_utils"
-import "wrappers/MultisigV2"
-import "wrappers/MultisigV2Order"
 import "../contracts/messages"
 import "../contracts/order-helpers"
 import "../contracts/types"
+import "../wrappers/MultisigV2"
+import "../wrappers/MultisigV2Order"
 
 const FEE_BASE_EXPIRATION = 2000000000
 const FEE_TEST_NOW = 1760000000

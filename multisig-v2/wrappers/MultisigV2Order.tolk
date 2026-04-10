@@ -1,8 +1,8 @@
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "../../contracts/messages"
-import "../../contracts/types"
+import "../contracts/messages"
+import "../contracts/types"
 
 struct OrderInitData {
     multisigAddress: address

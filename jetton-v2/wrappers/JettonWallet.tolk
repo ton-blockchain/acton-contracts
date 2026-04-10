@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
-import "../../contracts/messages"
-import "../../contracts/types"
+import "../contracts/messages"
+import "../contracts/types"
 
 struct JettonWallet {
     address: address

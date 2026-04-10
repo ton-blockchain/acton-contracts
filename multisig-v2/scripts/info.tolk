@@ -1,7 +1,7 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
-import "../tests/wrappers/MultisigV2"
+import "../wrappers/MultisigV2"
 
 fun main() {
     val multisigAddress: address? = env("MSIG_ADDRESS");

@@ -3,8 +3,8 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "../contracts/messages"
 import "../contracts/types"
-import "../tests/wrappers/MultisigV2"
-import "../tests/wrappers/MultisigV2Order"
+import "../wrappers/MultisigV2"
+import "../wrappers/MultisigV2Order"
 
 const DEFAULT_ORDER_TTL = 1200
 const DEFAULT_TRANSFER_VALUE = ton("0.01")

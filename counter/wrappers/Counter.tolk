@@ -1,6 +1,6 @@
 import "@acton/build/build"
 import "@acton/emulation/network"
-import "../../contracts/types"
+import "../contracts/types"
 
 struct Counter {
     address: address

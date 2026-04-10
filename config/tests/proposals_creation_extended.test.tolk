@@ -4,10 +4,10 @@ import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test_utils"
-import "wrappers/ConfigContract"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../wrappers/ConfigContract"
 
 fun deepCell(depth: int): cell {
     var c = beginCell().storeUint(1, 1).endCell();

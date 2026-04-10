@@ -3,7 +3,7 @@ import "@acton/io"
 import "@acton/crypto/crypto"
 import "@acton/emulation/network"
 import "@acton/types/out_actions"
-import "../tests/wrappers/HighloadWalletV3"
+import "../wrappers/HighloadWalletV3"
 
 const HIGHLOAD_DEFAULT_SUBWALLET_ID = 239
 const HIGHLOAD_DEFAULT_TIMEOUT = 128

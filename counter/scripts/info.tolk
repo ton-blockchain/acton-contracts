@@ -3,7 +3,7 @@ import "@acton/io"
 import "@acton/emulation/network"
 
 import "../contracts/types"
-import "../tests/wrappers/Counter"
+import "../wrappers/Counter"
 
 fun counterDeployValue(): coins {
     return envOr("COUNTER_DEPLOY_VALUE_NANOS", 5000000);

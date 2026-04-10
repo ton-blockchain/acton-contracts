@@ -3,8 +3,8 @@ import "@acton/emulation/network"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/types/message"
-import "../../contracts/messages"
-import "../../contracts/types"
+import "../contracts/messages"
+import "../contracts/types"
 
 struct Elector {
     address: address

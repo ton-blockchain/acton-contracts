@@ -1,7 +1,7 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
-import "../tests/wrappers/JettonMinter"
+import "../wrappers/JettonMinter"
 
 fun main() {
     val walletName = "deployer";

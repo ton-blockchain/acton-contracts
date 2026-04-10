@@ -1,8 +1,8 @@
 import "@acton/build/build"
 import "@acton/emulation/network"
-import "../../contracts/messages"
-import "../../contracts/storage"
-import "../../contracts/types"
+import "../contracts/messages"
+import "../contracts/storage"
+import "../contracts/types"
 
 struct JettonMinter {
     address: address
@@ -31,7 +31,7 @@ fun JettonMinter.sendDiscovery(
 
 fun JettonMinter.fromStorage(storage: MinterStorage) {
     val init = ContractState {
-        code: build("NotcoinMinter"),
+        code: build("JettonMinter"),
         data: storage.toCell(),
     };
     val addr = AutoDeployAddress { stateInit: init }.calculateAddress();

@@ -4,8 +4,8 @@ import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "test_utils"
-import "wrappers/Elector"
 import "../contracts/types"
+import "../wrappers/Elector"
 
 get fun `test election announce not elector`() {
     // Deploy elector with default config (elector address matches config param 1)
