@@ -42,7 +42,7 @@ fun onInternalMessage(in: InMessage) {
         }
 
         val duration = AUCTION_START_DURATION -
-        // acton-disable-next-line divide-before-multiply
+        // check-disable-next-line divide-before-multiply
         (AUCTION_START_DURATION - AUCTION_END_DURATION) * months / 12;
 
         val auctionEndTime = now + duration;
