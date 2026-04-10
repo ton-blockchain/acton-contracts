@@ -26,8 +26,8 @@ fun main() {
     };
     val body = createExternalSignedBody(keyPair, w5SubwalletId(), seqno, actions);
 
-    println1("Sending signed transfer from wallet: {}", wallet.address);
-    println1("Recipient: {}", recipient);
+    println("Sending signed transfer from wallet: {}", wallet.address);
+    println("Recipient: {}", recipient);
 
     val res = wallet.sendExternalSigned(body);
     if (res == null) {
@@ -44,6 +44,6 @@ fun main() {
         return;
     }
 
-    println1("Transfer confirmed, new seqno: {}", wallet.getSeqno());
+    println("Transfer confirmed, new seqno: {}", wallet.getSeqno());
     w5PrintInfo(wallet);
 }

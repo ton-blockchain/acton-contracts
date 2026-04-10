@@ -6,90 +6,90 @@ license = "MIT"
 
 # Counter
 [contracts.Counter]
-name = "Counter"
+display-name = "Counter"
 src = "counter/contracts/Counter.tolk"
 depends = []
 
 # Config
 [contracts.Config]
-name = "Config"
+display-name = "Config"
 src = "config/contracts/Config.tolk"
 depends = []
 
 # Notcoin 
 [contracts.NotcoinMinter]
-name = "NotcoinMinter"
+display-name = "NotcoinMinter"
 src = "notcoin/contracts/NotcoinMinter.tolk"
 depends = []
 
 [contracts.NotcoinWallet]
-name = "NotcoinWallet"
+display-name = "NotcoinWallet"
 src = "notcoin/contracts/NotcoinWallet.tolk"
 depends = []
 
 # Jetton v2
 [contracts.JettonMinter]
-name = "JettonMinter"
+display-name = "JettonMinter"
 src = "jetton-v2/contracts/JettonMinter.tolk"
 depends = [{ name = "JettonWallet", function = "jettonWalletCompiledCode" }]
 
 [contracts.JettonWallet]
-name = "JettonWallet"
+display-name = "JettonWallet"
 src = "jetton-v2/contracts/JettonWallet.tolk"
 depends = []
 
 # DNS
 [contracts.DnsCollection]
-name = "DnsCollection"
+display-name = "DnsCollection"
 src = "dns/contracts/DnsCollection.tolk"
 depends = []
 
 [contracts.DnsItem]
-name = "DnsItem"
+display-name = "DnsItem"
 src = "dns/contracts/DnsItem.tolk"
 depends = []
 
 [contracts.RootDns]
-name = "RootDns"
+display-name = "RootDns"
 src = "dns/contracts/RootDns.tolk"
 depends = []
 
 # Highload v3
 [contracts.HighloadWalletV3]
-name = "HighloadWalletV3"
+display-name = "HighloadWalletV3"
 src = "highload-v3/contracts/HighloadWalletV3.tolk"
 depends = []
 
 # Multisig v2
 [contracts.Multisig]
-name = "Multisig"
+display-name = "Multisig"
 src = "multisig-v2/contracts/Multisig.tolk"
 depends = [{ name = "Order", function = "orderCompiledCode" }]
 
 [contracts.Order]
-name = "Order"
+display-name = "Order"
 src = "multisig-v2/contracts/Order.tolk"
 depends = []
 
 # NFT
 [contracts.NftCollection]
-name = "NftCollection"
+display-name = "NftCollection"
 src = "nft/contracts/NftCollection.tolk"
 depends = ["NftItem"]
 
 [contracts.NftItem]
-name = "NftItem"
+display-name = "NftItem"
 src = "nft/contracts/NftItem.tolk"
 depends = []
 
 # Elector
 [contracts.Elector]
-name = "Elector"
+display-name = "Elector"
 src = "elector/contracts/Elector.tolk"
 
 # W5
 [contracts.WalletV5]
-name = "WalletV5"
+display-name = "WalletV5"
 src = "w5/contracts/WalletV5.tolk"
 depends = []
 

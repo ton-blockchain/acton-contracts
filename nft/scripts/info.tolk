@@ -24,9 +24,9 @@ fun main() {
         ? deployNftItemContract(collection, deployer, deployer.address, itemContent)
         : NftItemContract.fromAddress(itemAddress);
 
-    println1("DEPLOYER_WALLET={}", nftWalletName());
-    println1("COLLECTION_ADDRESS={}", collection.address);
-    println1("ITEM_ADDRESS={}", item.address);
+    println("DEPLOYER_WALLET={}", nftWalletName());
+    println("COLLECTION_ADDRESS={}", collection.address);
+    println("ITEM_ADDRESS={}", item.address);
 
     printNftCollectionInfo(collection, "NFT");
     printNftItemInfo(item, "NFT");

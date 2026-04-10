@@ -44,17 +44,17 @@ fun main() {
         };
     }
 
-    println1("Expected minter address: {}", minter.address);
+    println("Expected minter address: {}", minter.address);
     if (minterAddress == null && !net.isDeployed(minter.address)) {
         val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
-        println1("Deploying local minter for inspection with value {}", deployValue);
+        println("Deploying local minter for inspection with value {}", deployValue);
         val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
         if (!deployRes.wait()) {
             println("Deployment failed");
             return;
         }
     } else if (minterAddress != null && !net.isBroadcasting() && !net.isDeployed(minter.address)) {
-        println1("Minter is not deployed at {}", minter.address);
+        println("Minter is not deployed at {}", minter.address);
         return;
     }
 
@@ -63,24 +63,24 @@ fun main() {
     val wallet = JettonWallet { address: minter.getWalletAddress(ownerAddress) };
     val walletDeployed = net.isDeployed(wallet.address);
 
-    println1("Total supply: {}", data.totalSupply);
-    println1("Mintable: {}", data.mintable);
-    println1("Admin address: {}", data.adminAddress);
+    println("Total supply: {}", data.totalSupply);
+    println("Mintable: {}", data.mintable);
+    println("Admin address: {}", data.adminAddress);
     if (uri == null) {
         println("Metadata URI: <unavailable>");
     } else {
-        println1("Metadata URI: {}", uri);
+        println("Metadata URI: {}", uri);
     }
-    println1("Owner address: {}", ownerAddress);
-    println1("Owner wallet: {}", wallet.address);
+    println("Owner address: {}", ownerAddress);
+    println("Owner wallet: {}", wallet.address);
     if (envOr("JETTON_SHOW_WALLET_DETAILS", 0) == 0) {
         println("Wallet detail getters skipped by default. Set JETTON_SHOW_WALLET_DETAILS=1 to query wallet state.");
         return;
     }
-    println1("Owner wallet deployed: {}", walletDeployed);
+    println("Owner wallet deployed: {}", walletDeployed);
     if (walletDeployed) {
-        println1("Owner wallet balance: {}", wallet.getJettonBalance());
-        println1("Owner wallet status: {}", getWalletStatus(wallet));
+        println("Owner wallet balance: {}", wallet.getJettonBalance());
+        println("Owner wallet status: {}", getWalletStatus(wallet));
     } else {
         println("Owner wallet balance: <unavailable>");
         println("Owner wallet status: <unavailable>");

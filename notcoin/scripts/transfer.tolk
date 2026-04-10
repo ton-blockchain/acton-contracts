@@ -46,7 +46,7 @@ fun main() {
             }
         }
     } else if (!net.isBroadcasting() && !net.isDeployed(minter.address)) {
-        println1("Minter is not deployed at {}", minter.address);
+        println("Minter is not deployed at {}", minter.address);
         return;
     }
 
@@ -54,7 +54,7 @@ fun main() {
     val senderWalletDeployed = net.isDeployed(senderWallet.address);
     val senderBalanceBefore = senderWalletDeployed ? senderWallet.getJettonBalance() : 0 as coins;
     if (!senderWalletDeployed || senderBalanceBefore < transferAmount) {
-        println1("Prefunding sender wallet with {}", prefundMintAmount);
+        println("Prefunding sender wallet with {}", prefundMintAmount);
         val prefundRes = minter.sendMint(
             deployer.address,
             deployer.address,
@@ -68,11 +68,11 @@ fun main() {
         }
     }
 
-    println1("Minter address: {}", minter.address);
-    println1("Sender wallet: {}", senderWallet.address);
-    println1("Sender balance before: {}", senderWallet.getJettonBalance());
-    println1("Transfer recipient: {}", transferRecipient);
-    println1("Transfer amount: {}", transferAmount);
+    println("Minter address: {}", minter.address);
+    println("Sender wallet: {}", senderWallet.address);
+    println("Sender balance before: {}", senderWallet.getJettonBalance());
+    println("Transfer recipient: {}", transferRecipient);
+    println("Transfer amount: {}", transferAmount);
 
     val transferRes = senderWallet.sendTransfer(
         deployer.address,
@@ -91,7 +91,7 @@ fun main() {
 
     val recipientWallet = JettonWallet { address: minter.getWalletAddress(transferRecipient) };
 
-    println1("Sender balance after: {}", senderWallet.getJettonBalance());
-    println1("Recipient wallet: {}", recipientWallet.address);
-    println1("Recipient balance: {}", recipientWallet.getJettonBalance());
+    println("Sender balance after: {}", senderWallet.getJettonBalance());
+    println("Recipient wallet: {}", recipientWallet.address);
+    println("Recipient balance: {}", recipientWallet.getJettonBalance());
 }

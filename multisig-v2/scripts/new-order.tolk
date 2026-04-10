@@ -22,7 +22,7 @@ fun main() {
     val deployer = net.wallet("deployer");
     val multisig = MultisigV2.fromAddress(multisigAddress!);
     if (!net.isDeployed(multisig.address)) {
-        println1("Multisig is not deployed in the current execution context: {}", multisig.address);
+        println("Multisig is not deployed in the current execution context: {}", multisig.address);
         return;
     }
 
@@ -44,7 +44,7 @@ fun main() {
         dataBefore.nextOrderSeqno != -1 && orderSeqnoEnv != null &&
         orderSeqnoEnv! != dataBefore.nextOrderSeqno
     ) {
-        println2(
+        println(
             "Sequential multisig expects next order seqno {}, not {}",
             dataBefore.nextOrderSeqno,
             orderSeqnoEnv!,
@@ -74,7 +74,7 @@ fun main() {
     val estimatedOrderValue = multisig.getOrderEstimate(order, expirationDate);
     val orderValue: int = env("MSIG_ORDER_VALUE") ?? estimatedOrderValue;
     if (orderValue < estimatedOrderValue) {
-        println2(
+        println(
             "MSIG_ORDER_VALUE {} is below estimated minimum {}",
             orderValue,
             estimatedOrderValue,
@@ -85,12 +85,12 @@ fun main() {
     val orderContract = MultisigV2Order.fromAddress(multisig.getOrderAddress(expectedOrderSeqno));
 
     println("Using wallet: deployer");
-    println1("Target multisig: {}", multisig.address);
-    println1("Transfer target: {}", target!);
-    println1("Expected order seqno: {}", expectedOrderSeqno);
-    println1("Expected order address: {}", orderContract.address);
-    println1("Estimated order funding value: {}", estimatedOrderValue);
-    println1("Order funding value: {}", orderValue);
+    println("Target multisig: {}", multisig.address);
+    println("Transfer target: {}", target!);
+    println("Expected order seqno: {}", expectedOrderSeqno);
+    println("Expected order address: {}", orderContract.address);
+    println("Estimated order funding value: {}", estimatedOrderValue);
+    println("Order funding value: {}", orderValue);
 
     val result = multisig.sendNewOrder(
         deployer.address,
@@ -110,16 +110,16 @@ fun main() {
     val dataAfter = multisig.getData();
     val orderData = orderContract.getData();
 
-    println1("New order submitted for {}", target!);
-    println1("Order initialized: {}", orderData.isInitialized());
-    println1("Order approvals: {}", orderData.approvalsNum);
-    println1("Order sent for execution: {}", orderData.sentForExecution);
-    println1("Order expiration date: {}", orderData.expirationDate);
+    println("New order submitted for {}", target!);
+    println("Order initialized: {}", orderData.isInitialized());
+    println("Order approvals: {}", orderData.approvalsNum);
+    println("Order sent for execution: {}", orderData.sentForExecution);
+    println("Order expiration date: {}", orderData.expirationDate);
 
     if (dataAfter.nextOrderSeqno == -1) {
         println("Order seqno mode: arbitrary");
     } else {
-        println1("Next order seqno: {}", dataAfter.nextOrderSeqno);
-        println1("Next order address: {}", multisig.getOrderAddress(dataAfter.nextOrderSeqno));
+        println("Next order seqno: {}", dataAfter.nextOrderSeqno);
+        println("Next order address: {}", multisig.getOrderAddress(dataAfter.nextOrderSeqno));
     }
 }

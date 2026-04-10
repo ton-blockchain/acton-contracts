@@ -21,12 +21,12 @@ fun main() {
 
     val item = NftItemContract.fromAddress(itemAddress!);
     if (!net.isDeployed(item.address)) {
-        println1("Item is not deployed in the current execution context: {}", item.address);
+        println("Item is not deployed in the current execution context: {}", item.address);
         return;
     }
 
     println("Using wallet: deployer-2");
-    println1("Managing item: {}", item.address);
+    println("Managing item: {}", item.address);
 
     if (dnsNameValue == null && walletRecordAddress == null && newOwner == null) {
         println("No changes requested. Set DNS_NAME_VALUE, DNS_WALLET_ADDRESS, or DNS_NEW_OWNER.");
@@ -47,7 +47,7 @@ fun main() {
                 println("Name record update was not confirmed");
                 return;
             }
-            println1("Updated dns_name record to {}", dnsNameValue!);
+            println("Updated dns_name record to {}", dnsNameValue!);
         }
 
         if (walletRecordAddress != null) {
@@ -63,7 +63,7 @@ fun main() {
                 println("Wallet record update was not confirmed");
                 return;
             }
-            println1("Updated wallet record to {}", walletRecordAddress!);
+            println("Updated wallet record to {}", walletRecordAddress!);
         }
 
         if (newOwner != null) {
@@ -83,20 +83,20 @@ fun main() {
                 println("Ownership transfer was not confirmed");
                 return;
             }
-            println1("Transferred ownership to {}", newOwner!);
+            println("Transferred ownership to {}", newOwner!);
         }
     }
 
     val data = item.getNftData();
 
-    println1("Item address: {}", item.address);
-    println1("Initialized: {}", data.isInitialized);
-    println1("Owner: {}", data.ownerAddress);
+    println("Item address: {}", item.address);
+    println("Initialized: {}", data.isInitialized);
+    println("Owner: {}", data.ownerAddress);
 
     if (data.isInitialized) {
-        println1("Editor: {}", item.getEditor());
-        println1("Last fill up time: {}", item.getLastFillUpTime());
-        println1(
+        println("Editor: {}", item.getEditor());
+        println("Last fill up time: {}", item.getLastFillUpTime());
+        println(
             "Wallet record present: {}",
             item.dnsresolve(makeDotSlice(), "wallet".toBase256()).resolvedRecord != null,
         );

@@ -24,10 +24,10 @@ fun main() {
     val multisig = MultisigV2.fromConfig(1, signers, proposers, allowArbitraryOrderSeqno);
 
     println("Using wallet: deployer");
-    println1("Prepared multisig address: {}", multisig.address);
+    println("Prepared multisig address: {}", multisig.address);
 
     if (net.isDeployed(multisig.address)) {
-        println1(
+        println(
             "Multisig is already deployed in the current execution context: {}",
             multisig.address,
         );
@@ -37,7 +37,7 @@ fun main() {
             println("Multisig deployment was not confirmed");
             return;
         }
-        println1("Multisig deployed at {}", multisig.address);
+        println("Multisig deployed at {}", multisig.address);
     }
 
     val data = multisig.getData();
@@ -58,15 +58,15 @@ fun main() {
         proposerItems = proposersMap.iterateNext(proposerItems);
     }
 
-    println1("MSIG_ADDRESS={}", multisig.address);
-    println1("Threshold: {}", data.threshold);
-    println1("Signers: {}", signerCount);
-    println1("Proposers: {}", proposerCount);
+    println("MSIG_ADDRESS={}", multisig.address);
+    println("Threshold: {}", data.threshold);
+    println("Signers: {}", signerCount);
+    println("Proposers: {}", proposerCount);
 
     if (data.nextOrderSeqno == -1) {
         println("Order seqno mode: arbitrary");
     } else {
-        println1("Next order seqno: {}", data.nextOrderSeqno);
-        println1("Next order address: {}", multisig.getOrderAddress(data.nextOrderSeqno));
+        println("Next order seqno: {}", data.nextOrderSeqno);
+        println("Next order address: {}", multisig.getOrderAddress(data.nextOrderSeqno));
     }
 }

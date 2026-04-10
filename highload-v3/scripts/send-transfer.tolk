@@ -33,7 +33,7 @@ fun main() {
     val keyPair = crypto.seedToKeyPair(seed!);
     val walletFromConfig = HighloadWalletV3.fromConfig(keyPair.publicKey, subwalletId, timeout);
     if (walletFromConfig.address != walletAddress!) {
-        println1(
+        println(
             "Configured wallet address does not match derived config: {}",
             walletFromConfig.address,
         );
@@ -42,12 +42,12 @@ fun main() {
 
     val wallet = HighloadWalletV3.fromAddress(walletAddress!);
     if (!net.isDeployed(wallet.address)) {
-        println1("Wallet is not deployed in the current execution context: {}", wallet.address);
+        println("Wallet is not deployed in the current execution context: {}", wallet.address);
         return;
     }
 
     if (wallet.isProcessed(queryId!, false)) {
-        println2("Query id {} is already processed for wallet {}", queryId!, wallet.address);
+        println("Query id {} is already processed for wallet {}", queryId!, wallet.address);
         return;
     }
 
@@ -73,10 +73,10 @@ fun main() {
         });
     }
 
-    println1("Sending highload batch from {}", wallet.address);
-    println1("Recipient 1: {}", recipient1!);
+    println("Sending highload batch from {}", wallet.address);
+    println("Recipient 1: {}", recipient1!);
     if (recipient2 != null) {
-        println1("Recipient 2: {}", recipient2!);
+        println("Recipient 2: {}", recipient2!);
     }
 
     val sendResult = wallet.sendBatch(
@@ -93,9 +93,9 @@ fun main() {
         return;
     }
 
-    println1("Batch confirmed for query id {}", queryId!);
-    println1("Last clean time: {}", wallet.getLastCleanTime());
-    println2(
+    println("Batch confirmed for query id {}", queryId!);
+    println("Last clean time: {}", wallet.getLastCleanTime());
+    println(
         "processed?(queryId={}, needClean=false): {}",
         queryId!,
         wallet.isProcessed(queryId!, false),

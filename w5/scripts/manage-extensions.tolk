@@ -12,8 +12,8 @@ fun main() {
     val extension = envOr("W5_EXTENSION", deployer.address);
     val value = w5AdminValue();
 
-    println1("Managing extensions for wallet: {}", wallet.address);
-    println1("Extension address: {}", extension);
+    println("Managing extensions for wallet: {}", wallet.address);
+    println("Extension address: {}", extension);
 
     var seqno = wallet.getSeqno();
 
@@ -25,7 +25,7 @@ fun main() {
         println("Failed to add extension");
         return;
     }
-    println1("Extension added, seqno is now {}", wallet.getSeqno());
+    println("Extension added, seqno is now {}", wallet.getSeqno());
 
     var extensionActions: array<ExtraAction> = [];
     extensionActions.push(SetSignatureAllowedExtraAction { allowSignature: false });
@@ -38,7 +38,7 @@ fun main() {
         println("Failed to disable signatures from extension");
         return;
     }
-    println1("Signature mode disabled, allowed? {}", wallet.isSignatureAllowed());
+    println("Signature mode disabled, allowed? {}", wallet.isSignatureAllowed());
 
     extensionActions = [];
     extensionActions.push(SetSignatureAllowedExtraAction { allowSignature: true });
@@ -51,7 +51,7 @@ fun main() {
         println("Failed to re-enable signatures from extension");
         return;
     }
-    println1("Signature mode restored, allowed? {}", wallet.isSignatureAllowed());
+    println("Signature mode restored, allowed? {}", wallet.isSignatureAllowed());
 
     seqno = wallet.getSeqno();
     var removeActions: array<ExtraAction> = [];
@@ -63,6 +63,6 @@ fun main() {
         return;
     }
 
-    println1("Extension removed, final seqno: {}", wallet.getSeqno());
+    println("Extension removed, final seqno: {}", wallet.getSeqno());
     w5PrintInfo(wallet);
 }
