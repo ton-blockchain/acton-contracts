@@ -3,7 +3,7 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "../contracts/storage"
-import "../tests/test_utils"
+import "../tests/test-utils"
 import "../wrappers/DnsItem"
 
 fun main() {

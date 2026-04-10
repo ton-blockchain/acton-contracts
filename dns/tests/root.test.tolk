@@ -1,6 +1,6 @@
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "test_utils"
+import "test-utils"
 import "../contracts/dns-utils"
 import "../wrappers/DnsRoot"
 
