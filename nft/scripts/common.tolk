@@ -4,8 +4,8 @@ import "@acton/build/build"
 import "@acton/emulation/network"
 import "../contracts/messages"
 import "../contracts/types"
-import "../tests/wrappers/NftCollectionContract"
-import "../tests/wrappers/NftItemContract"
+import "../wrappers/NftCollectionContract"
+import "../wrappers/NftItemContract"
 
 const NFT_DEFAULT_COLLECTION_METADATA_URI = "https://example.com/nft/collection.json"
 const NFT_DEFAULT_COMMON_CONTENT = "https://example.com/nft/"
@@ -40,7 +40,7 @@ fun makeNftCollectionStorage(admin: address, collectionMetadataUri: string): Nft
             collectionMetadata: makeNftCollectionMetadataCell(collectionMetadataUri),
             commonContent: NFT_DEFAULT_COMMON_CONTENT,
         }.toCell(),
-        nftItemCode: build("nft_item"),
+        nftItemCode: build("NftItem"),
         royaltyParams: RoyaltyParams {
             numerator: 5,
             denominator: 100,
@@ -116,14 +116,14 @@ fun deployNftBatch(
 fun printNftCollectionInfo(collection: NftCollectionContract, label: string) {
     val data = collection.getCollectionData();
     val royalty = collection.royaltyParams();
-    println2("{} COLLECTION_ADDRESS={}", label, collection.address);
-    println2("{} ADMIN_ADDRESS={}", label, data.adminAddress);
-    println2("{} NEXT_ITEM_INDEX={}", label, data.nextItemIndex);
-    println2("{} COLLECTION_METADATA_HASH={}", label, data.collectionMetadata.hash());
-    println2("{} ROYALTY_ADDRESS={}", label, royalty.royaltyAddress);
-    println2("{} ROYALTY_NUMERATOR={}", label, royalty.numerator);
-    println2("{} ROYALTY_DENOMINATOR={}", label, royalty.denominator);
-    println2(
+    println("{} COLLECTION_ADDRESS={}", label, collection.address);
+    println("{} ADMIN_ADDRESS={}", label, data.adminAddress);
+    println("{} NEXT_ITEM_INDEX={}", label, data.nextItemIndex);
+    println("{} COLLECTION_METADATA_HASH={}", label, data.collectionMetadata.hash());
+    println("{} ROYALTY_ADDRESS={}", label, royalty.royaltyAddress);
+    println("{} ROYALTY_NUMERATOR={}", label, royalty.numerator);
+    println("{} ROYALTY_DENOMINATOR={}", label, royalty.denominator);
+    println(
         "{} NFT_CONTENT_HASH={}",
         label,
         collection.getNftContent(0, NFT_DEFAULT_ITEM_CONTENT).hash(),
@@ -132,10 +132,10 @@ fun printNftCollectionInfo(collection: NftCollectionContract, label: string) {
 
 fun printNftItemInfo(item: NftItemContract, label: string) {
     val data = item.getNftData();
-    println2("{} ITEM_ADDRESS={}", label, item.address);
-    println2("{} INITIALIZED={}", label, data.isInitialized);
-    println2("{} INDEX={}", label, data.itemIndex);
-    println2("{} COLLECTION_ADDRESS={}", label, data.collectionAddress);
-    println2("{} OWNER_ADDRESS={}", label, data.ownerAddress);
-    println2("{} CONTENT={}", label, data.content);
+    println("{} ITEM_ADDRESS={}", label, item.address);
+    println("{} INITIALIZED={}", label, data.isInitialized);
+    println("{} INDEX={}", label, data.itemIndex);
+    println("{} COLLECTION_ADDRESS={}", label, data.collectionAddress);
+    println("{} OWNER_ADDRESS={}", label, data.ownerAddress);
+    println("{} CONTENT={}", label, data.content);
 }

@@ -1,7 +1,7 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
-import "../tests/wrappers/HighloadWalletV3"
+import "../wrappers/HighloadWalletV3"
 
 fun main() {
     val walletAddress: address? = env("HIGHLOAD_WALLET_ADDRESS");
@@ -15,16 +15,16 @@ fun main() {
     val wallet = HighloadWalletV3.fromAddress(walletAddress!);
 
     if (!net.isDeployed(wallet.address)) {
-        println1("Wallet is not deployed in the current execution context: {}", wallet.address);
+        println("Wallet is not deployed in the current execution context: {}", wallet.address);
         return;
     }
 
-    println1("Highload wallet address: {}", wallet.address);
-    println1("Public key: {}", wallet.getPublicKey());
-    println1("Subwallet id: {}", wallet.getSubwalletId());
-    println1("Timeout: {}", wallet.getTimeout());
-    println1("Last clean time: {}", wallet.getLastCleanTime());
-    println2(
+    println("Highload wallet address: {}", wallet.address);
+    println("Public key: {}", wallet.getPublicKey());
+    println("Subwallet id: {}", wallet.getSubwalletId());
+    println("Timeout: {}", wallet.getTimeout());
+    println("Last clean time: {}", wallet.getLastCleanTime());
+    println(
         "processed?(queryId={}, needClean=false): {}",
         queryId,
         wallet.isProcessed(queryId, false),

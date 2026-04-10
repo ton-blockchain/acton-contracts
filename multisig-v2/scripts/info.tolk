@@ -1,7 +1,7 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
-import "../tests/wrappers/MultisigV2"
+import "../wrappers/MultisigV2"
 
 fun main() {
     val multisigAddress: address? = env("MSIG_ADDRESS");
@@ -13,7 +13,7 @@ fun main() {
 
     val multisig = MultisigV2.fromAddress(multisigAddress!);
     if (!net.isDeployed(multisig.address)) {
-        println1("Multisig is not deployed in the current execution context: {}", multisig.address);
+        println("Multisig is not deployed in the current execution context: {}", multisig.address);
         return;
     }
 
@@ -35,27 +35,27 @@ fun main() {
         proposerItems = proposers.iterateNext(proposerItems);
     }
 
-    println1("Multisig address: {}", multisig.address);
-    println1("Threshold: {}", data.threshold);
-    println1("Signers: {}", signerCount);
-    println1("Proposers: {}", proposerCount);
+    println("Multisig address: {}", multisig.address);
+    println("Threshold: {}", data.threshold);
+    println("Signers: {}", signerCount);
+    println("Proposers: {}", proposerCount);
 
     if (data.nextOrderSeqno == -1) {
         println("Order seqno mode: arbitrary");
     } else {
-        println1("Next order seqno: {}", data.nextOrderSeqno);
-        println1("Next order address: {}", multisig.getOrderAddress(data.nextOrderSeqno));
+        println("Next order seqno: {}", data.nextOrderSeqno);
+        println("Next order address: {}", multisig.getOrderAddress(data.nextOrderSeqno));
     }
 
     signerItems = signers.findFirst();
     while (signerItems.isFound) {
-        println2("signer[{}]: {}", signerItems.getKey(), signerItems.loadValue());
+        println("signer[{}]: {}", signerItems.getKey(), signerItems.loadValue());
         signerItems = signers.iterateNext(signerItems);
     }
 
     proposerItems = proposers.findFirst();
     while (proposerItems.isFound) {
-        println2("proposer[{}]: {}", proposerItems.getKey(), proposerItems.loadValue());
+        println("proposer[{}]: {}", proposerItems.getKey(), proposerItems.loadValue());
         proposerItems = proposers.iterateNext(proposerItems);
     }
 }

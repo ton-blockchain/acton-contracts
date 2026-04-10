@@ -5,7 +5,7 @@ import "@acton/crypto/crypto"
 import "@acton/emulation/network"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../tests/wrappers/WalletV5Contract"
+import "../wrappers/WalletV5Contract"
 
 const W5_DEFAULT_SEED = 0x2222222222222222222222222222222222222222222222222222222222222222
 const W5_DEFAULT_SUBWALLET_ID = 0
@@ -101,16 +101,16 @@ fun w5BuildSignedActions(
 
 fun w5PrintInfo(wallet: WalletV5Contract) {
     val extensions = wallet.getExtensionsArray();
-    println1("Wallet v5 address: {}", wallet.address);
-    println1("Seqno: {}", wallet.getSeqno());
-    println1("Public key: {}", wallet.getPublicKey());
-    println1("Subwallet id: {}", wallet.getSubwalletId());
-    println1("Signature allowed: {}", wallet.isSignatureAllowed());
-    println1("Extensions count: {}", extensions.size());
+    println("Wallet v5 address: {}", wallet.address);
+    println("Seqno: {}", wallet.getSeqno());
+    println("Public key: {}", wallet.getPublicKey());
+    println("Subwallet id: {}", wallet.getSubwalletId());
+    println("Signature allowed: {}", wallet.isSignatureAllowed());
+    println("Extensions count: {}", extensions.size());
 
     var i = 0;
     while (i < extensions.size()) {
-        println2("Extension[{}]: {}", i, extensions.get(i));
+        println("Extension[{}]: {}", i, extensions.get(i));
         i += 1;
     }
 }

@@ -3,8 +3,8 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "common"
-import "../tests/wrappers/NftCollectionContract"
-import "../tests/wrappers/NftItemContract"
+import "../wrappers/NftCollectionContract"
+import "../wrappers/NftItemContract"
 
 fun main() {
     val deployer = nftWallet();
@@ -32,11 +32,11 @@ fun main() {
         ? deployNftItemContract(collection, deployer, deployer.address, itemContent)
         : NftItemContract.fromAddress(itemAddress);
 
-    println1("DEPLOYER_WALLET={}", nftWalletName());
-    println1("COLLECTION_ADDRESS={}", collection.address);
-    println1("ITEM_ADDRESS={}", item.address);
-    println1("NFT_NEW_ADMIN_ADDRESS={}", newAdmin);
-    println1("NFT_NEW_OWNER_ADDRESS={}", newOwner);
+    println("DEPLOYER_WALLET={}", nftWalletName());
+    println("COLLECTION_ADDRESS={}", collection.address);
+    println("ITEM_ADDRESS={}", item.address);
+    println("NFT_NEW_ADMIN_ADDRESS={}", newAdmin);
+    println("NFT_NEW_OWNER_ADDRESS={}", newOwner);
 
     val batchRes = deployNftBatch(collection, deployer, batchOwner, batchCount);
     batchRes.wait();

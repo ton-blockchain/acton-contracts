@@ -2,8 +2,8 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "common"
-import "../tests/wrappers/NftCollectionContract"
-import "../tests/wrappers/NftItemContract"
+import "../wrappers/NftCollectionContract"
+import "../wrappers/NftItemContract"
 
 fun main() {
     val deployer = nftWallet();
@@ -24,9 +24,9 @@ fun main() {
         ? deployNftItemContract(collection, deployer, deployer.address, itemContent)
         : NftItemContract.fromAddress(itemAddress);
 
-    println1("DEPLOYER_WALLET={}", nftWalletName());
-    println1("COLLECTION_ADDRESS={}", collection.address);
-    println1("ITEM_ADDRESS={}", item.address);
+    println("DEPLOYER_WALLET={}", nftWalletName());
+    println("COLLECTION_ADDRESS={}", collection.address);
+    println("ITEM_ADDRESS={}", item.address);
 
     printNftCollectionInfo(collection, "NFT");
     printNftItemInfo(item, "NFT");

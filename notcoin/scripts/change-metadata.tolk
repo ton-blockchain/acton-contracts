@@ -3,7 +3,7 @@ import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "../contracts/types"
-import "../tests/wrappers/JettonMinter"
+import "../wrappers/JettonMinter"
 
 fun metadataUriFromContent(contentCell: cell): string? {
     val metadata = OnchainMetadataReply.fromCell(contentCell);
@@ -30,7 +30,7 @@ fun main() {
     val expectedMinter = JettonMinter.fromStorage({
         totalSupply: initialSupply,
         adminAddress: deployer.address,
-        jettonWalletCode: build("notcoin_wallet"),
+        jettonWalletCode: build("NotcoinWallet"),
         metadataUri,
         nextAdminAddress: null,
     });
@@ -52,19 +52,19 @@ fun main() {
             }
         }
     } else if (!net.isBroadcasting() && !net.isDeployed(minter.address)) {
-        println1("Minter is not deployed at {}", minter.address);
+        println("Minter is not deployed at {}", minter.address);
         return;
     }
 
-    println1("Minter address: {}", minter.address);
+    println("Minter address: {}", minter.address);
 
     val oldUri = metadataUriFromContent(minter.getContent());
     if (oldUri == null) {
         println("Current metadata URI: <unavailable>");
     } else {
-        println1("Current metadata URI: {}", oldUri);
+        println("Current metadata URI: {}", oldUri);
     }
-    println1("New metadata URI: {}", newMetadataUri);
+    println("New metadata URI: {}", newMetadataUri);
 
     val changeRes = minter.sendChangeMetadata(deployer.address, newMetadataUri);
     if (!changeRes.wait()) {
@@ -76,6 +76,6 @@ fun main() {
     if (updatedUri == null) {
         println("Updated metadata URI: <unavailable>");
     } else {
-        println1("Updated metadata URI: {}", updatedUri);
+        println("Updated metadata URI: {}", updatedUri);
     }
 }

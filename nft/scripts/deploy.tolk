@@ -16,10 +16,10 @@ fun main() {
     val batchOwner = batchOwnerMaybe == null ? owner : batchOwnerMaybe;
     val batchCount = envOr("NFT_BATCH_COUNT", 3);
 
-    println1("DEPLOYER_WALLET={}", nftWalletName());
-    println1("NFT_COLLECTION_METADATA_URI={}", collectionMetadataUri);
-    println1("NFT_ITEM_CONTENT={}", singleContent);
-    println1("NFT_BATCH_COUNT={}", batchCount);
+    println("DEPLOYER_WALLET={}", nftWalletName());
+    println("NFT_COLLECTION_METADATA_URI={}", collectionMetadataUri);
+    println("NFT_ITEM_CONTENT={}", singleContent);
+    println("NFT_BATCH_COUNT={}", batchCount);
 
     val collection = deployNftCollectionContract(deployer, collectionMetadataUri);
     val item = deployNftItemContract(collection, deployer, owner, singleContent);
