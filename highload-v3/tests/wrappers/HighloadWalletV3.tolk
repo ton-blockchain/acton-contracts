@@ -30,7 +30,7 @@ fun HighloadWalletV3.fromStorage(
     toShard: AddressShardingOptions? = null,
 ) {
     val stateInit = ContractState {
-        code: build("highload_wallet_v3"),
+        code: build("HighloadWalletV3"),
         data: storage.toCell(),
     };
     val cAddress = toShard == null

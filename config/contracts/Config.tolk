@@ -6,7 +6,7 @@ import "errors"
 import "messages"
 import "storage"
 
-contract ConfigContract {
+contract Config {
     author: "The Tolk Team"
     version: "1.0.0"
     description: "TON Config contract. Manages network configuration parameters"

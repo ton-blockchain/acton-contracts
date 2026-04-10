@@ -1,6 +1,6 @@
 import "types"
 
-contract CounterContract {
+contract Counter {
     author: "The Tolk Team"
     version: "1.0.0"
     description: "Simple counter. Example contract for learning Tolk"

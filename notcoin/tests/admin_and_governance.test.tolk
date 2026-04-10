@@ -17,7 +17,7 @@ get fun `test admin: deploy should create minter without bounce`() {
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: 0,
         adminAddress: deployer.address,
-        jettonWalletCode: build("notcoin_wallet"),
+        jettonWalletCode: build("NotcoinWallet"),
         metadataUri: "link",
         nextAdminAddress: null,
     });
@@ -245,10 +245,10 @@ get fun `test admin: non-admin should not be able to upgrade minter`() {
         totalSupply: minter.getTotalSupply(),
         adminAddress: deployer.address,
         nextAdminAddress: null,
-        jettonWalletCode: build("notcoin_wallet"),
+        jettonWalletCode: build("NotcoinWallet"),
         metadataUri: "meta",
     }.toCell();
-    val newCode = build("notcoin_minter");
+    val newCode = build("NotcoinMinter");
 
     val res = minter.sendUpgrade(notDeployer.address, newCode, newData);
     expect(res).toHaveFailedTx<UpgradeMinterCode>({
@@ -265,10 +265,10 @@ get fun `test admin: admin should be able to upgrade minter`() {
         totalSupply: ton("99"),
         adminAddress: deployer.address,
         nextAdminAddress: null,
-        jettonWalletCode: build("notcoin_wallet"),
+        jettonWalletCode: build("NotcoinWallet"),
         metadataUri: "meta2",
     }.toCell();
-    val newCode = build("notcoin_minter");
+    val newCode = build("NotcoinMinter");
 
     val res = minter.sendUpgrade(deployer.address, newCode, newData);
     expect(res).toHaveSuccessfulTx<UpgradeMinterCode>({

@@ -32,7 +32,7 @@ fun MultisigV2Order.fromConfig(
     toShard: AddressShardingOptions? = null,
 ) {
     val stateInit = ContractState {
-        code: build("multisig_v2_order"),
+        code: build("Order"),
         data: OrderInitData { multisigAddress, orderSeqno }.toCell(),
     };
 

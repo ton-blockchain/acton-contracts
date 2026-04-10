@@ -91,7 +91,7 @@ fun userWallet(minter: JettonMinter, userAddress: address): JettonWallet {
 
 fun walletStateInit(storage: WalletStorage): ContractState {
     return ContractState {
-        code: build("jetton_v2_wallet"),
+        code: build("JettonWallet"),
         data: storage.toCell(),
     };
 }
@@ -105,7 +105,7 @@ fun deployWalletFromStorage(
         ? calcDeployedJettonWallet(
             storage.ownerAddress,
             storage.minterAddress,
-            build("jetton_v2_wallet"),
+            build("JettonWallet"),
         )
         : AutoDeployAddress { stateInit: walletStateInit(storage) };
     val address = init.calculateAddress();

@@ -13,7 +13,7 @@ struct ConfigContract {
 
 fun ConfigContract.fromStorage(storage: Storage, toShard: AddressShardingOptions? = null) {
     val stateInit = ContractState {
-        code: build("config"),
+        code: build("Config"),
         data: storage.toCell(),
     };
     val cAddress = toShard == null

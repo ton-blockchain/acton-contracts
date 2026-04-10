@@ -11,7 +11,7 @@ struct RootDnsContract {
 /// Creates a contract wrapper instance from the storage data
 fun RootDnsContract.fromStorage(storage: RootDnsStorage, toShard: AddressShardingOptions? = null) {
     val stateInit = ContractState {
-        code: build("dns_root"),
+        code: build("RootDns"),
         data: storage.toCell(),
     };
     val address = toShard == null

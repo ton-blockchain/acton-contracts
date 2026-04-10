@@ -23,7 +23,7 @@ fun NftItemContract.fromStorage(
     toShard: AddressShardingOptions? = null,
 ) {
     val stateInit = ContractState {
-        code: build("dns_item"),
+        code: build("DnsItem"),
         data: storage.toCell(),
     };
     val address = toShard == null

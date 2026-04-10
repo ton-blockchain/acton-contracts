@@ -7,7 +7,7 @@ import "messages"
 import "types"
 import "utils"
 
-contract ElectorContract {
+contract Elector {
     author: "The Tolk Team"
     version: "1.0.0"
     description: "TON Elector contract. Manages validator elections and stakes"
@@ -430,7 +430,7 @@ fun tryElect(
     }
 
     // Extract all entries from sorted dict into a list (descending stake order)
-    // findKeyGreater iterates ascending; prependHead reverses → descending
+    // findKeyGreater iterates ascending; prependHead reverses -> descending
     var l: lisp_list<array<int>> = [];
     var prevKey = SortKey {
         stake: 0,

@@ -788,7 +788,7 @@ get fun `test mutation: minter should report mintable and emit set-code action o
         nextAdminAddress: null,
         metadataUri: upgradedUri,
     }.toCell();
-    val newCode = build("jetton_v2_minter");
+    val newCode = build("JettonMinter");
 
     val res = minter.sendUpgrade(deployer.address, newCode, newData);
     expect(res).toHaveSuccessfulTx<UpgradeMinterCode>({

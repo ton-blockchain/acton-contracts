@@ -91,7 +91,7 @@ fun userWallet(minter: JettonMinter, userAddress: address): JettonWallet {
 
 fun walletStateInit(storage: WalletStorage): ContractState {
     return ContractState {
-        code: build("notcoin_wallet"),
+        code: build("NotcoinWallet"),
         data: storage.toCell(),
     };
 }
@@ -105,7 +105,7 @@ fun deployWalletFromStorage(
         ? calcDeployedJettonWallet(
             storage.ownerAddress,
             storage.minterAddress,
-            build("notcoin_wallet"),
+            build("NotcoinWallet"),
         )
         : AutoDeployAddress { stateInit: walletStateInit(storage) };
     val address = init.calculateAddress();
@@ -202,7 +202,7 @@ fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: initialSupply,
         adminAddress: deployer.address,
-        jettonWalletCode: build("notcoin_wallet"),
+        jettonWalletCode: build("NotcoinWallet"),
         metadataUri: "link",
         nextAdminAddress: null,
     });

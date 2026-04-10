@@ -15,7 +15,7 @@ fun main() {
 
     val collection = NftCollectionContract.fromStorage(CollectionStorage {
         content: collectionUri.prefixWith01().toCell(),
-        nftItemCode: build("dns_item"),
+        nftItemCode: build("DnsItem"),
     });
 
     println("Using wallet: deployer-2");

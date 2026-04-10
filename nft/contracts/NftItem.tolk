@@ -3,7 +3,7 @@ import "fees-management"
 import "messages"
 import "types"
 
-contract NftItemContract {
+contract NftItem {
     author: "The Tolk Team"
     version: "1.0.0"
     description: "Standard NFT Item. TEP-62 and TEP-64 compliant"

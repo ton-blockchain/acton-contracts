@@ -29,7 +29,7 @@ struct FeeContext {
 
 fun setupFeeContext(): FeeContext {
     net.setNow(FEE_TEST_NOW);
-    vm.registerLibrary(build("multisig_v2_order"));
+    vm.registerLibrary(build("Order"));
 
     val deployer = net.treasury("fee_deployer");
     val second = net.treasury("fee_second");
@@ -355,7 +355,7 @@ fun runCommonCase(
     signerCreates: bool,
 ): SendResultList {
     net.setNow(FEE_TEST_NOW);
-    vm.registerLibrary(build("multisig_v2_order"));
+    vm.registerLibrary(build("Order"));
 
     val deployer = net.treasury("fee_case_deployer");
     val proposer = net.treasury("fee_case_proposer");

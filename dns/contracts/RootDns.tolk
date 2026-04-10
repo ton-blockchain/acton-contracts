@@ -2,7 +2,7 @@ import "dns-utils"
 import "errors"
 import "storage"
 
-contract RootDnsContract {
+contract RootDns {
     author: "The Tolk Team"
     version: "1.0.0"
     description: "Root DNS resolver. Entry point for TON DNS resolution"

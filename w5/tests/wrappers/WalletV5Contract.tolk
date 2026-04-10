@@ -20,7 +20,7 @@ struct WalletV5Contract {
 
 // Deploys code as a library and returns library cell
 fun WalletV5Contract.deployCodeLib(): cell {
-    val realCode = build("w5");
+    val realCode = build("WalletV5");
     vm.registerLibrary(realCode);
     return realCode.toLibraryReference();
 }

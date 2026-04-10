@@ -34,7 +34,7 @@ fun main() {
     val adminWallet = JettonWallet { address: minter.getWalletAddress(deployer.address) };
     val adminWalletDeployed = net.isDeployed(adminWallet.address);
 
-    println1("Deployed jetton_v2_minter at {}", minter.address);
+    println1("Deployed JettonMinter at {}", minter.address);
     println1("JETTON_MINTER_ADDRESS={}", minter.address);
     println1("MINTER_ADDRESS={}", minter.address);
     println1("Admin: {}", deployer.address);

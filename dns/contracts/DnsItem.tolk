@@ -4,7 +4,7 @@ import "errors"
 import "messages"
 import "storage"
 
-contract DnsItemContract {
+contract DnsItem {
     author: "The Tolk Team"
     version: "1.0.0"
     description: "DNS NFT Item. Domain name with auction support"

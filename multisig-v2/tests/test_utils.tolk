@@ -72,7 +72,7 @@ fun setupMultisig(
     allowArbitraryOrderSeqno: bool = false,
 ): MultisigTestContext {
     net.setNow(1000);
-    vm.registerLibrary(build("multisig_v2_order"));
+    vm.registerLibrary(build("Order"));
 
     val deployer = net.treasury("msig_deployer");
     val proposer = net.treasury("msig_proposer");

@@ -78,7 +78,7 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
     assert (signerCount >= 2) throw 9401;
 
     net.setNow(PROBE_NOW);
-    vm.registerLibrary(build("multisig_v2_order"));
+    vm.registerLibrary(build("Order"));
 
     val signer0 = signerCount > 10
         ? net.treasury("fee_probe_s0_jumbo")

@@ -39,7 +39,7 @@ fun toIndexedAddressMap(addresses: array<address>): IndexedAddressMap {
 
 fun MultisigV2.fromStorage(storage: MultisigStorage, toShard: AddressShardingOptions? = null) {
     val stateInit = ContractState {
-        code: build("multisig_v2"),
+        code: build("Multisig"),
         data: storage.toCell(),
     };
 

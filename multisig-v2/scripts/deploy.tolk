@@ -8,7 +8,7 @@ const DEFAULT_DEPLOY_VALUE = ton("0.1")
 // Important: before deploying multisig contract, check that
 // order library is deployed and available:
 //
-// "acton library publish multisig_v2_order"
+// "acton library publish Order"
 
 fun main() {
     val deployer = net.wallet("deployer");

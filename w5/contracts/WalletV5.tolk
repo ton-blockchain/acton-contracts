@@ -4,7 +4,7 @@ import "errors"
 import "messages"
 import "storage"
 
-contract WalletV5Contract {
+contract WalletV5 {
     author: "The Tolk Team"
     version: "1.0.0"
     description: "Wallet V5. Extensible wallet with plugins support"

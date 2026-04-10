@@ -4,7 +4,7 @@ import "order-helpers"
 import "storage"
 import "types"
 
-contract OrderContract {
+contract Order {
     author: "The Tolk Team"
     version: "1.0.0"
     description: "Multisig V2 Order. Collects approvals and executes actions"

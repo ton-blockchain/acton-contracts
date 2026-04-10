@@ -21,7 +21,7 @@ fun NftCollectionContract.fromStorage(
     toShard: AddressShardingOptions? = null,
 ) {
     val stateInit = ContractState {
-        code: build("dns_collection"),
+        code: build("DnsCollection"),
         data: storage.toCell(),
     };
     val address = toShard == null

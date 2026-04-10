@@ -19,7 +19,7 @@ fun Elector.fromStorage(
     workchain: int8 = BASECHAIN,
 ) {
     val stateInit = ContractState {
-        code: build("elector"),
+        code: build("Elector"),
         data: storage.toCell(),
     };
     val address = toShard == null

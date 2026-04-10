@@ -5,7 +5,7 @@ import "messages"
 import "storage"
 import "validate-c5"
 
-contract HighloadWalletV3Contract {
+contract HighloadWalletV3 {
     author: "The Tolk Team"
     version: "1.0.0"
     description: "Highload Wallet V3. Batch transaction wallet for high-volume operations"

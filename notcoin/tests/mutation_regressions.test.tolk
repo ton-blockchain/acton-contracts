@@ -793,10 +793,10 @@ get fun `test mutation: minter should report mintable and emit set-code action o
         totalSupply: upgradedSupply,
         adminAddress: deployer.address,
         nextAdminAddress: null,
-        jettonWalletCode: build("notcoin_wallet"),
+        jettonWalletCode: build("NotcoinWallet"),
         metadataUri: upgradedUri,
     }.toCell();
-    val newCode = build("notcoin_minter");
+    val newCode = build("NotcoinMinter");
 
     val res = minter.sendUpgrade(deployer.address, newCode, newData);
     expect(res).toHaveSuccessfulTx<UpgradeMinterCode>({

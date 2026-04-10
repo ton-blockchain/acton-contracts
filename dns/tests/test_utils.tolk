@@ -64,7 +64,7 @@ fun makeCollectionContentCell(): cell {
 }
 
 fun makeCollectionStorage(): CollectionStorage {
-    return { content: makeCollectionContentCell(), nftItemCode: build("dns_item") };
+    return { content: makeCollectionContentCell(), nftItemCode: build("DnsItem") };
 }
 
 fun makeDnsTextRecord(value: string): cell {

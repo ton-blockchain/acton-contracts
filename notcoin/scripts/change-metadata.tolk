@@ -30,7 +30,7 @@ fun main() {
     val expectedMinter = JettonMinter.fromStorage({
         totalSupply: initialSupply,
         adminAddress: deployer.address,
-        jettonWalletCode: build("notcoin_wallet"),
+        jettonWalletCode: build("NotcoinWallet"),
         metadataUri,
         nextAdminAddress: null,
     });
