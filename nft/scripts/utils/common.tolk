@@ -81,7 +81,7 @@ fun makeNftCollectionStorage(admin: address, info: NftCollectionInfo): NftCollec
             collectionMetadata: buildOnchainMetadata(info),
             commonContent: NFT_DEFAULT_COMMON_CONTENT,
         }.toCell(),
-        nftItemCode: build("nft_item"),
+        nftItemCode: build("nftItem"),
         royaltyParams: RoyaltyParams {
             numerator: 5,
             denominator: 100,
