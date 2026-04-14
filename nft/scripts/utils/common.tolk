@@ -7,8 +7,8 @@ import "@acton/promts/prompts"
 import "@acton/vm/vm"
 import "../../contracts/messages"
 import "../../contracts/types"
-import "../../tests/wrappers/NftCollectionContract"
-import "../../tests/wrappers/NftItemContract"
+import "../../wrappers/NftCollectionContract"
+import "../../wrappers/NftItemContract"
 
 const ONCHAIN_CONTENT_PREFIX = 0x00
 const SNAKE_PREFIX = 0x00
