@@ -87,7 +87,7 @@ fun makeOwnershipTransferBody(
     forwardTonAmount: coins,
     forwardPayload: slice,
 ): AskToChangeOwnership {
-    val bodyBits = AskToChangeOwnership {
+    val (bodyBits, bodyRefs) = AskToChangeOwnership {
         queryId: 0,
         newOwnerAddress,
         sendExcessesTo,
@@ -97,6 +97,7 @@ fun makeOwnershipTransferBody(
     }.toCell().beginParse().remainingBitsCount();
 
     val payload: Payload = (1023 - bodyBits) > forwardPayload.remainingBitsCount()
+    && (4 - bodyRefs) > forwardPayload.remainingRefsCount()
         ? PayloadInline {value: forwardPayload}
         : PayloadInRef {value: forwardPayload.toCell()};
 

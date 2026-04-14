@@ -51,7 +51,7 @@ fun NftItemContract.sendAskToChangeOwnership(
     config: SendParams = {},
 ): SendResultList {
 
-    val bodyParams = AskToChangeOwnership {
+    val (bodyBits, bodyRefs) = AskToChangeOwnership {
         queryId,
         newOwnerAddress,
         sendExcessesTo,
@@ -59,9 +59,6 @@ fun NftItemContract.sendAskToChangeOwnership(
         forwardTonAmount,
         forwardPayload: PayloadInline {value: createEmptySlice()}
     }.toCell().beginParse().remainingBitsAndRefsCount();
-
-    val bodyBits = bodyParams.0;
-    val bodyRefs = bodyParams.1;
 
     val payload: Payload = (1023 - bodyBits) > forwardPayload.remainingBitsCount()
                             && (4 - bodyRefs) > forwardPayload.remainingRefsCount()
