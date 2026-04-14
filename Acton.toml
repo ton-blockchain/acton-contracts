@@ -6,90 +6,90 @@ license = "MIT"
 
 # Counter
 [contracts.counter]
-name = "counter"
+display-name = "counter"
 src = "counter/contracts/counter.tolk"
 depends = []
 
 # Config
 [contracts.config]
-name = "config"
+display-name = "config"
 src = "config/contracts/config-contract.tolk"
 depends = []
 
 # Notcoin 
 [contracts.notcoin_minter]
-name = "notcoin_minter"
+display-name = "notcoin_minter"
 src = "notcoin/contracts/jetton-minter-contract.tolk"
 depends = []
 
 [contracts.notcoin_wallet]
-name = "notcoin_wallet"
+display-name = "notcoin_wallet"
 src = "notcoin/contracts/jetton-wallet-contract.tolk"
 depends = []
 
 # Jetton v2
 [contracts.jetton_v2_minter]
-name = "jetton_v2_minter"
+display-name = "jetton_v2_minter"
 src = "jetton-v2/contracts/jetton-minter-contract.tolk"
 depends = [{ name = "jetton_v2_wallet", function = "jettonV2WalletCompiledCode" }]
 
 [contracts.jetton_v2_wallet]
-name = "jetton_v2_wallet"
+display-name = "jetton_v2_wallet"
 src = "jetton-v2/contracts/jetton-wallet-contract.tolk"
 depends = []
 
 # DNS
 [contracts.dns_collection]
-name = "dns_collection"
+display-name = "dns_collection"
 src = "dns/contracts/nft-collection-contract.tolk"
 depends = []
 
 [contracts.dns_item]
-name = "dns_item"
+display-name = "dns_item"
 src = "dns/contracts/nft-item-contract.tolk"
 depends = []
 
 [contracts.dns_root]
-name = "dns_root"
+display-name = "dns_root"
 src = "dns/contracts/root-dns-contract.tolk"
 depends = []
 
 # Highload v3
 [contracts.highload_wallet_v3]
-name = "highload_wallet_v3"
+display-name = "highload_wallet_v3"
 src = "highload-v3/contracts/highload-wallet.tolk"
 depends = []
 
 # Multisig v2
 [contracts.multisig_v2]
-name = "multisig_v2"
+display-name = "multisig_v2"
 src = "multisig-v2/contracts/multisig-contract.tolk"
 depends = [{ name = "multisig_v2_order", function = "multisigV2OrderCompiledCode" }]
 
 [contracts.multisig_v2_order]
-name = "multisig_v2_order"
+display-name = "multisig_v2_order"
 src = "multisig-v2/contracts/order-contract.tolk"
 depends = []
 
 # NFT
 [contracts.nft_collection]
-name = "collection"
+display-name = "collection"
 src = "nft/contracts/nft-collection-contract.tolk"
 depends = ["nft_item"]
 
 [contracts.nft_item]
-name = "item"
+display-name = "item"
 src = "nft/contracts/nft-item-contract.tolk"
 depends = []
 
 # Elector
 [contracts.elector]
-name = "elector"
+display-name = "elector"
 src = "elector/contracts/elector.tolk"
 
 # W5
 [contracts.w5]
-name = "w5"
+display-name = "w5"
 src = "w5/contracts/wallet-v5-contract.tolk"
 depends = []
 
@@ -122,7 +122,7 @@ test-w5 = "acton test w5/tests"
 test-highload = "acton test highload-v3/tests"
 test-elector = "acton test elector/tests"
 
-[mappings]
+[import-mappings]
 acton = ".acton"
 contracts = "contracts"
 gen = "gen"
