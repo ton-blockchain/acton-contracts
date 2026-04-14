@@ -293,7 +293,7 @@ get fun `test mutation: ownership transfer should fail one nanotone below forwar
         nextOwner,
         null,
         ton("0.01"),
-        beginCell().storeBool(false).toSlice(),
+        createEmptySlice(),
     );
 
     val balanceBefore = net.balance(nftItem.address);
