@@ -94,7 +94,7 @@ fun makeOwnershipTransferBody(
         customPayload: createEmptyDict(),
         forwardTonAmount,
         forwardPayload: PayloadInline {value: createEmptySlice()}
-    }.toCell().beginParse().remainingBitsCount();
+    }.toCell().beginParse().remainingBitsAndRefsCount();
 
     val payload: Payload = (1023 - bodyBits) > forwardPayload.remainingBitsCount()
     && (4 - bodyRefs) > forwardPayload.remainingRefsCount()
