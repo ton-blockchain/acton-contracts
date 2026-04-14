@@ -2,7 +2,7 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/crypto/crypto"
 import "@acton/emulation/network"
-import "../tests/wrappers/HighloadWalletV3"
+import "../wrappers/HighloadWalletV3"
 
 const HIGHLOAD_DEFAULT_SUBWALLET_ID = 239
 const HIGHLOAD_DEFAULT_TIMEOUT = 128
@@ -25,22 +25,22 @@ fun main() {
     val wallet = HighloadWalletV3.fromConfig(keyPair.publicKey, subwalletId, timeout);
 
     println("Using wallet: deployer");
-    println1("Prepared highload wallet: {}", wallet.address);
+    println("Prepared highload wallet: {}", wallet.address);
 
     if (net.isDeployed(wallet.address)) {
-        println1("Wallet is already deployed in the current execution context: {}", wallet.address);
+        println("Wallet is already deployed in the current execution context: {}", wallet.address);
     } else {
         val deployResult = wallet.deploy(deployer.address, { value: deployValue, bounce: false });
         if (!deployResult.wait()) {
             println("Highload wallet deployment was not confirmed");
             return;
         }
-        println1("Highload wallet deployed at {}", wallet.address);
+        println("Highload wallet deployed at {}", wallet.address);
     }
 
-    println1("HIGHLOAD_WALLET_ADDRESS={}", wallet.address);
-    println1("Public key: {}", wallet.getPublicKey());
-    println1("Subwallet id: {}", wallet.getSubwalletId());
-    println1("Timeout: {}", wallet.getTimeout());
-    println1("Last clean time: {}", wallet.getLastCleanTime());
+    println("HIGHLOAD_WALLET_ADDRESS={}", wallet.address);
+    println("Public key: {}", wallet.getPublicKey());
+    println("Subwallet id: {}", wallet.getSubwalletId());
+    println("Timeout: {}", wallet.getTimeout());
+    println("Last clean time: {}", wallet.getLastCleanTime());
 }

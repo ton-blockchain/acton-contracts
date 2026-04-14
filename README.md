@@ -33,13 +33,13 @@ acton test multisig-v2/tests
 Run a benchmark comparison against the checked-in DNS baseline:
 
 ```bash
-acton test dns/tests/e2e_happy_paths.test.tolk --baseline-snapshot dns/tests/benchmarks/v1.json --fail-on-diff
+acton test dns/tests/e2e-happy-paths.test.tolk --baseline-snapshot dns/tests/benchmarks/v1.json --fail-on-diff
 ```
 
 Refresh the DNS benchmark snapshot:
 
 ```bash
-acton test dns/tests/e2e_happy_paths.test.tolk --snapshot dns/tests/benchmarks/v1.json
+acton test dns/tests/e2e-happy-paths.test.tolk --snapshot dns/tests/benchmarks/v1.json
 ```
 
 Run a deployment script:

@@ -5,7 +5,7 @@ import "@acton/build/build"
 import "@acton/emulation/network"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../tests/wrappers/DnsCollection"
+import "../wrappers/DnsCollection"
 
 fun main() {
     val deployer = net.wallet("deployer-2");
@@ -15,11 +15,11 @@ fun main() {
 
     val collection = NftCollectionContract.fromStorage(CollectionStorage {
         content: collectionUri.prefixWith01().toCell(),
-        nftItemCode: build("dns_item"),
+        nftItemCode: build("DnsItem"),
     });
 
     println("Using wallet: deployer-2");
-    println1("Collection URI: {}", collectionUri);
+    println("Collection URI: {}", collectionUri);
 
     val deployResult = net.send(
         deployer.address,
@@ -35,12 +35,12 @@ fun main() {
         return;
     }
 
-    println1("Collection deployed at {}", collection.address);
-    println1("COLLECTION_ADDRESS={}", collection.address);
+    println("Collection deployed at {}", collection.address);
+    println("COLLECTION_ADDRESS={}", collection.address);
 
     val data = collection.getCollectionData();
 
-    println1("Collection address: {}", collection.address);
-    println1("Next item index: {}", data.nextItemIndex);
-    println1("Content hash: {}", data.content.hash());
+    println("Collection address: {}", collection.address);
+    println("Next item index: {}", data.nextItemIndex);
+    println("Content hash: {}", data.content.hash());
 }

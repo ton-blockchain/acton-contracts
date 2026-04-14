@@ -1,5 +1,5 @@
 import "@stdlib/exotic-cells"
-import "@gen/multisig_v2_order_code"
+import "@gen/Order_code"
 
 struct OrderInitData {
     multisigAddress: address
@@ -7,7 +7,7 @@ struct OrderInitData {
 }
 
 fun getOrderCodeAsLibraryReference(): cell {
-    return multisigV2OrderCompiledCode().toLibraryReference();
+    return orderCompiledCode().toLibraryReference();
 }
 
 fun calculateOrderStateInit(multisigAddress: address, orderSeqno: uint256): AutoDeployAddress {

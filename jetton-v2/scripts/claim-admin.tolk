@@ -1,7 +1,7 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
-import "../tests/wrappers/JettonMinter"
+import "../wrappers/JettonMinter"
 
 fun main() {
     val walletName = "deployer";
@@ -36,13 +36,13 @@ fun main() {
             }
         }
     } else if (!net.isBroadcasting() && !net.isDeployed(minter.address)) {
-        println1("Minter is not deployed at {}", minter.address);
+        println("Minter is not deployed at {}", minter.address);
         return;
     }
 
-    println1("Minter address: {}", minter.address);
-    println1("Admin before claim: {}", minter.getAdminAddress());
-    println1("Claim sender: {}", claimSender);
+    println("Minter address: {}", minter.address);
+    println("Admin before claim: {}", minter.getAdminAddress());
+    println("Claim sender: {}", claimSender);
 
     val claimRes = minter.sendClaimAdmin(claimSender);
     if (!claimRes.wait()) {
@@ -50,5 +50,5 @@ fun main() {
         return;
     }
 
-    println1("Admin after claim: {}", minter.getAdminAddress());
+    println("Admin after claim: {}", minter.getAdminAddress());
 }

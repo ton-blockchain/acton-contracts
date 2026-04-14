@@ -5,12 +5,12 @@ import "@acton/ffi/ffi"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
-import "test_utils"
-import "wrappers/JettonMinter"
-import "wrappers/JettonWallet"
+import "test-utils"
 import "../contracts/errors"
 import "../contracts/fees-management"
 import "../contracts/messages"
+import "../wrappers/JettonMinter"
+import "../wrappers/JettonWallet"
 
 get fun `test gas: transfer minimal value edge`() {
     val (minter, deployer, _) = setupTest();

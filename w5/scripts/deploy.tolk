@@ -6,12 +6,12 @@ fun main() {
     val deployer = net.wallet("deployer");
     val wallet = w5DeployWallet(deployer.address);
 
-    println1("Broadcast mode: {}", net.isBroadcasting());
-    println1("Deployer wallet: {}", deployer.address);
+    println("Broadcast mode: {}", net.isBroadcasting());
+    println("Deployer wallet: {}", deployer.address);
     val targetAddress = w5WalletAddress();
     if (targetAddress != null) {
-        println1("Target wallet from env: {}", targetAddress!);
+        println("Target wallet from env: {}", targetAddress!);
     }
-    println1("Wallet v5 address: {}", wallet.address);
+    println("Wallet v5 address: {}", wallet.address);
     w5PrintInfo(wallet);
 }

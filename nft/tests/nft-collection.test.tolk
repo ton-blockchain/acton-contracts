@@ -2,10 +2,10 @@ import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
-import "wrappers/NftCollectionContract"
-import "wrappers/NftItemContract"
 import "../contracts/messages"
 import "../contracts/types"
+import "../wrappers/NftCollectionContract"
+import "../wrappers/NftItemContract"
 
 struct Royalty {
     numerator: int
@@ -109,7 +109,7 @@ fun setupTest() {
             collectionMetadata: createEmptyCell(),
             commonContent: "",
         }.toCell(),
-        nftItemCode: build("nft_item"),
+        nftItemCode: build("NftItem"),
         royaltyParams: royaltyParams.toCell(),
     });
 

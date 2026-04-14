@@ -3,7 +3,7 @@ import "@acton/io"
 import "@acton/emulation/network"
 
 import "../contracts/types"
-import "../tests/wrappers/Counter"
+import "../wrappers/Counter"
 
 fun counterDeployValue(): coins {
     return envOr("COUNTER_DEPLOY_VALUE_NANOS", 5000000);
@@ -33,16 +33,16 @@ fun main() {
     val deployValue = counterDeployValue();
     val counterAddress = explicitCounterAddress();
     val counter = targetCounter();
-    println1("Deploy value: {}", deployValue);
+    println("Deploy value: {}", deployValue);
     if (!net.isDeployed(counter.address)) {
         if (counterAddress != null) {
-            println1("Counter is not deployed at {}", counter.address);
+            println("Counter is not deployed at {}", counter.address);
             return;
         }
         counter.deploy(deployer.address, { value: deployValue }).wait();
     }
 
-    println1("Counter address: {}", counter.address);
-    println1("COUNTER_ADDRESS={}", counter.address);
-    println1("Current counter value: {}", counter.currentCounter());
+    println("Counter address: {}", counter.address);
+    println("COUNTER_ADDRESS={}", counter.address);
+    println("Current counter value: {}", counter.currentCounter());
 }

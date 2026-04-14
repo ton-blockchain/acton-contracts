@@ -2,8 +2,8 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
-import "../tests/wrappers/JettonMinter"
-import "../tests/wrappers/JettonWallet"
+import "../wrappers/JettonMinter"
+import "../wrappers/JettonWallet"
 
 fun main() {
     val walletName = "deployer";
@@ -19,7 +19,7 @@ fun main() {
     val expectedMinter = JettonMinter.fromStorage({
         totalSupply: initialSupply,
         adminAddress: deployer.address,
-        jettonWalletCode: build("notcoin_wallet"),
+        jettonWalletCode: build("NotcoinWallet"),
         metadataUri,
         nextAdminAddress: null,
     });
@@ -41,14 +41,14 @@ fun main() {
             }
         }
     } else if (!net.isBroadcasting() && !net.isDeployed(minter.address)) {
-        println1("Minter is not deployed at {}", minter.address);
+        println("Minter is not deployed at {}", minter.address);
         return;
     }
 
-    println1("Minter address: {}", minter.address);
-    println1("Mint recipient: {}", mintRecipient);
-    println1("Mint amount: {}", mintAmount);
-    println1("Mint TON value: {}", totalTonAmount);
+    println("Minter address: {}", minter.address);
+    println("Mint recipient: {}", mintRecipient);
+    println("Mint amount: {}", mintAmount);
+    println("Mint TON value: {}", totalTonAmount);
 
     val mintRes = minter.sendMint(
         deployer.address,
@@ -64,7 +64,7 @@ fun main() {
 
     val recipientWallet = JettonWallet { address: minter.getWalletAddress(mintRecipient) };
 
-    println1("Total supply: {}", minter.getTotalSupply());
-    println1("Recipient wallet: {}", recipientWallet.address);
-    println1("Recipient wallet balance: {}", recipientWallet.getJettonBalance());
+    println("Total supply: {}", minter.getTotalSupply());
+    println("Recipient wallet: {}", recipientWallet.address);
+    println("Recipient wallet balance: {}", recipientWallet.getJettonBalance());
 }
