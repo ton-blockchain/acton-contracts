@@ -1,18 +1,17 @@
-import "@acton/env"
 import "@acton/io"
+import "@acton/fmt"
 import "@acton/emulation/network"
+import "@acton/promts/prompts"
+import "../../tests/wrappers/NftCollectionContract"
 import "utils/common"
 
 fun main() {
-    val deployer = nftWallet();
-    val info = nftCollectionInfo();
-    val newAdmin = nftAddressOr("NFT_NEW_ADMIN_ADDRESS", net.treasury("nft-new-admin").address);
-
-    val collection = resolveOrDeployCollection(deployer, info);
-
-    println1("DEPLOYER_WALLET={}", nftWalletName());
-    println1("COLLECTION_ADDRESS={}", collection.address);
-    println1("NFT_NEW_ADMIN_ADDRESS={}", newAdmin);
+    val deployer = promptNftWallet("Select NFT Deployer");
+    val collection = promptNftCollectionContract("Enter NFT Collection address");
+    val newAdmin = promptNftAddress(
+        "Enter new admin address",
+        net.treasury("nft-new-admin").address,
+    );
 
     val res = collection.sendChangeCollectionAdmin(
         deployer.address,

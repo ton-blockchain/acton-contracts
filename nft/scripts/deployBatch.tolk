@@ -1,20 +1,14 @@
-import "@acton/env"
 import "@acton/io"
+import "@acton/fmt"
 import "@acton/emulation/network"
+import "@acton/promts/prompts"
 import "utils/common"
 
 fun main() {
-    val deployer = nftWallet();
-    val info = nftCollectionInfo();
-    val batchOwner = nftAddressOr("NFT_BATCH_OWNER_ADDRESS", deployer.address);
-    val batchCount = envOr("NFT_BATCH_COUNT", 3);
-
-    val collection = resolveOrDeployCollection(deployer, info);
-
-    println1("DEPLOYER_WALLET={}", nftWalletName());
-    println1("COLLECTION_ADDRESS={}", collection.address);
-    println1("NFT_BATCH_OWNER_ADDRESS={}", batchOwner);
-    println1("NFT_BATCH_COUNT={}", batchCount);
+    val deployer = promptNftWallet("Select NFT Deployer");
+    val collection = promptNftCollectionContract("Enter NFT Collection address");
+    val batchOwner = promptNftAddress("Enter NFT batch owner", deployer.address);
+    val batchCount = promptInt("Enter batch size", NFT_DEFAULT_BATCH_COUNT);
 
     val res = deployNftBatch(collection, deployer, batchOwner, batchCount);
     res.wait();

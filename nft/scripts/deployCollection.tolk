@@ -1,14 +1,10 @@
-import "@acton/env"
-import "@acton/io"
 import "@acton/emulation/network"
+import "@acton/promts/prompts"
 import "utils/common"
 
 fun main() {
-    val deployer = nftWallet();
-    val info = nftCollectionInfo();
-
-    println1("DEPLOYER_WALLET={}", nftWalletName());
-    println1("NFT_COLLECTION={}", info);
+    val deployer = promptNftWallet("Select NFT Deployer");
+    val info = promptNftCollectionInfo();
 
     val collection = deployNftCollectionContract(deployer, info);
 

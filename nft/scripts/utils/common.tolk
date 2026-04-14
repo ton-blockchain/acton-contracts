@@ -1,8 +1,10 @@
 import "@stdlib/strings"
-import "@acton/env"
 import "@acton/io"
+import "@acton/fmt"
 import "@acton/build/build"
 import "@acton/emulation/network"
+import "@acton/promts/prompts"
+import "@acton/vm/vm"
 import "../../contracts/messages"
 import "../../contracts/types"
 import "../../tests/wrappers/NftCollectionContract"
@@ -17,6 +19,7 @@ const NFT_DEFAULT_COLLECTION_IMAGE = "https://ton.org/download/ton_symbol.svg"
 const NFT_DEFAULT_COMMON_CONTENT = "https://example.com/nft/"
 const NFT_DEFAULT_ITEM_CONTENT = "item-0.json"
 const NFT_DEFAULT_BATCH_CONTENT_PREFIX = "batch-"
+const NFT_DEFAULT_BATCH_COUNT = "3"
 
 struct NftCollectionInfo {
     name: string
@@ -39,29 +42,35 @@ fun buildOnchainMetadata(info: NftCollectionInfo): cell {
         .endCell();
 }
 
-fun nftWalletName(): string {
-    return envOr("DEPLOYER_WALLET", "deployer");
+fun promptNftWallet(message: string): Wallet {
+    return net.wallet(promptWallet(message));
 }
 
-fun nftWallet(): Wallet {
-    return net.wallet(nftWalletName());
+fun promptNftAddress(message: string, default: address): address {
+    val s = prompt(message, "", format("{}", default));
+    return vm.convertAddress(s);
 }
 
-fun nftAddressOrNull(key: string): address? {
-    return env(key);
-}
-
-fun nftAddressOr(key: string, fallback: address): address {
-    val v = nftAddressOrNull(key);
-    return v == null ? fallback : v;
-}
-
-fun nftCollectionInfo(): NftCollectionInfo {
+fun promptNftCollectionInfo(): NftCollectionInfo {
     return {
-        name: envOr("NFT_COLLECTION_NAME", NFT_DEFAULT_COLLECTION_NAME),
-        description: envOr("NFT_COLLECTION_DESCRIPTION", NFT_DEFAULT_COLLECTION_DESCRIPTION),
-        image: envOr("NFT_COLLECTION_IMAGE", NFT_DEFAULT_COLLECTION_IMAGE),
+        name: prompt("Enter collection name", "", NFT_DEFAULT_COLLECTION_NAME),
+        description: prompt("Enter collection description", "", NFT_DEFAULT_COLLECTION_DESCRIPTION),
+        image: prompt("Enter collection image URL", "", NFT_DEFAULT_COLLECTION_IMAGE),
     };
+}
+
+fun promptNftCollectionContract(message: string): NftCollectionContract {
+    val s = prompt(message, "EQ... / kQ...", "");
+    return NftCollectionContract.fromAddress(vm.convertAddress(s));
+}
+
+fun promptNftItemContract(message: string): NftItemContract {
+    val s = prompt(message, "EQ... / kQ...", "");
+    return NftItemContract.fromAddress(vm.convertAddress(s));
+}
+
+fun promptInt(message: string, default: string): int {
+    return vm.parseInt(prompt(message, "", default));
 }
 
 fun makeNftCollectionStorage(admin: address, info: NftCollectionInfo): NftCollectionStorage {
@@ -143,24 +152,6 @@ fun deployNftBatch(
         deployList,
         { value: ton("0.15"), bounce: true },
     );
-}
-
-fun resolveOrDeployCollection(deployer: Wallet, info: NftCollectionInfo): NftCollectionContract {
-    val addr = nftAddressOrNull("COLLECTION_ADDRESS");
-    return addr == null
-        ? deployNftCollectionContract(deployer, info)
-        : NftCollectionContract.fromAddress(addr);
-}
-
-fun resolveOrDeployItem(
-    collection: NftCollectionContract,
-    deployer: Wallet,
-    content: string,
-): NftItemContract {
-    val addr = nftAddressOrNull("ITEM_ADDRESS");
-    return addr == null
-        ? deployNftItemContract(collection, deployer, deployer.address, content)
-        : NftItemContract.fromAddress(addr);
 }
 
 fun printNftCollectionInfo(collection: NftCollectionContract, label: string) {
