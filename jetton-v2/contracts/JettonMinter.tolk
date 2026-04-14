@@ -1,4 +1,4 @@
-import "@gen/JettonWallet_code"
+import "@gen/JettonWallet.code"
 import "errors"
 import "fees-management"
 import "jetton-utils"
