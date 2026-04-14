@@ -106,6 +106,10 @@ test-w5 = "acton test w5/tests"
 test-highload = "acton test highload-v3/tests"
 test-elector = "acton test elector/tests"
 
+[litenode]
+accounts = ["deployer"]
+port = 3010
+
 [import-mappings]
 acton = ".acton"
 gen = "gen"

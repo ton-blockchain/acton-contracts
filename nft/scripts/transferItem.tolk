@@ -2,7 +2,7 @@ import "@acton/io"
 import "@acton/fmt"
 import "@acton/emulation/network"
 import "@acton/promts/prompts"
-import "../../tests/wrappers/NftItemContract"
+import "../wrappers/wrappers/NftItemContract"
 import "utils/common"
 
 fun main() {
