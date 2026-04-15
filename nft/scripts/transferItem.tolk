@@ -1,10 +1,10 @@
 import "@stdlib/tvm-dicts"
-import "@acton/io"
 import "@acton/fmt"
+import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/promts/prompts"
-import "../wrappers/NftItemContract"
 import "utils/common"
+import "../wrappers/NftItemContract"
 
 fun main() {
     val deployer = promptNftWallet("Select NFT Deployer");

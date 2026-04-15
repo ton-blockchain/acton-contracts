@@ -1,6 +1,6 @@
 import "@stdlib/strings"
-import "@acton/io"
 import "@acton/fmt"
+import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/promts/prompts"
@@ -90,10 +90,7 @@ fun makeNftCollectionStorage(admin: address, info: NftCollectionInfo): NftCollec
     };
 }
 
-fun deployNftCollectionContract(
-    deployer: Wallet,
-    info: NftCollectionInfo,
-): NftCollectionContract {
+fun deployNftCollectionContract(deployer: Wallet, info: NftCollectionInfo): NftCollectionContract {
     val collection = NftCollectionContract.fromStorage(
         makeNftCollectionStorage(deployer.address, info),
     );
@@ -139,7 +136,9 @@ fun deployNftBatch(
                 attachTonAmount: ton("0.03"),
                 initParams: NftItemInitAtDeployment {
                     ownerAddress: owner,
-                    content: NFT_DEFAULT_BATCH_CONTENT_PREFIX.concat(index.toDecimalString()).concat(".json"),
+                    content: NFT_DEFAULT_BATCH_CONTENT_PREFIX
+                        .concat(index.toDecimalString())
+                        .concat(".json"),
                 }.toCell(),
             },
         );
