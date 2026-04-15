@@ -1,5 +1,5 @@
 import "@stdlib/exotic-cells"
-import "@gen/Order_code"
+import "@gen/Order.code"
 
 struct OrderInitData {
     multisigAddress: address

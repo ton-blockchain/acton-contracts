@@ -58,12 +58,22 @@ struct (0x8b771735) ResponseStaticData {
 struct (0x05138d91) NotificationForNewOwner {
     queryId: uint64
     oldOwnerAddress: address
-    payload: RemainingBitsAndRefs
+    payload: Payload
 }
 
 struct (0xd53276db) ReturnExcessesBack {
     queryId: uint64
 }
+
+struct (0b0) PayloadInline {
+    value: RemainingBitsAndRefs
+}
+
+struct (0b1) PayloadInRef {
+    value: Cell<RemainingBitsAndRefs>
+}
+
+type Payload = PayloadInline | PayloadInRef
 
 struct (0x5fcc3d14) AskToChangeOwnership {
     queryId: uint64
@@ -71,5 +81,5 @@ struct (0x5fcc3d14) AskToChangeOwnership {
     sendExcessesTo: address?
     customPayload: dict
     forwardTonAmount: coins
-    forwardPayload: RemainingBitsAndRefs
+    forwardPayload: Payload
 }

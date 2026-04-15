@@ -264,40 +264,6 @@ get fun `test nft: should fail when response address in different workchain`() {
     });
 }
 
-get fun `test nft: should fail with no fwd payload provided`() {
-    val (nftCollection, _, _) = setupTest();
-    val nftOwner = net.treasury("nft-owner");
-    val nftReceiverAddress = net.randomAddress();
-    val responseAddress = net.randomAddress();
-
-    val nftItem = nftFixture(nftCollection, nftOwner.address);
-
-    val ownerBeforeTransfer = nftItem.getNftData().ownerAddress;
-    expect(ownerBeforeTransfer!).toEqual(nftOwner.address);
-
-    val body = beginCell()
-        .storeUint(0x5fcc3d14, 32) // op::transfer
-        .storeUint(42, 64) // queryId
-        .storeAddress(nftReceiverAddress) // new_owner
-        .storeAddress(responseAddress) // response_destination
-        .storeMaybeRef(null) // custom_payload
-        .storeCoins(999) // forward_amount
-        // missing forward_payload!
-        .endCell();
-
-    val result = nftItem.sendAny(nftOwner.address, body, { value: ton("0.05"), bounce: true });
-
-    expect(result).toHaveFailedTx({
-        from: nftOwner.address,
-        to: nftItem.address,
-        body,
-        exitCode: 708, // No forward payload provided
-    });
-
-    val ownerAfterTransfer = nftItem.getNftData().ownerAddress;
-    expect(ownerAfterTransfer!).toEqual(ownerBeforeTransfer!);
-}
-
 get fun `test nft: should transfer ownership with forward payload in slice`() {
     val (nftCollection, _, _) = setupTest();
     val nftOwner = net.treasury("nft-owner");

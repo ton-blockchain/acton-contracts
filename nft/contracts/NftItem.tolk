@@ -40,7 +40,6 @@ fun onInternalMessage(in: InMessage) {
         AskToChangeOwnership => {
             assert (in.senderAddress == storage.ownerAddress) throw ERROR_NOT_FROM_OWNER;
 
-            assert (msg.forwardPayload.remainingBitsCount()) throw ERROR_INCORRECT_FORWARD_PAYLOAD;
             assert (msg.newOwnerAddress.getWorkchain() == BASECHAIN) throw ERROR_INVALID_WORKCHAIN;
 
             val fwdFee = in.originalForwardFee;

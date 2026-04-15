@@ -87,13 +87,29 @@ fun makeOwnershipTransferBody(
     forwardTonAmount: coins,
     forwardPayload: slice,
 ): AskToChangeOwnership {
+    val (bodyBits, bodyRefs) = AskToChangeOwnership {
+        queryId: 0,
+        newOwnerAddress,
+        sendExcessesTo,
+        customPayload: createEmptyDict(),
+        forwardTonAmount,
+        forwardPayload: PayloadInline { value: createEmptySlice() },
+    }.toCell()
+        .beginParse()
+        .remainingBitsAndRefsCount();
+
+    val payload: Payload = (1023 - bodyBits) > forwardPayload.remainingBitsCount() &&
+    (4 - bodyRefs) > forwardPayload.remainingRefsCount()
+        ? PayloadInline { value: forwardPayload }
+        : PayloadInRef { value: forwardPayload.toCell() };
+
     return {
         queryId: 0,
         newOwnerAddress,
         sendExcessesTo,
         customPayload: createEmptyDict(),
         forwardTonAmount,
-        forwardPayload,
+        forwardPayload: payload,
     };
 }
 
@@ -276,12 +292,7 @@ get fun `test mutation: ownership transfer should fail one nanotone below forwar
     val owner = net.treasury("mutation-threshold-owner");
     val nftItem = nftFixture(nftCollection, owner.address);
     val nextOwner = net.randomAddress();
-    val transferBody = makeOwnershipTransferBody(
-        nextOwner,
-        null,
-        ton("0.01"),
-        beginCell().storeBool(false).toSlice(),
-    );
+    val transferBody = makeOwnershipTransferBody(nextOwner, null, ton("0.01"), createEmptySlice());
 
     val balanceBefore = net.balance(nftItem.address);
     val minimalValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
@@ -292,7 +303,7 @@ get fun `test mutation: ownership transfer should fail one nanotone below forwar
         transferBody.sendExcessesTo,
         transferBody.customPayload,
         transferBody.forwardTonAmount,
-        transferBody.forwardPayload,
+        createEmptySlice(),
         { value: minimalValue - MIN_EDGE_DELTA, bounce: true },
     );
 
@@ -310,12 +321,7 @@ get fun `test mutation: ownership transfer with zero forward amount should exhau
     val nftItem = nftFixture(nftCollection, owner.address);
     val nextOwner = net.randomAddress();
     val excessesAddress = net.randomAddress();
-    val transferBody = makeOwnershipTransferBody(
-        nextOwner,
-        excessesAddress,
-        0,
-        beginCell().storeBool(false).toSlice(),
-    );
+    val transferBody = makeOwnershipTransferBody(nextOwner, excessesAddress, 0, createEmptySlice());
 
     val balanceBefore = net.balance(nftItem.address);
     val exactValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
@@ -328,7 +334,7 @@ get fun `test mutation: ownership transfer with zero forward amount should exhau
         transferBody.sendExcessesTo,
         transferBody.customPayload,
         transferBody.forwardTonAmount,
-        transferBody.forwardPayload,
+        createEmptySlice(),
         { value: exactValue, bounce: true },
     );
 
@@ -358,7 +364,7 @@ get fun `test mutation: ownership transfer with forward amount should emit exact
         nextOwner,
         excessesAddress,
         forwardAmount,
-        beginCell().storeBool(false).toSlice(),
+        createEmptySlice(),
     );
 
     val balanceBefore = net.balance(nftItem.address);
@@ -372,7 +378,7 @@ get fun `test mutation: ownership transfer with forward amount should emit exact
         transferBody.sendExcessesTo,
         transferBody.customPayload,
         transferBody.forwardTonAmount,
-        transferBody.forwardPayload,
+        createEmptySlice(),
         { value: exactValue, bounce: true },
     );
 

@@ -1,3 +1,4 @@
+import "@acton/io"
 import "@acton/build/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
@@ -46,9 +47,25 @@ fun NftItemContract.sendAskToChangeOwnership(
     sendExcessesTo: address?,
     customPayload: dict,
     forwardTonAmount: coins,
-    forwardPayload: RemainingBitsAndRefs,
+    forwardPayload: slice,
     config: SendParams = {},
 ): SendResultList {
+    val (bodyBits, bodyRefs) = AskToChangeOwnership {
+        queryId,
+        newOwnerAddress,
+        sendExcessesTo,
+        customPayload,
+        forwardTonAmount,
+        forwardPayload: PayloadInline { value: createEmptySlice() },
+    }.toCell()
+        .beginParse()
+        .remainingBitsAndRefsCount();
+
+    val payload: Payload = (1023 - bodyBits) > forwardPayload.remainingBitsCount() &&
+    (4 - bodyRefs) > forwardPayload.remainingRefsCount()
+        ? PayloadInline { value: forwardPayload }
+        : PayloadInRef { value: forwardPayload.toCell() };
+
     val askToChangeOwnershipMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
@@ -59,7 +76,7 @@ fun NftItemContract.sendAskToChangeOwnership(
             sendExcessesTo,
             customPayload,
             forwardTonAmount,
-            forwardPayload,
+            forwardPayload: payload,
         },
     });
     return net.send(from, askToChangeOwnershipMessage);
