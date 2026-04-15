@@ -1,8 +1,9 @@
+import "@stdlib/tvm-dicts"
 import "@acton/io"
 import "@acton/fmt"
 import "@acton/emulation/network"
 import "@acton/promts/prompts"
-import "../wrappers/wrappers/NftItemContract"
+import "../wrappers/NftItemContract"
 import "utils/common"
 
 fun main() {
@@ -18,7 +19,7 @@ fun main() {
         0,
         newOwner,
         null,
-        createEmptySlice(),
+        createEmptyDict(),
         0,
         createEmptySlice(),
         { value: ton("0.05"), bounce: true },
