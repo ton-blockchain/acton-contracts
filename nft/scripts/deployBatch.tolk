@@ -1,5 +1,3 @@
-import "@acton/fmt"
-import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/promts/prompts"
 import "utils/common"
