@@ -81,14 +81,14 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
     vm.registerLibrary(build("Order"));
 
     val signer0 = signerCount > 10
-        ? net.treasury("fee_probe_s0_jumbo")
-        : net.treasury("fee_probe_s0_small");
+        ? net.treasury("fee-probe-s0-jumbo")
+        : net.treasury("fee-probe-s0-small");
     val signer1 = signerCount > 10
-        ? net.treasury("fee_probe_s1_jumbo")
-        : net.treasury("fee_probe_s1_small");
+        ? net.treasury("fee-probe-s1-jumbo")
+        : net.treasury("fee-probe-s1-small");
     val proposer = signerCount > 10
-        ? net.treasury("fee_probe_p_jumbo")
-        : net.treasury("fee_probe_p_small");
+        ? net.treasury("fee-probe-p-jumbo")
+        : net.treasury("fee-probe-p-small");
 
     var signers = array<address> [signer0.address, signer1.address];
     var i = 2;

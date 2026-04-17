@@ -125,9 +125,9 @@ fun deployWalletFromStorage(
 }
 
 fun setupDirectWallet(initialBalance: coins = 0): (JettonWallet, Treasury, Treasury, Treasury) {
-    val owner = net.treasury("direct_wallet_owner");
-    val minter = net.treasury("direct_wallet_minter");
-    val outsider = net.treasury("direct_wallet_outsider");
+    val owner = net.treasury("direct-wallet-owner");
+    val minter = net.treasury("direct-wallet-minter");
+    val outsider = net.treasury("direct-wallet-outsider");
     val wallet = deployWalletFromStorage(
         WalletStorage {
             status: 0,
@@ -197,7 +197,7 @@ fun hasSetCodeAction(res: SendResultList, account: address): bool {
 
 fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
     val deployer = net.treasury("deployer");
-    val notDeployer = net.treasury("not_deployer");
+    val notDeployer = net.treasury("not-deployer");
 
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: initialSupply,

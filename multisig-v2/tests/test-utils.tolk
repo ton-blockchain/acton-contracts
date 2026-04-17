@@ -74,9 +74,9 @@ fun setupMultisig(
     net.setNow(1000);
     vm.registerLibrary(build("Order"));
 
-    val deployer = net.treasury("msig_deployer");
-    val proposer = net.treasury("msig_proposer");
-    val outsider = net.treasury("msig_outsider");
+    val deployer = net.treasury("msig-deployer");
+    val proposer = net.treasury("msig-proposer");
+    val outsider = net.treasury("msig-outsider");
 
     val signers = createSignerAddresses(signerCount, deployer.address);
     val proposers = createProposerAddresses(proposerCount, proposer.address);

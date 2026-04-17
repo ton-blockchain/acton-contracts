@@ -15,7 +15,7 @@ struct Royalty {
 
 get fun `test nft: report royalty params`() {
     val (nftCollection, _, royaltyParams) = setupTest();
-    val randomTreasury = net.treasury("random treasury");
+    val randomTreasury = net.treasury("random-treasury");
     val queryId = 42;
     val result = nftCollection.sendRequestRoyaltyParams(
         randomTreasury.address,

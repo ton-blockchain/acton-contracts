@@ -21,8 +21,8 @@ struct OrderFixture {
 fun setupOrderFixture(threshold: int = 5, signerCount: int = 10): OrderFixture {
     net.setNow(1000);
 
-    val multisig = net.treasury("order_multisig");
-    val notSigner = net.treasury("order_not_signer");
+    val multisig = net.treasury("order-multisig");
+    val notSigner = net.treasury("order-not-signer");
 
     var signers = array<address> [];
     var i = 0;
@@ -107,7 +107,7 @@ get fun `test order: should deploy`() {
 get fun `test order: should only accept init message from multisig`() {
     val fixture = setupOrderFixture();
     val nextOrder = MultisigV2Order.fromConfig(fixture.multisig.address, 1234);
-    val outsider = net.treasury("order_outsider_init");
+    val outsider = net.treasury("order-outsider-init");
 
     val fail = nextOrder.deployWithInit(
         outsider.address,
@@ -704,7 +704,7 @@ get fun `test order: should reject execution when executed once`() {
 get fun `test order: should handle 255 signers`() {
     net.setNow(1000);
 
-    val multisig = net.treasury("order_255_multisig");
+    val multisig = net.treasury("order-255-multisig");
     var signers = array<address> [];
 
     var i = 0;

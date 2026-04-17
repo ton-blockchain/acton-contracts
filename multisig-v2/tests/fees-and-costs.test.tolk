@@ -31,9 +31,9 @@ fun setupFeeContext(): FeeContext {
     net.setNow(FEE_TEST_NOW);
     vm.registerLibrary(build("Order"));
 
-    val deployer = net.treasury("fee_deployer");
-    val second = net.treasury("fee_second");
-    val proposer = net.treasury("fee_proposer");
+    val deployer = net.treasury("fee-deployer");
+    val second = net.treasury("fee-second");
+    val proposer = net.treasury("fee-proposer");
 
     val wallet = MultisigV2.fromConfig(
         2,
@@ -74,7 +74,7 @@ fun setupFeeContext(): FeeContext {
 }
 
 fun buildTransferActions(count: int, markerBase: int = 1000): DirectOrderActionsMap {
-    val sink = net.treasury("fee_sink").address;
+    val sink = net.treasury("fee-sink").address;
     var actionCells = array<cell> [];
     var i = 0;
     while (i < count) {
@@ -322,8 +322,8 @@ fun runCommonCase(
     net.setNow(FEE_TEST_NOW);
     vm.registerLibrary(build("Order"));
 
-    val deployer = net.treasury("fee_case_deployer");
-    val proposer = net.treasury("fee_case_proposer");
+    val deployer = net.treasury("fee-case-deployer");
+    val proposer = net.treasury("fee-case-proposer");
 
     var signers = array<address> [];
     signers.push(deployer.address);
@@ -383,7 +383,7 @@ fun runCommonCase(
     });
     expect(approveRes).toHaveSuccessfulTx({
         from: wallet.address,
-        to: net.treasury("fee_sink").address,
+        to: net.treasury("fee-sink").address,
     });
 
     return approveRes;

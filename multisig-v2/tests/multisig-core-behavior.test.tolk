@@ -1006,8 +1006,8 @@ get fun `test multisig: multisig should invalidate previous orders if threshold 
 
 get fun `test multisig: multisig should not execute orders deployed by other multisig contract`() {
     val legit = setupMultisig();
-    val hackerDeployer = net.treasury("evil_msig_deployer");
-    val hackerProposer = net.treasury("evil_msig_proposer");
+    val hackerDeployer = net.treasury("evil-msig-deployer");
+    val hackerProposer = net.treasury("evil-msig-proposer");
     val hackerSigners = array<address> [hackerDeployer.address, createFundedAddress()];
     val hackerProposers = array<address> [hackerProposer.address];
     val hackerMultisig = MultisigV2.fromConfig(1, hackerSigners, hackerProposers, false);
@@ -1018,7 +1018,7 @@ get fun `test multisig: multisig should not execute orders deployed by other mul
     );
     expect(hackerDeploy).toHaveSuccessfulDeploy({ to: hackerMultisig.address });
 
-    val hackerWallet = net.treasury("cool_hacker");
+    val hackerWallet = net.treasury("cool-hacker");
 
     val legitData = legit.multisig.getData();
     val legitSignersHash = legitData.signersMap().hashCell();
