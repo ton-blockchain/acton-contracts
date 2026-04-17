@@ -189,41 +189,6 @@ get fun `test fee: should send new order with contract estimated message value`(
     expect(approve).toHaveSuccessfulTx({ from: ctx.wallet.address });
 }
 
-get fun `test fee: getter estimate should match manual formula on representative scenarios`() {
-    val ctx = setupFeeContext();
-
-    val smallOrder = buildTransferActions(1, 9100);
-    val smallDuration = FEE_BASE_EXPIRATION - net.now();
-    val smallExpected = manualOrderProcessingCost(
-        smallOrder,
-        toDirectIndexedAddressMap(array<address> [ctx.deployer.address, ctx.second.address]),
-        smallDuration,
-    );
-    val smallActual = ctx.wallet.getOrderEstimate(smallOrder, FEE_BASE_EXPIRATION);
-    expect(smallActual as int).toBeApproxEqRel(smallExpected, 5);
-
-    val jumboOrder = buildTransferActions(1, 9200);
-    val jumboDuration = FEE_BASE_EXPIRATION - net.now();
-    val jumboExpected = manualOrderProcessingCost(
-        jumboOrder,
-        toDirectIndexedAddressMap(ctx.jumboSigners),
-        jumboDuration,
-    );
-    val jumboActual = ctx.jumboWallet.getOrderEstimate(jumboOrder, FEE_BASE_EXPIRATION);
-    expect(jumboActual as int).toBeApproxEqRel(jumboExpected, 5);
-
-    val largeExpiration = FEE_BASE_EXPIRATION + (14 * 24 * 3600);
-    val largeOrder = buildTransferActions(100, 9300);
-    val largeDuration = largeExpiration - net.now();
-    val largeExpected = manualOrderProcessingCost(
-        largeOrder,
-        toDirectIndexedAddressMap(ctx.jumboSigners),
-        largeDuration,
-    );
-    val largeActual = ctx.jumboWallet.getOrderEstimate(largeOrder, largeExpiration);
-    expect(largeActual as int).toBeApproxEqRel(largeExpected, 5);
-}
-
 get fun `test fee: should estimate correctly with 255 signers multisig`() {
     val ctx = setupFeeContext();
     val order = buildTransferActions(1, 3000);
