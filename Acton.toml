@@ -82,6 +82,9 @@ asm-function-missing-safety-comment = "allow"
 
 [test]
 
+[test.mutation]
+minimum-percent = 75
+
 [build]
 output-fift = "build/fift"
 
