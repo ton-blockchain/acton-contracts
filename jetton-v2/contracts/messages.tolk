@@ -82,9 +82,9 @@ struct (0x2508d66a) UpgradeMinterCode {
     newCode: cell
 }
 
-struct (0xcb862902) ChangeMinterMetadataUri {
+struct (0xcb862902) ChangeMinterMetadata {
     queryId: uint64
-    newMetadataUri: string
+    newMetadata: cell
 }
 
 struct (0xd372158c) TopUpTons {}

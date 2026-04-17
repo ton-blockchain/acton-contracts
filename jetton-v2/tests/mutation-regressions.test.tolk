@@ -786,7 +786,7 @@ get fun `test mutation: minter should report mintable and emit set-code action o
         totalSupply: upgradedSupply,
         adminAddress: deployer.address,
         nextAdminAddress: null,
-        metadataUri: upgradedUri,
+        metadata: buildTestMetadata(upgradedUri),
     }.toCell();
     val newCode = build("JettonMinter");
 

@@ -115,14 +115,14 @@ fun JettonMinter.sendDropAdmin(self, from: address) {
     return net.send(from, outMessage);
 }
 
-fun JettonMinter.sendChangeMetadata(self, from: address, newMetadata: string) {
+fun JettonMinter.sendChangeMetadata(self, from: address, newMetadata: cell) {
     val outMessage = createMessage({
         bounce: false,
         value: ton("0.05"),
         dest: self.address,
-        body: ChangeMinterMetadataUri {
+        body: ChangeMinterMetadata {
             queryId: 0,
-            newMetadataUri: newMetadata,
+            newMetadata,
         },
     });
     return net.send(from, outMessage);
