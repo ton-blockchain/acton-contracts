@@ -1,54 +1,16 @@
-import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
+import "@acton/promts/prompts"
+import "utils/common"
 import "../wrappers/JettonMinter"
 
 fun main() {
-    val walletName = "deployer";
-    val deployer = net.wallet(walletName);
-    val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
-    val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
-    val nextAdmin = envOr("JETTON_NEXT_ADMIN", deployer.address);
-    val claimSender = envOr("JETTON_PENDING_ADMIN_ADDRESS", nextAdmin);
-    val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
+    val claimer = promptJettonWallet("JETTON_PENDING_ADMIN", "Select Pending Admin Wallet");
+    val minter = promptJettonMinter("Enter Jetton Minter address");
 
-    val expectedMinter = JettonMinter.fromStorage({
-        totalSupply: initialSupply,
-        adminAddress: deployer.address,
-        metadataUri,
-        nextAdminAddress: null,
-    });
-    val minterAddress: address? = env("JETTON_MINTER_ADDRESS");
-    var minter = expectedMinter;
-    if (minterAddress != null) {
-        minter = JettonMinter {
-            address: minterAddress,
-            init: expectedMinter.init,
-        };
-    }
+    val res = minter.sendClaimAdmin(claimer.address);
+    res.wait();
 
-    if (minterAddress == null) {
-        if (!net.isDeployed(minter.address)) {
-            val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
-            if (!deployRes.wait()) {
-                println("Deployment failed");
-                return;
-            }
-        }
-    } else if (!net.isBroadcasting() && !net.isDeployed(minter.address)) {
-        println("Minter is not deployed at {}", minter.address);
-        return;
-    }
-
-    println("Minter address: {}", minter.address);
-    println("Admin before claim: {}", minter.getAdminAddress());
-    println("Claim sender: {}", claimSender);
-
-    val claimRes = minter.sendClaimAdmin(claimSender);
-    if (!claimRes.wait()) {
-        println("Claim admin failed");
-        return;
-    }
-
-    println("Admin after claim: {}", minter.getAdminAddress());
+    println("JETTON CLAIM_SENDER={}", claimer.address);
+    printJettonMinterInfo(minter, "JETTON");
 }

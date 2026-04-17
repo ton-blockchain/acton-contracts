@@ -35,7 +35,7 @@ get fun `test admin: deploy should create minter without bounce`() {
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: 0,
         adminAddress: deployer.address,
-        metadataUri: "link",
+        metadata: buildTestMetadata("link"),
         nextAdminAddress: null,
     });
 
@@ -160,8 +160,8 @@ get fun `test admin: admin can change metadata uri`() {
     val oldUri = extractUriString(minter.getContent());
     expect(oldUri).toBeNotNull();
 
-    val changeResult = minter.sendChangeMetadata(deployer.address, newUri);
-    expect(changeResult).toHaveSuccessfulTx<ChangeMinterMetadataUri>({
+    val changeResult = minter.sendChangeMetadata(deployer.address, buildTestMetadata(newUri));
+    expect(changeResult).toHaveSuccessfulTx<ChangeMinterMetadata>({
         from: deployer.address,
         to: minter.address,
     });
@@ -180,9 +180,9 @@ get fun `test admin: non-admin cannot change metadata uri`() {
 
     val changeResult = minter.sendChangeMetadata(
         notDeployer.address,
-        "https://evil.meta.example/jetton.json",
+        buildTestMetadata("https://evil.meta.example/jetton.json"),
     );
-    expect(changeResult).toHaveFailedTx<ChangeMinterMetadataUri>({
+    expect(changeResult).toHaveFailedTx<ChangeMinterMetadata>({
         from: notDeployer.address,
         to: minter.address,
         exitCode: ERROR_NOT_OWNER,
@@ -278,7 +278,7 @@ get fun `test admin: non-admin should not be able to upgrade minter`() {
         totalSupply: ton("99"),
         adminAddress: deployer.address,
         nextAdminAddress: null,
-        metadataUri: "meta-upgrade",
+        metadata: buildTestMetadata("meta-upgrade"),
     }.toCell();
     val newCode = build("JettonMinter");
     val oldContentHash = minter.getContent().hash();
@@ -300,7 +300,7 @@ get fun `test admin: admin should be able to upgrade minter code and data`() {
         totalSupply: upgradedSupply,
         adminAddress: deployer.address,
         nextAdminAddress: null,
-        metadataUri: upgradedUri,
+        metadata: buildTestMetadata(upgradedUri),
     }.toCell();
     val newCode = build("JettonMinter");
 

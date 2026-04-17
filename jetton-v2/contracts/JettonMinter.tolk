@@ -21,7 +21,7 @@ type AllowedMessageToMinter =
     | ChangeMinterAdmin
     | ClaimMinterAdmin
     | DropMinterAdmin
-    | ChangeMinterMetadataUri
+    | ChangeMinterMetadata
     | UpgradeMinterCode
     | TopUpTons
 
@@ -166,10 +166,10 @@ fun onInternalMessage(in: InMessage) {
             storage.save();
         }
 
-        ChangeMinterMetadataUri => {
+        ChangeMinterMetadata => {
             var storage = lazy MinterStorage.load();
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
-            storage.metadataUri = msg.newMetadataUri;
+            storage.metadata = msg.newMetadata;
             storage.save();
         }
 
@@ -207,17 +207,12 @@ struct (0x00) SnakeDataReply {
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
     val jettonWalletCode = jettonWalletCompiledCode();
-    var metadata: OnchainMetadataReply = { contentDict: [] };
-    metadata
-        .contentDict
-        .set("uri".sha256(), SnakeDataReply { string: storage.metadataUri }.toCell());
-    metadata.contentDict.set("decimals".sha256(), SnakeDataReply { string: "9" }.toCell());
 
     return {
         totalSupply: storage.totalSupply,
         mintable: true,
         adminAddress: storage.adminAddress,
-        jettonContent: metadata.toCell(),
+        jettonContent: storage.metadata as Cell<OnchainMetadataReply>,
         jettonWalletCode,
     };
 }

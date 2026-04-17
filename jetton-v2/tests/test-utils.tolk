@@ -8,8 +8,15 @@ import "@acton/types/transaction"
 import "../contracts/jetton-utils"
 import "../contracts/messages"
 import "../contracts/storage"
+import "../contracts/types"
 import "../wrappers/JettonMinter"
 import "../wrappers/JettonWallet"
+
+fun buildTestMetadata(uri: string): cell {
+    var metadata: OnchainMetadataReply = { contentDict: [] };
+    metadata.contentDict.set("uri".sha256(), SnakeDataReply { string: uri }.toCell());
+    return metadata.toCell();
+}
 
 // Common values used across tests (nanotons for TON amounts)
 const TEST_JETTON_UNIT = 1
@@ -201,7 +208,7 @@ fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: initialSupply,
         adminAddress: deployer.address,
-        metadataUri: "link",
+        metadata: buildTestMetadata("link"),
         nextAdminAddress: null,
     });
 

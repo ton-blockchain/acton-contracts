@@ -1,55 +1,18 @@
-import "@acton/env"
-import "@acton/io"
 import "@acton/emulation/network"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "@acton/promts/prompts"
+import "utils/common"
 
 fun main() {
-    val walletName = "deployer";
-    val deployer = net.wallet(walletName);
-    val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
-    val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
-    val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
+    val deployer = promptJettonWallet("JETTON_DEPLOYER", "Select Jetton Deployer");
+    val admin = promptJettonAddress(
+        "JETTON_ADMIN_ADDRESS",
+        "Enter admin address",
+        deployer.address,
+    );
+    val storage = promptJettonMinterStorage(admin);
 
-    println("Using wallet: {}", walletName);
-    println("Broadcast mode: {}", net.isBroadcasting());
-    println("Metadata URI: {}", metadataUri);
-    println("Deploy value: {}", deployValue);
+    val minter = deployJettonMinter(deployer, storage);
 
-    val minter = JettonMinter.fromStorage({
-        totalSupply: initialSupply,
-        adminAddress: deployer.address,
-        metadataUri,
-        nextAdminAddress: null,
-    });
-    println("Prepared minter address: {}", minter.address);
-
-    println("Deploying jetton-v2 minter at {}", minter.address);
-    val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
-    if (!deployRes.wait()) {
-        println("Deployment failed");
-        return;
-    }
-
-    val adminWallet = JettonWallet { address: minter.getWalletAddress(deployer.address) };
-    val adminWalletDeployed = net.isDeployed(adminWallet.address);
-
-    println("Deployed JettonMinter at {}", minter.address);
-    println("JETTON_MINTER_ADDRESS={}", minter.address);
-    println("MINTER_ADDRESS={}", minter.address);
-    println("Admin: {}", deployer.address);
-    println("ADMIN_WALLET_ADDRESS={}", adminWallet.address);
-    println("Admin wallet: {}", adminWallet.address);
-    if (net.isBroadcasting()) {
-        println("Admin wallet getters are skipped in broadcast mode; rerun info after minting if needed.");
-    } else {
-        println("ADMIN_WALLET_DEPLOYED={}", adminWalletDeployed);
-        if (adminWalletDeployed) {
-            println("Admin wallet balance: {}", adminWallet.getJettonBalance());
-        } else {
-            println("Admin wallet balance: <unavailable>");
-        }
-    }
-    println("Total supply: {}", minter.getTotalSupply());
-    println("Mintable: {}", minter.getJettonData().mintable);
+    printJettonMinterInfo(minter, "JETTON");
+    printJettonWalletInfo(minter, admin, "JETTON_ADMIN");
 }

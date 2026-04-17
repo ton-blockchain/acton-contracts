@@ -8,7 +8,7 @@ struct MinterStorage {
     totalSupply: coins
     adminAddress: address?
     nextAdminAddress: address?
-    metadataUri: string
+    metadata: cell
 }
 
 fun MinterStorage.load() {
