@@ -56,7 +56,7 @@ fun setupTest() {
     // Create a treasury account for deployment (typically the owner)
     val deployer = net.treasury("deployer");
     // Create another treasury account for testing interactions from other users
-    val notDeployer = net.treasury("not_deployer");
+    val notDeployer = net.treasury("not-deployer");
 
     // Initialize and deploy the contract with default values
     val contract = Counter.fromStorage({ id: 0, counter: 0 });

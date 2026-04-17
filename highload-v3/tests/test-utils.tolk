@@ -81,7 +81,7 @@ fun setupHighloadTest(timeout: int = DEFAULT_TIMEOUT): TestContext {
 
     val keyPair = crypto.generateKeyPair();
     val deployer = net.treasury("deployer");
-    val notDeployer = net.treasury("not_deployer");
+    val notDeployer = net.treasury("not-deployer");
 
     val wallet = HighloadWalletV3.fromConfig(keyPair.publicKey, SUBWALLET_ID, timeout);
     val deployRes = wallet.deploy(

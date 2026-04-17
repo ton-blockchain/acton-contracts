@@ -37,7 +37,7 @@ get fun `test invariants: multisig unknown opcode should keep state unchanged`()
 
 get fun `test invariants: order unknown opcode should fail with ERROR_UNKNOWN_OP`() {
     net.setNow(1000);
-    val multisig = net.treasury("inv_order_multisig");
+    val multisig = net.treasury("inv-order-multisig");
 
     var signers = array<address> [];
     signers.push(createFundedAddress());

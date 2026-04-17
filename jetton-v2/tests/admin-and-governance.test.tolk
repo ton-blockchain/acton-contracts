@@ -30,7 +30,7 @@ fun assertSameShardPrefix(owner: address, wallet: address) {
 }
 
 get fun `test admin: deploy should create minter without bounce`() {
-    val deployer = net.treasury("deployer_manual_deploy");
+    val deployer = net.treasury("deployer-manual-deploy");
 
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: 0,

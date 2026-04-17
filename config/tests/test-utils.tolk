@@ -211,8 +211,8 @@ fun getElectorAddress(config: Config): address {
 fun setupConfigTest(): ConfigTestContext {
     net.setNow(1710000000);
 
-    val deployer = net.treasury("cfg_deployer");
-    val outsider = net.treasury("cfg_outsider");
+    val deployer = net.treasury("cfg-deployer");
+    val outsider = net.treasury("cfg-outsider");
     val proposer = net.randomAddress("cfg_proposer", MASTERCHAIN);
     val validatorSender = net.randomAddress("cfg_validator_sender", MASTERCHAIN);
 

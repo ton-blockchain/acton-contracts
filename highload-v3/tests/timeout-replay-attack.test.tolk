@@ -6,7 +6,7 @@ import "../wrappers/HighloadWalletV3"
 
 get fun `test timeout replay attack`() {
     val ctx = setupHighloadTest();
-    val newDeployer = net.treasury("new_deployer");
+    val newDeployer = net.treasury("new-deployer");
     val attacker = net.treasury("attacker");
 
     val newWallet = HighloadWalletV3.fromConfig(ctx.keyPair.publicKey, SUBWALLET_ID, 1234);
