@@ -1,0 +1,35 @@
+[package]
+name = "simple-extension"
+description = "A TON blockchain project"
+version = "0.1.0"
+license = "MIT"
+
+[contracts.SimpleExtension]
+display-name = "Simple Extension"
+src = "contracts/src/SimpleExtension.tolk"
+depends = []
+
+[contracts.WalletV5]
+display-name = "Wallet V5"
+src = "contracts/vendor/w5/contracts/WalletV5.tolk"
+depends = []
+
+[test]
+
+[fmt]
+width = 100
+ignore = []
+
+[scripts]
+deploy-emulation = "acton script contracts/scripts/deploy.tolk"
+deploy-testnet = "acton script contracts/scripts/deploy.tolk --net testnet"
+
+[import-mappings]
+acton = ".acton"
+contracts = "contracts/src"
+gen = "gen"
+tests = "contracts/tests"
+wrappers = "contracts/wrappers"
+
+# Check full Acton.toml reference and all available keys:
+# https://ton-blockchain.github.io/acton/docs/acton-toml
