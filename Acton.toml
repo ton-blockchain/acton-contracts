@@ -94,6 +94,8 @@ max-warnings = 0
 [lint.rules]
 explicit-return-type = "allow"
 unused-import = "allow"
+throw-requires-errors-enum = "allow"
+dict-type-use = "allow"
 
 [fmt]
 width = 100

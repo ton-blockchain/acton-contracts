@@ -10,6 +10,7 @@ import "../contracts/order-helpers"
 import "../contracts/storage"
 import "../contracts/types"
 
+/// SAFETY: helper
 fun setC5OutsideContract(value: cell): void
     asm "c5 POPCTR"
 
