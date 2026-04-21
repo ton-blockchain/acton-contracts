@@ -1,7 +1,8 @@
-import "@acton/build/build"
-import "@acton/crypto/crypto"
+import "@acton/build"
+import "@acton/crypto"
+import "@acton/ffi"
 import "@acton/emulation/network"
-import "@acton/ffi/ffi"
+import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/types/out_actions"
 import "../contracts/messages"
@@ -121,11 +122,11 @@ fun HighloadWalletV3.queryIdBitNumber(queryId: int): uint10 {
     return (queryId & 1023);
 }
 
-fun packOutActions(actions: array<OutAction>): cell {
-    var head = createEmptyCell() as Cell<OutList>;
+fun packTlbOutActions(actions: array<TlbOutAction>): cell {
+    var head = createEmptyCell() as Cell<TlbOutList>;
     var i = 0;
     while (i < actions.size()) {
-        head = OutList {
+        head = TlbOutList {
             prev: head,
             action: actions.get(i),
         }.toCell();
@@ -134,24 +135,24 @@ fun packOutActions(actions: array<OutAction>): cell {
     return head;
 }
 
-fun packSendActionsToCell(messages: array<OutActionSendMessage>, start: int, count: int): cell {
-    var head = createEmptyCell() as Cell<OutList>;
+fun packSendActionsToCell(messages: array<TlbOutActionSendMessage>, start: int, count: int): cell {
+    var head = createEmptyCell() as Cell<TlbOutList>;
     var i = 0;
     while (i < count) {
         val action = messages.get(start + i);
-        head = OutList {
+        head = TlbOutList {
             prev: head,
-            action: action as OutActionSendMessage,
+            action: action as TlbOutAction,
         }.toCell();
         i += 1;
     }
     return head;
 }
 
-fun HighloadWalletV3.createInternalTransferBody(queryId: int, actions: array<OutAction>) {
+fun HighloadWalletV3.createInternalTransferBody(queryId: int, actions: array<TlbOutAction>) {
     return InternalTransfer {
         queryId: queryId as uint64,
-        actions: packOutActions(actions),
+        actions: packTlbOutActions(actions),
     }.toCell();
 }
 
@@ -165,7 +166,7 @@ fun HighloadWalletV3.createInternalTransferBodyFromActionsCell(queryId: int, act
 fun HighloadWalletV3.createInternalTransferMessage(
     self,
     queryId: int,
-    actions: array<OutAction>,
+    actions: array<TlbOutAction>,
     value: coins = 0,
 ): OutMessage {
     val body = HighloadWalletV3.createInternalTransferBody(queryId, actions);
@@ -194,7 +195,7 @@ fun HighloadWalletV3.createInternalTransferMessageFromActionsCell(
 
 fun HighloadWalletV3.packActions(
     self,
-    messages: array<OutActionSendMessage>,
+    messages: array<TlbOutActionSendMessage>,
     value: coins,
     queryId: int,
 ): OutMessage {
@@ -203,7 +204,7 @@ fun HighloadWalletV3.packActions(
 
 fun HighloadWalletV3.packActionsRange(
     self,
-    messages: array<OutActionSendMessage>,
+    messages: array<TlbOutActionSendMessage>,
     start: int,
     count: int,
     value: coins,
@@ -219,13 +220,13 @@ fun HighloadWalletV3.packActionsRange(
         );
         val chainMode = value > 0 ? SEND_MODE_PAY_FEES_SEPARATELY : SEND_MODE_CARRY_ALL_BALANCE;
 
-        var head = packSendActionsToCell(messages, start, HIGHLOAD_CHAIN_CUT) as Cell<OutList>;
-        head = OutList {
+        var head = packSendActionsToCell(messages, start, HIGHLOAD_CHAIN_CUT) as Cell<TlbOutList>;
+        head = TlbOutList {
             prev: head,
-            action: OutActionSendMessage {
+            action: TlbOutActionSendMessage {
                 mode: chainMode,
                 outMsg: chained.messageCell,
-            },
+            } as TlbOutAction,
         }.toCell();
 
         return self.createInternalTransferMessageFromActionsCell(queryId, head, value);
@@ -263,7 +264,7 @@ fun HighloadWalletV3.sendExternalRequest(
 }
 
 fun HighloadWalletV3.sendRawExternalBody(self, body: cell): SendResultList {
-    val res = net.sendExternal(createExternalMessage(self.address, body.beginParse()));
+    val res = net.sendExternal(net.createExternalMessage(self.address, body.beginParse()));
     if (res == null) {
         Assert.fail("External was not accepted");
     }
@@ -271,13 +272,13 @@ fun HighloadWalletV3.sendRawExternalBody(self, body: cell): SendResultList {
 }
 
 fun HighloadWalletV3.trySendRawExternalBody(self, body: cell): SendResultList? {
-    val msg = createExternalMessage(self.address, body.beginParse());
+    val msg = net.createExternalMessage(self.address, body.beginParse());
     val extSrc = address("-1:0000000000000000000000000000000000000000000000000000000000000000");
     return ffi.sendMessageFrom(msg.messageCell, extSrc.toCell());
 }
 
 fun HighloadWalletV3.trySendRawExternalBodySingle(self, body: cell): SendResult? {
-    val msg = createExternalMessage(self.address, body.beginParse());
+    val msg = net.createExternalMessage(self.address, body.beginParse());
     val extSrc = address("-1:0000000000000000000000000000000000000000000000000000000000000000");
     val raw = ffi.sendSingleMessage(msg.messageCell, extSrc.toCell());
     if (raw == null) {
@@ -289,7 +290,7 @@ fun HighloadWalletV3.trySendRawExternalBodySingle(self, body: cell): SendResult?
 fun HighloadWalletV3.sendBatch(
     self,
     keyPair: KeyPair,
-    messages: array<OutActionSendMessage>,
+    messages: array<TlbOutActionSendMessage>,
     subwalletId: int,
     queryId: int,
     timeout: int,

@@ -1,11 +1,10 @@
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
-import "@acton/vm/vm"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/types"
@@ -32,8 +31,8 @@ struct MultisigTestContext {
 type GenericOrderAction = SendMessageAction | UpdateMultisigParamsAction
 
 fun createFundedAddress(): address {
-    val addr = net.randomAddress(null);
-    net.topUp(addr, ton("100"));
+    val addr = randomAddress(null);
+    testing.topUp(addr, ton("100"));
     return addr;
 }
 
@@ -71,12 +70,12 @@ fun setupMultisig(
     proposerCount: int = 1,
     allowArbitraryOrderSeqno: bool = false,
 ): MultisigTestContext {
-    net.setNow(1000);
-    vm.registerLibrary(build("Order"));
+    testing.setNow(1000);
+    testing.registerLibrary(build("Order"));
 
-    val deployer = net.treasury("msig-deployer");
-    val proposer = net.treasury("msig-proposer");
-    val outsider = net.treasury("msig-outsider");
+    val deployer = testing.treasury("msig-deployer");
+    val proposer = testing.treasury("msig-proposer");
+    val outsider = testing.treasury("msig-outsider");
 
     val signers = createSignerAddresses(signerCount, deployer.address);
     val proposers = createProposerAddresses(proposerCount, proposer.address);
@@ -234,7 +233,7 @@ fun equalAddressArrays(left: array<address>, right: array<address>): bool {
 }
 
 fun nowPlus(delta: int = DEFAULT_ORDER_TTL): int {
-    return net.now() + delta;
+    return testing.getNow() + delta;
 }
 
 fun deployOrderFor(multisigAddress: address, orderSeqno: int): MultisigV2Order {
@@ -350,19 +349,19 @@ fun buildLargeOrderRange(
 
 fun getTxLt(res: SendResultList, params: SearchParams): int {
     val tx = res.findTransaction(params);
-    expect(tx).toBeDefined();
-    return tx.unwrap().lt;
+    expect(tx).toBeNotNull();
+    return tx!.lt;
 }
 
 fun makeApproveCommentBody(comment: string): cell {
     return beginCell().storeUint(0, 32).storeSlice(comment.beginParse()).endCell();
 }
 
-fun loadApproveAccepted(tx: Transaction): ApproveAccepted {
+fun loadApproveAccepted(tx: TlbTransaction): ApproveAccepted {
     return tx.loadBody<ApproveAccepted>();
 }
 
-fun loadApproveRejected(tx: Transaction): ApproveRejected {
+fun loadApproveRejected(tx: TlbTransaction): ApproveRejected {
     return tx.loadBody<ApproveRejected>();
 }
 

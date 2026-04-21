@@ -1,8 +1,9 @@
+import "@acton/build"
+import "@acton/crypto"
 import "@acton/env"
 import "@acton/io"
-import "@acton/build/build"
-import "@acton/crypto/crypto"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "../contracts/messages"
 import "../contracts/storage"
 import "../wrappers/WalletV5Contract"
@@ -15,7 +16,7 @@ const W5_DEFAULT_ADMIN_VALUE = ton("0.03")
 const W5_DEFAULT_QUERY_ID = 0
 
 fun w5Seed(): int {
-    return envOr("W5_SEED", W5_DEFAULT_SEED);
+    return env<int>("W5_SEED") ?? W5_DEFAULT_SEED;
 }
 
 fun w5KeyPair(): KeyPair {
@@ -23,19 +24,19 @@ fun w5KeyPair(): KeyPair {
 }
 
 fun w5SubwalletId(): int {
-    return envOr("W5_SUBWALLET_ID", W5_DEFAULT_SUBWALLET_ID);
+    return env<int>("W5_SUBWALLET_ID") ?? W5_DEFAULT_SUBWALLET_ID;
 }
 
 fun w5DeployValue(): int {
-    return envOr("W5_DEPLOY_VALUE", W5_DEFAULT_DEPLOY_VALUE);
+    return env<int>("W5_DEPLOY_VALUE") ?? W5_DEFAULT_DEPLOY_VALUE;
 }
 
 fun w5ActionValue(): int {
-    return envOr("W5_ACTION_VALUE", W5_DEFAULT_ACTION_VALUE);
+    return env<int>("W5_ACTION_VALUE") ?? W5_DEFAULT_ACTION_VALUE;
 }
 
 fun w5AdminValue(): int {
-    return envOr("W5_ADMIN_VALUE", W5_DEFAULT_ADMIN_VALUE);
+    return env<int>("W5_ADMIN_VALUE") ?? W5_DEFAULT_ADMIN_VALUE;
 }
 
 fun w5WalletAddress(): address? {

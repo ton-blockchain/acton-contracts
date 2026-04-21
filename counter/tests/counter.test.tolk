@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 
 import "../contracts/types"
 import "../wrappers/Counter"
@@ -54,9 +54,9 @@ get fun `test unknown message`() {
 /// Returns the contract wrapper and two treasury accounts (`deployer` and `not_deployer`).
 fun setupTest() {
     // Create a treasury account for deployment (typically the owner)
-    val deployer = net.treasury("deployer");
+    val deployer = testing.treasury("deployer");
     // Create another treasury account for testing interactions from other users
-    val notDeployer = net.treasury("not-deployer");
+    val notDeployer = testing.treasury("not-deployer");
 
     // Initialize and deploy the contract with default values
     val contract = Counter.fromStorage({ id: 0, counter: 0 });

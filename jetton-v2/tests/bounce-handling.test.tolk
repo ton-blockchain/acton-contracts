@@ -1,4 +1,5 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "@acton/types/message"
 import "@acton/types/transaction"
@@ -32,7 +33,7 @@ get fun `test minter restores supply on internal_transfer bounce`() {
         },
     });
 
-    val res = net.sendSingle(deployer.address, mintMsg);
+    val res = testing.processSingleTraceStep(deployer.address, mintMsg);
     expect(minter.getTotalSupply()).toEqual(supplyBefore + mintAmount);
 
     val outMsg = res.outMessages.at<InternalTransferStep>(0);
@@ -49,7 +50,7 @@ get fun `test minter restores supply on internal_transfer bounce`() {
         body: bouncedBody,
     }).bounced();
     // todo: rich bounces
-    net.sendSingle(wallet.address, bouncedMsg);
+    testing.processSingleTraceStep(wallet.address, bouncedMsg);
 
     expect(minter.getTotalSupply()).toEqual(supplyBefore);
 }
@@ -75,7 +76,7 @@ get fun `test wallet restores balance on internal_transfer bounce`() {
         },
     });
 
-    val res = net.sendSingle(deployer.address, transferMsg);
+    val res = testing.processSingleTraceStep(deployer.address, transferMsg);
     expect(senderWallet.getJettonBalance()).toEqual(balanceBefore - ton("2"));
 
     val outMsg = res.outMessages.at<InternalTransferStep>(0);
@@ -91,7 +92,7 @@ get fun `test wallet restores balance on internal_transfer bounce`() {
         dest: senderWallet.address,
         body: bouncedBody,
     }).bounced();
-    net.sendSingle(receiverWallet.address, bouncedMsg);
+    testing.processSingleTraceStep(receiverWallet.address, bouncedMsg);
 
     expect(senderWallet.getJettonBalance()).toEqual(balanceBefore);
 }
@@ -112,7 +113,7 @@ get fun `test wallet restores balance on burn_notification bounce`() {
             customPayload: null,
         },
     });
-    val res = net.sendSingle(deployer.address, burnMsg);
+    val res = testing.processSingleTraceStep(deployer.address, burnMsg);
     expect(wallet.getJettonBalance()).toEqual(balanceBefore - ton("1"));
 
     val outMsg = res.outMessages.at<BurnNotificationForMinter>(0);
@@ -127,7 +128,7 @@ get fun `test wallet restores balance on burn_notification bounce`() {
         dest: wallet.address,
         body: bouncedBody,
     }).bounced();
-    net.sendSingle(minter.address, bouncedMsg);
+    testing.processSingleTraceStep(minter.address, bouncedMsg);
 
     expect(wallet.getJettonBalance()).toEqual(balanceBefore);
 }

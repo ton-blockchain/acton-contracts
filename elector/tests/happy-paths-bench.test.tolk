@@ -1,8 +1,8 @@
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
@@ -13,7 +13,7 @@ get fun `test bench announce elections`() {
     val setup = setupElector();
     val elector = setup.elector;
 
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
 
     expect(elector.activeElectionId()).toNotEqual(0);
 }
@@ -58,11 +58,11 @@ get fun `test bench install vset`() {
     announceElections(elector);
     val (_, vsetCell, _) = conductElectionsAndGetVset(elector, setup.configAddr);
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, vsetCell);
-    net.setConfig(config);
+    testing.setConfig(config);
 
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
 
     expect(elector.activeElectionId()).toEqual(0);
 }
@@ -75,7 +75,7 @@ get fun `test bench recover stake`() {
     announceElections(elector);
 
     // Submit 6 validators with maxValidators=5 so the 6th gets credited back
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(
         16,
         ValidatorLimits {
@@ -84,12 +84,12 @@ get fun `test bench recover stake`() {
             minValidators: 5,
         }.toCell(),
     );
-    net.setConfig(config);
+    testing.setConfig(config);
 
     val stakeLimits = defaultStakeLimits();
     val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
     var totalStake: coins = 0;
-    var extraSrcAddr = net.randomAddress("placeholder", MASTERCHAIN);
+    var extraSrcAddr = randomAddress("placeholder", MASTERCHAIN);
     var i = 0;
     while (i < 6) {
         val (_, srcAddr, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
@@ -109,11 +109,11 @@ get fun `test bench recover stake`() {
         _,
         _,
     ) = elector.participantListExtended();
-    net.setNow(closeAt + 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(closeAt + 1);
+    testing.runTickTock(elector.address, true);
 
     val res = elector.sendRecoverStakeRequest(extraSrcAddr, 1, { value: ton("1") });
-    expect(res).toHaveSuccessfulTx<PayStake>({ from: elector.address, to: extraSrcAddr });
+    expect(res).toHaveTx<PayStake>({ from: elector.address, to: extraSrcAddr });
 }
 
 /// Benchmark: submit complaint
@@ -125,8 +125,8 @@ get fun `test bench new complaint`() {
     val (stakeAt, knownPubkey) = conductElectionsWithKnownValidator(elector);
 
     val complaint = createComplaint(knownPubkey, ton("100"), 1 << 30);
-    val sender = net.randomAddress("complainer", MASTERCHAIN);
-    net.topUp(sender, ton("1000"));
+    val sender = randomAddress("complainer", MASTERCHAIN);
+    testing.topUp(sender, ton("1000"));
 
     val res = elector.sendNewComplaint(
         sender,
@@ -135,7 +135,7 @@ get fun `test bench new complaint`() {
         complaint.toCell().beginParse(),
         { value: ton("500") },
     );
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: sender });
+    expect(res).toHaveTx({ from: elector.address, to: sender });
 }
 
 /// Benchmark: full voting cycle (2/3 threshold)
@@ -197,9 +197,9 @@ fun setupVsetWithKnownValidators(numValidators: int): array<KeyPair> {
         totalWeight,
         dict,
     };
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, vset.toCell());
-    net.setConfig(config);
+    testing.setConfig(config);
     return kps;
 }
 
@@ -211,8 +211,8 @@ fun registerTestComplaint(
     fine: coins,
 ): uint256 {
     val complaint = createComplaint(frozenPubkey, fine, 0);
-    val sender = net.randomAddress("complainer", MASTERCHAIN);
-    net.topUp(sender, ton("1000"));
+    val sender = randomAddress("complainer", MASTERCHAIN);
+    testing.topUp(sender, ton("1000"));
     elector.sendNewComplaint(
         sender,
         1,
@@ -245,8 +245,8 @@ fun sendVote(
     val voteCell = vote.toCell();
     val sig = crypto.sign(privateKey, voteCell).loadBits(512) as bits512;
 
-    val voter = net.randomAddress("voter", MASTERCHAIN);
-    net.topUp(voter, ton("10"));
+    val voter = randomAddress("voter", MASTERCHAIN);
+    testing.topUp(voter, ton("10"));
     return elector.sendSignedVoteForComplaint(
         voter,
         queryId,

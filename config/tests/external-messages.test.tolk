@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
@@ -28,7 +28,7 @@ get fun `test external msg: should reject expired vote and accept non-expired vo
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -66,7 +66,7 @@ get fun `test external msg: should reject too-deep body before parsing`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -82,7 +82,7 @@ get fun `test external msg: should reject bad signature`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -104,7 +104,7 @@ get fun `test external msg invariant: should track seqno strictly`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );

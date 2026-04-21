@@ -1,4 +1,4 @@
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
 import "../contracts/messages"
 import "../contracts/storage"
@@ -159,5 +159,5 @@ fun JettonMinter.getContent(self): cell {
 }
 
 fun JettonMinter.getWalletAddress(self, owner: address): address {
-    return net.runGetMethod(self.address, "get_wallet_address", owner);
+    return net.runGetMethod(self.address, "get_wallet_address", [owner]);
 }

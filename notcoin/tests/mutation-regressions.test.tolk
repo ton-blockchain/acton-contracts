@@ -1,8 +1,8 @@
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/message"
 import "@acton/types/out_actions"
@@ -196,15 +196,15 @@ get fun `test mutation: direct wallet internal transfer should persist balance a
         success: true,
         exitCode: 0,
     });
-    expect(excessTx).toBeDefined();
-    expect(excessTx.unwrap().loadInMsg<ReturnExcessesBack>().info.value.grams).toBeGreater(0);
+    expect(excessTx).toBeNotNull();
+    expect(excessTx!.loadInMsg<ReturnExcessesBack>().info.value.grams).toBeGreater(0);
 }
 
 get fun `test mutation: direct wallet should accept sibling transfers and reject outsiders`() {
-    val senderOwner = net.treasury("direct-wallet-sender-owner");
-    val minter = net.treasury("direct-wallet-pair-minter");
-    val receiverOwner = net.treasury("direct-wallet-receiver-owner");
-    val outsider = net.treasury("direct-wallet-pair-outsider");
+    val senderOwner = testing.treasury("direct-wallet-sender-owner");
+    val minter = testing.treasury("direct-wallet-pair-minter");
+    val receiverOwner = testing.treasury("direct-wallet-receiver-owner");
+    val outsider = testing.treasury("direct-wallet-pair-outsider");
 
     val senderWallet = deployWalletFromStorage(
         WalletStorage {
@@ -303,7 +303,7 @@ get fun `test mutation: direct wallet zero forward ton should not notify owner`(
 get fun `test mutation: direct wallet exact-balance transfer should persist and use deploy mode`() {
     val startBalance = ton("3");
     val (wallet, owner, _, _) = setupDirectWallet(startBalance);
-    val recipientOwner = net.treasury("direct-wallet-transfer-recipient");
+    val recipientOwner = testing.treasury("direct-wallet-transfer-recipient");
 
     val res = wallet.sendTransfer(
         owner.address,
@@ -327,7 +327,7 @@ get fun `test mutation: direct wallet exact-balance transfer should persist and 
 
 get fun `test mutation: direct wallet should reject non-owner transfers`() {
     val (wallet, _, _, outsider) = setupDirectWallet(ton("3"));
-    val receiver = net.treasury("direct-wallet-non-owner-receiver");
+    val receiver = testing.treasury("direct-wallet-non-owner-receiver");
 
     val res = wallet.sendTransfer(
         outsider.address,
@@ -347,9 +347,9 @@ get fun `test mutation: direct wallet should reject non-owner transfers`() {
 }
 
 get fun `test mutation: direct wallet should reject overspending jettons`() {
-    val owner = net.treasury("direct-wallet-overspend-owner");
-    val minter = net.treasury("direct-wallet-overspend-minter");
-    val recipientOwner = net.treasury("direct-wallet-overspend-recipient");
+    val owner = testing.treasury("direct-wallet-overspend-owner");
+    val minter = testing.treasury("direct-wallet-overspend-minter");
+    val recipientOwner = testing.treasury("direct-wallet-overspend-recipient");
     val wallet = deployWalletFromStorage(
         WalletStorage {
             status: 0,
@@ -492,8 +492,8 @@ get fun `test mutation: direct wallet should reject non-owner burns`() {
 }
 
 get fun `test mutation: direct wallet should reject overburning jettons`() {
-    val owner = net.treasury("direct-wallet-overburn-owner");
-    val minter = net.treasury("direct-wallet-overburn-minter");
+    val owner = testing.treasury("direct-wallet-overburn-owner");
+    val minter = testing.treasury("direct-wallet-overburn-minter");
     val wallet = deployWalletFromStorage(
         WalletStorage {
             status: 0,
@@ -514,9 +514,9 @@ get fun `test mutation: direct wallet should reject overburning jettons`() {
 }
 
 get fun `test mutation: direct wallet bounced transfer should restore balance persistently`() {
-    val owner = net.treasury("direct-wallet-bounce-owner");
-    val minter = net.treasury("direct-wallet-bounce-minter");
-    val recipientOwner = net.treasury("direct-wallet-bounce-recipient");
+    val owner = testing.treasury("direct-wallet-bounce-owner");
+    val minter = testing.treasury("direct-wallet-bounce-minter");
+    val recipientOwner = testing.treasury("direct-wallet-bounce-recipient");
     val senderWallet = deployWalletFromStorage(
         WalletStorage {
             status: 0,
@@ -551,7 +551,7 @@ get fun `test mutation: direct wallet bounced transfer should restore balance pe
             forwardPayload,
         },
     });
-    val res = net.sendSingle(owner.address, transferMsg);
+    val res = testing.processSingleTraceStep(owner.address, transferMsg);
     expect(senderWallet.getJettonBalance()).toEqual(ton("1"));
 
     val outMsg = res.outMessages.at<InternalTransferStep>(0);
@@ -566,14 +566,14 @@ get fun `test mutation: direct wallet bounced transfer should restore balance pe
         dest: senderWallet.address,
         body: bouncedBody,
     }).bounced();
-    net.sendSingle(receiverWallet.address, bouncedMsg);
+    testing.processSingleTraceStep(receiverWallet.address, bouncedMsg);
 
     expect(senderWallet.getJettonBalance()).toEqual(ton("3"));
 }
 
 get fun `test mutation: direct wallet transfer minimal value edge`() {
     val (wallet, owner, _, _) = setupDirectWallet(DEFAULT_MINTED_JETTONS);
-    val dest = net.randomAddress();
+    val dest = randomAddress();
     val body = buildTransferBody(TEST_JETTON_UNIT, 0, dest, dest, makeTinyForwardPayload());
 
     val fwdFee = estimateBodyForwardFee(body);
@@ -608,7 +608,7 @@ get fun `test mutation: direct wallet transfer minimal value edge`() {
 
 get fun `test mutation: direct wallet transfer with forward amount requires second fee`() {
     val (wallet, owner, _, _) = setupDirectWallet(DEFAULT_MINTED_JETTONS);
-    val dest = net.randomAddress();
+    val dest = randomAddress();
     val body = buildTransferBody(
         TEST_JETTON_UNIT,
         DEFAULT_FORWARD_TON_AMOUNT,
@@ -654,7 +654,7 @@ get fun `test mutation: direct wallet transfer with forward amount requires seco
 
 get fun `test mutation: direct wallet transfer gas and storage fees should follow config`() {
     val (wallet, owner, _, _) = setupDirectWallet(DEFAULT_MINTED_JETTONS);
-    val dest = net.randomAddress();
+    val dest = randomAddress();
     val body = buildTransferBody(
         TEST_JETTON_UNIT,
         DEFAULT_FORWARD_TON_AMOUNT,
@@ -667,7 +667,7 @@ get fun `test mutation: direct wallet transfer gas and storage fees should follo
     val minimalBefore = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFee) +
     MIN_EDGE_DELTA;
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var gasPrices = config.getGasPrices(BASECHAIN);
     var gasPricesExtended = gasPrices.other;
     gasPricesExtended.gasPrice *= GAS_SCALE_X3;
@@ -680,7 +680,7 @@ get fun `test mutation: direct wallet transfer gas and storage fees should follo
     initialStoragePrices.cellPrice *= CONFIG_SCALE_X10;
     storagePrices.setInitial(initialStoragePrices);
     config.setStoragePrices(storagePrices);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 
     val minimalAfter = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFee) +
     MIN_EDGE_DELTA;
@@ -744,7 +744,7 @@ get fun `test mutation: direct wallet burn fees should follow config`() {
     val (wallet, owner, _, _) = setupDirectWallet(DEFAULT_MINTED_JETTONS);
     val minimalBefore = calcMinimalBurnAmount() + MIN_EDGE_DELTA;
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var msgPrices = config.getMsgForwardPrices(BASECHAIN);
     msgPrices.bitPrice *= CONFIG_SCALE_X10;
     msgPrices.cellPrice *= CONFIG_SCALE_X10;
@@ -755,7 +755,7 @@ get fun `test mutation: direct wallet burn fees should follow config`() {
     gasPricesExtended.gasPrice *= GAS_SCALE_X3;
     gasPrices.other = gasPricesExtended;
     config.setGasPrices(gasPrices, BASECHAIN);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 
     val minimalAfter = calcMinimalBurnAmount() + MIN_EDGE_DELTA;
     expect(minimalBefore).toBeLess(minimalAfter);
@@ -907,7 +907,7 @@ get fun `test mutation: minter discovery and burn paths should use expected send
 
 get fun `test mutation: minter mint minimal value edge and deploy mode`() {
     val (minter, deployer, _) = setupTest();
-    val recipient = net.treasury("minter-mutation-recipient");
+    val recipient = testing.treasury("minter-mutation-recipient");
     val forwardPayload = makeTinyForwardPayload();
     val minimalUpperBound = estimateMinimalMintTonAmount(
         minter.address,
@@ -964,7 +964,7 @@ get fun `test mutation: minter mint minimal value edge and deploy mode`() {
 
 get fun `test mutation: minter mint fees should follow forward gas and storage config`() {
     val (minter, deployer, _) = setupTest();
-    val recipient = net.treasury("minter-fee-recipient");
+    val recipient = testing.treasury("minter-fee-recipient");
     val customPayload = makeRichCustomPayload();
     val forwardPayload = beginCell().storeMaybeRef(customPayload).endCell().beginParse();
     val minimalBeforeUpperBound = estimateMinimalMintTonAmount(
@@ -981,7 +981,7 @@ get fun `test mutation: minter mint fees should follow forward gas and storage c
         forwardPayload,
     );
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var msgPrices = config.getMsgForwardPrices(BASECHAIN);
     msgPrices.bitPrice *= CONFIG_SCALE_X10;
     msgPrices.cellPrice *= CONFIG_SCALE_X10;
@@ -999,7 +999,7 @@ get fun `test mutation: minter mint fees should follow forward gas and storage c
     initialStoragePrices.cellPrice *= CONFIG_SCALE_X10;
     storagePrices.setInitial(initialStoragePrices);
     config.setStoragePrices(storagePrices);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 
     val minimalAfterUpperBound = estimateMinimalMintTonAmount(
         minter.address,

@@ -1,6 +1,7 @@
 import "@stdlib/tvm-dicts"
+import "@acton/prompts"
 import "@acton/emulation/network"
-import "@acton/promts/prompts"
+import "@acton/emulation/scripts"
 import "utils/common"
 import "../wrappers/NftItemContract"
 
@@ -9,7 +10,7 @@ fun main() {
     val item = promptNftItemContract("Enter NFT Item address");
     val newOwner = promptNftAddress(
         "Enter new owner address",
-        net.treasury("nft-new-owner").address,
+        scripts.wallet("nft-new-owner").address,
     );
 
     val res = item.sendAskToChangeOwnership(

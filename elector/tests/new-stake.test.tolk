@@ -1,9 +1,9 @@
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
@@ -17,30 +17,36 @@ get fun `test new stake no elections`() {
     expect(elector.activeElectionId()).toEqual(0);
 
     val kp = crypto.generateKeyPair();
-    val srcAddr = net.randomAddress("staker", MASTERCHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr = randomAddress("staker", MASTERCHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
     val stake: coins = 11000 * ONECOIN;
     val maxFactor: uint32 = (1 << 16) + (1 << 15); // 1.5
 
-    val signature = generateStakeSignature(kp.privateKey, net.now(), maxFactor, srcHash, adnlInt);
+    val signature = generateStakeSignature(
+        kp.privateKey,
+        testing.getNow(),
+        maxFactor,
+        srcHash,
+        adnlInt,
+    );
 
     // Send stake when no elections — should be rejected (reason 0)
     val res = elector.sendNewStakeMessage(
         srcAddr,
         0,
         kp.publicKey,
-        net.now(),
+        testing.getNow(),
         maxFactor,
         adnlInt,
         signature,
         { value: stake + ONECOIN },
     );
     // Should have a response (stake returned)
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 
     // Now announce elections and submit same stake — should succeed
     announceElections(elector);
@@ -73,9 +79,9 @@ get fun `test new stake not masterchain`() {
 
     val kp = crypto.generateKeyPair();
     // Source address on basechain (should be rejected)
-    val srcAddr = net.randomAddress("staker", BASECHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr = randomAddress("staker", BASECHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -95,11 +101,11 @@ get fun `test new stake not masterchain`() {
         signature,
         { value: stake + ONECOIN },
     );
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 
     // Now send from masterchain — should succeed
-    val mcSrcAddr = net.randomAddress("mc-staker", MASTERCHAIN);
-    net.topUp(mcSrcAddr, ton("100000"));
+    val mcSrcAddr = randomAddress("mc-staker", MASTERCHAIN);
+    testing.topUp(mcSrcAddr, ton("100000"));
     val (_, mcSrcHash) = mcSrcAddr.getWorkchainAndHash();
 
     val signature2 = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, mcSrcHash, adnlInt);
@@ -147,7 +153,7 @@ get fun `test new stake already finished`() {
 
     // Try to submit a new stake after elections finished — should be rejected (reason 0)
     val (res, srcAddr, _, _, _) = submitValidStake(elector, totalStake);
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 }
 
 get fun `test new stake invalid signature`() {
@@ -160,9 +166,9 @@ get fun `test new stake invalid signature`() {
 
     val kp = crypto.generateKeyPair();
     val wrongKp = crypto.generateKeyPair();
-    val srcAddr = net.randomAddress("staker", MASTERCHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr = randomAddress("staker", MASTERCHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -183,7 +189,7 @@ get fun `test new stake invalid signature`() {
         { value: stake + ONECOIN },
     );
     // Should be rejected (reason 1 — invalid signature)
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 
     // Now sign with correct key — should succeed
     val correctSig = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
@@ -210,9 +216,9 @@ get fun `test new stake low factor`() {
     expect(stakeAt).toNotEqual(0);
 
     val kp = crypto.generateKeyPair();
-    val srcAddr = net.randomAddress("staker", MASTERCHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr = randomAddress("staker", MASTERCHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -232,7 +238,7 @@ get fun `test new stake low factor`() {
         signature,
         { value: stake + ONECOIN },
     );
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 }
 
 get fun `test new stake wrong elections`() {
@@ -244,9 +250,9 @@ get fun `test new stake wrong elections`() {
     expect(stakeAt).toNotEqual(0);
 
     val kp = crypto.generateKeyPair();
-    val srcAddr = net.randomAddress("staker", MASTERCHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr = randomAddress("staker", MASTERCHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -273,7 +279,7 @@ get fun `test new stake wrong elections`() {
         signature,
         { value: stake + ONECOIN },
     );
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 
     // Correct election ID — should succeed
     val correctSig = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash, adnlInt);
@@ -300,11 +306,11 @@ get fun `test new stake pkey addr pair`() {
     expect(stakeAt).toNotEqual(0);
 
     val kp = crypto.generateKeyPair();
-    val srcAddr1 = net.randomAddress("staker1", MASTERCHAIN);
-    val srcAddr2 = net.randomAddress("staker2", MASTERCHAIN);
-    net.topUp(srcAddr1, ton("100000"));
-    net.topUp(srcAddr2, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr1 = randomAddress("staker1", MASTERCHAIN);
+    val srcAddr2 = randomAddress("staker2", MASTERCHAIN);
+    testing.topUp(srcAddr1, ton("100000"));
+    testing.topUp(srcAddr2, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash1) = srcAddr1.getWorkchainAndHash();
     val (_, srcHash2) = srcAddr2.getWorkchainAndHash();
@@ -342,10 +348,10 @@ get fun `test new stake pkey addr pair`() {
         sig2,
         { value: stake + ONECOIN },
     );
-    expect(res2).toHaveSuccessfulTx({ from: elector.address, to: srcAddr2 });
+    expect(res2).toHaveTx({ from: elector.address, to: srcAddr2 });
 
     // Same pubkey from original address — should succeed (adds to existing stake)
-    val adnlAddr2 = net.randomAddress("adnl2", MASTERCHAIN);
+    val adnlAddr2 = randomAddress("adnl2", MASTERCHAIN);
     val (_, adnlInt2) = adnlAddr2.getWorkchainAndHash();
     val sig3 = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, srcHash1, adnlInt2);
     val res3 = elector.sendNewStakeMessage(
@@ -374,9 +380,9 @@ get fun `test new stake lower min stake`() {
     expect(stakeAt).toNotEqual(0);
 
     val kp = crypto.generateKeyPair();
-    val srcAddr = net.randomAddress("staker", MASTERCHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr = randomAddress("staker", MASTERCHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -398,7 +404,7 @@ get fun `test new stake lower min stake`() {
         signature,
         { value: lowStake + ONECOIN },
     );
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 
     // Now send with min_stake + confirmation fee — should succeed
     val res2 = elector.sendNewStakeMessage(
@@ -454,9 +460,9 @@ get fun `test new stake success query id`() {
     expect(stakeAt).toNotEqual(0);
 
     val kp = crypto.generateKeyPair();
-    val srcAddr = net.randomAddress("staker", MASTERCHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr = randomAddress("staker", MASTERCHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -478,7 +484,7 @@ get fun `test new stake success query id`() {
     );
 
     // With queryId > 0, should have a confirmation message back
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 
     // Verify stake recorded
     val curStake = elector.participatesIn(kp.publicKey);
@@ -504,9 +510,9 @@ get fun `test new stake low fraction confirmation fee`() {
     }
 
     val kp = crypto.generateKeyPair();
-    val srcAddr = net.randomAddress("low-staker", MASTERCHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr = randomAddress("low-staker", MASTERCHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -527,7 +533,7 @@ get fun `test new stake low fraction confirmation fee`() {
         signature,
         { value: tinyStake },
     );
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 
     // With ONECOIN + 1 added — passes fraction check (may still fail min_stake, reason 5)
     val res2 = elector.sendNewStakeMessage(
@@ -541,7 +547,7 @@ get fun `test new stake low fraction confirmation fee`() {
         { value: tinyStake + ONECOIN + 1 },
     );
     // Either succeeds or fails with different reason (5), but NOT low fraction (2)
-    expect(res2).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res2).toHaveTx({ from: elector.address, to: srcAddr });
 }
 
 /// Test that sending min_stake without 1 TON fee causes stake-too-low rejection
@@ -554,9 +560,9 @@ get fun `test new stake lower min stake confirmation fee`() {
     expect(stakeAt).toNotEqual(0);
 
     val kp = crypto.generateKeyPair();
-    val srcAddr = net.randomAddress("staker", MASTERCHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val srcAddr = randomAddress("staker", MASTERCHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -578,7 +584,7 @@ get fun `test new stake lower min stake confirmation fee`() {
         signature,
         { value: tonAmount },
     );
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 
     // With ONECOIN added — should succeed
     val res2 = elector.sendNewStakeMessage(
@@ -591,7 +597,7 @@ get fun `test new stake lower min stake confirmation fee`() {
         signature,
         { value: tonAmount + ONECOIN },
     );
-    expect(res2).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res2).toHaveTx({ from: elector.address, to: srcAddr });
 }
 
 get fun `test new stake low fraction`() {
@@ -625,9 +631,9 @@ get fun `test new stake low fraction`() {
 
     // Now try to submit a stake that is less than 1/4096 of totalStake
     val kp = crypto.generateKeyPair();
-    val srcAddr = net.randomAddress("low-staker", MASTERCHAIN);
-    net.topUp(srcAddr, ton("100000"));
-    val adnlAddr = net.randomAddress("adnl-low", MASTERCHAIN);
+    val srcAddr = randomAddress("low-staker", MASTERCHAIN);
+    testing.topUp(srcAddr, ton("100000"));
+    val adnlAddr = randomAddress("adnl-low", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -650,5 +656,5 @@ get fun `test new stake low fraction`() {
         signature,
         { value: tinyStake },
     );
-    expect(res).toHaveSuccessfulTx({ from: elector.address, to: srcAddr });
+    expect(res).toHaveTx({ from: elector.address, to: srcAddr });
 }

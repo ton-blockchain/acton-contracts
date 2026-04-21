@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/out_actions"
 import "test-utils"
@@ -28,18 +28,18 @@ fun buildBenchmarkActionListCellRange(
     markerBase: int,
     actionMode: int = SEND_MODE_PAY_FEES_SEPARATELY,
 ) {
-    var actionsCell = createEmptyCell() as Cell<OutList>;
+    var actionsCell = createEmptyCell() as Cell<TlbOutList>;
     var i = 0;
     while (i < count) {
         val action = sendAction(
-            net.randomAddress(null),
+            randomAddress(null),
             HIGHLOAD_E2E_BATCH_SEND_VALUE,
             benchmarkMarkerBody(markerBase + startIndex + i),
             actionMode,
         );
-        actionsCell = OutList {
+        actionsCell = TlbOutList {
             prev: actionsCell,
-            action: action as OutAction,
+            action: action as TlbOutAction,
         }.toCell();
         i += 1;
     }
@@ -59,7 +59,7 @@ fun deployHighloadWalletStage() {
 
 fun processSingleTransferStage(ctx: TestContext, queryCursor: HighloadQueryId) {
     val queryId = queryCursor.toInt();
-    val recipient = net.randomAddress("highload-e2e-single");
+    val recipient = randomAddress("highload-e2e-single");
     val body = benchmarkMarkerBody(HIGHLOAD_E2E_SINGLE_MARKER);
 
     val outMsg = createMessage({
@@ -75,10 +75,10 @@ fun processSingleTransferStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         outMsg,
         SEND_MODE_PAY_FEES_SEPARATELY,
         queryId,
-        net.now(),
+        testing.getNow(),
     );
 
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({
         from: ctx.wallet.address,
         to: recipient,
         value: HIGHLOAD_E2E_DIRECT_SEND_VALUE,
@@ -97,8 +97,8 @@ fun assertBatchStageSuccess(
     actionCount: int,
 ) {
     expect(res).toHaveSuccessfulTx<InternalTransfer>({ from: wallet.address, to: wallet.address });
-    expect(res).toHaveSuccessfulTx({ from: wallet.address, body: benchmarkMarkerBody(markerBase) });
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({ from: wallet.address, body: benchmarkMarkerBody(markerBase) });
+    expect(res).toHaveTx({
         from: wallet.address,
         body: benchmarkMarkerBody(markerBase + actionCount - 1),
     });
@@ -123,7 +123,7 @@ fun processMaxInlineBatchStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         batchMessage,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        net.now(),
+        testing.getNow(),
     );
 
     assertBatchStageSuccess(
@@ -133,7 +133,7 @@ fun processMaxInlineBatchStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         HIGHLOAD_E2E_INLINE_MARKER_BASE,
         HIGHLOAD_E2E_INLINE_BATCH_COUNT,
     );
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({
         from: ctx.wallet.address,
         body: benchmarkMarkerBody(HIGHLOAD_E2E_INLINE_MARKER_BASE + 127),
     });
@@ -147,7 +147,7 @@ fun processChainedBatchWithCleanupStage(
     expiredSingleQueryId: int,
     expiredInlineQueryId: int,
 ) {
-    net.setNow(HIGHLOAD_E2E_CLEANUP_NOW);
+    testing.setNow(HIGHLOAD_E2E_CLEANUP_NOW);
 
     // Getter applies timeout window logic without mutating stored state.
     expect(ctx.wallet.isProcessed(expiredSingleQueryId)).toBeFalse();
@@ -169,11 +169,11 @@ fun processChainedBatchWithCleanupStage(
     val tailTransfer = ctx
         .wallet
         .createInternalTransferMessageFromActionsCell(queryId, tailActionsCell, 0);
-    val chainAction = OutActionSendMessage {
+    val chainAction = TlbOutActionSendMessage {
         mode: SEND_MODE_CARRY_ALL_BALANCE,
         outMsg: tailTransfer.messageCell,
     };
-    rootActionsCell = OutList {
+    rootActionsCell = TlbOutList {
         prev: rootActionsCell,
         action: chainAction,
     }.toCell();
@@ -188,7 +188,7 @@ fun processChainedBatchWithCleanupStage(
         rootTransfer,
         SEND_MODE_CARRY_ALL_BALANCE,
         queryId,
-        net.now(),
+        testing.getNow(),
     );
 
     assertBatchStageSuccess(
@@ -198,7 +198,7 @@ fun processChainedBatchWithCleanupStage(
         HIGHLOAD_E2E_CHAINED_MARKER_BASE,
         HIGHLOAD_E2E_CHAINED_BATCH_COUNT,
     );
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({
         from: ctx.wallet.address,
         body: benchmarkMarkerBody(HIGHLOAD_E2E_CHAINED_MARKER_BASE + HIGHLOAD_E2E_CHAIN_CUT),
     });
@@ -207,8 +207,8 @@ fun processChainedBatchWithCleanupStage(
         from: ctx.wallet.address,
         to: ctx.wallet.address,
     });
-    expect(rootTx).toBeDefined();
-    val rootNow = rootTx.unwrap().now;
+    expect(rootTx).toBeNotNull();
+    val rootNow = rootTx!.now;
     expect(ctx.wallet.getLastCleanTime()).toEqual(rootNow);
     expect(ctx.wallet.isProcessed(expiredSingleQueryId)).toBeFalse();
     expect(ctx.wallet.isProcessed(expiredInlineQueryId)).toBeFalse();

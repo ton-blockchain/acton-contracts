@@ -1,9 +1,9 @@
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "../contracts/dns-utils"
@@ -49,9 +49,9 @@ fun parseNextResolverCell(data: cell): address {
 }
 
 fun newActor(name: string, extraTopUp: coins = 0): Treasury {
-    val actor = net.treasury(name);
+    val actor = testing.treasury(name);
     if (extraTopUp > 0) {
-        net.topUp(actor.address, extraTopUp);
+        testing.topUp(actor.address, extraTopUp);
     }
     return actor;
 }
@@ -200,13 +200,13 @@ fun makeTMeDomainSlice(): slice {
 }
 
 fun setDnsBlacklist(index: uint256) {
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var blacklist: map<uint256, RemainingBitsAndRefs> = [];
     blacklist.set(index, beginCell().storeUint(1, BYTE_SIZE).endCell().beginParse());
 
     val paramCell = beginCell().storeDict(blacklist.toLowLevelDict()).endCell();
     config.setParamRaw(DNS_CONFIG_ID, paramCell);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 }
 
 fun deployRootContract() {
@@ -223,7 +223,7 @@ fun deployRootContract() {
 }
 
 fun deployCollectionContract() {
-    net.setNow((AUCTION_START_TIME - 1000));
+    testing.setNow((AUCTION_START_TIME - 1000));
     val deployer = newActor("dns_collection_deployer", ton("100000"));
     val user = newActor("dns_collection_user", ton("100000"));
 
@@ -239,14 +239,14 @@ fun deployCollectionContract() {
 
     expect(res).toHaveSuccessfulDeploy<FillUp>({ to: collection.address });
     expect(res).toHaveSuccessfulTx<FillUp>({ from: deployer.address, to: collection.address });
-    expect(net.isDeployed(collection.address)).toEqual(true);
+    expect(testing.isDeployed(collection.address)).toEqual(true);
 
     return (collection, deployer, user);
 }
 
 fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = ton("1000")) {
     val (collection, deployer, bidder) = deployCollectionContract();
-    net.setNow((AUCTION_START_TIME + 1));
+    testing.setNow((AUCTION_START_TIME + 1));
 
     val deployRes = collection.sendAny(
         deployer.address,
@@ -256,25 +256,33 @@ fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = 
     expect(deployRes).toHaveSuccessfulTx({ to: collection.address });
 
     val itemDeployTx = deployRes.findTransaction({ from: collection.address, deploy: true });
-    expect(itemDeployTx).toBeDefined();
+    expect(itemDeployTx).toBeNotNull();
 
-    val itemAddress = itemDeployTx.unwrap().getAccountAddress();
+    val itemAddress = itemDeployTx!.getAccountAddress();
     val item = NftItemContract.fromAddress(itemAddress);
 
     return (item, collection, deployer, bidder);
 }
 
-fun activeAccountInfo(addr: address): AccountInfo {
-    val acc = net.getAccount(addr);
-    if (acc is AccountInfo) {
-        return acc;
+fun activeShardAccount(addr: address): TlbShardAccount {
+    val shard = testing.getShardAccount(addr);
+    if (shard != null) {
+        return shard!;
     }
-    Assert.fail("Expected AccountInfo");
+    Assert.fail("Expected TlbShardAccount");
+}
+
+fun activeAccountInfo(addr: address): TlbAccountInfo {
+    val account = activeShardAccount(addr).account.load();
+    if (account is TlbAccountInfo) {
+        return account;
+    }
+    Assert.fail("Expected TlbAccountInfo");
 }
 
 fun activeDataCell(addr: address): cell {
     val info = activeAccountInfo(addr);
-    if (info.storage.state is AccountStateActive) {
+    if (info.storage.state is TlbAccountStateActive) {
         val active = info.storage.state;
         if (active.stateInit.data == null) {
             Assert.fail("Expected active state data");
@@ -285,35 +293,37 @@ fun activeDataCell(addr: address): cell {
 }
 
 fun setActiveDataCell(addr: address, newData: cell) {
-    val account = net.getAccount(addr);
-    if (account !is AccountInfo) {
-        Assert.fail("Expected AccountInfo when setting data");
+    var updatedShard = activeShardAccount(addr);
+    val account = updatedShard.account.load();
+    if (account !is TlbAccountInfo) {
+        Assert.fail("Expected TlbAccountInfo when setting data");
     }
 
     var info = account;
-    if (info.storage.state !is AccountStateActive) {
-        Assert.fail("Expected AccountStateActive when setting data");
+    if (info.storage.state !is TlbAccountStateActive) {
+        Assert.fail("Expected TlbAccountStateActive when setting data");
     }
 
     var active = info.storage.state;
     active.stateInit.data = newData;
     info.storage.state = active;
-    net.setAccount(addr, info);
+    updatedShard.account = info.toCell() as cell as Cell<TlbAccount>;
+    testing.setShardAccount(addr, updatedShard);
 }
 
 fun setGovernanceDecision(index: uint256, decision: RemainingBitsAndRefs) {
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var governanceMap: map<uint256, RemainingBitsAndRefs> = [];
     governanceMap.set(index, decision);
 
     val paramCell = beginCell().storeDict(governanceMap.toLowLevelDict()).endCell();
     config.setParamRaw(DNS_CONFIG_ID, paramCell);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 }
 
 fun completeAuction(item: NftItemContract, sender: address, queryId: int = 1): SendResultList {
     val auction = item.getAuctionInfo();
-    net.setNow((auction.auctionEndTime + 1));
+    testing.setNow((auction.auctionEndTime + 1));
 
     return item.sendGetStaticData(sender, queryId, { value: ton("1"), bounce: true });
 }

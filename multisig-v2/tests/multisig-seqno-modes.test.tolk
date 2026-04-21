@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
@@ -10,7 +10,7 @@ import "../wrappers/MultisigV2Order"
 
 get fun `test multisig: multisig parameters update with threshold = 0 should fail`() {
     val ctx = setupMultisig(1, 4, 1, false);
-    val target = net.randomAddress("threshold0_target");
+    val target = randomAddress("threshold0_target");
 
     val dataBefore = ctx.multisig.getData();
     expect(dataBefore.threshold).toEqual(1);
@@ -36,7 +36,7 @@ get fun `test multisig: multisig parameters update with threshold = 0 should fai
 
 get fun `test multisig: should not allow to create order with seqno other than next order seqno`() {
     val ctx = setupMultisig();
-    val order = singleActionOrder(makeTransferAction(net.randomAddress("seqno_fixed_target")));
+    val order = singleActionOrder(makeTransferAction(randomAddress("seqno_fixed_target")));
 
     val before = ctx.multisig.getData();
     expect(before.nextOrderSeqno).toBeGreater(-1);
@@ -110,7 +110,7 @@ get fun `test multisig: should not allow to create order with seqno other than n
 
 get fun `test multisig: should allow to create orders with arbitrary seqno`() {
     val ctx = setupMultisig(4, 6, 1, true);
-    val order = singleActionOrder(makeTransferAction(net.randomAddress("seqno_arbitrary_target")));
+    val order = singleActionOrder(makeTransferAction(randomAddress("seqno_arbitrary_target")));
 
     val data = ctx.multisig.getData();
     expect(data.nextOrderSeqno).toEqual(-1);
@@ -147,7 +147,7 @@ get fun `test multisig: should allow to create orders with arbitrary seqno`() {
 
 get fun `test multisig: should allow to create order with maximum possible seqno`() {
     val ctx = setupMultisig(2, 3, 1, true);
-    val order = singleActionOrder(makeTransferAction(net.randomAddress("max_seqno_target")));
+    val order = singleActionOrder(makeTransferAction(randomAddress("max_seqno_target")));
 
     val orderAddress = ctx.multisig.getOrderAddress(MAX_ORDER_SEQNO);
 
@@ -169,7 +169,7 @@ get fun `test multisig: should allow to create order with maximum possible seqno
 
 get fun `test multisig: subsequent order creation with same seqno should result in vote`() {
     val ctx = setupMultisig(3, 5, 1, true);
-    val order = singleActionOrder(makeTransferAction(net.randomAddress("same_seqno_vote_target")));
+    val order = singleActionOrder(makeTransferAction(randomAddress("same_seqno_vote_target")));
 
     val targetSeqno = 4242;
     val orderAddress = ctx.multisig.getOrderAddress(4242);
@@ -203,7 +203,7 @@ get fun `test multisig: subsequent order creation with same seqno should result 
         expect(approvalBit(dataAfter.approvalsMask, signerIndex)).toEqual(true);
 
         if (i > 0) {
-            expect(res).toHaveSuccessfulTx<ApproveAccepted>({
+            expect(res).toHaveTx<ApproveAccepted>({
                 from: orderAddress,
                 to: signerAddress,
             });

@@ -1,10 +1,9 @@
 import "@stdlib/exotic-cells"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
-import "@acton/vm/vm"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/storage"
@@ -101,7 +100,7 @@ get fun `test custom params: only admin should be able to set slots`() {
 
     val testSenders = [
         ctx.deployer.address,
-        net.randomAddress("cfg_random_wc0", BASECHAIN),
+        randomAddress("cfg_random_wc0", BASECHAIN),
         senderWithSameHashInMasterchain,
         senderWithDifferentHashInMasterchain,
     ];
@@ -303,7 +302,7 @@ get fun `test custom params: should reject exotic cells for custom slots`() {
     val ctx = setupConfigTest();
 
     val plain = beginCell().storeSlice("Hop hey La La Ley".beginParse()).endCell();
-    vm.registerLibrary(plain);
+    testing.registerLibrary(plain);
 
     val libraryRef = plain.toLibraryReference();
 
