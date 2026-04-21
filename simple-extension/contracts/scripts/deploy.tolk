@@ -1,19 +1,16 @@
 import "@acton/io"
 import "@acton/emulation/network"
-import "@contracts/types"
+import "common"
 import "@wrappers/SimpleExtension"
 
 fun main() {
-    val deployer = net.wallet("deployer");
-
-    val extension = SimpleExtension.fromStorage(ExtensionStorage {
-        walletAddress: deployer.address,
-        admin: deployer.address,
-        subscriptionAmount: ton("0.25"),
-        lastPaymentTime: null,
-        paymentTimeInterval: 3600,
+    val deployer = net.wallet(extensionWalletName());
+    val extension = buildExtensionForDeployer(deployer);
+    val res = extension.deploy(deployer.address, {
+        value: extensionDeployValue(),
+        bounce: false,
     });
-    val res = extension.deploy(deployer.address, { value: ton("0.5") });
+
     if (!res.wait()) {
         return;
     }

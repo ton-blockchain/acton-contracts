@@ -5,16 +5,17 @@ version = "0.1.0"
 license = "MIT"
 
 [contracts.SimpleExtension]
-display-name = "Simple Extension"
 src = "contracts/src/SimpleExtension.tolk"
 depends = []
 
 [contracts.WalletV5]
-display-name = "Wallet V5"
 src = "contracts/vendor/w5/contracts/WalletV5.tolk"
 depends = []
 
 [test]
+
+[lint]
+exclude = ["**/contracts/vendor/**"]
 
 [fmt]
 width = 100
@@ -23,6 +24,8 @@ ignore = []
 [scripts]
 deploy-emulation = "acton script contracts/scripts/deploy.tolk"
 deploy-testnet = "acton script contracts/scripts/deploy.tolk --net testnet"
+install-extension = "acton script contracts/scripts/install-extension.tolk --net testnet"
+delete-extension = "acton script contracts/scripts/delete-extension.tolk --net testnet"
 
 [import-mappings]
 acton = ".acton"
