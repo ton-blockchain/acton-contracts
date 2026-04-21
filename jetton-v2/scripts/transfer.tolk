@@ -1,6 +1,6 @@
+import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
-import "@acton/prompts"
 import "utils/common"
 import "../wrappers/JettonMinter"
 import "../wrappers/JettonWallet"

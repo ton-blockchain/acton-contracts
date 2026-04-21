@@ -1,7 +1,7 @@
 import "@acton/env"
+import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
-import "@acton/prompts"
 import "utils/common"
 
 fun main() {

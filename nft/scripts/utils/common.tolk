@@ -1,10 +1,10 @@
 import "@stdlib/strings"
+import "@acton/build"
 import "@acton/fmt"
 import "@acton/io"
-import "@acton/build"
+import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
-import "@acton/prompts"
 import "../../contracts/messages"
 import "../../contracts/types"
 import "../../wrappers/NftCollectionContract"
@@ -90,7 +90,10 @@ fun makeNftCollectionStorage(admin: address, info: NftCollectionInfo): NftCollec
     };
 }
 
-fun deployNftCollectionContract(deployer: ActonWallet, info: NftCollectionInfo): NftCollectionContract {
+fun deployNftCollectionContract(
+    deployer: ActonWallet,
+    info: NftCollectionInfo,
+): NftCollectionContract {
     val collection = NftCollectionContract.fromStorage(
         makeNftCollectionStorage(deployer.address, info),
     );
