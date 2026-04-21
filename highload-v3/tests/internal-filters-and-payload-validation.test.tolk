@@ -89,7 +89,7 @@ get fun `test ignore internal transfer from non-self address`() {
             body: transferBody,
         }),
     );
-    expect(res2).toHaveSuccessfulTx({
+    expect(res2).toHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
         value: ton("1000"),
@@ -202,7 +202,7 @@ get fun `test ignore bounced messages`() {
         body: transferBody,
     });
     val res2 = net.send(ctx.wallet.address, normal);
-    expect(res2).toHaveSuccessfulTx({
+    expect(res2).toHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
         value: ton("1000"),

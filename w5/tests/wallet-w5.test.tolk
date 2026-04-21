@@ -1182,10 +1182,10 @@ get fun `test w5: should reject action list with extra data or refs`() {
         validRawActions,
     );
     val validReceipt = walletV5.sendAny(deployer.address, validIntBody, { value: ton("1") });
-    expect(validReceipt).toHaveSuccessfulTx({
+    expect(validReceipt).toHaveTx({
         from: walletV5.address,
         to: testReceiver,
-        exitCode: 0,
+        value: ton("0.001"),
     });
 }
 

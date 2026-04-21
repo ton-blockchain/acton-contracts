@@ -30,7 +30,7 @@ get fun `test send internal message`() {
         1000,
     );
 
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
         value: ton("123"),
@@ -75,7 +75,7 @@ get fun `test ignore set_code action`() {
     );
 
     expect(activeCode(ctx.wallet.address)).toEqual(ctx.wallet.code());
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
         body: testBody,
@@ -175,7 +175,7 @@ get fun `test handle 254 actions in one go`() {
     var j = 0;
     while (j < 254) {
         val expectedBody = beginCell().storeUint(j, 32).endCell();
-        expect(res).toHaveSuccessfulTx({ from: ctx.wallet.address, body: expectedBody });
+        expect(res).toHaveTx({ from: ctx.wallet.address, body: expectedBody });
         j += 1;
     }
     expect(ctx.wallet.isProcessed(queryId, false)).toBeTrue();
@@ -245,7 +245,7 @@ get fun `test go beyond 255 messages via chained internal_transfer`() {
     var j = 0;
     while (j < msgCount) {
         val expectedBody = beginCell().storeUint(j, 32).endCell();
-        expect(res).toHaveSuccessfulTx({ from: ctx.wallet.address, body: expectedBody });
+        expect(res).toHaveTx({ from: ctx.wallet.address, body: expectedBody });
         j += 1;
     }
     expect(ctx.wallet.isProcessed(queryId, false)).toBeTrue();

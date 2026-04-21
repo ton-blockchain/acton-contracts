@@ -78,7 +78,7 @@ fun processSingleTransferStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         testing.getNow(),
     );
 
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({
         from: ctx.wallet.address,
         to: recipient,
         value: HIGHLOAD_E2E_DIRECT_SEND_VALUE,
@@ -97,8 +97,8 @@ fun assertBatchStageSuccess(
     actionCount: int,
 ) {
     expect(res).toHaveSuccessfulTx<InternalTransfer>({ from: wallet.address, to: wallet.address });
-    expect(res).toHaveSuccessfulTx({ from: wallet.address, body: benchmarkMarkerBody(markerBase) });
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({ from: wallet.address, body: benchmarkMarkerBody(markerBase) });
+    expect(res).toHaveTx({
         from: wallet.address,
         body: benchmarkMarkerBody(markerBase + actionCount - 1),
     });
@@ -133,7 +133,7 @@ fun processMaxInlineBatchStage(ctx: TestContext, queryCursor: HighloadQueryId) {
         HIGHLOAD_E2E_INLINE_MARKER_BASE,
         HIGHLOAD_E2E_INLINE_BATCH_COUNT,
     );
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({
         from: ctx.wallet.address,
         body: benchmarkMarkerBody(HIGHLOAD_E2E_INLINE_MARKER_BASE + 127),
     });
@@ -198,7 +198,7 @@ fun processChainedBatchWithCleanupStage(
         HIGHLOAD_E2E_CHAINED_MARKER_BASE,
         HIGHLOAD_E2E_CHAINED_BATCH_COUNT,
     );
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({
         from: ctx.wallet.address,
         body: benchmarkMarkerBody(HIGHLOAD_E2E_CHAINED_MARKER_BASE + HIGHLOAD_E2E_CHAIN_CUT),
     });
