@@ -1,4 +1,4 @@
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
 import "../contracts/messages"
@@ -148,7 +148,7 @@ fun MultisigV2.getData(self): MultisigDataReply {
 }
 
 fun MultisigV2.getOrderAddress(self, orderSeqno: int): address {
-    return net.runGetMethod(self.address, "get_order_address", orderSeqno);
+    return net.runGetMethod(self.address, "get_order_address", [orderSeqno]);
 }
 
 fun MultisigV2.getOrderEstimate(self, order: DirectOrderActionsMap, expirationDate: int): int {

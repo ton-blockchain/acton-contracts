@@ -1,7 +1,7 @@
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
@@ -155,7 +155,7 @@ get fun `test work with max bitNumber 1022`() {
     val msg = createMessage({
         bounce: false,
         value: 0,
-        dest: net.randomAddress("max-bit-ok"),
+        dest: randomAddress("max-bit-ok"),
     }).messageCell;
 
     val res = sendSignedExternal(
@@ -176,7 +176,7 @@ get fun `test reject bitNumber 1023`() {
     val msg = createMessage({
         bounce: false,
         value: 0,
-        dest: net.randomAddress("max-bit-fail"),
+        dest: randomAddress("max-bit-fail"),
     }).messageCell;
 
     val res = trySendSignedExternalSingle(
@@ -196,7 +196,7 @@ get fun `test work with max shift`() {
     val msg = createMessage({
         bounce: false,
         value: 0,
-        dest: net.randomAddress("max-shift-ok"),
+        dest: randomAddress("max-shift-ok"),
     }).messageCell;
 
     val res = sendSignedExternal(
@@ -228,7 +228,7 @@ get fun `test fail query id on replay after time change`() {
         to: ctx.wallet.address,
     });
 
-    net.setNow(1100);
+    testing.setNow(1100);
     expect(storedIsProcessed(ctx.wallet, queryId)).toBeTrue();
 
     val res2 = trySendSignedExternalSingle(

@@ -1,7 +1,7 @@
+import "@acton/ffi"
 import "@acton/emulation/network"
-import "@acton/ffi/ffi"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/either"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
@@ -40,7 +40,7 @@ get fun `test state: should mint max jetton value`() {
 
 get fun `test state: wallet storage and init-state bounds should match fee constants`() {
     val (minter, deployer, _) = setupTest();
-    val recipient = net.randomAddress();
+    val recipient = randomAddress();
     val recipientWallet = userWallet(minter, recipient);
 
     val mintResult = minter.sendMint(deployer.address, recipient, TEST_JETTON_UNIT, 0, ton("0.3"));
@@ -49,12 +49,12 @@ get fun `test state: wallet storage and init-state bounds should match fee const
         to: recipientWallet.address,
     });
 
-    val stateCell = ffi.getAccountState(recipientWallet.address.toCell());
-    expect(stateCell).toBeNotNull();
-    if (stateCell == null) {
+    val state = testing.getAccountState(recipientWallet.address);
+    expect(state).toBeNotNull();
+    if (state == null) {
         return;
     }
-    val (accountCells, accountBits, _) = stateCell.calculateSizeStrict(4096);
+    val (accountCells, accountBits, _) = state!.toCell().calculateSizeStrict(4096);
     expect(accountBits).toBeGreater(0);
     expect(accountCells).toBeGreater(0);
 
@@ -73,19 +73,15 @@ get fun `test state: wallet storage and init-state bounds should match fee const
         success: true,
         exitCode: 0,
     });
-    expect(transferTx).toBeDefined();
-    if (transferTx is None) {
-        return;
-    }
-
-    val inMsg = transferTx.value.loadInMsg<InternalTransferStep>();
-    if (inMsg.init is None) {
+    expect(transferTx).toBeNotNull();
+    val inMsg = transferTx!.loadInMsg<InternalTransferStep>();
+    if (inMsg.init is TlbNone) {
         return;
     }
 
     val initEither = inMsg.init.value;
     var initStateCell = beginCell().endCell();
-    if (initEither is EitherLeft<StateInit>) {
+    if (initEither is TlbEitherLeft<StateInit>) {
         initStateCell = initEither.value.toCell();
     } else {
         initStateCell = initEither.value;

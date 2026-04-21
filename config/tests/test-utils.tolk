@@ -1,11 +1,11 @@
 import "@stdlib/exotic-cells"
 import "@stdlib/lisp-lists"
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
@@ -171,7 +171,7 @@ fun validatorsToRawDict(validators: array<ValidatorFixture>): dict {
 }
 
 fun buildValidatorSetCell(validators: array<ValidatorFixture>, round: int = 0): cell {
-    val now = net.now();
+    val now = testing.getNow();
     val since = now + 100 + (round * 100);
     val until = since + 65536;
 
@@ -186,21 +186,21 @@ fun buildValidatorSetCell(validators: array<ValidatorFixture>, round: int = 0): 
 }
 
 fun applyCurrentValidatorSet(validators: array<ValidatorFixture>, round: int = 0): cell {
-    var config = net.getConfig();
+    var config = testing.getConfig();
     val vset = buildValidatorSetCell(validators, round);
     config.setParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET, vset);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
     return vset;
 }
 
 fun currentThreshold(): int {
-    val currentVset = net.getConfig().getParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
+    val currentVset = testing.getConfig().getParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
     val parsed = ValidatorSetExt.fromCell(currentVset);
     return (parsed.totalWeight * VOTE_WEIGHT_THRESHOLD_NUMERATOR) /
     VOTE_WEIGHT_THRESHOLD_DENOMINATOR;
 }
 
-fun getElectorAddress(config: Config): address {
+fun getElectorAddress(config: BlockchainConfigMap): address {
     val electorHash = config
         .getParamRaw(CONFIG_PARAM_ELECTOR_ADDRESS)
         .beginParse()
@@ -209,27 +209,27 @@ fun getElectorAddress(config: Config): address {
 }
 
 fun setupConfigTest(): ConfigTestContext {
-    net.setNow(1710000000);
+    testing.setNow(1710000000);
 
-    val deployer = net.treasury("cfg-deployer");
-    val outsider = net.treasury("cfg-outsider");
-    val proposer = net.randomAddress("cfg_proposer", MASTERCHAIN);
-    val validatorSender = net.randomAddress("cfg_validator_sender", MASTERCHAIN);
+    val deployer = testing.treasury("cfg-deployer");
+    val outsider = testing.treasury("cfg-outsider");
+    val proposer = randomAddress("cfg_proposer", MASTERCHAIN);
+    val validatorSender = randomAddress("cfg_validator_sender", MASTERCHAIN);
 
     val validators = buildValidators();
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(CONFIG_PARAM_VOTING_SETUP, buildVotingSetup());
     config.setParamRaw(CONFIG_PARAM_CRITICAL_PARAMS, buildCriticalParamsCell());
     config.setParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET, buildValidatorSetCell(validators, 0));
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 
     val electorAddress = getElectorAddress(config);
 
-    net.topUp(ADMIN_ADDRESS_FOR_CUSTOM_PARAMS, ton("1000"));
-    net.topUp(electorAddress, ton("1000"));
-    net.topUp(proposer, ton("1000"));
-    net.topUp(validatorSender, ton("1000"));
+    testing.topUp(ADMIN_ADDRESS_FOR_CUSTOM_PARAMS, ton("1000"));
+    testing.topUp(electorAddress, ton("1000"));
+    testing.topUp(proposer, ton("1000"));
+    testing.topUp(validatorSender, ton("1000"));
 
     val storageConfig = createMapFromLowLevelDict<int32, cell>(config.toLowLevelDict());
     val contract = ConfigContract.fromStorage(Storage {
@@ -253,17 +253,25 @@ fun setupConfigTest(): ConfigTestContext {
     };
 }
 
-fun activeAccountInfo(addr: address): AccountInfo {
-    val acc = net.getAccount(addr);
-    if (acc is AccountInfo) {
-        return acc;
+fun activeShardAccount(addr: address): TlbShardAccount {
+    val shard = testing.getShardAccount(addr);
+    if (shard != null) {
+        return shard!;
     }
-    Assert.fail("Expected AccountInfo");
+    Assert.fail("Expected TlbShardAccount");
+}
+
+fun activeAccountInfo(addr: address): TlbAccountInfo {
+    val account = activeShardAccount(addr).account.load();
+    if (account is TlbAccountInfo) {
+        return account;
+    }
+    Assert.fail("Expected TlbAccountInfo");
 }
 
 fun activeCode(addr: address): cell {
     val info = activeAccountInfo(addr);
-    if (info.storage.state is AccountStateActive) {
+    if (info.storage.state is TlbAccountStateActive) {
         return info.storage.state.stateInit.code!;
     }
     Assert.fail("Expected active account state");
@@ -271,7 +279,7 @@ fun activeCode(addr: address): cell {
 
 fun activeDataCell(addr: address): cell {
     val info = activeAccountInfo(addr);
-    if (info.storage.state is AccountStateActive) {
+    if (info.storage.state is TlbAccountStateActive) {
         val active = info.storage.state;
         if (active.stateInit.data == null) {
             Assert.fail("Expected active state data");
@@ -282,20 +290,22 @@ fun activeDataCell(addr: address): cell {
 }
 
 fun setActiveDataCell(addr: address, newData: cell) {
-    val account = net.getAccount(addr);
-    if (account !is AccountInfo) {
-        Assert.fail("Expected AccountInfo when setting data");
+    var updatedShard = activeShardAccount(addr);
+    val account = updatedShard.account.load();
+    if (account !is TlbAccountInfo) {
+        Assert.fail("Expected TlbAccountInfo when setting data");
     }
 
     var info = account;
-    if (info.storage.state !is AccountStateActive) {
-        Assert.fail("Expected AccountStateActive when setting data");
+    if (info.storage.state !is TlbAccountStateActive) {
+        Assert.fail("Expected TlbAccountStateActive when setting data");
     }
 
     var active = info.storage.state;
     active.stateInit.data = newData;
     info.storage.state = active;
-    net.setAccount(addr, info);
+    updatedShard.account = info.toCell() as cell as Cell<TlbAccount>;
+    testing.setShardAccount(addr, updatedShard);
 }
 
 fun getStorage(contract: ConfigContract): Storage {
@@ -321,9 +331,9 @@ fun assertConfigParam(contract: ConfigContract, paramId: int32, expected: cell) 
 }
 
 fun differentAddress(addr: address): address {
-    var candidate = net.randomAddress(null, addr.getWorkchain());
+    var candidate = randomAddress(null, addr.getWorkchain());
     while (candidate == addr) {
-        candidate = net.randomAddress(null, addr.getWorkchain());
+        candidate = randomAddress(null, addr.getWorkchain());
     }
     return candidate;
 }
@@ -401,7 +411,7 @@ fun submitProposal(
         .sendNewVotingProposalRequest(
             ctx.proposer,
             queryId,
-            (net.now() + expireInSec),
+            (testing.getNow() + expireInSec),
             critical,
             proposal,
             { value: DEFAULT_PROPOSAL_VALUE, bounce: true },
@@ -549,7 +559,7 @@ fun sendExternalRaw(contract: ConfigContract, body: cell): SendResultList {
 }
 
 fun trySendExternalRaw(contract: ConfigContract, body: cell): SendResultList? {
-    val msg = createExternalMessage(contract.address, body.beginParse());
+    val msg = net.createExternalMessage(contract.address, body.beginParse());
     return net.sendExternal(msg);
 }
 
@@ -640,7 +650,7 @@ fun hasSetCodeAction(res: SendResultList, account: address): bool {
             val actions = item.allOutActions();
             var j = 0;
             while (j < actions.size()) {
-                if (actions.at(j) is OutActionSetCode) {
+                if (actions.at(j) is TlbOutActionSetCode) {
                     return true;
                 }
                 j += 1;
@@ -666,7 +676,7 @@ fun injectProposalStatus(
     val hash = fixedHash == null ? proposalHash(proposal) : fixedHash!;
 
     var storage = getStorage(contract);
-    val currentVset = net.getConfig().getParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
+    val currentVset = testing.getConfig().getParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
 
     storage
         .voteDict
@@ -692,9 +702,9 @@ fun injectProposalStatus(
 }
 
 fun setGlobalConfigParam(index: uint32, value: cell) {
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(index, value);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 }
 
 fun setStorageConfigParam(contract: ConfigContract, index: int32, value: cell?) {

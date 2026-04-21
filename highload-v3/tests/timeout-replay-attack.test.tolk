@@ -1,13 +1,13 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../wrappers/HighloadWalletV3"
 
 get fun `test timeout replay attack`() {
     val ctx = setupHighloadTest();
-    val newDeployer = net.treasury("new-deployer");
-    val attacker = net.treasury("attacker");
+    val newDeployer = testing.treasury("new-deployer");
+    val attacker = testing.treasury("attacker");
 
     val newWallet = HighloadWalletV3.fromConfig(ctx.keyPair.publicKey, SUBWALLET_ID, 1234);
     val deployRes = newWallet.deploy(newDeployer.address, { value: ton("1000"), bounce: false });

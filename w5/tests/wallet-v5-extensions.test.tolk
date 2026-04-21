@@ -1,7 +1,7 @@
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "../contracts/messages"
 import "../contracts/storage"
@@ -16,9 +16,9 @@ get fun `test w5: do a transfer from extension`() {
     addExtensionSigned(walletV5, deployer.address, deployer.address, keyPair, seqno);
     seqno += 1;
 
-    val testReceiver = net.randomAddress("test-receiver");
+    val testReceiver = randomAddress("test-receiver");
     val forwardValue = ton("0.001");
-    val receiverBalanceBefore = net.balance(testReceiver);
+    val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -46,7 +46,7 @@ get fun `test w5: do a transfer from extension`() {
     });
 
     val fee = receipt.at(1).tx.load().totalFees.grams;
-    val receiverBalanceAfter = net.balance(testReceiver);
+    val receiverBalanceAfter = testing.getAccountBalance(testReceiver);
     expect(receiverBalanceAfter).toEqual(receiverBalanceBefore + forwardValue - fee);
 }
 
@@ -59,14 +59,14 @@ get fun `test w5: do two transfers from extension and add other extension`() {
     addExtensionSigned(walletV5, deployer.address, deployer.address, keyPair, seqno);
     seqno += 1;
 
-    val testOtherExtension = net.randomAddress("other-extension");
-    val testReceiver1 = net.randomAddress("test-receiver-1");
-    val testReceiver2 = net.randomAddress("test-receiver-2");
+    val testOtherExtension = randomAddress("other-extension");
+    val testReceiver1 = randomAddress("test-receiver-1");
+    val testReceiver2 = randomAddress("test-receiver-2");
     val forwardValue1 = ton("0.001");
     val forwardValue2 = ton("0.0012");
 
-    val receiver1BalanceBefore = net.balance(testReceiver1);
-    val receiver2BalanceBefore = net.balance(testReceiver2);
+    val receiver1BalanceBefore = testing.getAccountBalance(testReceiver1);
+    val receiver2BalanceBefore = testing.getAccountBalance(testReceiver2);
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver1, forwardValue1));
@@ -103,8 +103,8 @@ get fun `test w5: do two transfers from extension and add other extension`() {
     val fee1 = receipt.at(1).tx.load().totalFees.grams;
     val fee2 = receipt.at(2).tx.load().totalFees.grams;
 
-    val receiver1BalanceAfter = net.balance(testReceiver1);
-    val receiver2BalanceAfter = net.balance(testReceiver2);
+    val receiver1BalanceAfter = testing.getAccountBalance(testReceiver1);
+    val receiver2BalanceAfter = testing.getAccountBalance(testReceiver2);
     expect(receiver1BalanceAfter).toEqual(receiver1BalanceBefore + forwardValue1 - fee1);
     expect(receiver2BalanceAfter).toEqual(receiver2BalanceBefore + forwardValue2 - fee2);
 
@@ -126,7 +126,7 @@ get fun `test w5: add and remove other extension from extension`() {
     addExtensionSigned(walletV5, deployer.address, deployer.address, keyPair, seqno);
     seqno += 1;
 
-    val otherExtension = net.randomAddress("other-extension");
+    val otherExtension = randomAddress("other-extension");
 
     // Add other extension from extension
     var extraActions1: array<ExtraAction> = [];
@@ -220,10 +220,10 @@ get fun `test w5: extension must be in dict to pass authorization`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
-    val sender = net.treasury("sender");
-    val testReceiver = net.randomAddress("test-receiver");
+    val sender = testing.treasury("sender");
+    val testReceiver = randomAddress("test-receiver");
     val forwardValue = ton("0.001");
-    val receiverBalanceBefore = net.balance(testReceiver);
+    val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -256,7 +256,7 @@ get fun `test w5: extension must be in dict to pass authorization`() {
         exitCode: 0,
     });
 
-    val receiverBalanceAfter = net.balance(testReceiver);
+    val receiverBalanceAfter = testing.getAccountBalance(testReceiver);
     expect(receiverBalanceAfter).toEqual(receiverBalanceBefore);
 }
 
@@ -282,9 +282,9 @@ get fun `test w5: disallow signature auth and do a transfer from extension`() {
     expect(walletV5.isSignatureAllowed()).toEqual(false);
 
     // Do a transfer from extension
-    val testReceiver = net.randomAddress("test-receiver");
+    val testReceiver = randomAddress("test-receiver");
     val forwardValue = ton("0.001");
-    val receiverBalanceBefore = net.balance(testReceiver);
+    val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -311,7 +311,7 @@ get fun `test w5: disallow signature auth and do a transfer from extension`() {
     });
 
     val fee = receipt.at(1).tx.load().totalFees.grams;
-    val receiverBalanceAfter = net.balance(testReceiver);
+    val receiverBalanceAfter = testing.getAccountBalance(testReceiver);
     expect(receiverBalanceAfter).toEqual(receiverBalanceBefore + forwardValue - fee);
 }
 
@@ -371,9 +371,9 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
     expect(contractSeqno).toEqual(seqno);
 
     // Do a signed transfer to verify signature auth works after re-enabling
-    val testReceiver = net.randomAddress("test-receiver");
+    val testReceiver = randomAddress("test-receiver");
     val forwardValue = ton("0.001");
-    val receiverBalanceBefore = net.balance(testReceiver);
+    val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -397,7 +397,7 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
     });
 
     val fee = receipt2.at(1).tx.load().totalFees.grams;
-    val receiverBalanceAfter = net.balance(testReceiver);
+    val receiverBalanceAfter = testing.getAccountBalance(testReceiver);
     expect(receiverBalanceAfter).toEqual(receiverBalanceBefore + forwardValue - fee);
 }
 
@@ -467,9 +467,9 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
     expect(walletV5.getSeqno()).toEqual(seqno);
 
     // Do a signed transfer to verify signature auth works after re-enabling
-    val testReceiver = net.randomAddress("test-receiver");
+    val testReceiver = randomAddress("test-receiver");
     val forwardValue = ton("0.001");
-    val receiverBalanceBefore = net.balance(testReceiver);
+    val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -493,6 +493,6 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
     });
 
     val fee = receipt2.at(1).tx.load().totalFees.grams;
-    val receiverBalanceAfter = net.balance(testReceiver);
+    val receiverBalanceAfter = testing.getAccountBalance(testReceiver);
     expect(receiverBalanceAfter).toEqual(receiverBalanceBefore + forwardValue - fee);
 }

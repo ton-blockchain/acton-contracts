@@ -1,6 +1,7 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "../wrappers/MultisigV2"
 
 const DEFAULT_DEPLOY_VALUE = ton("0.1")
@@ -11,7 +12,7 @@ const DEFAULT_DEPLOY_VALUE = ton("0.1")
 // "acton library publish Order"
 
 fun main() {
-    val deployer = net.wallet("deployer");
+    val deployer = scripts.wallet("deployer");
     val deployValue: int = env("MSIG_DEPLOY_VALUE") ?? DEFAULT_DEPLOY_VALUE;
     val allowArbitraryOrderSeqno: bool = false;
 
@@ -26,7 +27,7 @@ fun main() {
     println("Using wallet: deployer");
     println("Prepared multisig address: {}", multisig.address);
 
-    if (net.isDeployed(multisig.address)) {
+    if (scripts.isContractDeployed(multisig.address)) {
         println(
             "Multisig is already deployed in the current execution context: {}",
             multisig.address,

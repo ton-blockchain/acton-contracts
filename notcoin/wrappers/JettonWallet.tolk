@@ -1,4 +1,5 @@
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "../contracts/messages"
 import "../contracts/types"
 
@@ -7,7 +8,7 @@ struct JettonWallet {
 }
 
 fun JettonWallet.getJettonBalance(self): coins {
-    if (!net.isDeployed(self.address)) {
+    if (!scripts.isContractDeployed(self.address)) {
         return 0;
     }
 

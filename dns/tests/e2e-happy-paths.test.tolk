@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test-utils"
@@ -18,7 +18,7 @@ const E2E_GOVERNANCE_QUERY_ID = 7001
 fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL_BID) {
     val (collection, deployer, bidder) = deployCollectionContract();
     val governanceCaller = newActor("dns_e2e_governance_caller", ton("100000"));
-    net.setNow((AUCTION_START_TIME + 1));
+    testing.setNow((AUCTION_START_TIME + 1));
 
     val deploy = collection.sendDeployDnsDomain(
         deployer.address,
@@ -31,9 +31,9 @@ fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL
     });
 
     val itemDeployTx = deploy.findTransaction({ from: collection.address, deploy: true });
-    expect(itemDeployTx).toBeDefined();
+    expect(itemDeployTx).toBeNotNull();
 
-    val item = NftItemContract.fromAddress(itemDeployTx.unwrap().getAccountAddress());
+    val item = NftItemContract.fromAddress(itemDeployTx!.getAccountAddress());
     return (item, collection, deployer, bidder, governanceCaller);
 }
 

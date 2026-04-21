@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "../contracts/storage"
 import "../wrappers/WalletV5Contract"
 
@@ -45,8 +45,8 @@ get fun `test w5: default subwallet id`() {
 }
 
 get fun `test w5: get extensions dict`() {
-    val plugin1 = net.randomAddress("plugin1");
-    val plugin2 = net.randomAddress("plugin2");
+    val plugin1 = randomAddress("plugin1");
+    val plugin2 = randomAddress("plugin2");
 
     var extensions: ExtensionsDict = [];
     val (_, plugin1Hash) = plugin1.getWorkchainAndHash();
@@ -64,9 +64,9 @@ get fun `test w5: get extensions dict`() {
 }
 
 get fun `test w5: get extensions array`() {
-    val plugin1 = net.randomAddress("plugin1");
-    val plugin2 = net.randomAddress("plugin2");
-    val plugin3 = net.randomAddress("plugin3");
+    val plugin1 = randomAddress("plugin1");
+    val plugin2 = randomAddress("plugin2");
+    val plugin3 = randomAddress("plugin3");
 
     var extensions: ExtensionsDict = [];
     val (_, plugin1Hash) = plugin1.getWorkchainAndHash();

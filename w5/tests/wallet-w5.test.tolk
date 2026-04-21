@@ -1,9 +1,9 @@
+import "@acton/crypto"
 import "@acton/io"
-import "@acton/crypto/crypto"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "../contracts/errors"
 import "../contracts/messages"
@@ -16,7 +16,7 @@ get fun `test w5: should receive basic transfer`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
-    val sender = net.treasury("sender");
+    val sender = testing.treasury("sender");
 
     // Simple value transfer (no body)
     val receipt1 = walletV5.sendAny(
@@ -62,7 +62,7 @@ get fun `test w5: ext should send up to 255 messages`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
-    val testReceiver = net.treasury("receiver");
+    val testReceiver = testing.treasury("receiver");
 
     var outActions: array<SendAction> = [];
     var i = 0;
@@ -96,7 +96,7 @@ get fun `test w5: ext should reject send modes without IGNORE_ERRORS`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
-    val testReceiver = net.randomAddress("test-receiver");
+    val testReceiver = randomAddress("test-receiver");
 
     // Send with mode=0 (no IGNORE_ERRORS) — should fail for external
     val innerMsg = createMessage({
@@ -145,8 +145,8 @@ get fun `test w5: ext should add remove send in one go`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
-    val testExtension = net.randomAddress("test-extension");
-    val testReceiver = net.randomAddress("test-receiver");
+    val testExtension = randomAddress("test-extension");
+    val testReceiver = randomAddress("test-receiver");
     val forwardValue = ton("0.001");
 
     var outActions: array<SendAction> = [];
@@ -229,10 +229,10 @@ get fun `test w5: ext should not be able to install extension from different cha
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     // Create a masterchain address (workchain -1)
-    val mcExtension = net.randomAddress("mc-extension", -1);
+    val mcExtension = randomAddress("mc-extension", -1);
 
     // Fund the masterchain address so it exists
-    val funder = net.treasury("funder");
+    val funder = testing.treasury("funder");
     val fundMsg = createMessage({
         bounce: false,
         value: ton("1"),
@@ -265,7 +265,7 @@ get fun `test w5: int should send up to 255 messages`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
-    val testReceiver = net.treasury("receiver");
+    val testReceiver = testing.treasury("receiver");
 
     var outActions: array<SendAction> = [];
     var i = 0;
@@ -306,7 +306,7 @@ get fun `test w5: int should send messages with various send modes`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
     var seqno = 0;
 
-    val testReceiver = net.treasury("receiver");
+    val testReceiver = testing.treasury("receiver");
 
     // Internal should work with IGNORE_ERRORS
     var outActions1: array<SendAction> = [];
@@ -387,8 +387,8 @@ get fun `test w5: int should add remove send in one go`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
-    val testExtension = net.randomAddress("test-extension");
-    val testReceiver = net.randomAddress("test-receiver");
+    val testExtension = randomAddress("test-extension");
+    val testReceiver = randomAddress("test-receiver");
     val forwardValue = ton("0.001");
 
     var outActions: array<SendAction> = [];
@@ -446,7 +446,7 @@ get fun `test w5: ext_action should send up to 255 messages`() {
     addExtensionSigned(walletV5, deployer.address, deployer.address, keyPair, seqno);
     seqno += 1;
 
-    val testReceiver = net.treasury("receiver");
+    val testReceiver = testing.treasury("receiver");
 
     var outActions: array<SendAction> = [];
     var i = 0;
@@ -493,7 +493,7 @@ get fun `test w5: ext_action should send messages with various modes`() {
     addExtensionSigned(walletV5, deployer.address, deployer.address, keyPair, seqno);
     seqno += 1;
 
-    val testReceiver = net.treasury("receiver");
+    val testReceiver = testing.treasury("receiver");
 
     // Extension should work with IGNORE_ERRORS
     var outActions1: array<SendAction> = [];
@@ -568,7 +568,7 @@ get fun `test w5: ext_action from wrong workchain should be ignored`() {
         .toSlice() as address;
 
     // Send extension action from masterchain address (same hash, different workchain)
-    val testReceiver = net.randomAddress("test-receiver");
+    val testReceiver = randomAddress("test-receiver");
     val forwardValue = ton("0.001");
 
     var outActions: array<SendAction> = [];
@@ -607,8 +607,8 @@ get fun `test w5: ext_action add remove send in one go`() {
     addExtensionSigned(walletV5, deployer.address, deployer.address, keyPair, seqno);
     seqno += 1;
 
-    val newExtension = net.randomAddress("new-extension");
-    val testReceiver = net.randomAddress("test-receiver");
+    val newExtension = randomAddress("new-extension");
+    val testReceiver = randomAddress("test-receiver");
     val forwardValue = ton("0.001");
 
     var outActions: array<SendAction> = [];
@@ -647,7 +647,7 @@ get fun `test w5: action list exceeding 255 elements should be rejected`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
     var seqno = 0;
 
-    val testReceiver = net.treasury("receiver");
+    val testReceiver = testing.treasury("receiver");
 
     var outActions = BigArray<SendAction>.createEmpty();
     var i = 0;
@@ -678,7 +678,7 @@ get fun `test w5: action list exceeding 255 elements should be rejected`() {
             .endCell();
         j -= 1;
     }
-    // Pack as: Maybe<ref(OutActionsList)>=1 ref(c5) hasExtraActions=0
+    // Pack as: Maybe<ref(TlbOutActionsList)>=1 ref(c5) hasExtraActions=0
     val bigActionsCell = beginCell().storeUint(1, 1).storeRef(c5).storeUint(0, 1).endCell();
 
     // Via external: error after accept, tx included
@@ -830,7 +830,7 @@ get fun `test w5: should not accept signed external when sig auth is disabled`()
     expect(walletV5.isSignatureAllowed()).toEqual(false);
 
     // Try signed external — should be rejected before accept
-    val testReceiver = net.randomAddress("test-receiver");
+    val testReceiver = randomAddress("test-receiver");
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, ton("0.001")));
     val actions = ActionsList {
@@ -865,7 +865,7 @@ get fun `test w5: should not accept signed internal when sig auth is disabled`()
     expect(walletV5.isSignatureAllowed()).toEqual(false);
 
     // Try signed internal — should error
-    val testReceiver = net.randomAddress("test-receiver");
+    val testReceiver = randomAddress("test-receiver");
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, ton("0.001")));
     val actions = ActionsList {
@@ -899,7 +899,7 @@ get fun `test w5: extension should add another ext when sig auth is disabled`() 
     expect(walletV5.isSignatureAllowed()).toEqual(false);
 
     // Add another extension
-    val newExtension = net.randomAddress("new-extension");
+    val newExtension = randomAddress("new-extension");
     var extraActions1: array<ExtraAction> = [];
     extraActions1.push(AddExtensionExtraAction { addr: newExtension });
     val actionsBody1 = ActionsList {
@@ -936,7 +936,7 @@ get fun `test w5: should remove ext if sig disabled and at least one left`() {
     seqno += 1;
 
     // Disable sig auth and add another extension
-    val anotherExtension = net.randomAddress("another-ext");
+    val anotherExtension = randomAddress("another-ext");
     var extraActions0: array<ExtraAction> = [];
     extraActions0.push(SetSignatureAllowedExtraAction { allowSignature: false });
     extraActions0.push(AddExtensionExtraAction { addr: anotherExtension });
@@ -995,7 +995,7 @@ get fun `test w5: withdraw funds on deploy with sig auth disabled`() {
 
     // v5r1: when extensions dict is empty, signed messages are allowed even with sig_allowed=false
     // (safety net for accidental misconfigured deploy)
-    val testReceiver = net.randomAddress("receiver");
+    val testReceiver = randomAddress("receiver");
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, ton("0.001")));
     val actions = ActionsList {
@@ -1066,7 +1066,7 @@ get fun `test w5: should reject action list with extra data or refs`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
     var seqno = 0;
 
-    val testReceiver = net.randomAddress("test-receiver");
+    val testReceiver = randomAddress("test-receiver");
     val innerMsg = createMessage({
         bounce: false,
         value: ton("0.001"),
@@ -1115,7 +1115,7 @@ get fun `test w5: should reject action list with extra data or refs`() {
             .storeSlice(payload.beginParse())
             .endCell();
 
-        // Pack as: hasOutActions=1 ref(actionList) hasExtraActions=0
+        // Pack as: hasTlbOutActions=1 ref(actionList) hasExtraActions=0
         val rawActionsCell = beginCell()
             .storeUint(1, 1)
             .storeRef(actionList)
@@ -1182,10 +1182,10 @@ get fun `test w5: should reject action list with extra data or refs`() {
         validRawActions,
     );
     val validReceipt = walletV5.sendAny(deployer.address, validIntBody, { value: ton("1") });
-    expect(validReceipt).toHaveSuccessfulTx({
+    expect(validReceipt).toHaveTx({
         from: walletV5.address,
         to: testReceiver,
-        exitCode: 0,
+        value: ton("0.001"),
     });
 }
 
@@ -1241,7 +1241,7 @@ get fun `test w5: int should not be able to install extension from different cha
     val keyPair = crypto.generateKeyPair();
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
-    val mcExtension = net.randomAddress("mc-extension-int", -1);
+    val mcExtension = randomAddress("mc-extension-int", -1);
 
     var extraActions: array<ExtraAction> = [];
     extraActions.push(AddExtensionExtraAction { addr: mcExtension });
@@ -1269,7 +1269,7 @@ get fun `test w5: ext_action should not be able to install extension from differ
     addExtensionSigned(walletV5, deployer.address, deployer.address, keyPair, seqno);
     seqno += 1;
 
-    val mcExtension = net.randomAddress("mc-extension-ext-act", -1);
+    val mcExtension = randomAddress("mc-extension-ext-act", -1);
 
     var extraActions: array<ExtraAction> = [];
     extraActions.push(AddExtensionExtraAction { addr: mcExtension });

@@ -1,7 +1,7 @@
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
@@ -73,7 +73,7 @@ fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: co
 }
 
 fun estimateBodyForwardFee<T>(body: T) {
-    return estimateMessageForwardFee(body, net.randomAddress(), true, ton("1"));
+    return estimateMessageForwardFee(body, randomAddress(), true, ton("1"));
 }
 
 fun sendRawTransferPayload(
@@ -132,9 +132,9 @@ fun deployWalletFromStorage(
 }
 
 fun setupDirectWallet(initialBalance: coins = 0): (JettonWallet, Treasury, Treasury, Treasury) {
-    val owner = net.treasury("direct-wallet-owner");
-    val minter = net.treasury("direct-wallet-minter");
-    val outsider = net.treasury("direct-wallet-outsider");
+    val owner = testing.treasury("direct-wallet-owner");
+    val minter = testing.treasury("direct-wallet-minter");
+    val outsider = testing.treasury("direct-wallet-outsider");
     val wallet = deployWalletFromStorage(
         WalletStorage {
             jettonBalance: 0,
@@ -192,7 +192,7 @@ fun hasSetCodeAction(res: SendResultList, account: address): bool {
     val actions = item.allOutActions();
     var i = 0;
     while (i < actions.size()) {
-        if (actions.at(i) is OutActionSetCode) {
+        if (actions.at(i) is TlbOutActionSetCode) {
             return true;
         }
         i += 1;
@@ -202,8 +202,8 @@ fun hasSetCodeAction(res: SendResultList, account: address): bool {
 }
 
 fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
-    val deployer = net.treasury("deployer");
-    val notDeployer = net.treasury("not-deployer");
+    val deployer = testing.treasury("deployer");
+    val notDeployer = testing.treasury("not-deployer");
 
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: initialSupply,

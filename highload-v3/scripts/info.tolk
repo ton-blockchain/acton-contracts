@@ -1,6 +1,7 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "../wrappers/HighloadWalletV3"
 
 fun main() {
@@ -14,7 +15,7 @@ fun main() {
     val queryId: int = env("HIGHLOAD_QUERY_ID") ?? 0;
     val wallet = HighloadWalletV3.fromAddress(walletAddress!);
 
-    if (!net.isDeployed(wallet.address)) {
+    if (!scripts.isContractDeployed(wallet.address)) {
         println("Wallet is not deployed in the current execution context: {}", wallet.address);
         return;
     }

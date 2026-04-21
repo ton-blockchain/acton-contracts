@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
@@ -27,8 +27,8 @@ get fun `test vset rejected not config`() {
     expect(isFinished).toEqual(true);
 
     // Send ConfigConfirmedAlt (rejection) from wrong address
-    val wrongAddr = net.randomAddress("wrong", MASTERCHAIN);
-    net.topUp(wrongAddr, ton("10"));
+    val wrongAddr = randomAddress("wrong", MASTERCHAIN);
+    testing.topUp(wrongAddr, ton("10"));
     elector.sendConfigConfirmedAlt(wrongAddr, electAt, { value: ton("1") });
 
     // Elections should still be active (rejection ignored)
@@ -44,7 +44,7 @@ get fun `test vset rejected not config`() {
     expect(electAt2).toNotEqual(0);
 
     // Send from correct config address — should cancel elections
-    net.topUp(setup.configAddr, ton("10"));
+    testing.topUp(setup.configAddr, ton("10"));
     elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: ton("1") });
 
     // Elections should be cancelled
@@ -79,14 +79,14 @@ get fun `test vset rejected wrong wc`() {
         .endCell()
         .beginParse()
         .loadAddress();
-    net.topUp(bcConfigAddr, ton("10"));
+    testing.topUp(bcConfigAddr, ton("10"));
 
     // From basechain — should be ignored
     elector.sendConfigConfirmedAlt(bcConfigAddr, electAt, { value: ton("1") });
     expect(elector.activeElectionId()).toNotEqual(0);
 
     // From masterchain — should cancel
-    net.topUp(setup.configAddr, ton("10"));
+    testing.topUp(setup.configAddr, ton("10"));
     elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: ton("1") });
     expect(elector.activeElectionId()).toEqual(0);
 }
@@ -109,7 +109,7 @@ get fun `test vset rejected wrong elections`() {
         _,
     ) = elector.participantListExtended();
 
-    net.topUp(setup.configAddr, ton("100"));
+    testing.topUp(setup.configAddr, ton("100"));
 
     // Wrong election ID — should be ignored
     elector.sendConfigConfirmedAlt(setup.configAddr, (electAt + 1), { value: ton("1") });
@@ -139,8 +139,8 @@ get fun `test vset confirmed not config`() {
     ) = elector.participantListExtended();
 
     // Send ConfigConfirmed from wrong address — should be ignored
-    val wrongAddr = net.randomAddress("wrong", MASTERCHAIN);
-    net.topUp(wrongAddr, ton("10"));
+    val wrongAddr = randomAddress("wrong", MASTERCHAIN);
+    testing.topUp(wrongAddr, ton("10"));
     elector.sendConfigConfirmed(wrongAddr, electAt, { value: ton("1") });
 
     // Elections should still be present
@@ -173,7 +173,7 @@ get fun `test vset confirmed wrong wc`() {
         .endCell()
         .beginParse()
         .loadAddress();
-    net.topUp(bcConfigAddr, ton("10"));
+    testing.topUp(bcConfigAddr, ton("10"));
 
     elector.sendConfigConfirmed(bcConfigAddr, electAt, { value: ton("1") });
     expect(elector.activeElectionId()).toNotEqual(0);
@@ -196,7 +196,7 @@ get fun `test vset confirmed wrong elections`() {
         _,
         _,
     ) = elector.participantListExtended();
-    net.topUp(setup.configAddr, ton("100"));
+    testing.topUp(setup.configAddr, ton("100"));
 
     // Wrong election ID — should be ignored
     elector.sendConfigConfirmed(setup.configAddr, (electAt + 1), { value: ton("1") });
@@ -241,8 +241,8 @@ get fun `test vset rejected success`() {
         _,
         _,
     ) = elector.participantListExtended();
-    net.setNow(closeAt + 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(closeAt + 1);
+    testing.runTickTock(elector.address, true);
 
     val (
         electAt,
@@ -260,7 +260,7 @@ get fun `test vset rejected success`() {
     expect(elector.computeReturnedStake(firstStakerHash)).toEqual(0);
 
     // Send rejection from config
-    net.topUp(setup.configAddr, ton("10"));
+    testing.topUp(setup.configAddr, ton("10"));
     elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: ton("1") });
 
     // Elections should be cancelled

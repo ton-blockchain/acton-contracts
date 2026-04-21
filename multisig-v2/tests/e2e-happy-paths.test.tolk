@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "test-utils"
 import "../contracts/messages"
@@ -34,7 +34,7 @@ fun deployMultisigStage(): MultisigTestContext {
 }
 
 fun createOrderStage(ctx: MultisigTestContext): MultisigE2eFixture {
-    val recipient = net.randomAddress("multisig-e2e-recipient");
+    val recipient = randomAddress("multisig-e2e-recipient");
     val orderBody = singleActionOrder(
         makeTransferAction(recipient, DEFAULT_TRANSFER_VALUE, MULTISIG_E2E_ACTION_MARKER),
     );
@@ -86,7 +86,7 @@ fun voteForOrderStage(fixture: MultisigE2eFixture) {
             { value: DEFAULT_APPROVE_VALUE, bounce: true },
         );
 
-    expect(vote).toHaveSuccessfulTx<ApproveAccepted>({
+    expect(vote).toHaveTx<ApproveAccepted>({
         from: fixture.order.address,
         to: signerAddress,
     });
@@ -99,8 +99,8 @@ fun voteForOrderStage(fixture: MultisigE2eFixture) {
         from: fixture.order.address,
         to: signerAddress,
     });
-    expect(acceptedTx).toBeDefined();
-    val acceptedBody = loadApproveAccepted(acceptedTx.unwrap());
+    expect(acceptedTx).toBeNotNull();
+    val acceptedBody = loadApproveAccepted(acceptedTx!);
     expect(acceptedBody.queryId).toEqual(MULTISIG_E2E_FIRST_APPROVE_QUERY_ID);
 
     val orderData = fixture.order.getData();
@@ -122,7 +122,7 @@ fun executeOrderStage(fixture: MultisigE2eFixture) {
             { value: DEFAULT_APPROVE_VALUE, bounce: true },
         );
 
-    expect(vote).toHaveSuccessfulTx<ApproveAccepted>({
+    expect(vote).toHaveTx<ApproveAccepted>({
         from: fixture.order.address,
         to: signerAddress,
     });
@@ -130,7 +130,7 @@ fun executeOrderStage(fixture: MultisigE2eFixture) {
         from: fixture.order.address,
         to: fixture.ctx.multisig.address,
     });
-    expect(vote).toHaveSuccessfulTx({
+    expect(vote).toHaveTx({
         from: fixture.ctx.multisig.address,
         to: fixture.recipient,
         body: markerBody(MULTISIG_E2E_ACTION_MARKER),
@@ -141,8 +141,8 @@ fun executeOrderStage(fixture: MultisigE2eFixture) {
         from: fixture.order.address,
         to: signerAddress,
     });
-    expect(acceptedTx).toBeDefined();
-    val acceptedBody = loadApproveAccepted(acceptedTx.unwrap());
+    expect(acceptedTx).toBeNotNull();
+    val acceptedBody = loadApproveAccepted(acceptedTx!);
     expect(acceptedBody.queryId).toEqual(MULTISIG_E2E_FINAL_APPROVE_QUERY_ID);
 
     val orderData = fixture.order.getData();

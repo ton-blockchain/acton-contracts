@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/errors"
@@ -36,7 +36,7 @@ fun assertProposalCreateOutcome(
             .sendNewVotingProposalRequest(
                 ctx.proposer,
                 i,
-                (net.now() + 86400),
+                (testing.getNow() + 86400),
                 false,
                 proposal,
                 { value: ton("100"), bounce: true },
@@ -157,7 +157,7 @@ get fun `test proposals invariant: duplicate proposal should be rejected when ex
         .sendNewVotingProposalRequest(
             ctx.proposer,
             1,
-            (net.now() + 2000),
+            (testing.getNow() + 2000),
             false,
             proposal,
             { value: ton("100"), bounce: true },
@@ -174,7 +174,7 @@ get fun `test proposals invariant: duplicate proposal should be rejected when ex
         .sendNewVotingProposalRequest(
             ctx.proposer,
             2,
-            (net.now() + 2000),
+            (testing.getNow() + 2000),
             false,
             proposal,
             { value: ton("100"), bounce: true },

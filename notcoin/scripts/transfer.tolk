@@ -1,18 +1,20 @@
+import "@acton/build"
 import "@acton/env"
 import "@acton/io"
-import "@acton/build/build"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
+import "common"
 import "../wrappers/JettonMinter"
 import "../wrappers/JettonWallet"
 
 fun main() {
     val walletName = "deployer";
-    val deployer = net.wallet(walletName);
+    val deployer = scripts.wallet(walletName);
     val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
     val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
     val transferRecipient = envOr(
         "JETTON_TRANSFER_RECIPIENT",
-        net.wallet("jetton-recipient-1").address,
+        scripts.wallet("jetton-recipient-1").address,
     );
     val transferAmount = envOr("JETTON_TRANSFER_AMOUNT", ton("0.1"));
     val value = envOr("JETTON_TRANSFER_VALUE", ton("0.08"));
@@ -38,20 +40,20 @@ fun main() {
     }
 
     if (minterAddress == null) {
-        if (!net.isDeployed(minter.address)) {
+        if (!scripts.isContractDeployed(minter.address)) {
             val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
             if (!deployRes.wait()) {
                 println("Deployment failed");
                 return;
             }
         }
-    } else if (!net.isBroadcasting() && !net.isDeployed(minter.address)) {
+    } else if (!net.isBroadcasting() && !scripts.isContractDeployed(minter.address)) {
         println("Minter is not deployed at {}", minter.address);
         return;
     }
 
     val senderWallet = JettonWallet { address: minter.getWalletAddress(deployer.address) };
-    val senderWalletDeployed = net.isDeployed(senderWallet.address);
+    val senderWalletDeployed = scripts.isContractDeployed(senderWallet.address);
     val senderBalanceBefore = senderWalletDeployed ? senderWallet.getJettonBalance() : 0 as coins;
     if (!senderWalletDeployed || senderBalanceBefore < transferAmount) {
         println("Prefunding sender wallet with {}", prefundMintAmount);

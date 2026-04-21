@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
@@ -10,7 +10,7 @@ import "../wrappers/ConfigContract"
 get fun `test vset: should reject already-current set and accept future set`() {
     val ctx = setupConfigTest();
 
-    val now = net.now();
+    val now = testing.getNow();
 
     val currentLike = ValidatorSetExt {
         utimeSince: now,
@@ -66,7 +66,7 @@ get fun `test vset: should reject already-current set and accept future set`() {
 get fun `test vset: should reject expired window and accept valid window`() {
     val ctx = setupConfigTest();
 
-    val now = net.now();
+    val now = testing.getNow();
 
     val badWindow = ValidatorSetExt {
         utimeSince: (now + 1000),
@@ -130,7 +130,7 @@ get fun `test ticktock invariant: should roll proposal round on validator-set ch
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600),
+        (testing.getNow() + 3600),
         0,
         UINT256_MAX,
     );
@@ -141,7 +141,7 @@ get fun `test ticktock invariant: should roll proposal round on validator-set ch
     expect(before!.losses).toEqual(0);
 
     val afterVset = applyCurrentValidatorSet(customValidators, 1);
-    net.runTickTock(ctx.contract.address, false);
+    testing.runTickTock(ctx.contract.address, false);
 
     val after = getProposalFullOrNull(ctx.contract, hash);
     expect(after == null).toEqual(false);

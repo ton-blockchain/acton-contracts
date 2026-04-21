@@ -1,7 +1,8 @@
+import "@acton/crypto"
 import "@acton/env"
 import "@acton/io"
-import "@acton/crypto/crypto"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "../wrappers/HighloadWalletV3"
 
 const HIGHLOAD_DEFAULT_SUBWALLET_ID = 239
@@ -15,7 +16,7 @@ fun main() {
         return;
     }
 
-    val deployer = net.wallet("deployer-2");
+    val deployer = scripts.wallet("deployer-2");
 
     val subwalletId: int = env("HIGHLOAD_SUBWALLET_ID") ?? HIGHLOAD_DEFAULT_SUBWALLET_ID;
     val timeout: int = env("HIGHLOAD_TIMEOUT") ?? HIGHLOAD_DEFAULT_TIMEOUT;
@@ -27,7 +28,7 @@ fun main() {
     println("Using wallet: deployer");
     println("Prepared highload wallet: {}", wallet.address);
 
-    if (net.isDeployed(wallet.address)) {
+    if (scripts.isContractDeployed(wallet.address)) {
         println("Wallet is already deployed in the current execution context: {}", wallet.address);
     } else {
         val deployResult = wallet.deploy(deployer.address, { value: deployValue, bounce: false });

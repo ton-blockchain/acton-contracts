@@ -1,7 +1,7 @@
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test-utils"
@@ -12,7 +12,7 @@ import "../wrappers/JettonMinter"
 import "../wrappers/JettonWallet"
 
 get fun `test admin: deploy should create minter without bounce`() {
-    val deployer = net.treasury("deployer-manual-deploy");
+    val deployer = testing.treasury("deployer-manual-deploy");
 
     val minter = JettonMinter.fromStorage(MinterStorage {
         totalSupply: 0,
@@ -169,12 +169,8 @@ get fun `test admin: discovery should return wallet address with and without own
         success: true,
         exitCode: 0,
     });
-    expect(withOwnerTx).toBeDefined();
-    if (withOwnerTx is None) {
-        return;
-    }
-
-    val withOwnerBody = withOwnerTx.value.loadBody<ResponseWalletAddress>();
+    expect(withOwnerTx).toBeNotNull();
+    val withOwnerBody = withOwnerTx!.loadBody<ResponseWalletAddress>();
     expect(withOwnerBody.jettonWalletAddress).toEqual(expectedDeployerWallet);
     expect(withOwnerBody.ownerAddress).toBeNotNull();
     if (withOwnerBody.ownerAddress == null) {
@@ -190,12 +186,8 @@ get fun `test admin: discovery should return wallet address with and without own
         success: true,
         exitCode: 0,
     });
-    expect(withoutOwnerTx).toBeDefined();
-    if (withoutOwnerTx is None) {
-        return;
-    }
-
-    val withoutOwnerBody = withoutOwnerTx.value.loadBody<ResponseWalletAddress>();
+    expect(withoutOwnerTx).toBeNotNull();
+    val withoutOwnerBody = withoutOwnerTx!.loadBody<ResponseWalletAddress>();
     expect(withoutOwnerBody.jettonWalletAddress).toEqual(expectedOtherWallet);
     expect(withoutOwnerBody.ownerAddress).toEqual(null);
 }
@@ -211,11 +203,8 @@ get fun `test admin: discovery should return none for non-basechain owner`() {
         success: true,
         exitCode: 0,
     });
-    expect(noOwnerTx).toBeDefined();
-    if (noOwnerTx is None) {
-        return;
-    }
-    val noOwnerBody = noOwnerTx.value.loadBody<ResponseWalletAddress>();
+    expect(noOwnerTx).toBeNotNull();
+    val noOwnerBody = noOwnerTx!.loadBody<ResponseWalletAddress>();
     expect(noOwnerBody.jettonWalletAddress).toEqual(null);
     expect(noOwnerBody.ownerAddress).toEqual(null);
 
@@ -226,11 +215,8 @@ get fun `test admin: discovery should return none for non-basechain owner`() {
         success: true,
         exitCode: 0,
     });
-    expect(withOwnerTx).toBeDefined();
-    if (withOwnerTx is None) {
-        return;
-    }
-    val withOwnerBody = withOwnerTx.value.loadBody<ResponseWalletAddress>();
+    expect(withOwnerTx).toBeNotNull();
+    val withOwnerBody = withOwnerTx!.loadBody<ResponseWalletAddress>();
     expect(withOwnerBody.jettonWalletAddress).toEqual(null);
     expect(withOwnerBody.ownerAddress).toBeNotNull();
     if (withOwnerBody.ownerAddress == null) {

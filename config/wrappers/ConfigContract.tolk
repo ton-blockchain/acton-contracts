@@ -1,5 +1,5 @@
 import "@stdlib/gas-payments"
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
 import "@acton/types/message"
@@ -135,7 +135,7 @@ fun ConfigContract.seqno(self): int {
 }
 
 fun ConfigContract.getProposal(self, proposalHash: int): tuple? {
-    return net.runGetMethod(self.address, "get_proposal", proposalHash);
+    return net.runGetMethod(self.address, "get_proposal", [proposalHash]);
 }
 
 fun ConfigContract.listProposals(self): lisp_list<tuple> {

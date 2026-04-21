@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/messages"
 import "../wrappers/HighloadWalletV3"
@@ -24,7 +24,7 @@ get fun `test queries hashmaps are cleared`() {
     });
     expect(ctx.wallet.isProcessed(queryId, false)).toBeTrue();
 
-    net.setNow(1260);
+    testing.setNow(1260);
     // Getter should account for expiration without mutating stored state.
     expect(ctx.wallet.isProcessed(queryId)).toBeFalse();
 
@@ -68,7 +68,7 @@ get fun `test cleanup does not run at exact timeout boundary`() {
         to: ctx.wallet.address,
     });
 
-    net.setNow(1000 + timeout);
+    testing.setNow(1000 + timeout);
     val nextQueryId = HighloadQueryId.fromShiftAndBitNumber(14, 78).toInt();
     val res2 = sendSignedExternal(
         ctx.wallet,
@@ -108,7 +108,7 @@ get fun `test cleanup moves prior queries into old window and still blocks repla
         to: ctx.wallet.address,
     });
 
-    net.setNow(1000 + timeout + 1);
+    testing.setNow(1000 + timeout + 1);
     val nextQueryId = HighloadQueryId.fromShiftAndBitNumber(16, 82).toInt();
     val res2 = sendSignedExternal(
         ctx.wallet,
@@ -158,7 +158,7 @@ get fun `test cleanup keeps old window at exact double-timeout boundary`() {
         to: ctx.wallet.address,
     });
 
-    net.setNow(1000 + (timeout * 2));
+    testing.setNow(1000 + (timeout * 2));
     val nextQueryId = HighloadQueryId.fromShiftAndBitNumber(17, 84).toInt();
     val res2 = sendSignedExternal(
         ctx.wallet,
@@ -183,7 +183,7 @@ get fun `test cleanup keeps old window at exact double-timeout boundary`() {
 
 get fun `test queries dictionary with max keys fits credit limit`() {
     val ctx = setupHighloadTest();
-    preloadDenseQueryMaps(ctx.wallet, net.now());
+    preloadDenseQueryMaps(ctx.wallet, testing.getNow());
 
     val msg = emptyInternalTransferMessage(ctx.wallet, 0, 0);
     val queryId = HighloadQueryId.fromShiftAndBitNumber(MAX_SHIFT, 700).toInt();

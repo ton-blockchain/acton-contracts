@@ -1,6 +1,7 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "../contracts/messages"
 import "../contracts/types"
 import "../wrappers/MultisigV2"
@@ -19,9 +20,9 @@ fun main() {
         return;
     }
 
-    val deployer = net.wallet("deployer");
+    val deployer = scripts.wallet("deployer");
     val multisig = MultisigV2.fromAddress(multisigAddress!);
-    if (!net.isDeployed(multisig.address)) {
+    if (!scripts.isContractDeployed(multisig.address)) {
         println("Multisig is not deployed in the current execution context: {}", multisig.address);
         return;
     }
@@ -32,7 +33,7 @@ fun main() {
     val orderSeqnoEnv: int? = env("MSIG_ORDER_SEQNO");
     val transferValue: int = env("MSIG_TRANSFER_VALUE") ?? DEFAULT_TRANSFER_VALUE;
     val marker: int = env("MSIG_MARKER") ?? DEFAULT_MARKER;
-    val expirationDate: int = env("MSIG_EXPIRATION_DATE") ?? (net.now() + DEFAULT_ORDER_TTL);
+    val expirationDate: int = env("MSIG_EXPIRATION_DATE") ?? (blockchain.now() + DEFAULT_ORDER_TTL);
     val queryId: int = env("MSIG_QUERY_ID") ?? 0;
 
     if (dataBefore.nextOrderSeqno == -1 && orderSeqnoEnv == null) {

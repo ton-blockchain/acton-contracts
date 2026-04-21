@@ -2,12 +2,13 @@ import "@stdlib/strings"
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "../contracts/storage"
 import "../tests/test-utils"
 import "../wrappers/DnsItem"
 
 fun main() {
-    val deployer = net.wallet("deployer-2");
+    val deployer = scripts.wallet("deployer-2");
 
     val itemAddress: address? = env("ITEM_ADDRESS");
     val dnsNameValue: string? = env("DNS_NAME_VALUE");
@@ -20,7 +21,7 @@ fun main() {
     }
 
     val item = NftItemContract.fromAddress(itemAddress!);
-    if (!net.isDeployed(item.address)) {
+    if (!scripts.isContractDeployed(item.address)) {
         println("Item is not deployed in the current execution context: {}", item.address);
         return;
     }

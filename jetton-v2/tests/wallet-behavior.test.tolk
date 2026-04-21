@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test-utils"
@@ -135,9 +135,9 @@ get fun `test wallet: transfer notification should preserve forward payload`() {
         success: true,
         exitCode: 0,
     });
-    expect(notificationTx).toBeDefined();
+    expect(notificationTx).toBeNotNull();
 
-    val notification = notificationTx.unwrap().loadBody<TransferNotificationForRecipient>();
+    val notification = notificationTx!.loadBody<TransferNotificationForRecipient>();
     var payloadSlice = notification.forwardPayload;
     val payloadRef = payloadSlice.loadMaybeRef();
     expect(payloadRef).toBeNotNull();
@@ -160,7 +160,7 @@ get fun `test wallet: transfer notification should preserve forward payload`() {
 get fun `test wallet: transfer to undeployed recipient wallet should still work`() {
     val (minter, deployer, _) = setupTest();
     val senderWallet = mintTo(minter, deployer, deployer.address, ton("2"));
-    val recipientOwner = net.randomAddress();
+    val recipientOwner = randomAddress();
     val recipientWallet = userWallet(minter, recipientOwner);
     val sentAmount = ton("0.5");
 

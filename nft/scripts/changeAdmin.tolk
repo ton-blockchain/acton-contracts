@@ -1,5 +1,6 @@
+import "@acton/prompts"
 import "@acton/emulation/network"
-import "@acton/promts/prompts"
+import "@acton/emulation/scripts"
 import "utils/common"
 import "../wrappers/NftCollectionContract"
 
@@ -8,7 +9,7 @@ fun main() {
     val collection = promptNftCollectionContract("Enter NFT Collection address");
     val newAdmin = promptNftAddress(
         "Enter new admin address",
-        net.treasury("nft-new-admin").address,
+        scripts.wallet("nft-new-admin").address,
     );
 
     val res = collection.sendChangeCollectionAdmin(

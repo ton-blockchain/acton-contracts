@@ -1,8 +1,8 @@
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "../contracts/messages"
@@ -78,19 +78,19 @@ fun defaultStakeLimits(): StakeLimits {
 
 /// Deploy elector on masterchain with default config
 fun setupElector(): ElectorSetup {
-    net.setNow(NOW_CONST);
+    testing.setNow(NOW_CONST);
 
     val elector = Elector.fromStorage(defaultStorage(), null, MASTERCHAIN);
-    val deployer = net.treasury("deployer");
+    val deployer = testing.treasury("deployer");
 
     val res = elector.deploy(deployer.address, { value: ton("1000") });
     expect(res).toHaveSuccessfulDeploy({ to: elector.address });
 
     // Generate a config contract address on masterchain
-    val configAddr = net.randomAddress("config", MASTERCHAIN);
+    val configAddr = randomAddress("config", MASTERCHAIN);
 
     // Set up blockchain config
-    var config = net.getConfig();
+    var config = testing.getConfig();
 
     // Param 1: elector address hash
     val (_, electorHash) = elector.address.getWorkchainAndHash();
@@ -112,14 +112,14 @@ fun setupElector(): ElectorSetup {
     // Param 34: current validator set (expired)
     config.setParamRaw(34, defaultValidators().toCell());
 
-    net.setConfig(config);
+    testing.setConfig(config);
 
     return ElectorSetup { elector, configAddr };
 }
 
 /// Run tick-tock to announce elections
 fun announceElections(elector: Elector): SendResultList {
-    return net.runTickTock(elector.address, true);
+    return testing.runTickTock(elector.address, true);
 }
 
 /// Get active election ID via participant_list_extended
@@ -156,7 +156,7 @@ fun generateStakeSignature(
 fun submitValidStake(elector: Elector, totalStake: coins, customStake: coins = 0): (SendResultList, address, int, uint256, coins) {
     val kp = crypto.generateKeyPair();
     // Use a random address hash as ADNL address (256-bit random value)
-    val adnlAddr = net.randomAddress("adnl", MASTERCHAIN);
+    val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
 
     val stakeLimits = defaultStakeLimits();
@@ -166,8 +166,8 @@ fun submitValidStake(elector: Elector, totalStake: coins, customStake: coins = 0
     val stakeAt = elector.activeElectionId();
     assert (stakeAt != 0) throw 999;
 
-    val srcAddr = net.randomAddress("staker", MASTERCHAIN);
-    net.topUp(srcAddr, stake + ton("100"));
+    val srcAddr = randomAddress("staker", MASTERCHAIN);
+    testing.topUp(srcAddr, stake + ton("100"));
 
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -225,10 +225,10 @@ fun conductValidElections(elector: Elector): int {
         _,
         _,
     ) = elector.participantListExtended();
-    net.setNow(closeAt + 1);
+    testing.setNow(closeAt + 1);
 
     // Run tick-tock to conduct elections
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
 
     return stakeAt;
 }
@@ -260,8 +260,8 @@ fun submitKnownValidatorStake(elector: Elector, _totalStake: coins, kp: KeyPair)
     val stakeAt = elector.activeElectionId();
     assert (stakeAt != 0) throw 999;
 
-    val srcAddr = net.randomAddress("known-staker", MASTERCHAIN);
-    net.topUp(srcAddr, stakePerValidator + ton("100"));
+    val srcAddr = randomAddress("known-staker", MASTERCHAIN);
+    testing.topUp(srcAddr, stakePerValidator + ton("100"));
 
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
     val adnlAddr: uint256 = 12345;
@@ -317,8 +317,8 @@ fun conductElectionsWithKnownValidator(elector: Elector): (int, uint256) {
         _,
         _,
     ) = elector.participantListExtended();
-    net.setNow(closeAt + 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(closeAt + 1);
+    testing.runTickTock(elector.address, true);
 
     return (stakeAt, knownPubkey);
 }
@@ -367,11 +367,11 @@ fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cel
         _,
         _,
     ) = elector.participantListExtended();
-    net.setNow(closeAt + 1);
-    val tickResult = net.runTickTock(elector.address, true);
+    testing.setNow(closeAt + 1);
+    val tickResult = testing.runTickTock(elector.address, true);
 
     val tx = tickResult.findTransaction<ElectedVSetMsg>({ from: elector.address, to: configAddr });
-    val body = tx.unwrap().loadBody<ElectedVSetMsg>();
+    val body = tx!.loadBody<ElectedVSetMsg>();
 
     return (stakeAt, body.vset, firstStakerHash);
 }
@@ -380,32 +380,32 @@ fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cel
 fun doInstallPromoteUnfreeze(elector: Elector, vsetCell: cell) {
     val stakeHeld = defaultValidationTimes().stakeHeldFor;
 
-    var cfg = net.getConfig();
+    var cfg = testing.getConfig();
     cfg.setParamRaw(34, vsetCell);
-    net.setConfig(cfg);
-    net.runTickTock(elector.address, true);
+    testing.setConfig(cfg);
+    testing.runTickTock(elector.address, true);
 
     val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
-    cfg = net.getConfig();
+    cfg = testing.getConfig();
     cfg.setParamRaw(34, newVset.toCell());
     cfg.setParamRaw(36, newVset.toCell());
-    net.setConfig(cfg);
+    testing.setConfig(cfg);
 
     val promoteTime = blockchain.now() + 100;
-    net.setNow(promoteTime);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime);
+    testing.runTickTock(elector.address, true);
 
-    net.setNow(promoteTime + stakeHeld + 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime + stakeHeld + 1);
+    testing.runTickTock(elector.address, true);
 }
 
 /// Set expired vset and announce new elections.
 fun prepareNextRound(elector: Elector) {
     val now = blockchain.now();
     val expiredVset = buildVSet(now - 1000, now - 100, 1, 1, 0);
-    var cfg = net.getConfig();
+    var cfg = testing.getConfig();
     cfg.setParamRaw(34, expiredVset.toCell());
     cfg.delete(36);
-    net.setConfig(cfg);
-    net.runTickTock(elector.address, true);
+    testing.setConfig(cfg);
+    testing.runTickTock(elector.address, true);
 }

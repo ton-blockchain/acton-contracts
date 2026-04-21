@@ -1,9 +1,9 @@
 import "@stdlib/gas-payments"
+import "@acton/ffi"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
-import "@acton/ffi/ffi"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "test-utils"
 import "../contracts/errors"
@@ -16,7 +16,7 @@ get fun `test gas: transfer minimal value edge`() {
     val (minter, deployer, _) = setupTest();
     val wallet = mintTo(minter, deployer, deployer.address, DEFAULT_MINTED_JETTONS);
 
-    val dest = net.randomAddress();
+    val dest = randomAddress();
     val body = buildTransferBody(TEST_JETTON_UNIT, 0, dest, dest, makeTinyForwardPayload());
 
     val fwdFee = estimateBodyForwardFee(body);
@@ -49,7 +49,7 @@ get fun `test gas: transfer minimal value edge`() {
 }
 
 get fun `test gas: transfer minimal value is message-size aware`() {
-    val dest = net.randomAddress();
+    val dest = randomAddress();
 
     val bodySmall = buildTransferBody(TEST_JETTON_UNIT, 10, dest, dest, makeTinyForwardPayload());
     val feeSmall = estimateBodyForwardFee(bodySmall);
@@ -72,7 +72,7 @@ get fun `test gas: transfer with forward amount requires second forward fee`() {
     val (minter, deployer, _) = setupTest();
     val wallet = mintTo(minter, deployer, deployer.address, DEFAULT_MINTED_JETTONS);
 
-    val dest = net.randomAddress();
+    val dest = randomAddress();
     val body = buildTransferBody(
         TEST_JETTON_UNIT,
         DEFAULT_FORWARD_TON_AMOUNT,
@@ -132,7 +132,7 @@ get fun `test gas: transfer forward fees should follow config`() {
     val (minter, deployer, _) = setupTest();
     val wallet = mintTo(minter, deployer, deployer.address, DEFAULT_MINTED_JETTONS);
 
-    val dest = net.randomAddress();
+    val dest = randomAddress();
     val body = buildTransferBody(
         TEST_JETTON_UNIT,
         DEFAULT_FORWARD_TON_AMOUNT,
@@ -145,12 +145,12 @@ get fun `test gas: transfer forward fees should follow config`() {
     val minimalBefore = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFeeBefore) +
     MIN_EDGE_DELTA;
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var msgPrices = config.getMsgForwardPrices(BASECHAIN);
     msgPrices.bitPrice *= CONFIG_SCALE_X10;
     msgPrices.cellPrice *= CONFIG_SCALE_X10;
     config.setMsgForwardPrices(msgPrices, BASECHAIN);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 
     val fwdFeeAfter = estimateBodyForwardFee(body);
     var minimalAfter = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFeeAfter) +
@@ -176,7 +176,7 @@ get fun `test gas: transfer forward fees should follow config`() {
             exitCode: 0,
         });
 
-        if (okTx is None) {
+        if (okTx == null) {
             minimalAfter += 1;
             attempts += 1;
         } else {
@@ -215,7 +215,7 @@ get fun `test gas: transfer gas fee should follow config`() {
     val (minter, deployer, _) = setupTest();
     val wallet = mintTo(minter, deployer, deployer.address, DEFAULT_MINTED_JETTONS);
 
-    val dest = net.randomAddress();
+    val dest = randomAddress();
     val body = buildTransferBody(
         TEST_JETTON_UNIT,
         DEFAULT_FORWARD_TON_AMOUNT,
@@ -228,13 +228,13 @@ get fun `test gas: transfer gas fee should follow config`() {
     val minimalBefore = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFee) +
     MIN_EDGE_DELTA;
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var gasPrices = config.getGasPrices(BASECHAIN);
     var gasPricesExtended = gasPrices.other;
     gasPricesExtended.gasPrice *= GAS_SCALE_X3;
     gasPrices.other = gasPricesExtended;
     config.setGasPrices(gasPrices, BASECHAIN);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 
     val minimalAfter = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFee) +
     MIN_EDGE_DELTA;
@@ -270,7 +270,7 @@ get fun `test gas: transfer storage fee should follow config`() {
     val (minter, deployer, _) = setupTest();
     val wallet = mintTo(minter, deployer, deployer.address, DEFAULT_MINTED_JETTONS);
 
-    val dest = net.randomAddress();
+    val dest = randomAddress();
     val body = buildTransferBody(
         TEST_JETTON_UNIT,
         DEFAULT_FORWARD_TON_AMOUNT,
@@ -283,14 +283,14 @@ get fun `test gas: transfer storage fee should follow config`() {
     val minimalBefore = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFee) +
     MIN_EDGE_DELTA;
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var storagePrices = config.getStoragePrices();
     var initialStoragePrices = storagePrices.getInitial();
     initialStoragePrices.bitPrice *= CONFIG_SCALE_X10;
     initialStoragePrices.cellPrice *= CONFIG_SCALE_X10;
     storagePrices.setInitial(initialStoragePrices);
     config.setStoragePrices(storagePrices);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 
     val minimalAfter = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFee) +
     MIN_EDGE_DELTA;
@@ -423,12 +423,12 @@ get fun `test gas: burn forward fee should follow config`() {
         to: wallet.address,
     });
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var msgPrices = config.getMsgForwardPrices(BASECHAIN);
     msgPrices.bitPrice *= CONFIG_SCALE_X10;
     msgPrices.cellPrice *= CONFIG_SCALE_X10;
     config.setMsgForwardPrices(msgPrices, BASECHAIN);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 
     val minimalAfter = calcMinimalBurnAmount() + MIN_EDGE_DELTA;
     expect(minimalBefore).toBeLess(minimalAfter);
@@ -477,13 +477,13 @@ get fun `test gas: burn gas fee should follow config`() {
         to: wallet.address,
     });
 
-    var config = net.getConfig();
+    var config = testing.getConfig();
     var gasPrices = config.getGasPrices(BASECHAIN);
     var gasPricesExtended = gasPrices.other;
     gasPricesExtended.gasPrice *= GAS_SCALE_X3;
     gasPrices.other = gasPricesExtended;
     config.setGasPrices(gasPrices, BASECHAIN);
-    expect(net.setConfig(config)).toEqual(true);
+    expect(testing.setConfig(config)).toEqual(true);
 
     val minimalAfter = calcMinimalBurnAmount() + MIN_EDGE_DELTA;
     expect(minimalBefore).toBeLess(minimalAfter);
@@ -530,13 +530,13 @@ get fun `test gas: wallet storage fee should be measurable`() {
     val (minter, deployer, _) = setupTest();
     val wallet = mintTo(minter, deployer, deployer.address, ton("1"));
 
-    val stateCell = ffi.getAccountState(wallet.address.toCell());
-    expect(stateCell).toBeNotNull();
-    if (stateCell == null) {
+    val state = testing.getAccountState(wallet.address);
+    expect(state).toBeNotNull();
+    if (state == null) {
         return;
     }
 
-    val (cells, bits, _) = stateCell.calculateSizeStrict(4096);
+    val (cells, bits, _) = state!.toCell().calculateSizeStrict(4096);
     val storageFee = calculateStorageFee(BASECHAIN, MIN_STORAGE_DURATION, bits, cells);
 
     expect(storageFee).toBeGreater(0);

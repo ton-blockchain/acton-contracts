@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
@@ -18,7 +18,7 @@ get fun `test voting: should process votes for code update and regular parameter
         ctx.contract,
         codeProposal,
         true,
-        (net.now() + 86400),
+        (testing.getNow() + 86400),
         0,
         VOTE_HASH_CODE_PROPOSAL,
     );
@@ -40,7 +40,7 @@ get fun `test voting: should process votes for code update and regular parameter
         ctx.contract,
         regularProposal,
         false,
-        (net.now() + 86400),
+        (testing.getNow() + 86400),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -68,7 +68,7 @@ get fun `test voting: custom-slot proposals should not change slots even if prop
             ctx.contract,
             proposal,
             false,
-            (net.now() + 86400),
+            (testing.getNow() + 86400),
             0,
             slot == CUSTOM_SLOT_1 ? VOTE_HASH_CUSTOM_SLOT_1 : VOTE_HASH_CUSTOM_SLOT_2,
         );
@@ -86,7 +86,7 @@ get fun `test voting: custom-slot proposals should not change slots even if prop
         ctx.contract,
         codeProposal,
         true,
-        (net.now() + 86400),
+        (testing.getNow() + 86400),
         0,
         VOTE_HASH_CODE_PROPOSAL,
     );
@@ -143,7 +143,7 @@ get fun `test voting invariant: duplicate vote from same validator should return
         ctx.contract,
         proposal,
         false,
-        (net.now() + 86400),
+        (testing.getNow() + 86400),
         0,
         VOTE_HASH_DUPLICATE_CASE,
     );
@@ -171,7 +171,7 @@ get fun `test voting unit: set_next_validators should accept elector and reject 
     val newVset = buildValidatorSetCell(ctx.validators, 20);
 
     val fakeElector = differentAddress(ctx.electorAddress);
-    net.topUp(fakeElector, ton("100"));
+    testing.topUp(fakeElector, ton("100"));
 
     val reject = ctx
         .contract
@@ -204,8 +204,8 @@ get fun `test voting unit: set_next_validators should accept elector and reject 
 
     assertConfigParam(ctx.contract, CONFIG_PARAM_NEXT_VALIDATOR_SET, newVset);
 
-    net.setNow(net.now() + 5000);
-    net.runTickTock(ctx.contract.address, false);
+    testing.setNow(testing.getNow() + 5000);
+    testing.runTickTock(ctx.contract.address, false);
 
     assertConfigParam(ctx.contract, CONFIG_PARAM_CURRENT_VALIDATOR_SET, newVset);
     expect(getConfigParam(ctx.contract, CONFIG_PARAM_NEXT_VALIDATOR_SET)).toBeNull();
