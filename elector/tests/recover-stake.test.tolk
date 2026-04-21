@@ -1,8 +1,8 @@
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
@@ -14,7 +14,7 @@ get fun `test recover stake not mc`() {
     val elector = setup.elector;
 
     // Create addresses with same hash on different workchains
-    val mcAddr = net.randomAddress("recoverer", MASTERCHAIN);
+    val mcAddr = randomAddress("recoverer", MASTERCHAIN);
     val (_, addrHash) = mcAddr.getWorkchainAndHash();
     val bcAddr = beginCell()
         .storeUint(4, 3)
@@ -24,12 +24,12 @@ get fun `test recover stake not mc`() {
         .beginParse()
         .loadAddress();
 
-    net.topUp(bcAddr, ton("10"));
-    net.topUp(mcAddr, ton("10"));
+    testing.topUp(bcAddr, ton("10"));
+    testing.topUp(mcAddr, ton("10"));
 
     // From basechain — should be rejected (response with 0xfffffffe)
     val res1 = elector.sendRecoverStakeRequest(bcAddr, 1, { value: ton("1") });
-    expect(res1).toHaveSuccessfulTx({
+    expect(res1).toHaveTx({
         from: elector.address,
         to: bcAddr,
         opcode: 0xfffffffe,
@@ -37,7 +37,7 @@ get fun `test recover stake not mc`() {
 
     // From masterchain — no credits, but should also return error (no credit found)
     val res2 = elector.sendRecoverStakeRequest(mcAddr, 1, { value: ton("1") });
-    expect(res2).toHaveSuccessfulTx({
+    expect(res2).toHaveTx({
         from: elector.address,
         to: mcAddr,
         opcode: 0xfffffffe,
@@ -52,7 +52,7 @@ get fun `test recover stake credits`() {
     announceElections(elector);
 
     // Set maxValidators=5 so that extra validators get their full stake credited
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(
         16,
         ValidatorLimits {
@@ -61,14 +61,14 @@ get fun `test recover stake credits`() {
             minValidators: 5,
         }.toCell(),
     );
-    net.setConfig(config);
+    testing.setConfig(config);
 
     // Submit 6 validators — maxValidators=5 so the 6th gets credited back
     val stakeLimits = defaultStakeLimits();
     val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
     var totalStake: coins = 0;
     var i = 0;
-    var extraSrcAddr = net.randomAddress("placeholder", MASTERCHAIN);
+    var extraSrcAddr = randomAddress("placeholder", MASTERCHAIN);
     while (i < 6) {
         val (_, srcAddr, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
         totalStake += stake;
@@ -89,8 +89,8 @@ get fun `test recover stake credits`() {
         _,
         _,
     ) = elector.participantListExtended();
-    net.setNow(closeAt + 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(closeAt + 1);
+    testing.runTickTock(elector.address, true);
 
     // Extra staker should have credits (not selected, full stake returned)
     val credited = elector.computeReturnedStake(extraSrcHash);
@@ -98,7 +98,7 @@ get fun `test recover stake credits`() {
 
     // Recover the stake
     val res = elector.sendRecoverStakeRequest(extraSrcAddr, 42, { value: ton("1") });
-    expect(res).toHaveSuccessfulTx<PayStake>({ from: elector.address, to: extraSrcAddr });
+    expect(res).toHaveTx<PayStake>({ from: elector.address, to: extraSrcAddr });
 
     // After recovery, credits should be zero
     val creditedAfter = elector.computeReturnedStake(extraSrcHash);

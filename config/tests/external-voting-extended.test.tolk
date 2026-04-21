@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
@@ -22,7 +22,7 @@ get fun `test voting ext: should reject bad signature before acceptance`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600),
+        (testing.getNow() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -48,7 +48,7 @@ get fun `test voting ext: should accept message and return not-found semantics f
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600),
+        (testing.getNow() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -81,7 +81,7 @@ get fun `test voting ext: should remove expired proposal on accepted external vo
         ctx.contract,
         proposal,
         false,
-        (net.now() - 1),
+        (testing.getNow() - 1),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -103,7 +103,7 @@ get fun `test voting ext invariant: duplicate vote should not mutate proposal st
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600),
+        (testing.getNow() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -138,7 +138,7 @@ get fun `test voting ext invariant: round transition on vote should reset voters
         ctx.contract,
         proposal,
         true,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -172,7 +172,7 @@ get fun `test voting ext: should accept proposal across rounds and apply config`
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );

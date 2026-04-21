@@ -1,8 +1,8 @@
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
@@ -38,9 +38,9 @@ fun setupVsetWithKnownValidators(numValidators: int): array<KeyPair> {
         totalWeight,
         dict,
     };
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, vset.toCell());
-    net.setConfig(config);
+    testing.setConfig(config);
     return kps;
 }
 
@@ -58,8 +58,8 @@ fun registerTestComplaintFull(
     finePart: uint32,
 ): ComplaintRegistration {
     val complaint = createComplaint(frozenPubkey, fine, finePart);
-    val sender = net.randomAddress("complainer", MASTERCHAIN);
-    net.topUp(sender, ton("1000"));
+    val sender = randomAddress("complainer", MASTERCHAIN);
+    testing.topUp(sender, ton("1000"));
     elector.sendNewComplaint(
         sender,
         1,
@@ -105,8 +105,8 @@ fun sendVote(
     val voteCell = vote.toCell();
     val sig = crypto.sign(privateKey, voteCell).loadBits(512) as bits512;
 
-    val voter = net.randomAddress("voter", MASTERCHAIN);
-    net.topUp(voter, ton("10"));
+    val voter = randomAddress("voter", MASTERCHAIN);
+    testing.topUp(voter, ton("10"));
     return elector.sendSignedVoteForComplaint(
         voter,
         queryId,
@@ -135,8 +135,8 @@ get fun `test vote wrong tag`() {
         .endCell();
     val sig = crypto.sign(kps.get(0).privateKey, wrongVoteCell).loadBits(512) as bits512;
 
-    val voter = net.randomAddress("voter", MASTERCHAIN);
-    net.topUp(voter, ton("10"));
+    val voter = randomAddress("voter", MASTERCHAIN);
+    testing.topUp(voter, ton("10"));
     val res = elector.sendSignedVoteForComplaint(
         voter,
         1,
@@ -167,8 +167,8 @@ get fun `test vote invalid signature`() {
     val voteCell = vote.toCell();
     val sig = crypto.sign(wrongKp.privateKey, voteCell).loadBits(512) as bits512; // wrong key
 
-    val voter = net.randomAddress("voter", MASTERCHAIN);
-    net.topUp(voter, ton("10"));
+    val voter = randomAddress("voter", MASTERCHAIN);
+    testing.topUp(voter, ton("10"));
     val res = elector.sendSignedVoteForComplaint(
         voter,
         1,
@@ -199,7 +199,7 @@ get fun `test vote no such elections`() {
         0,
     );
     // proceedRegisterVote returns -2, response opcode = -2 + 0xd6745240 = 0xd674523e
-    expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd674523e });
+    expect(res).toHaveTx({ from: elector.address, opcode: 0xd674523e });
 }
 
 /// Test that vote for non-existent complaint returns error
@@ -221,7 +221,7 @@ get fun `test vote no such complaint`() {
         fakeChash,
     );
     // registerVote returns -1 (complaint not found), response = -1 + 0xd6745240 = 0xd674523f
-    expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd674523f });
+    expect(res).toHaveTx({ from: elector.address, opcode: 0xd674523f });
 }
 
 /// Test full 2/3 voting cycle with fine deduction and reward verification
@@ -261,10 +261,10 @@ get fun `test vote success`() {
         );
         if (i < 4) {
             // Vote accepted (status 1): 0xd6745241
-            expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+            expect(res).toHaveTx({ from: elector.address, opcode: 0xd6745241 });
         } else {
             // Vote finished (status 2): 0xd6745242
-            expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745242 });
+            expect(res).toHaveTx({ from: elector.address, opcode: 0xd6745242 });
         }
 
         // Verify intermediate complaint state via show_complaint
@@ -306,7 +306,7 @@ get fun `test vote already voted`() {
         stakeAt,
         chash,
     );
-    expect(res1).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+    expect(res1).toHaveTx({ from: elector.address, opcode: 0xd6745241 });
 
     // Second vote with same validator idx — should return 0 (already voted)
     // response = 0 + 0xd6745240 = 0xd6745240
@@ -318,7 +318,7 @@ get fun `test vote already voted`() {
         stakeAt,
         chash,
     );
-    expect(res2).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745240 });
+    expect(res2).toHaveTx({ from: elector.address, opcode: 0xd6745240 });
 }
 
 /// Test that vote on completed complaint with changed vset returns old_vset (-3)
@@ -346,10 +346,10 @@ get fun `test vote old vset finished`() {
         );
         if (i < 4) {
             // Vote accepted (status 1): 0xd6745241
-            expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+            expect(res).toHaveTx({ from: elector.address, opcode: 0xd6745241 });
         } else {
             // Vote finished (status 2): 0xd6745242
-            expect(res).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745242 });
+            expect(res).toHaveTx({ from: elector.address, opcode: 0xd6745242 });
         }
         i += 1;
     }
@@ -380,9 +380,9 @@ get fun `test vote old vset finished`() {
         totalWeight,
         dict,
     };
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, newVset.toCell());
-    net.setConfig(config);
+    testing.setConfig(config);
 
     // Try voting with idx 0 — vset changed and weightRemaining < 0 → returns -3
     // response = -3 + 0xd6745240 = 0xd674523d
@@ -394,7 +394,7 @@ get fun `test vote old vset finished`() {
         stakeAt,
         chash,
     );
-    expect(lateres).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd674523d });
+    expect(lateres).toHaveTx({ from: elector.address, opcode: 0xd674523d });
 }
 
 /// Test that vote resets when vset changes before 2/3 collected
@@ -416,7 +416,7 @@ get fun `test vote old vset reset`() {
         stakeAt,
         chash,
     );
-    expect(res1).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+    expect(res1).toHaveTx({ from: elector.address, opcode: 0xd6745241 });
 
     // Change config param 34 to a different vset (same validators, different timing)
     var dict: map<uint16, AnyValidatorDescr> = [];
@@ -443,9 +443,9 @@ get fun `test vote old vset reset`() {
         totalWeight,
         dict,
     };
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, newVset.toCell());
-    net.setConfig(config);
+    testing.setConfig(config);
 
     // Vote with idx 2 — vset changed, weightRemaining > 0 → reset, then vote accepted
     // response = 1 + 0xd6745240 = 0xd6745241
@@ -457,7 +457,7 @@ get fun `test vote old vset reset`() {
         stakeAt,
         chash,
     );
-    expect(res2).toHaveSuccessfulTx({ from: elector.address, opcode: 0xd6745241 });
+    expect(res2).toHaveTx({ from: elector.address, opcode: 0xd6745241 });
 
     // Verify vote was reset: show_complaint should show updated vsetId
     val info = elector.showComplaint(stakeAt, chash);

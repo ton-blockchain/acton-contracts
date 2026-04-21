@@ -1,4 +1,4 @@
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
@@ -210,7 +210,7 @@ fun Elector.sendAny(self, from: address, body: cell, config: SendParams = {}): S
 }
 
 fun Elector.participatesIn(self, validatorPubkey: uint256): int {
-    return net.runGetMethod(self.address, "participates_in", validatorPubkey);
+    return net.runGetMethod(self.address, "participates_in", [validatorPubkey]);
 }
 
 fun Elector.participantList(self): lisp_list<array<int>> {
@@ -223,7 +223,7 @@ fun Elector.participantListExtended(self): (int, int, coins, coins, lisp_list<Pa
 }
 
 fun Elector.computeReturnedStake(self, walletAddr: uint256): int {
-    return net.runGetMethod(self.address, "compute_returned_stake", walletAddr);
+    return net.runGetMethod(self.address, "compute_returned_stake", [walletAddr]);
 }
 
 fun Elector.pastElectionIds(self): lisp_list<int> {
@@ -239,7 +239,7 @@ fun Elector.pastElectionsList(self): lisp_list<array<int>> {
 }
 
 fun Elector.getPastComplaints(self, electionId: uint32): Complaints {
-    return net.runGetMethod(self.address, "get_past_complaints", electionId);
+    return net.runGetMethod(self.address, "get_past_complaints", [electionId]);
 }
 
 fun Elector.showComplaint(self, electionId: uint32, chash: uint256): ComplaintFullInfo? {
@@ -247,7 +247,7 @@ fun Elector.showComplaint(self, electionId: uint32, chash: uint256): ComplaintFu
 }
 
 fun Elector.listComplaints(self, electionId: uint32): lisp_list<ComplaintListEntry> {
-    return net.runGetMethod(self.address, "list_complaints", electionId);
+    return net.runGetMethod(self.address, "list_complaints", [electionId]);
 }
 
 fun Elector.complaintStoragePrice(self, bits: int, refs: int, expireIn: int): int {

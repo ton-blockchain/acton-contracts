@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/message"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
@@ -13,7 +13,7 @@ fun messageWithInternalSource(src: address, dest: address): cell {
         bounce: false,
         value: ton("0.1"),
         dest,
-    }).messageCell as Cell<MessageRelaxedGeneric>).load();
+    }).messageCell as Cell<TlbMessageRelaxedGeneric>).load();
     msg.info.src = src as any_address;
     return msg.toCell();
 }
@@ -31,7 +31,7 @@ fun messageWithTrailingDataAfterBodyRef(dest: address, value: coins = ton("0.1")
         bounce: false,
         value,
         dest,
-    }).messageCell as Cell<MessageRelaxedGeneric>).load();
+    }).messageCell as Cell<TlbMessageRelaxedGeneric>).load();
     val actualBody = beginCell().storeUint(0xabcdef01, 32).endCell();
     msg.body = beginCell()
         .storeBool(true)
@@ -55,16 +55,16 @@ fun expectPayloadRejectedButQueryProcessed(
 
 get fun `test ignore internal transfer from non-self address`() {
     val ctx = setupHighloadTest();
-    val testAddr = net.randomAddress("internal-filter-target");
+    val testAddr = randomAddress("internal-filter-target");
     val queryId = HighloadQueryId.fromShiftAndBitNumber(40, 300).toInt();
 
-    var actions = array<OutAction> [];
+    var actions = array<TlbOutAction> [];
     actions.push(
         sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
     val transferBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
 
-    val outsider = net.treasury("outsider");
+    val outsider = testing.treasury("outsider");
     val res1 = net.send(
         outsider.address,
         createMessage({
@@ -98,10 +98,10 @@ get fun `test ignore internal transfer from non-self address`() {
 
 get fun `test ignore malformed internal transfer body from self`() {
     val ctx = setupHighloadTest();
-    val testAddr = net.randomAddress("internal-bad-shape-target");
+    val testAddr = randomAddress("internal-bad-shape-target");
     val queryId = HighloadQueryId.fromShiftAndBitNumber(40, 301).toInt();
 
-    var actions = array<OutAction> [];
+    var actions = array<TlbOutAction> [];
     actions.push(
         sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
@@ -139,10 +139,10 @@ get fun `test ignore malformed internal transfer body from self`() {
 
 get fun `test ignore internal transfer with wrong opcode from self`() {
     val ctx = setupHighloadTest();
-    val testAddr = net.randomAddress("internal-bad-opcode-target");
+    val testAddr = randomAddress("internal-bad-opcode-target");
     val queryId = HighloadQueryId.fromShiftAndBitNumber(40, 302).toInt();
 
-    var actions = array<OutAction> [];
+    var actions = array<TlbOutAction> [];
     actions.push(
         sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
@@ -173,10 +173,10 @@ get fun `test ignore internal transfer with wrong opcode from self`() {
 
 get fun `test ignore bounced messages`() {
     val ctx = setupHighloadTest();
-    val testAddr = net.randomAddress("bounced-target");
+    val testAddr = randomAddress("bounced-target");
     val queryId = HighloadQueryId.fromShiftAndBitNumber(41, 301).toInt();
 
-    var actions = array<OutAction> [];
+    var actions = array<TlbOutAction> [];
     actions.push(
         sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
@@ -238,7 +238,7 @@ get fun `test ignore invalid message in payload`() {
 
 get fun `test ignore outgoing message with internal source in payload`() {
     val ctx = setupHighloadTest();
-    val recipient = net.randomAddress("semantic-invalid-payload-dest");
+    val recipient = randomAddress("semantic-invalid-payload-dest");
     val queryId = HighloadQueryId.fromShiftAndBitNumber(5, 500).toInt();
     val res = sendSignedExternal(
         ctx.wallet,
@@ -278,7 +278,7 @@ get fun `test ignore outgoing message with state init in payload`() {
 get fun `test accept outgoing message with inline body payload`() {
     val ctx = setupHighloadTest();
     val queryId = HighloadQueryId.fromShiftAndBitNumber(5, 502).toInt();
-    val recipient = net.randomAddress("inline-payload-dest");
+    val recipient = randomAddress("inline-payload-dest");
     val inlineBody = beginCell().storeUint(0xfeedbeef, 32).endCell().beginParse();
     val payload = createMessage({
         bounce: false,
@@ -306,7 +306,7 @@ get fun `test accept outgoing message with inline body payload`() {
 
 get fun `test ignore outgoing message with malformed ref body in payload`() {
     val ctx = setupHighloadTest();
-    val recipient = net.randomAddress("malformed-ref-payload-dest");
+    val recipient = randomAddress("malformed-ref-payload-dest");
     val queryId = HighloadQueryId.fromShiftAndBitNumber(5, 503).toInt();
     val res = sendSignedExternal(
         ctx.wallet,
@@ -327,7 +327,7 @@ get fun `test ignore bounced outgoing message in payload`() {
     val bouncedPayload = createMessage({
         bounce: false,
         value: ton("0.1"),
-        dest: net.randomAddress("bounced-outgoing-dest"),
+        dest: randomAddress("bounced-outgoing-dest"),
     })
         .bounced()
         .messageCell;

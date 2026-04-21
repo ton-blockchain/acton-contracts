@@ -1,4 +1,5 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "../contracts/dns-utils"
 import "../contracts/messages"
@@ -57,7 +58,7 @@ get fun `test dns-utils: getMinPrice decays monthly and reaches floor`() {
 }
 
 get fun `test dns-utils: toNextResolver uses dns_next_resolver encoding`() {
-    val resolver = net.randomAddress();
+    val resolver = randomAddress();
     val encoded = resolver.toNextResolver();
 
     val parsed = DnsNextResolver.fromCell(encoded);

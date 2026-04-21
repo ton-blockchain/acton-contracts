@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
@@ -36,15 +36,15 @@ get fun `test invariants: multisig unknown opcode should keep state unchanged`()
 }
 
 get fun `test invariants: order unknown opcode should fail with ERROR_UNKNOWN_OP`() {
-    net.setNow(1000);
-    val multisig = net.treasury("inv-order-multisig");
+    testing.setNow(1000);
+    val multisig = testing.treasury("inv-order-multisig");
 
     var signers = array<address> [];
     signers.push(createFundedAddress());
     signers.push(createFundedAddress());
 
     val orderBody = singleActionOrder(
-        makeTransferAction(net.randomAddress("inv_order_target"), DEFAULT_TRANSFER_VALUE, 111),
+        makeTransferAction(randomAddress("inv_order_target"), DEFAULT_TRANSFER_VALUE, 111),
     );
 
     val order = MultisigV2Order.fromConfig(multisig.address, 0);
@@ -73,7 +73,7 @@ get fun `test invariants: order unknown opcode should fail with ERROR_UNKNOWN_OP
 get fun `test invariants: proposer compromise does not allow approvals`() {
     val ctx = setupMultisig(2, 2, 1, false);
 
-    val target = net.randomAddress("proposer_compromise_target");
+    val target = randomAddress("proposer_compromise_target");
     val orderBody = singleActionOrder(makeTransferAction(target, DEFAULT_TRANSFER_VALUE, 123123));
 
     val seqno = ctx.multisig.getData().nextOrderSeqno;
@@ -102,7 +102,7 @@ get fun `test invariants: proposer compromise does not allow approvals`() {
         11,
         { value: ton("0.2"), bounce: true },
     );
-    expect(approve0).toHaveSuccessfulTx<ApproveAccepted>({
+    expect(approve0).toHaveTx<ApproveAccepted>({
         from: orderAddress,
         to: ctx.signers.get(0),
     });
@@ -117,7 +117,7 @@ get fun `test invariants: proposer compromise does not allow approvals`() {
         from: orderAddress,
         to: ctx.multisig.address,
     });
-    expect(approve1).toHaveSuccessfulTx({
+    expect(approve1).toHaveTx({
         from: ctx.multisig.address,
         to: target,
         body: markerBody(123123),
@@ -155,7 +155,7 @@ get fun `test invariants: less than threshold compromised signers can be removed
 
 get fun `test invariants: unknown action opcode is ignored and next action executes`() {
     val ctx = setupMultisig(1, 2, 1, false);
-    val target = net.randomAddress("unknown_action_target");
+    val target = randomAddress("unknown_action_target");
 
     val unknownAction = beginCell().storeUint(0xabad1dea, 32).storeUint(0, 8).endCell();
     val transfer = makeTransferAction(target, DEFAULT_TRANSFER_VALUE, 0x454545);
@@ -171,7 +171,7 @@ get fun `test invariants: unknown action opcode is ignored and next action execu
         from: ctx.deployer.address,
         to: ctx.multisig.address,
     });
-    expect(res).toHaveSuccessfulTx({
+    expect(res).toHaveTx({
         from: ctx.multisig.address,
         to: target,
         body: markerBody(0x454545),

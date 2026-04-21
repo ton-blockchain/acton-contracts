@@ -1,7 +1,9 @@
 import "@acton/env"
 import "@acton/io"
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
+import "common"
 import "../contracts/types"
 import "../wrappers/JettonMinter"
 
@@ -18,7 +20,7 @@ fun metadataUriFromContent(contentCell: cell): string? {
 
 fun main() {
     val walletName = "deployer";
-    val deployer = net.wallet(walletName);
+    val deployer = scripts.wallet(walletName);
     val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
     val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
     val newMetadataUri = envOr(
@@ -44,14 +46,14 @@ fun main() {
     }
 
     if (minterAddress == null) {
-        if (!net.isDeployed(minter.address)) {
+        if (!scripts.isContractDeployed(minter.address)) {
             val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
             if (!deployRes.wait()) {
                 println("Deployment failed");
                 return;
             }
         }
-    } else if (!net.isBroadcasting() && !net.isDeployed(minter.address)) {
+    } else if (!net.isBroadcasting() && !scripts.isContractDeployed(minter.address)) {
         println("Minter is not deployed at {}", minter.address);
         return;
     }

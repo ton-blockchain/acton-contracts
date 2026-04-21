@@ -1,12 +1,11 @@
 import "@stdlib/gas-payments"
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/big_array"
-import "@acton/vm/vm"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/order-helpers"
@@ -28,12 +27,12 @@ struct FeeContext {
 }
 
 fun setupFeeContext(): FeeContext {
-    net.setNow(FEE_TEST_NOW);
-    vm.registerLibrary(build("Order"));
+    testing.setNow(FEE_TEST_NOW);
+    testing.registerLibrary(build("Order"));
 
-    val deployer = net.treasury("fee-deployer");
-    val second = net.treasury("fee-second");
-    val proposer = net.treasury("fee-proposer");
+    val deployer = testing.treasury("fee-deployer");
+    val second = testing.treasury("fee-second");
+    val proposer = testing.treasury("fee-proposer");
 
     val wallet = MultisigV2.fromConfig(
         2,
@@ -74,7 +73,7 @@ fun setupFeeContext(): FeeContext {
 }
 
 fun buildTransferActions(count: int, markerBase: int = 1000): DirectOrderActionsMap {
-    val sink = net.treasury("fee-sink").address;
+    val sink = testing.treasury("fee-sink").address;
     var actionCells = array<cell> [];
     var i = 0;
     while (i < count) {
@@ -225,7 +224,7 @@ get fun `test fee: should estimate correctly on gas fees change`() {
     val ctx = setupFeeContext();
     val order = buildTransferActions(1, 5000);
 
-    val oldConfig = net.getConfig();
+    val oldConfig = testing.getConfig();
     var newConfig = oldConfig;
 
     var gasPrices = newConfig.getGasPrices(BASECHAIN);
@@ -233,7 +232,7 @@ get fun `test fee: should estimate correctly on gas fees change`() {
     newConfig.setGasPrices(gasPrices, BASECHAIN);
 
     val estBefore = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
-    expect(net.setConfig(newConfig)).toEqual(true);
+    expect(testing.setConfig(newConfig)).toEqual(true);
     val estAfter = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
 
     expect(estAfter).toBeGreater(estBefore);
@@ -247,14 +246,14 @@ get fun `test fee: should estimate correctly on gas fees change`() {
     );
     expect(approve).toHaveSuccessfulTx({ from: ctx.jumboWallet.address });
 
-    expect(net.setConfig(oldConfig)).toEqual(true);
+    expect(testing.setConfig(oldConfig)).toEqual(true);
 }
 
 get fun `test fee: should estimate correctly on forward fees change`() {
     val ctx = setupFeeContext();
     val order = buildTransferActions(1, 6000);
 
-    val oldConfig = net.getConfig();
+    val oldConfig = testing.getConfig();
     var newConfig = oldConfig;
 
     var msgPrices = newConfig.getMsgForwardPrices(BASECHAIN);
@@ -263,7 +262,7 @@ get fun `test fee: should estimate correctly on forward fees change`() {
     newConfig.setMsgForwardPrices(msgPrices, BASECHAIN);
 
     val estBefore = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
-    expect(net.setConfig(newConfig)).toEqual(true);
+    expect(testing.setConfig(newConfig)).toEqual(true);
     val estAfter = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
 
     expect(estAfter).toBeGreater(estBefore);
@@ -277,14 +276,14 @@ get fun `test fee: should estimate correctly on forward fees change`() {
     );
     expect(approve).toHaveSuccessfulTx({ from: ctx.jumboWallet.address });
 
-    expect(net.setConfig(oldConfig)).toEqual(true);
+    expect(testing.setConfig(oldConfig)).toEqual(true);
 }
 
 get fun `test fee: should estimate correctly on storage fees change`() {
     val ctx = setupFeeContext();
     val order = buildTransferActions(1, 7000);
 
-    val oldConfig = net.getConfig();
+    val oldConfig = testing.getConfig();
     var newConfig = oldConfig;
 
     var storagePrices = newConfig.getStoragePrices();
@@ -295,7 +294,7 @@ get fun `test fee: should estimate correctly on storage fees change`() {
     newConfig.setStoragePrices(storagePrices);
 
     val estBefore = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
-    expect(net.setConfig(newConfig)).toEqual(true);
+    expect(testing.setConfig(newConfig)).toEqual(true);
     val estAfter = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
 
     expect(estAfter).toBeGreater(estBefore);
@@ -309,7 +308,7 @@ get fun `test fee: should estimate correctly on storage fees change`() {
     );
     expect(approve).toHaveSuccessfulTx({ from: ctx.jumboWallet.address });
 
-    expect(net.setConfig(oldConfig)).toEqual(true);
+    expect(testing.setConfig(oldConfig)).toEqual(true);
 }
 
 fun runCommonCase(
@@ -319,11 +318,11 @@ fun runCommonCase(
     expirationDate: int,
     signerCreates: bool,
 ): SendResultList {
-    net.setNow(FEE_TEST_NOW);
-    vm.registerLibrary(build("Order"));
+    testing.setNow(FEE_TEST_NOW);
+    testing.registerLibrary(build("Order"));
 
-    val deployer = net.treasury("fee-case-deployer");
-    val proposer = net.treasury("fee-case-proposer");
+    val deployer = testing.treasury("fee-case-deployer");
+    val proposer = testing.treasury("fee-case-proposer");
 
     var signers = array<address> [];
     signers.push(deployer.address);
@@ -383,7 +382,7 @@ fun runCommonCase(
     });
     expect(approveRes).toHaveSuccessfulTx({
         from: wallet.address,
-        to: net.treasury("fee-sink").address,
+        to: testing.treasury("fee-sink").address,
     });
 
     return approveRes;
@@ -408,7 +407,7 @@ get fun `test fee: should be enough for 75 years`() {
     val order = buildTransferActions(1, 9000);
 
     val timeSpan = 365 * 24 * 3600 * 75;
-    val expirationDate = net.now() + timeSpan;
+    val expirationDate = testing.getNow() + timeSpan;
 
     val estimate = ctx.wallet.getOrderEstimate(order, expirationDate);
     val seqno = ctx.wallet.getData().nextOrderSeqno;
@@ -429,7 +428,7 @@ get fun `test fee: should be enough for 75 years`() {
     val orderContract = MultisigV2Order.fromAddress(ctx.wallet.getOrderAddress(seqno));
     expect(create).toHaveSuccessfulDeploy({ to: orderContract.address });
 
-    net.setNow((expirationDate - 10));
+    testing.setNow((expirationDate - 10));
 
     val approve = orderContract.sendApprove(
         ctx.second.address,

@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
@@ -206,8 +206,8 @@ fun rotateValidatorSetStage(ctx: ConfigTestContext, round: int, queryId: uint64)
     assertConfigParam(ctx.contract, CONFIG_PARAM_NEXT_VALIDATOR_SET, nextVset);
 
     val parsed = ValidatorSetExt.fromCell(nextVset);
-    net.setNow((parsed.utimeSince) + 1);
-    net.runTickTock(ctx.contract.address, false);
+    testing.setNow((parsed.utimeSince) + 1);
+    testing.runTickTock(ctx.contract.address, false);
 
     assertConfigParam(ctx.contract, CONFIG_PARAM_CURRENT_VALIDATOR_SET, nextVset);
     assertConfigParam(ctx.contract, CONFIG_PARAM_PREVIOUS_VALIDATOR_SET, previousCurrent!);

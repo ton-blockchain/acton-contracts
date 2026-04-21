@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/errors"
@@ -28,7 +28,7 @@ fun setSingleIndexDictConfig(paramId: int32, idx: int32) {
 get fun `test proposals ext: should reject hash mismatch and accept matching hash`() {
     val ctx = setupConfigTest();
 
-    val current = net.getConfig().getParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
+    val current = testing.getConfig().getParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
     val currentHash = current.hash();
 
     val newValue = beginCell().storeSlice("new-vset-like".beginParse()).endCell();
@@ -149,7 +149,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             1,
-            (net.now() + 1200),
+            (testing.getNow() + 1200),
             false,
             proposal,
             { value: ton("100"), bounce: true },
@@ -165,7 +165,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             2,
-            (net.now() + 2400),
+            (testing.getNow() + 2400),
             true,
             proposal,
             { value: ton("100"), bounce: true },
@@ -181,7 +181,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             3,
-            (net.now() + 1200),
+            (testing.getNow() + 1200),
             false,
             proposal,
             { value: ton("100"), bounce: true },
@@ -197,7 +197,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             4,
-            (net.now() + 3600),
+            (testing.getNow() + 3600),
             false,
             proposal,
             { value: ton("0.5"), bounce: true },
@@ -213,7 +213,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
         .sendNewVotingProposalRequest(
             ctx.proposer,
             5,
-            (net.now() + 3600),
+            (testing.getNow() + 3600),
             false,
             proposal,
             { value: ton("100"), bounce: true },

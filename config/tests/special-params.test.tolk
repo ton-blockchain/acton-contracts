@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
@@ -22,7 +22,7 @@ get fun `test special params int: should apply -999 proposal and update stored p
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -49,7 +49,7 @@ get fun `test special params ext: should apply -999 proposal and update stored p
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -72,7 +72,7 @@ get fun `test special params int: should emit elector code-change action for -10
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -93,7 +93,7 @@ get fun `test special params ext: should emit elector code-change action for -10
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -141,7 +141,7 @@ get fun `test special params ext: should execute -1000 code upgrade action`() {
         ctx.contract,
         proposal,
         true,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );

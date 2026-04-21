@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test-utils"
@@ -97,9 +97,9 @@ get fun `test item management: ownership transfer covers payout branches and rej
         to: newOwner.address,
         success: true,
     });
-    expect(assignedTx).toBeDefined();
-    val assignedTxValue = assignedTx.unwrap().loadInMsg<OwnershipAssigned>();
-    val assignedBody = assignedTx.unwrap().loadBody<OwnershipAssigned>();
+    expect(assignedTx).toBeNotNull();
+    val assignedTxValue = assignedTx!.loadInMsg<OwnershipAssigned>();
+    val assignedBody = assignedTx!.loadBody<OwnershipAssigned>();
     expect(assignedBody.queryId).toEqual(321);
     expect(assignedBody.oldOwnerAddress).toEqual(owner.address);
     expect(assignedTxValue.info.value.grams).toEqual(ton("0.5"));
@@ -109,9 +109,9 @@ get fun `test item management: ownership transfer covers payout branches and rej
         to: responseDestination.address,
         success: true,
     });
-    expect(excessTx).toBeDefined();
-    val excessTxValue = excessTx.unwrap().loadInMsg<Excesses>();
-    val excessBody = excessTx.unwrap().loadBody<Excesses>();
+    expect(excessTx).toBeNotNull();
+    val excessTxValue = excessTx!.loadInMsg<Excesses>();
+    val excessBody = excessTx!.loadBody<Excesses>();
     expect(excessBody.queryId).toEqual(321);
     expect(excessTxValue.info.value.grams).toBeGreater(0);
 
@@ -265,7 +265,7 @@ get fun `test item management: dnsresolve follows TEP-81 category and next-resol
 
 get fun `test item management: governance is blocked while auction is active`() {
     val (item, _, _, caller) = deployItemThroughCollection();
-    expect(net.isDeployed(item.address)).toEqual(true);
+    expect(testing.isDeployed(item.address)).toEqual(true);
 
     val governanceDuringAuction = item.sendProcessGovernanceDecision(
         caller.address,
@@ -307,7 +307,7 @@ get fun `test item management: governance release destroys the item and refunds 
     val (item, collection, _, _) = setupGovernanceReadyItem();
     val caller = newActor("item_governance_release_caller", ton("100000"));
 
-    val collectionBalanceBefore = net.balance(collection.address);
+    val collectionBalanceBefore = testing.getAccountBalance(collection.address);
     val nftData = item.getNftData();
     setGovernanceDecision(nftData.index, GovernanceRelease {}.toCell().beginParse());
 
@@ -330,11 +330,11 @@ get fun `test item management: governance release destroys the item and refunds 
         to: collection.address,
         success: true,
     });
-    expect(collectionFillUpTx).toBeDefined();
-    val collectionFillUp = collectionFillUpTx.unwrap().loadInMsg<FillUp>();
+    expect(collectionFillUpTx).toBeNotNull();
+    val collectionFillUp = collectionFillUpTx!.loadInMsg<FillUp>();
     expect(collectionFillUp.info.value.grams).toBeGreater(0);
-    expect(net.balance(collection.address)).toBeGreater(collectionBalanceBefore);
-    expect(net.isDeployed(item.address)).toEqual(false);
+    expect(testing.getAccountBalance(collection.address)).toBeGreater(collectionBalanceBefore);
+    expect(testing.isDeployed(item.address)).toEqual(false);
 }
 
 get fun `test item management: release boundaries, refunds, and unknown op handling`() {
@@ -359,7 +359,7 @@ get fun `test item management: release boundaries, refunds, and unknown op handl
     expect(ownerTopUp).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
     val lastFillUp = item.getLastFillUpTime();
-    net.setNow((lastFillUp + ONE_YEAR));
+    testing.setNow((lastFillUp + ONE_YEAR));
 
     val releaseAtExactYear = item.sendDnsRecordRelease(
         bidder.address,
@@ -372,8 +372,8 @@ get fun `test item management: release boundaries, refunds, and unknown op handl
         exitCode: ERROR_DNS_BALANCE_RELEASE_FORBIDDEN,
     });
 
-    net.setNow((lastFillUp + ONE_YEAR + 1));
-    val minReleaseBid = getMinPrice(item.getDomain().remainingBitsCount(), net.now());
+    testing.setNow((lastFillUp + ONE_YEAR + 1));
+    val minReleaseBid = getMinPrice(item.getDomain().remainingBitsCount(), testing.getNow());
 
     val releaseBelowMin = item.sendDnsRecordRelease(
         bidder.address,
@@ -386,7 +386,7 @@ get fun `test item management: release boundaries, refunds, and unknown op handl
         exitCode: ERROR_BID_TOO_LOW,
     });
 
-    val balanceBeforeRelease = net.balance(item.address);
+    val balanceBeforeRelease = testing.getAccountBalance(item.address);
     val releaseAtMin = item.sendDnsRecordRelease(
         bidder.address,
         702,
@@ -402,8 +402,8 @@ get fun `test item management: release boundaries, refunds, and unknown op handl
         to: owner.address,
         success: true,
     });
-    expect(releaseRefundTx).toBeDefined();
-    val releaseRefund = releaseRefundTx.unwrap().loadInMsg<DnsRecordRelease>();
+    expect(releaseRefundTx).toBeNotNull();
+    val releaseRefund = releaseRefundTx!.loadInMsg<DnsRecordRelease>();
     val maxReleaseRefund = balanceBeforeRelease - MIN_TONS_FOR_STORAGE;
     expect(releaseRefund.info.value.grams).toBeGreater(0);
     expect(releaseRefund.info.value.grams).toBeLessOrEqual(maxReleaseRefund);
@@ -412,7 +412,7 @@ get fun `test item management: release boundaries, refunds, and unknown op handl
     val restartedAuction = item.getAuctionInfo();
     expect(restartedAuction.maxBidAddress).toEqual(bidder.address);
     expect(restartedAuction.maxBidAmount).toEqual(minReleaseBid);
-    expect(restartedAuction.auctionEndTime).toEqual((net.now() + AUCTION_START_DURATION));
+    expect(restartedAuction.auctionEndTime).toEqual((testing.getNow() + AUCTION_START_DURATION));
 }
 
 get fun `test item management: uninitialized getters expose default nft data`() {
@@ -450,9 +450,9 @@ get fun `test item management: static data, governance guard, and release flow i
         success: true,
         exitCode: 0,
     });
-    expect(reportTx).toBeDefined();
+    expect(reportTx).toBeNotNull();
 
-    val reportBody = reportTx.unwrap().loadBody<ReportStaticData>();
+    val reportBody = reportTx!.loadBody<ReportStaticData>();
     val nftData = item.getNftData();
     expect(reportBody.itemIndex).toEqual(nftData.index);
     expect(reportBody.collectionAddress).toEqual(nftData.collectionAddress);
@@ -482,7 +482,7 @@ get fun `test item management: static data, governance guard, and release flow i
     });
 
     val lastFillUp = item.getLastFillUpTime();
-    net.setNow((lastFillUp + ONE_YEAR + 1));
+    testing.setNow((lastFillUp + ONE_YEAR + 1));
 
     val release = item.sendDnsRecordRelease(
         bidder.address,
@@ -499,5 +499,5 @@ get fun `test item management: static data, governance guard, and release flow i
     val restartedAuction = item.getAuctionInfo();
     expect(restartedAuction.maxBidAddress).toEqual(bidder.address);
     expect(restartedAuction.maxBidAmount).toEqual(ton("20000"));
-    expect(restartedAuction.auctionEndTime).toEqual((net.now() + AUCTION_START_DURATION));
+    expect(restartedAuction.auctionEndTime).toEqual((testing.getNow() + AUCTION_START_DURATION));
 }

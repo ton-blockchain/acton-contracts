@@ -1,5 +1,6 @@
+import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/dns-utils"
 import "../wrappers/DnsRoot"

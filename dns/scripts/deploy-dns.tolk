@@ -1,14 +1,15 @@
 import "@stdlib/strings"
 import "@acton/env"
 import "@acton/io"
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "../contracts/messages"
 import "../contracts/storage"
 import "../wrappers/DnsCollection"
 
 fun main() {
-    val deployer = net.wallet("deployer-2");
+    val deployer = scripts.wallet("deployer-2");
 
     val collectionUri: string = env("DNS_COLLECTION_CONTENT_URI") ??
     "https://example.com/dns/collection.json";

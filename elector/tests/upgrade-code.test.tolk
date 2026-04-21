@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/messages"
 import "../wrappers/Elector"
@@ -31,22 +31,22 @@ get fun `test upgrade code not mc`() {
         .endCell()
         .beginParse()
         .loadAddress();
-    net.topUp(bcAddr, ton("10"));
+    testing.topUp(bcAddr, ton("10"));
 
     val body = buildUpgradeCodeBody(1);
 
     // From basechain — should be rejected (0xffffffff response)
     val res1 = elector.sendAny(bcAddr, body, { value: ton("1") });
-    expect(res1).toHaveSuccessfulTx({
+    expect(res1).toHaveTx({
         from: elector.address,
         to: bcAddr,
         opcode: 0xffffffff,
     });
 
     // From masterchain config address — should succeed (0xce436f64 response)
-    net.topUp(setup.configAddr, ton("10"));
+    testing.topUp(setup.configAddr, ton("10"));
     val res2 = elector.sendAny(setup.configAddr, body, { value: ton("1") });
-    expect(res2).toHaveSuccessfulTx({
+    expect(res2).toHaveTx({
         from: elector.address,
         to: setup.configAddr,
         opcode: 0xce436f64,
@@ -58,23 +58,23 @@ get fun `test upgrade code not config`() {
     val setup = setupElector();
     val elector = setup.elector;
 
-    val otherAddr = net.randomAddress("not-config", MASTERCHAIN);
-    net.topUp(otherAddr, ton("10"));
+    val otherAddr = randomAddress("not-config", MASTERCHAIN);
+    testing.topUp(otherAddr, ton("10"));
 
     val body = buildUpgradeCodeBody(1);
 
     // From wrong masterchain address — should be rejected (0xffffffff response)
     val res1 = elector.sendAny(otherAddr, body, { value: ton("1") });
-    expect(res1).toHaveSuccessfulTx({
+    expect(res1).toHaveTx({
         from: elector.address,
         to: otherAddr,
         opcode: 0xffffffff,
     });
 
     // From correct config address — should succeed (0xce436f64 response)
-    net.topUp(setup.configAddr, ton("10"));
+    testing.topUp(setup.configAddr, ton("10"));
     val res2 = elector.sendAny(setup.configAddr, body, { value: ton("1") });
-    expect(res2).toHaveSuccessfulTx({
+    expect(res2).toHaveTx({
         from: elector.address,
         to: setup.configAddr,
         opcode: 0xce436f64,

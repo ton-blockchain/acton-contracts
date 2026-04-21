@@ -2,10 +2,10 @@ import "@stdlib/strings"
 import "@acton/env"
 import "@acton/fmt"
 import "@acton/io"
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
-import "@acton/promts/prompts"
-import "@acton/vm/vm"
+import "@acton/emulation/scripts"
+import "@acton/prompts"
 import "../../contracts/storage"
 import "../../contracts/types"
 import "../../wrappers/JettonMinter"
@@ -43,7 +43,7 @@ fun promptJettonAddress(envName: string, message: string, default: address): add
     if (fromEnv != null) {
         return fromEnv;
     }
-    return vm.convertAddress(prompt(message, "", format("{}", default)));
+    return parseAddress(prompt(message, "", format("{}", default)));
 }
 
 fun promptJettonAddressRequired(envName: string, message: string): address {
@@ -51,7 +51,7 @@ fun promptJettonAddressRequired(envName: string, message: string): address {
     if (fromEnv != null) {
         return fromEnv;
     }
-    return vm.convertAddress(prompt(message, "EQ... / kQ...", ""));
+    return parseAddress(prompt(message, "EQ... / kQ...", ""));
 }
 
 fun promptJettonCoins(envName: string, message: string, default: string): coins {
@@ -59,15 +59,15 @@ fun promptJettonCoins(envName: string, message: string, default: string): coins 
     if (fromEnv != null) {
         return fromEnv;
     }
-    return vm.parseInt(prompt(message, "in nanotons/nano-jettons", default));
+    return parseInt(prompt(message, "in nanotons/nano-jettons", default));
 }
 
-fun promptJettonWallet(envName: string, message: string): Wallet {
+fun promptJettonWallet(envName: string, message: string): ActonWallet {
     val nameFromEnv = env<string>(envName);
     if (nameFromEnv != null) {
-        return net.wallet(nameFromEnv);
+        return scripts.wallet(nameFromEnv);
     }
-    return net.wallet(promptWallet(message));
+    return scripts.wallet(promptWallet(message));
 }
 
 fun promptJettonMinter(message: string): JettonMinter {
@@ -126,7 +126,7 @@ fun promptJettonMinterStorage(admin: address): MinterStorage {
     };
 }
 
-fun deployJettonMinter(deployer: Wallet, storage: MinterStorage): JettonMinter {
+fun deployJettonMinter(deployer: ActonWallet, storage: MinterStorage): JettonMinter {
     val minter = JettonMinter.fromStorage(storage);
     val res = minter.sendDeploy(deployer.address, { value: ton("0.05") });
     res.wait();
@@ -169,7 +169,7 @@ fun printJettonMinterInfo(minter: JettonMinter, label: string) {
 
 fun printJettonWalletInfo(minter: JettonMinter, owner: address, label: string) {
     val wallet = JettonWallet { address: minter.getWalletAddress(owner) };
-    val hasCode = net.getDeployedCode(wallet.address) != null;
+    val hasCode = scripts.isContractDeployed(wallet.address);
     println("{} OWNER_ADDRESS={}", label, owner);
     println("{} WALLET_ADDRESS={}", label, wallet.address);
     println("{} WALLET_DEPLOYED={}", label, hasCode);

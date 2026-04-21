@@ -1,15 +1,16 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "common"
 import "../contracts/messages"
 import "../wrappers/WalletV5Contract"
 
 fun main() {
-    val deployer = net.wallet("deployer");
+    val deployer = scripts.wallet("deployer");
     val keyPair = w5KeyPair();
     val wallet = w5DeployWallet(deployer.address);
-    val extension = envOr("W5_EXTENSION", deployer.address);
+    val extension = env<address>("W5_EXTENSION") ?? deployer.address;
     val value = w5AdminValue();
 
     println("Managing extensions for wallet: {}", wallet.address);

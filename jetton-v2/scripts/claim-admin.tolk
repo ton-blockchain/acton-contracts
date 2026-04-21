@@ -1,11 +1,12 @@
 import "@acton/io"
 import "@acton/emulation/network"
-import "@acton/promts/prompts"
+import "@acton/emulation/scripts"
+import "@acton/prompts"
 import "utils/common"
 import "../wrappers/JettonMinter"
 
 fun main() {
-    val claimer = promptJettonWallet("JETTON_PENDING_ADMIN", "Select Pending Admin Wallet");
+    val claimer = promptJettonWallet("JETTON_PENDING_ADMIN", "Select Pending Admin ActonWallet");
     val minter = promptJettonMinter("Enter Jetton Minter address");
 
     val res = minter.sendClaimAdmin(claimer.address);

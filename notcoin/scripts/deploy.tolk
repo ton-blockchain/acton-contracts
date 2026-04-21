@@ -1,13 +1,15 @@
 import "@acton/env"
 import "@acton/io"
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
+import "common"
 import "../wrappers/JettonMinter"
 import "../wrappers/JettonWallet"
 
 fun main() {
     val walletName = "deployer";
-    val deployer = net.wallet(walletName);
+    val deployer = scripts.wallet(walletName);
     val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
     val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
     val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
@@ -33,7 +35,7 @@ fun main() {
     }
 
     val adminWallet = JettonWallet { address: minter.getWalletAddress(deployer.address) };
-    val adminWalletDeployed = net.isDeployed(adminWallet.address);
+    val adminWalletDeployed = scripts.isContractDeployed(adminWallet.address);
 
     println("Deployed notcoin minter at {}", minter.address);
     println("JETTON_MINTER_ADDRESS={}", minter.address);

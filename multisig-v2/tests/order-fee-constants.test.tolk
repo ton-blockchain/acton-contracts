@@ -1,11 +1,10 @@
 import "@stdlib/gas-payments"
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
-import "@acton/vm/vm"
 import "../contracts/messages"
 import "../contracts/order-helpers"
 import "../contracts/types"
@@ -32,8 +31,8 @@ struct RuntimeFeeProbe {
 }
 
 fun createFundedAddressLocal(): address {
-    val addr = net.randomAddress("fee_probe_signer");
-    net.topUp(addr, ton("100"));
+    val addr = randomAddress("fee_probe_signer");
+    testing.topUp(addr, ton("100"));
     return addr;
 }
 
@@ -48,19 +47,19 @@ fun makeTransferActionLocal(to: address, marker: int): SendMessageAction {
 }
 
 fun makeProbeOrder(): DirectOrderActionsMap {
-    val action = makeTransferActionLocal(net.randomAddress("fee_probe_dest"), 424242);
+    val action = makeTransferActionLocal(randomAddress("fee_probe_dest"), 424242);
     var order: DirectOrderActionsMap = [];
     order.set(0, action.toCell());
     return order;
 }
 
-fun getStorageCollected(tx: Transaction): coins {
+fun getStorageCollected(tx: TlbTransaction): coins {
     val desc = tx.description.load();
-    if (desc !is TransOrd) {
+    if (desc !is TlbTransOrd) {
         return 0;
     }
 
-    if (desc.storagePh is None) {
+    if (desc.storagePh is TlbNone) {
         return 0;
     }
 
@@ -77,18 +76,18 @@ fun computeSizeCountingGas(order: DirectOrderActionsMap, signers: DirectIndexedA
 fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProbe {
     assert (signerCount >= 2) throw 9401;
 
-    net.setNow(PROBE_NOW);
-    vm.registerLibrary(build("Order"));
+    testing.setNow(PROBE_NOW);
+    testing.registerLibrary(build("Order"));
 
     val signer0 = signerCount > 10
-        ? net.treasury("fee-probe-s0-jumbo")
-        : net.treasury("fee-probe-s0-small");
+        ? testing.treasury("fee-probe-s0-jumbo")
+        : testing.treasury("fee-probe-s0-small");
     val signer1 = signerCount > 10
-        ? net.treasury("fee-probe-s1-jumbo")
-        : net.treasury("fee-probe-s1-small");
+        ? testing.treasury("fee-probe-s1-jumbo")
+        : testing.treasury("fee-probe-s1-small");
     val proposer = signerCount > 10
-        ? net.treasury("fee-probe-p-jumbo")
-        : net.treasury("fee-probe-p-small");
+        ? testing.treasury("fee-probe-p-jumbo")
+        : testing.treasury("fee-probe-p-small");
 
     var signers = array<address> [signer0.address, signer1.address];
     var i = 2;
@@ -104,7 +103,7 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
 
     val signersMap = toDirectIndexedAddressMap(signers);
     val order = makeProbeOrder();
-    val expiration = net.now() + duration;
+    val expiration = testing.getNow() + duration;
     val orderSeqno = multisig.getData().nextOrderSeqno;
 
     val createValue = signerCount > 10 ? ton("20") : ton("5");
@@ -120,7 +119,7 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
     );
 
     val orderAddress = multisig.getOrderAddress(orderSeqno);
-    net.setNow(expiration);
+    testing.setNow(expiration);
 
     val approve = net.send(
         signer1.address,
@@ -152,15 +151,15 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
         to: multisig.address,
     });
 
-    expect(multisigInitTx).toBeDefined();
-    expect(orderInitTx).toBeDefined();
-    expect(orderExecuteTx).toBeDefined();
-    expect(multisigExecuteTx).toBeDefined();
+    expect(multisigInitTx).toBeNotNull();
+    expect(orderInitTx).toBeNotNull();
+    expect(orderExecuteTx).toBeNotNull();
+    expect(multisigExecuteTx).toBeNotNull();
 
-    val multisigInit = multisigInitTx.unwrap();
-    val orderInit = orderInitTx.unwrap();
-    val orderExecute = orderExecuteTx.unwrap();
-    val multisigExecute = multisigExecuteTx.unwrap();
+    val multisigInit = multisigInitTx!;
+    val orderInit = orderInitTx!;
+    val orderExecute = orderExecuteTx!;
+    val multisigExecute = multisigExecuteTx!;
 
     val sizeCountingGas = computeSizeCountingGas(order, signersMap);
 

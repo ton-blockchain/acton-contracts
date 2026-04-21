@@ -1,8 +1,8 @@
 import "@stdlib/tvm-dicts"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/transaction"
 import "./nft-collection.test"
 import "../contracts/errors"
@@ -14,29 +14,30 @@ import "../wrappers/NftItemContract"
 
 const MIN_EDGE_DELTA = 1
 
-fun activeAccountInfo(addr: address): AccountInfo {
-    val acc = net.getAccount(addr);
-    if (acc is AccountInfo) {
-        return acc;
+fun activeShardAccount(addr: address): TlbShardAccount {
+    val shard = testing.getShardAccount(addr);
+    if (shard != null) {
+        return shard!;
     }
-    Assert.fail("Expected AccountInfo");
+    Assert.fail("Expected TlbShardAccount when setting data");
 }
 
 fun setActiveDataCell(addr: address, newData: cell) {
-    val account = net.getAccount(addr);
-    if (account !is AccountInfo) {
-        Assert.fail("Expected AccountInfo when setting data");
+    var updatedShard = activeShardAccount(addr);
+    val account = updatedShard.account.load();
+    if (account !is TlbAccountInfo) {
+        Assert.fail("Expected TlbAccountInfo when setting data");
     }
-
     var info = account;
-    if (info.storage.state !is AccountStateActive) {
-        Assert.fail("Expected AccountStateActive when setting data");
+    if (info.storage.state !is TlbAccountStateActive) {
+        Assert.fail("Expected TlbAccountStateActive when setting data");
     }
 
     var active = info.storage.state;
     active.stateInit.data = newData;
     info.storage.state = active;
-    net.setAccount(addr, info);
+    updatedShard.account = (info as TlbAccount).toCell();
+    testing.setShardAccount(addr, updatedShard);
 }
 
 fun forceItemUninitialized(item: NftItemContract, collection: NftCollectionContract) {
@@ -169,7 +170,7 @@ get fun `test mutation: batch deploy should reject action-list overflow and pres
         i += 1;
     }
 
-    val deployList = makeBatchDeployList(indexes, net.randomAddress(), "batch-overflow");
+    val deployList = makeBatchDeployList(indexes, randomAddress(), "batch-overflow");
     val firstNftAddress = nftCollection.getNftAddressByIndex(nextItemIndex);
     val result = nftCollection.sendBatchDeployNfts(
         deployer.address,
@@ -185,7 +186,7 @@ get fun `test mutation: batch deploy should reject action-list overflow and pres
     });
     expect(result).toNotHaveTx({ from: nftCollection.address, deploy: true });
     expect(nftCollection.getCollectionData().nextItemIndex).toEqual(nextItemIndex);
-    expect(net.isDeployed(firstNftAddress)).toBeFalse();
+    expect(testing.isDeployed(firstNftAddress)).toBeFalse();
 }
 
 get fun `test mutation: batch deploy should report exact failing counter for skipped indexes`() {
@@ -193,7 +194,7 @@ get fun `test mutation: batch deploy should report exact failing counter for ski
     val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     val deployList = makeBatchDeployList(
         [nextItemIndex, nextItemIndex + 2],
-        net.randomAddress(),
+        randomAddress(),
         "gap",
     );
     val skippedAddress = nftCollection.getNftAddressByIndex(nextItemIndex);
@@ -211,12 +212,12 @@ get fun `test mutation: batch deploy should report exact failing counter for ski
     });
     expect(result).toNotHaveTx({ from: nftCollection.address, deploy: true });
     expect(nftCollection.getCollectionData().nextItemIndex).toEqual(nextItemIndex);
-    expect(net.isDeployed(skippedAddress)).toBeFalse();
+    expect(testing.isDeployed(skippedAddress)).toBeFalse();
 }
 
 get fun `test mutation: batch redeploy should not over-increment next item index`() {
     val (nftCollection, deployer, _) = setupTest();
-    val owner = net.treasury("mutation-batch-redeploy-owner");
+    val owner = testing.treasury("mutation-batch-redeploy-owner");
 
     nftFixture(nftCollection, owner.address);
     nftFixture(nftCollection, owner.address);
@@ -243,7 +244,7 @@ get fun `test mutation: batch redeploy should not over-increment next item index
 
 get fun `test mutation: uninitialized item getter should expose deployment skeleton only`() {
     val (nftCollection, _, _) = setupTest();
-    val owner = net.treasury("mutation-uninitialized-owner");
+    val owner = testing.treasury("mutation-uninitialized-owner");
     val nftItem = nftFixture(nftCollection, owner.address);
     val initialData = nftItem.getNftData();
 
@@ -259,8 +260,8 @@ get fun `test mutation: uninitialized item getter should expose deployment skele
 
 get fun `test mutation: uninitialized item should reject initialization from non-collection sender`() {
     val (nftCollection, _, _) = setupTest();
-    val owner = net.treasury("mutation-uninitialized-owner");
-    val outsider = net.treasury("mutation-uninitialized-outsider");
+    val owner = testing.treasury("mutation-uninitialized-owner");
+    val outsider = testing.treasury("mutation-uninitialized-outsider");
     val nftItem = nftFixture(nftCollection, owner.address);
 
     forceItemUninitialized(nftItem, nftCollection);
@@ -289,12 +290,12 @@ get fun `test mutation: uninitialized item should reject initialization from non
 
 get fun `test mutation: ownership transfer should fail one nanotone below forward-only threshold`() {
     val (nftCollection, _, _) = setupTest();
-    val owner = net.treasury("mutation-threshold-owner");
+    val owner = testing.treasury("mutation-threshold-owner");
     val nftItem = nftFixture(nftCollection, owner.address);
-    val nextOwner = net.randomAddress();
+    val nextOwner = randomAddress();
     val transferBody = makeOwnershipTransferBody(nextOwner, null, ton("0.01"), createEmptySlice());
 
-    val balanceBefore = net.balance(nftItem.address);
+    val balanceBefore = testing.getAccountBalance(nftItem.address);
     val minimalValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
     val result = nftItem.sendAskToChangeOwnership(
         owner.address,
@@ -317,13 +318,13 @@ get fun `test mutation: ownership transfer should fail one nanotone below forwar
 
 get fun `test mutation: ownership transfer with zero forward amount should exhaust rest exactly`() {
     val (nftCollection, _, _) = setupTest();
-    val owner = net.treasury("mutation-zero-forward-owner");
+    val owner = testing.treasury("mutation-zero-forward-owner");
     val nftItem = nftFixture(nftCollection, owner.address);
-    val nextOwner = net.randomAddress();
-    val excessesAddress = net.randomAddress();
+    val nextOwner = randomAddress();
+    val excessesAddress = randomAddress();
     val transferBody = makeOwnershipTransferBody(nextOwner, excessesAddress, 0, createEmptySlice());
 
-    val balanceBefore = net.balance(nftItem.address);
+    val balanceBefore = testing.getAccountBalance(nftItem.address);
     val exactValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
     val fwdFee = estimateMessageForwardFee(transferBody, nftItem.address, true, exactValue);
     val expectedRestAmount = calculateRestAmount(balanceBefore, exactValue, transferBody, fwdFee);
@@ -355,10 +356,10 @@ get fun `test mutation: ownership transfer with zero forward amount should exhau
 
 get fun `test mutation: ownership transfer with forward amount should emit exact zero-rest payouts`() {
     val (nftCollection, _, _) = setupTest();
-    val owner = net.treasury("mutation-forward-owner");
+    val owner = testing.treasury("mutation-forward-owner");
     val nftItem = nftFixture(nftCollection, owner.address);
-    val nextOwner = net.randomAddress();
-    val excessesAddress = net.randomAddress();
+    val nextOwner = randomAddress();
+    val excessesAddress = randomAddress();
     val forwardAmount = ton("0.01");
     val transferBody = makeOwnershipTransferBody(
         nextOwner,
@@ -367,7 +368,7 @@ get fun `test mutation: ownership transfer with forward amount should emit exact
         createEmptySlice(),
     );
 
-    val balanceBefore = net.balance(nftItem.address);
+    val balanceBefore = testing.getAccountBalance(nftItem.address);
     val exactValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
     val fwdFee = estimateMessageForwardFee(transferBody, nftItem.address, true, exactValue);
     val expectedRestAmount = calculateRestAmount(balanceBefore, exactValue, transferBody, fwdFee);

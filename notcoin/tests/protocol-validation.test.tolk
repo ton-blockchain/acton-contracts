@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
@@ -152,7 +152,7 @@ get fun `test validation: wallet should reject internal transfer from unauthoriz
 get fun `test validation: minter accepts burn notification only from wallet`() {
     val (minter, deployer, notDeployer) = setupTest();
     val wallet = mintTo(minter, deployer, deployer.address, ton("2"));
-    val wrongSender = net.treasury("outsider");
+    val wrongSender = testing.treasury("outsider");
 
     val badBurnNotify = createMessage({
         bounce: true,
@@ -207,7 +207,7 @@ get fun `test validation: minter cannot force burn tokens`() {
 get fun `test validation: minter cannot force transfer tokens`() {
     val (minter, deployer, notDeployer) = setupTest();
     val wallet = mintTo(minter, deployer, notDeployer.address, ton("2"));
-    val target = net.treasury("receiver");
+    val target = testing.treasury("receiver");
     val balanceBefore = wallet.getJettonBalance();
 
     val transferMsg = createMessage({

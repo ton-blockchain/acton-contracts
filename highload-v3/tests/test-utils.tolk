@@ -1,8 +1,8 @@
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/big_array"
 import "@acton/types/out_actions"
@@ -77,11 +77,11 @@ fun HighloadQueryId.getNext(self) {
 }
 
 fun setupHighloadTest(timeout: int = DEFAULT_TIMEOUT): TestContext {
-    net.setNow(1000);
+    testing.setNow(1000);
 
     val keyPair = crypto.generateKeyPair();
-    val deployer = net.treasury("deployer");
-    val notDeployer = net.treasury("not-deployer");
+    val deployer = testing.treasury("deployer");
+    val notDeployer = testing.treasury("not-deployer");
 
     val wallet = HighloadWalletV3.fromConfig(keyPair.publicKey, SUBWALLET_ID, timeout);
     val deployRes = wallet.deploy(
@@ -98,17 +98,17 @@ fun setupHighloadTestWithKeyPair(
     timeout: int = DEFAULT_TIMEOUT,
     deployerName: string = "deployer_alt",
 ): (HighloadWalletV3, Treasury) {
-    val deployer = net.treasury(deployerName);
+    val deployer = testing.treasury(deployerName);
     val wallet = HighloadWalletV3.fromConfig(keyPair.publicKey, SUBWALLET_ID, timeout);
     val deployRes = wallet.deploy(deployer.address, { value: ton("1000"), bounce: false });
     expect(deployRes).toHaveSuccessfulDeploy({ to: wallet.address });
     return (wallet, deployer);
 }
 
-fun requireTx(res: SendResultList, params: SearchParams = {}): Transaction {
+fun requireTx(res: SendResultList, params: SearchParams = {}): TlbTransaction {
     val tx = res.findTransaction(params);
-    expect(tx).toBeDefined();
-    return tx.unwrap();
+    expect(tx).toBeNotNull();
+    return tx!;
 }
 
 fun countTxsOn(res: SendResultList, account: address): int {
@@ -137,16 +137,23 @@ fun countTxsOnWithOutmsgCount(res: SendResultList, account: address, outmsgCount
     return count;
 }
 
-fun activeAccountInfo(addr: address): AccountInfo {
-    val acc = net.getAccount(addr);
-    if (acc is AccountInfo) {
-        return acc;
+fun activeAccountInfo(addr: address): TlbAccountInfo {
+    val shard = testing.getShardAccount(addr);
+    if (shard != null) {
+        val acc = shard!.account.load();
+        if (acc is TlbAccountInfo) {
+            return acc;
+        }
     }
     Assert.fail("Expected active account info");
 }
 
 fun activeCode(addr: address): cell {
-    val code = net.getDeployedCode(addr);
+    val info = activeAccountInfo(addr);
+    if (info.storage.state !is TlbAccountStateActive) {
+        Assert.fail("Expected active account state");
+    }
+    val code = info.storage.state.stateInit.code;
     if (code == null) {
         Assert.fail("Expected deployed code");
     }
@@ -155,7 +162,7 @@ fun activeCode(addr: address): cell {
 
 fun activeDataCell(addr: address): cell {
     val info = activeAccountInfo(addr);
-    if (info.storage.state is AccountStateActive) {
+    if (info.storage.state is TlbAccountStateActive) {
         val active = info.storage.state;
         if (active.stateInit.data == null) {
             Assert.fail("Expected active account data");
@@ -190,20 +197,26 @@ fun storedIsProcessedInCurrentQueries(wallet: HighloadWalletV3, queryId: int): b
 }
 
 fun setActiveDataCell(addr: address, newData: cell) {
-    val account = net.getAccount(addr);
-    if (account !is AccountInfo) {
-        Assert.fail("Expected AccountInfo when setting data");
+    val shard = testing.getShardAccount(addr);
+    if (shard == null) {
+        Assert.fail("Expected shard account when setting data");
     }
 
+    var updatedShard = shard!;
+    val account = updatedShard.account.load();
+    if (account !is TlbAccountInfo) {
+        Assert.fail("Expected TlbAccountInfo when setting data");
+    }
     var info = account;
-    if (info.storage.state !is AccountStateActive) {
+    if (info.storage.state !is TlbAccountStateActive) {
         Assert.fail("Expected active AccountState when setting data");
     }
 
     var active = info.storage.state;
     active.stateInit.data = newData;
     info.storage.state = active;
-    net.setAccount(addr, info);
+    updatedShard.account = (info as TlbAccount).toCell();
+    testing.setShardAccount(addr, updatedShard);
 }
 
 fun emptyInternalTransferMessage(
@@ -211,7 +224,7 @@ fun emptyInternalTransferMessage(
     queryId: int = 0,
     value: coins = 0,
 ): cell {
-    val actions = array<OutAction> [];
+    val actions = array<TlbOutAction> [];
     return wallet.createInternalTransferMessage(queryId, actions, value).messageCell;
 }
 
@@ -285,11 +298,11 @@ fun sendAction(
     body: cell? = null,
     mode: int = 0,
     bounce: bool = false,
-): OutActionSendMessage {
+): TlbOutActionSendMessage {
     if (body == null) {
         body = createEmptyCell();
     }
-    return OutActionSendMessage {
+    return TlbOutActionSendMessage {
         mode: mode as uint8,
         outMsg: createMessage({
             bounce,
@@ -300,15 +313,15 @@ fun sendAction(
     };
 }
 
-fun externalOutAction(body: TestExternalOutBody, mode: int = 0): OutActionSendMessage {
-    return OutActionSendMessage {
+fun externalOutAction(body: TestExternalOutBody, mode: int = 0): TlbOutActionSendMessage {
+    return TlbOutActionSendMessage {
         mode: mode as uint8,
         outMsg: createExternalLogMessage({ dest: createAddressNone(), body }).messageCell,
     };
 }
 
-fun setCodeAction(newCode: cell): OutActionSetCode {
-    return OutActionSetCode { newCode };
+fun setCodeAction(newCode: cell): TlbOutActionSetCode {
+    return TlbOutActionSetCode { newCode };
 }
 
 fun makeDenseQueriesLeftAligned(): QueryBitmapMap {
@@ -363,7 +376,7 @@ fun badExternalOutWithBadSource(): cell {
 }
 
 fun badExternalOutWithBadDest(): cell {
-    val src = net.randomAddress("bad-ext-out-src");
+    val src = randomAddress("bad-ext-out-src");
     return beginCell()
         .storeUint(3, 2) // ext_out_msg_info$11
         .storeAddress(src)
@@ -395,8 +408,8 @@ fun badExternalInWithBadDest(): cell {
 }
 
 fun badInternalMessageWithBadGrams(): cell {
-    val src = net.randomAddress("bad-grams-src");
-    val dst = net.randomAddress("bad-grams-dst");
+    val src = randomAddress("bad-grams-src");
+    val dst = randomAddress("bad-grams-dst");
     return beginCell()
         .storeUint(0, 1) // int_msg_info$0
         .storeUint(0, 1) // ihr_disabled
@@ -410,8 +423,8 @@ fun badInternalMessageWithBadGrams(): cell {
 }
 
 fun badInternalMessageWithBadInitStateData(): cell {
-    val src = net.randomAddress("bad-init-src");
-    val dst = net.randomAddress("bad-init-dst");
+    val src = randomAddress("bad-init-src");
+    val dst = randomAddress("bad-init-dst");
 
     val brokenInit = beginCell()
         .storeUint(0, 1) // split_depth none

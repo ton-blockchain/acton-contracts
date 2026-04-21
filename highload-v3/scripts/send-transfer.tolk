@@ -1,7 +1,8 @@
 import "@acton/env"
 import "@acton/io"
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "@acton/types/out_actions"
 import "../wrappers/HighloadWalletV3"
 
@@ -41,7 +42,7 @@ fun main() {
     }
 
     val wallet = HighloadWalletV3.fromAddress(walletAddress!);
-    if (!net.isDeployed(wallet.address)) {
+    if (!scripts.isContractDeployed(wallet.address)) {
         println("Wallet is not deployed in the current execution context: {}", wallet.address);
         return;
     }
@@ -51,8 +52,8 @@ fun main() {
         return;
     }
 
-    var actions: array<OutActionSendMessage> = [];
-    actions.push(OutActionSendMessage {
+    var actions: array<TlbOutActionSendMessage> = [];
+    actions.push(TlbOutActionSendMessage {
         mode: SEND_MODE_PAY_FEES_SEPARATELY as uint8,
         outMsg: createMessage({
             bounce: false,
@@ -62,7 +63,7 @@ fun main() {
         }).messageCell,
     });
     if (recipient2 != null) {
-        actions.push(OutActionSendMessage {
+        actions.push(TlbOutActionSendMessage {
             mode: SEND_MODE_PAY_FEES_SEPARATELY as uint8,
             outMsg: createMessage({
                 bounce: false,

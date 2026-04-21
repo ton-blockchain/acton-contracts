@@ -1,4 +1,5 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/types"
@@ -35,8 +36,8 @@ get fun `test elections ongoing`() {
     ) = elector.participantListExtended();
 
     // Set time BEFORE close — elections should NOT finish
-    net.setNow(closeAt - 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(closeAt - 1);
+    testing.runTickTock(elector.address, true);
 
     val (
         _,
@@ -51,8 +52,8 @@ get fun `test elections ongoing`() {
     expect(isFinished1).toEqual(false);
 
     // Now advance past close — elections should finish
-    net.setNow(closeAt + 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(closeAt + 1);
+    testing.runTickTock(elector.address, true);
 
     val (
         _,
@@ -97,11 +98,11 @@ get fun `test election less min participants`() {
         _,
         _,
     ) = elector.participantListExtended();
-    net.setNow(closeAt + 1);
+    testing.setNow(closeAt + 1);
 
     // Tick-tock — elections should fail (not enough validators)
     // tryElect returns count=0 when n < minValidators, so isFailed=true
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     val (
         _,
         _,
@@ -122,7 +123,7 @@ get fun `test election less min participants`() {
     }
 
     // Tick-tock again — elections should now succeed (new stake arrived, isFailed reset)
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     val (
         _,
         _,
@@ -165,10 +166,10 @@ get fun `test election less min total stake`() {
         _,
     ) = elector.participantListExtended();
     assert (tStake < defaultStakeLimits().minTotalStake) throw 100; // confirm below minTotalStake
-    net.setNow(closeAt + 1);
+    testing.setNow(closeAt + 1);
 
     // Tick-tock — elections should NOT finish or fail (just postponed)
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     val (
         _,
         _,
@@ -232,9 +233,9 @@ get fun `test true stake less min total stake`() {
     ) = elector.participantListExtended();
     // Verify nominal total >= minTotalStake
     assert (tStake >= stakeLimits.minTotalStake) throw 100;
-    net.setNow(closeAt + 1);
+    testing.setNow(closeAt + 1);
 
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     val (
         _,
         _,

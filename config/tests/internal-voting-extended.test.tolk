@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
@@ -28,7 +28,7 @@ get fun `test voting int: should reject malformed signed-vote payload tag`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600),
+        (testing.getNow() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -62,7 +62,7 @@ get fun `test voting int: should reject bad signature`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() + 3600),
+        (testing.getNow() + 3600),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -115,7 +115,7 @@ get fun `test voting int: should remove expired proposal on vote attempt`() {
         ctx.contract,
         proposal,
         false,
-        (net.now() - 1),
+        (testing.getNow() - 1),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -143,7 +143,7 @@ get fun `test voting int invariant: round transition on vote should reset voters
         ctx.contract,
         proposal,
         true,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -213,7 +213,7 @@ get fun `test voting int invariant: proposal should be removed after too many lo
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
         1,
@@ -267,7 +267,7 @@ get fun `test voting int invariant: proposal should be removed after too many ro
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
         1,
@@ -303,7 +303,7 @@ get fun `test voting int acceptance invariant: should not apply value when curre
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -326,7 +326,7 @@ get fun `test voting int acceptance invariant: should not nullify param that bec
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );
@@ -349,7 +349,7 @@ get fun `test voting int acceptance invariant: should not apply non-critical vot
         ctx.contract,
         proposal,
         false,
-        (net.now() + 7200),
+        (testing.getNow() + 7200),
         0,
         VOTE_HASH_REGULAR_PARAM,
     );

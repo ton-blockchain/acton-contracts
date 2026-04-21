@@ -1,6 +1,7 @@
 import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
+import "@acton/emulation/scripts"
 import "../tests/test-utils"
 import "../wrappers/DnsCollection"
 import "../wrappers/DnsItem"
@@ -19,7 +20,7 @@ fun main() {
 
     if (rootAddress != null) {
         val root = RootDnsContract.fromAddress(rootAddress!);
-        if (!net.isDeployed(root.address)) {
+        if (!scripts.isContractDeployed(root.address)) {
             println("Root is not deployed in the current execution context: {}", root.address);
         } else {
             val ton = root.dnsresolve(makeTonDomainSlice(), 0);
@@ -47,7 +48,7 @@ fun main() {
     if (collectionAddress != null) {
         val collection = NftCollectionContract.fromAddress(collectionAddress!);
 
-        if (!net.isDeployed(collection.address)) {
+        if (!scripts.isContractDeployed(collection.address)) {
             println(
                 "Collection is not deployed in the current execution context: {}",
                 collection.address,
@@ -71,7 +72,7 @@ fun main() {
     if (itemAddress != null) {
         val item = NftItemContract.fromAddress(itemAddress!);
 
-        if (!net.isDeployed(item.address)) {
+        if (!scripts.isContractDeployed(item.address)) {
             println("Item is not deployed in the current execution context: {}", item.address);
         } else {
             val data = item.getNftData();

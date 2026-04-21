@@ -1,6 +1,6 @@
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test-utils"
@@ -11,7 +11,7 @@ import "../wrappers/DnsCollection"
 get fun `test collection: validates domain format and minimum bid rules`() {
     val (collection, _, user) = deployCollectionContract();
 
-    net.setNow((AUCTION_START_TIME - 1));
+    testing.setNow((AUCTION_START_TIME - 1));
     val beforeStart = collection.sendAny(
         user.address,
         makeDeployBody("appl"),
@@ -22,7 +22,7 @@ get fun `test collection: validates domain format and minimum bid rules`() {
         exitCode: ERROR_AUCTION_NOT_STARTED,
     });
 
-    net.setNow((AUCTION_START_TIME + 1));
+    testing.setNow((AUCTION_START_TIME + 1));
 
     val tooShort = collection.sendAny(
         user.address,
@@ -78,16 +78,16 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     expect(atMinBid).toHaveSuccessfulTx({ to: collection.address });
 
     val deployedItem = atMinBid.findTransaction({ from: collection.address, deploy: true });
-    expect(deployedItem).toBeDefined();
+    expect(deployedItem).toBeNotNull();
 
     val expectedAddress = collection.getNftAddressByIndex(domainIndex("appl"));
-    expect(deployedItem.unwrap().getAccountAddress()).toEqual(expectedAddress);
+    expect(deployedItem!.getAccountAddress()).toEqual(expectedAddress);
 }
 
 get fun `test collection: covers exact launch, max-length, hyphen, and decay boundaries`() {
     val (collection, _, user) = deployCollectionContract();
 
-    net.setNow(AUCTION_START_TIME);
+    testing.setNow(AUCTION_START_TIME);
     val exactStart = collection.sendAny(
         user.address,
         makeDeployBody("edge"),
@@ -98,7 +98,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
         exitCode: ERROR_AUCTION_NOT_STARTED,
     });
 
-    net.setNow((AUCTION_START_TIME + 1));
+    testing.setNow((AUCTION_START_TIME + 1));
 
     val maxLengthDeploy = collection.sendAny(
         user.address,
@@ -108,7 +108,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     expect(maxLengthDeploy).toHaveSuccessfulTx({ from: user.address, to: collection.address });
     expect(
         maxLengthDeploy.findTransaction({ from: collection.address, deploy: true }),
-    ).toBeDefined();
+    ).toBeNotNull();
 
     val hyphenValid = collection.sendAny(
         user.address,
@@ -139,7 +139,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
         exitCode: ERROR_DOMAIN_HAS_INVALID_CHARS,
     });
 
-    net.setNow((AUCTION_START_TIME + ONE_MONTH + 1));
+    testing.setNow((AUCTION_START_TIME + ONE_MONTH + 1));
 
     val monthBoundaryLow = collection.sendAny(
         user.address,
@@ -158,7 +158,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     );
     expect(monthBoundaryExact).toHaveSuccessfulTx({ from: user.address, to: collection.address });
 
-    net.setNow((AUCTION_START_TIME + 24 * ONE_MONTH));
+    testing.setNow((AUCTION_START_TIME + 24 * ONE_MONTH));
 
     val floorBoundaryLow = collection.sendAny(
         user.address,
@@ -180,7 +180,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
 
 get fun `test collection: rejects malformed snake payloads and unknown opcodes`() {
     val (collection, _, user) = deployCollectionContract();
-    net.setNow((AUCTION_START_TIME + 1));
+    testing.setNow((AUCTION_START_TIME + 1));
 
     val malformedSnakeBody = beginCell()
         .storeUint(0, 32)
@@ -213,7 +213,7 @@ get fun `test collection: rejects malformed snake payloads and unknown opcodes`(
 
 get fun `test collection: denies deployment for blacklisted domains via config param 80`() {
     val (collection, _, user) = deployCollectionContract();
-    net.setNow((AUCTION_START_TIME + 1));
+    testing.setNow((AUCTION_START_TIME + 1));
 
     val blockedDomain = "evil";
     setDnsBlacklist(domainIndex(blockedDomain));

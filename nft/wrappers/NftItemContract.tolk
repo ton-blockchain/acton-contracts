@@ -1,5 +1,5 @@
 import "@acton/io"
-import "@acton/build/build"
+import "@acton/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
 import "../contracts/messages"

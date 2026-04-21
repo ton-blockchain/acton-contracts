@@ -1,7 +1,7 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test-utils"
@@ -17,7 +17,7 @@ get fun `test vset installed not finished`() {
     announceElections(elector);
 
     // Elections not finished — tick-tock should NOT install vset
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     val stakeAt = elector.activeElectionId();
     expect(stakeAt).toNotEqual(0);
 }
@@ -42,7 +42,7 @@ get fun `test vset installed waiting for config`() {
     expect(isFinished).toEqual(true);
 
     // Elections finished but vset not in config yet — elections should persist
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     expect(elector.activeElectionId()).toNotEqual(0);
 }
 
@@ -53,19 +53,19 @@ get fun `test vset bonus distribution`() {
 
     // Send initial balance (simulating accumulated fees / nobody's balance)
     val bonusAmount: coins = ton("1000");
-    val deployer = net.treasury("extra-funder");
+    val deployer = testing.treasury("extra-funder");
     elector.sendSimpleTransfer(deployer.address, { value: bonusAmount });
 
     announceElections(elector);
     val (_stakeAt, vsetCell, stakerHash) = conductElectionsAndGetVset(elector, setup.configAddr);
 
     // Install vset by setting config param 34
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, vsetCell);
-    net.setConfig(config);
+    testing.setConfig(config);
 
     // Tick-tock installs the vset
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     expect(elector.activeElectionId()).toEqual(0);
 
     // Staker stake is frozen — no credits yet
@@ -75,25 +75,25 @@ get fun `test vset bonus distribution`() {
     val additionalFees: coins = ton("500");
     elector.sendSimpleTransfer(deployer.address, { value: additionalFees });
     // Tick-tock to process the fees into bonuses
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
 
     // Now promote to new vset so stakes can eventually unfreeze
     val validatorConf = defaultValidationTimes();
     val stakeHeld = validatorConf.stakeHeldFor;
 
     val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
-    config = net.getConfig();
+    config = testing.getConfig();
     config.setParamRaw(34, newVset.toCell());
     config.setParamRaw(36, newVset.toCell());
-    net.setConfig(config);
+    testing.setConfig(config);
 
     val promoteTime = blockchain.now() + 100;
-    net.setNow(promoteTime);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime);
+    testing.runTickTock(elector.address, true);
 
     // Unfreeze
-    net.setNow(promoteTime + stakeHeld + 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime + stakeHeld + 1);
+    testing.runTickTock(elector.address, true);
 
     // After unfreeze, credits should include stake + proportional bonus
     val credit = elector.computeReturnedStake(stakerHash);
@@ -136,10 +136,10 @@ get fun `test stakes not unfrozen before time`() {
     val (stakeAt, vsetCell, stakerHash) = conductElectionsAndGetVset(elector, setup.configAddr);
 
     // Install vset
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, vsetCell);
-    net.setConfig(config);
-    net.runTickTock(elector.address, true);
+    testing.setConfig(config);
+    testing.runTickTock(elector.address, true);
     expect(elector.activeElectionId()).toEqual(0);
 
     // Staker should have no credits (stake is frozen)
@@ -150,18 +150,18 @@ get fun `test stakes not unfrozen before time`() {
 
     // Promote to new vset so active_id changes (needed for unfreeze condition)
     val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
-    config = net.getConfig();
+    config = testing.getConfig();
     config.setParamRaw(34, newVset.toCell());
     config.setParamRaw(36, newVset.toCell());
-    net.setConfig(config);
+    testing.setConfig(config);
 
     val promoteTime = blockchain.now() + 100;
-    net.setNow(promoteTime);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime);
+    testing.runTickTock(elector.address, true);
 
     // Before unfreeze time — stakes should remain frozen
-    net.setNow(promoteTime + stakeHeld - 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime + stakeHeld - 1);
+    testing.runTickTock(elector.address, true);
     expect(elector.computeReturnedStake(stakerHash)).toEqual(0);
 
     // Verify past election entry still exists via get_past_complaints (non-null = entry exists)
@@ -179,10 +179,10 @@ get fun `test stakes unfrozen after time`() {
     val (stakeAt, vsetCell, stakerHash) = conductElectionsAndGetVset(elector, setup.configAddr);
 
     // Install vset
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, vsetCell);
-    net.setConfig(config);
-    net.runTickTock(elector.address, true);
+    testing.setConfig(config);
+    testing.runTickTock(elector.address, true);
     expect(elector.activeElectionId()).toEqual(0);
 
     val validatorConf = defaultValidationTimes();
@@ -190,18 +190,18 @@ get fun `test stakes unfrozen after time`() {
 
     // Promote to new vset so active_id changes
     val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
-    config = net.getConfig();
+    config = testing.getConfig();
     config.setParamRaw(34, newVset.toCell());
     config.setParamRaw(36, newVset.toCell());
-    net.setConfig(config);
+    testing.setConfig(config);
 
     val promoteTime = blockchain.now() + 100;
-    net.setNow(promoteTime);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime);
+    testing.runTickTock(elector.address, true);
 
     // After unfreeze time — stakes should be unfrozen
-    net.setNow(promoteTime + stakeHeld + 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime + stakeHeld + 1);
+    testing.runTickTock(elector.address, true);
 
     // Credits should now be available
     expect(elector.computeReturnedStake(stakerHash)).toNotEqual(0);
@@ -222,16 +222,16 @@ get fun `test vset installed no cur vset`() {
     val (_, vsetCell, _) = conductElectionsAndGetVset(elector, setup.configAddr);
 
     // Elections finished but vset not in config — should NOT install
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     expect(elector.activeElectionId()).toNotEqual(0);
 
     // Set elected vset to config param 34
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, vsetCell);
-    net.setConfig(config);
+    testing.setConfig(config);
 
     // Now tick-tock should install the vset — elections cleared
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     expect(elector.activeElectionId()).toEqual(0);
 }
 
@@ -244,16 +244,16 @@ get fun `test vset installed next vset`() {
     val (_, vsetCell, _) = conductElectionsAndGetVset(elector, setup.configAddr);
 
     // Elections finished but vset not in config — should NOT install
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     expect(elector.activeElectionId()).toNotEqual(0);
 
     // Set elected vset to config param 36 (next validators) instead of 34
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(36, vsetCell);
-    net.setConfig(config);
+    testing.setConfig(config);
 
     // Now tick-tock should install the vset — elections cleared
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     expect(elector.activeElectionId()).toEqual(0);
 }
 
@@ -266,12 +266,12 @@ get fun `test vset update prolong current vset`() {
     val (_stakeAt, vsetCell, stakerHash) = conductElectionsAndGetVset(elector, setup.configAddr);
 
     // Install elected vset by setting it to config param 34
-    var config = net.getConfig();
+    var config = testing.getConfig();
     config.setParamRaw(34, vsetCell);
-    net.setConfig(config);
+    testing.setConfig(config);
 
     // Tick-tock installs the vset (validatorSetInstalled + updateActiveVsetId)
-    net.runTickTock(elector.address, true);
+    testing.runTickTock(elector.address, true);
     expect(elector.activeElectionId()).toEqual(0);
 
     // Staker should have no credits yet (stake is frozen)
@@ -282,25 +282,25 @@ get fun `test vset update prolong current vset`() {
 
     // Create a new non-expired vset and promote it to current
     val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
-    config = net.getConfig();
+    config = testing.getConfig();
     config.setParamRaw(34, newVset.toCell());
     // Set param 36 to prevent announceNewElections from firing before updateActiveVsetId
     config.setParamRaw(36, newVset.toCell());
-    net.setConfig(config);
+    testing.setConfig(config);
 
     // Advance time a bit — updateActiveVsetId should fire on tick-tock
     // since config param 34 hash changed, updating unfreezeAt = now() + stakeHeld
     val promoteTime = blockchain.now() + 100;
-    net.setNow(promoteTime);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime);
+    testing.runTickTock(elector.address, true);
 
     // Before updated unfreezeAt: stakes should still be frozen
-    net.setNow(promoteTime + stakeHeld - 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime + stakeHeld - 1);
+    testing.runTickTock(elector.address, true);
     expect(elector.computeReturnedStake(stakerHash)).toEqual(0);
 
     // After updated unfreezeAt: stakes should be unfrozen and credits available
-    net.setNow(promoteTime + stakeHeld + 1);
-    net.runTickTock(elector.address, true);
+    testing.setNow(promoteTime + stakeHeld + 1);
+    testing.runTickTock(elector.address, true);
     expect(elector.computeReturnedStake(stakerHash)).toNotEqual(0);
 }
