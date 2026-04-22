@@ -1,49 +1,52 @@
-import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
-import "common"
+import "@acton/promts/prompts"
+import "utils/common"
 import "../wrappers/WalletV5Contract"
 
 fun main() {
-    val keyPair = w5KeyPair();
-    val walletAddress = w5WalletAddress();
-    if (walletAddress == null && net.isBroadcasting()) {
-        println("Set W5_WALLET_ADDRESS to the deployed wallet before broadcasting transfers.");
+    val wallet = promptW5Target();
+    if (net.getDeployedCode(wallet.address) == null) {
+        println("W5 wallet {} is not deployed", wallet.address);
         return;
     }
-    val deployer = net.wallet("deployer");
-    val wallet = w5DeployWallet(deployer.address);
-    val seqno = wallet.getSeqno();
-    val recipient = envOr("W5_RECIPIENT", deployer.address);
-    val value = envOr("W5_TRANSFER_VALUE", w5ActionValue());
+
+    val recipient = promptW5AddressRequired("W5_RECIPIENT", "Enter recipient address");
+    val value = promptW5Coins(
+        "W5_TRANSFER_VALUE",
+        "Enter transfer value",
+        W5_DEFAULT_TRANSFER_VALUE,
+    );
 
     var outActions: array<SendAction> = [];
-    outActions.push(w5SendAction(recipient, value));
+    outActions.push(w5BuildSendAction(recipient, value));
 
-    val actions = ActionsList {
-        outActions,
-        extraActions: [],
-    };
-    val body = createExternalSignedBody(keyPair, w5SubwalletId(), seqno, actions);
+    val body = createExternalSignedBody(
+        w5KeyPair(),
+        w5SubwalletId(),
+        wallet.getSeqno(),
+        ActionsList {
+            outActions,
+            extraActions: [],
+        },
+    );
 
-    println("Sending signed transfer from wallet: {}", wallet.address);
-    println("Recipient: {}", recipient);
+    println("W5 SENDER={}", wallet.address);
+    println("W5 RECIPIENT={}", recipient);
+    println("W5 TRANSFER_VALUE={}", value);
 
     val res = wallet.sendExternalSigned(body);
     if (res == null) {
-        println("Wallet v5 external transfer could not be submitted");
+        println("W5 external transfer could not be submitted");
         return;
     }
-    if (!res.wait()) {
-        println("Wallet v5 transfer was not confirmed");
-        return;
-    }
-
+    // SendResultList.wait() parses inMsg as internal; it does not support external-in
+    // messages, so we rely on a follow-up info.tolk query instead of calling res.wait().
     if (net.isBroadcasting()) {
-        println("Transfer confirmed. Re-run info to fetch updated on-chain seqno.");
+        println("W5 external submitted; check new seqno via info.tolk");
         return;
     }
+    res.wait();
 
-    println("Transfer confirmed, new seqno: {}", wallet.getSeqno());
-    w5PrintInfo(wallet);
+    printW5Info(wallet, "W5");
 }

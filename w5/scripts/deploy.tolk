@@ -1,17 +1,17 @@
-import "@acton/io"
 import "@acton/emulation/network"
-import "common"
+import "@acton/promts/prompts"
+import "utils/common"
 
 fun main() {
-    val deployer = net.wallet("deployer");
-    val wallet = w5DeployWallet(deployer.address);
+    val deployer = promptW5Wallet("W5_DEPLOYER", "Select Deployer Wallet");
+    val deployValue = promptW5Coins(
+        "W5_DEPLOY_VALUE",
+        "Enter deploy value",
+        W5_DEFAULT_DEPLOY_VALUE,
+    );
 
-    println("Broadcast mode: {}", net.isBroadcasting());
-    println("Deployer wallet: {}", deployer.address);
-    val targetAddress = w5WalletAddress();
-    if (targetAddress != null) {
-        println("Target wallet from env: {}", targetAddress!);
-    }
-    println("Wallet v5 address: {}", wallet.address);
-    w5PrintInfo(wallet);
+    val wallet = w5FromSeed();
+    deployW5IfNeeded(deployer, wallet, deployValue);
+
+    printW5Info(wallet, "W5");
 }

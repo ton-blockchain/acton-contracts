@@ -1,7 +1,9 @@
 import "@stdlib/exotic-cells"
+import "@acton/fmt"
 import "@acton/build/build"
 import "@acton/crypto/crypto"
 import "@acton/emulation/network"
+import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/testing/transaction_expect"
 import "@acton/types/message"
@@ -22,6 +24,17 @@ struct WalletV5Contract {
 fun WalletV5Contract.deployCodeLib(): cell {
     val realCode = build("WalletV5");
     vm.registerLibrary(realCode);
+    if (net.isBroadcasting()) {
+        val hash = format("{:x}", realCode.hash());
+        if (!net.fetchAndRegisterLibrary(hash)) {
+            Assert.fail(
+                format(
+                    "WalletV5 library 0x{} is not published on the target network. Run: acton library publish WalletV5 --wallet <wallet-name> --duration 30d --amount 1 --net <net> -y --local",
+                    hash,
+                ),
+            );
+        }
+    }
     return realCode.toLibraryReference();
 }
 
