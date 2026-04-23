@@ -1,7 +1,7 @@
-import "@acton/crypto/crypto"
+import "@acton/crypto"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 
 import "@contracts/types"
 import "@contracts/w5-types"
@@ -60,7 +60,7 @@ get fun `test simple extension enforces payment interval`() {
     val blockedReceipt = collectPayment(extension, 2);
     expect(blockedReceipt).toBeNull();
 
-    net.setNow(TEST_START_TIME + PAYMENT_INTERVAL + 1);
+    testing.setNow(TEST_START_TIME + PAYMENT_INTERVAL + 1);
 
     val allowedReceipt = collectPayment(extension, 3)!;
     expect(allowedReceipt).toHaveSuccessfulTx<ReceivePaymentFromWallet>({
@@ -89,7 +89,7 @@ get fun `test admin can cancel subscription and remove extension from wallet`() 
 }
 
 fun setupInstalledExtension(): (WalletV5Contract, Treasury, SimpleExtension) {
-    net.setNow(TEST_START_TIME);
+    testing.setNow(TEST_START_TIME);
 
     val keyPair = crypto.generateKeyPair();
     val (wallet, admin) = deployWalletWithKey(keyPair);
@@ -115,6 +115,6 @@ fun setupInstalledExtension(): (WalletV5Contract, Treasury, SimpleExtension) {
 
 fun collectPayment(extension: SimpleExtension, queryId: uint64): SendResultList? {
     return net.sendExternal(
-        createExternalMessage(extension.address, CollectPaymentFromWallet { queryId }),
+        net.createExternalMessage(extension.address, CollectPaymentFromWallet { queryId }),
     );
 }

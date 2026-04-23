@@ -1,11 +1,10 @@
 import "@stdlib/exotic-cells"
-import "@acton/build/build"
-import "@acton/crypto/crypto"
+import "@acton/build"
+import "@acton/crypto"
 import "@acton/emulation/network"
+import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/testing/transaction_expect"
 import "@acton/types/message"
-import "@acton/vm/vm"
 import "../contracts/messages"
 import "../contracts/storage"
 
@@ -21,7 +20,7 @@ struct WalletV5Contract {
 // Deploys code as a library and returns library cell
 fun WalletV5Contract.deployCodeLib(): cell {
     val realCode = build("WalletV5");
-    vm.registerLibrary(realCode);
+    testing.registerLibrary(realCode);
     return realCode.toLibraryReference();
 }
 
@@ -257,7 +256,7 @@ fun createSignedBody(
 
 // Deploy wallet from storage
 fun deployWallet(storage: Storage): (WalletV5Contract, Treasury) {
-    val deployer = net.treasury("deployer");
+    val deployer = testing.treasury("deployer");
     val walletV5 = WalletV5Contract.fromStorage(storage);
 
     val deployResult = walletV5.deploy(deployer.address, { value: ton("5"), bounce: false });
@@ -309,12 +308,12 @@ fun createExternalSignedBody(
 }
 
 fun WalletV5Contract.sendExternalSigned(self, body: ExternalSignedBody): SendResultList? {
-    val msg = createExternalMessage(self.address, body);
+    val msg = net.createExternalMessage(self.address, body);
     return net.sendExternal(msg);
 }
 
 fun WalletV5Contract.sendExternalRaw(self, body: cell): SendResultList? {
-    val msg = createExternalMessage(self.address, body);
+    val msg = net.createExternalMessage(self.address, body);
     return net.sendExternal(msg);
 }
 
