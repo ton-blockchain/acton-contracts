@@ -193,7 +193,11 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
     );
 
     val actualInitFwd = orderInit.loadInMsg<InitOrderRequest>().info.toInternal().forwardFee;
-    val actualExecFwd = multisigExecute.loadInMsg<ExecuteOrderRequest>().info.toInternal().forwardFee;
+    val actualExecFwd = multisigExecute
+        .loadInMsg<ExecuteOrderRequest>()
+        .info
+        .toInternal()
+        .forwardFee;
     val actualStorage = getStorageCollected(orderExecute);
 
     val actualGasFee = calculateGasFee(BASECHAIN, measuredMultisigInit) +

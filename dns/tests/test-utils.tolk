@@ -359,8 +359,14 @@ fun expectedAuctionDurationAt(nowTime: int): int {
 
 fun TlbCommonMessageInfo.toInternal(self): TlbInternalMessage {
     match (self) {
-        TlbInternalMessage => { return self; }
-        TlbExternalInMessageInfo => { Assert.fail("expected internal message info"); }
-        TlbExternalOutMessageInfo => { Assert.fail("expected internal message info"); }
+        TlbInternalMessage => {
+            return self;
+        }
+        TlbExternalInMessageInfo => {
+            Assert.fail("expected internal message info");
+        }
+        TlbExternalOutMessageInfo => {
+            Assert.fail("expected internal message info");
+        }
     }
 }
