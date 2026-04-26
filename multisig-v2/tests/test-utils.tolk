@@ -4,6 +4,7 @@ import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/tlb/maybe"
+import "@acton/types/message"
 import "@acton/types/transaction"
 import "../contracts/errors"
 import "../contracts/messages"
@@ -367,4 +368,12 @@ fun loadApproveRejected(tx: TlbTransaction): ApproveRejected {
 
 fun assertOrderNotExecuted(res: SendResultList, multisigAddress: address, recipient: address) {
     expect(res).toNotHaveTx({ from: multisigAddress, to: recipient });
+}
+
+fun TlbCommonMessageInfo.toInternal(self): TlbInternalMessage {
+    match (self) {
+        TlbInternalMessage => { return self; }
+        TlbExternalInMessageInfo => { Assert.fail("expected internal message info"); }
+        TlbExternalOutMessageInfo => { Assert.fail("expected internal message info"); }
+    }
 }

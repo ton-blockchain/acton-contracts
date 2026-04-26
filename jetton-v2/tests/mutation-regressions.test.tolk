@@ -197,7 +197,7 @@ get fun `test mutation: direct wallet internal transfer should persist balance a
         exitCode: 0,
     });
     expect(excessTx).toBeNotNull();
-    expect(excessTx!.loadInMsg<ReturnExcessesBack>().info.value.grams).toBeGreater(0);
+    expect(excessTx!.loadInMsg<ReturnExcessesBack>().info.toInternal().value.grams).toBeGreater(0);
 }
 
 get fun `test mutation: direct wallet should accept sibling transfers and reject outsiders`() {

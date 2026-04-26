@@ -102,7 +102,7 @@ get fun `test item management: ownership transfer covers payout branches and rej
     val assignedBody = assignedTx!.loadBody<OwnershipAssigned>();
     expect(assignedBody.queryId).toEqual(321);
     expect(assignedBody.oldOwnerAddress).toEqual(owner.address);
-    expect(assignedTxValue.info.value.grams).toEqual(ton("0.5"));
+    expect(assignedTxValue.info.toInternal().value.grams).toEqual(ton("0.5"));
 
     val excessTx = transferWithPayouts.findTransaction<Excesses>({
         from: item.address,
@@ -113,7 +113,7 @@ get fun `test item management: ownership transfer covers payout branches and rej
     val excessTxValue = excessTx!.loadInMsg<Excesses>();
     val excessBody = excessTx!.loadBody<Excesses>();
     expect(excessBody.queryId).toEqual(321);
-    expect(excessTxValue.info.value.grams).toBeGreater(0);
+    expect(excessTxValue.info.toInternal().value.grams).toBeGreater(0);
 
     expect(item.getEditor()).toEqual(newOwner.address);
 
@@ -332,7 +332,7 @@ get fun `test item management: governance release destroys the item and refunds 
     });
     expect(collectionFillUpTx).toBeNotNull();
     val collectionFillUp = collectionFillUpTx!.loadInMsg<FillUp>();
-    expect(collectionFillUp.info.value.grams).toBeGreater(0);
+    expect(collectionFillUp.info.toInternal().value.grams).toBeGreater(0);
     expect(testing.getAccountBalance(collection.address)).toBeGreater(collectionBalanceBefore);
     expect(testing.isDeployed(item.address)).toEqual(false);
 }
@@ -405,8 +405,9 @@ get fun `test item management: release boundaries, refunds, and unknown op handl
     expect(releaseRefundTx).toBeNotNull();
     val releaseRefund = releaseRefundTx!.loadInMsg<DnsRecordRelease>();
     val maxReleaseRefund = balanceBeforeRelease - MIN_TONS_FOR_STORAGE;
-    expect(releaseRefund.info.value.grams).toBeGreater(0);
-    expect(releaseRefund.info.value.grams).toBeLessOrEqual(maxReleaseRefund);
+    val releaseRefundInfo = releaseRefund.info.toInternal();
+    expect(releaseRefundInfo.value.grams).toBeGreater(0);
+    expect(releaseRefundInfo.value.grams).toBeLessOrEqual(maxReleaseRefund);
 
     expect(item.getEditor()).toBeNull();
     val restartedAuction = item.getAuctionInfo();
