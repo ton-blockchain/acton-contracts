@@ -64,7 +64,7 @@ fun w5DeployWallet(deployer: address): WalletV5Contract {
     val wallet = w5BuildWallet();
     if (wallet.init != null) {
         val res = wallet.deploy(deployer, { value: w5DeployValue(), bounce: false });
-        res.wait();
+        res.waitForFirstTransaction();
     }
     return wallet;
 }

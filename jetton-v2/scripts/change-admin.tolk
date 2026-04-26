@@ -15,7 +15,7 @@ fun main() {
     );
 
     val res = minter.sendChangeAdmin(admin.address, nextAdmin);
-    res.wait();
+    res.waitForFirstTransaction();
 
     println("JETTON NEXT_ADMIN_REQUESTED={}", nextAdmin);
     printJettonMinterInfo(minter, "JETTON");

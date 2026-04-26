@@ -170,7 +170,7 @@ fun main() {
         queryId as uint64,
         { value: orderValue, bounce: true },
     );
-    if (!result.wait()) {
+    if (result.waitForFirstTransaction() == null) {
         println("Multisig params update was not confirmed");
         return;
     }

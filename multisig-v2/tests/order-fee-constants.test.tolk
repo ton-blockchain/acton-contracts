@@ -5,6 +5,7 @@ import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "@acton/tlb/maybe"
 import "@acton/types/transaction"
+import "test-utils"
 import "../contracts/messages"
 import "../contracts/order-helpers"
 import "../contracts/types"
@@ -191,8 +192,12 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
         ORDER_STATE_CELL_OVERHEAD + orderCells + signersCells,
     );
 
-    val actualInitFwd = orderInit.loadInMsg<InitOrderRequest>().info.fwdFee;
-    val actualExecFwd = multisigExecute.loadInMsg<ExecuteOrderRequest>().info.fwdFee;
+    val actualInitFwd = orderInit.loadInMsg<InitOrderRequest>().info.toInternal().forwardFee;
+    val actualExecFwd = multisigExecute
+        .loadInMsg<ExecuteOrderRequest>()
+        .info
+        .toInternal()
+        .forwardFee;
     val actualStorage = getStorageCollected(orderExecute);
 
     val actualGasFee = calculateGasFee(BASECHAIN, measuredMultisigInit) +

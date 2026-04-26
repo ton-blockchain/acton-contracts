@@ -10,11 +10,7 @@ const HIGHLOAD_DEFAULT_TIMEOUT = 128
 const HIGHLOAD_DEFAULT_DEPLOY_VALUE = ton("0.05")
 
 fun main() {
-    val seed: int? = env("HIGHLOAD_SEED") ?? random.range(100000);
-    if (seed == null) {
-        println("Set HIGHLOAD_SEED before running this script.");
-        return;
-    }
+    val seed: int = env("HIGHLOAD_SEED") ?? random.range(100000);
 
     val deployer = scripts.wallet("deployer-2");
 
@@ -32,7 +28,7 @@ fun main() {
         println("Wallet is already deployed in the current execution context: {}", wallet.address);
     } else {
         val deployResult = wallet.deploy(deployer.address, { value: deployValue, bounce: false });
-        if (!deployResult.wait()) {
+        if (deployResult.waitForFirstTransaction() == null) {
             println("Highload wallet deployment was not confirmed");
             return;
         }

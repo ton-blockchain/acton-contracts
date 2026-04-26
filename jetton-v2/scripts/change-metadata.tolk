@@ -10,7 +10,7 @@ fun main() {
     val metadata = promptJettonMetadata(JETTON_DEFAULT_UPDATED_DESCRIPTION);
 
     val res = minter.sendChangeMetadata(admin.address, buildJettonMetadataCell(metadata));
-    res.wait();
+    res.waitForFirstTransaction();
 
     printJettonMinterInfo(minter, "JETTON");
 }

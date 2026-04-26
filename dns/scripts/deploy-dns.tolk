@@ -31,7 +31,7 @@ fun main() {
             body: FillUp { queryId: 0 },
         }),
     );
-    if (!deployResult.wait()) {
+    if (deployResult.waitForFirstTransaction() == null) {
         println("Collection deployment was not confirmed");
         return;
     }

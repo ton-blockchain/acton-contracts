@@ -69,10 +69,6 @@ fun promptNftItemContract(message: string): NftItemContract {
     return NftItemContract.fromAddress(parseAddress(s));
 }
 
-fun promptInt(message: string, default: string): int {
-    return parseInt(prompt(message, "", default));
-}
-
 fun makeNftCollectionStorage(admin: address, info: NftCollectionInfo): NftCollectionStorage {
     return {
         adminAddress: admin,
@@ -98,7 +94,7 @@ fun deployNftCollectionContract(
         makeNftCollectionStorage(deployer.address, info),
     );
     val res = collection.deploy(deployer.address, { value: ton("0.05"), bounce: false });
-    res.wait();
+    res.waitForFirstTransaction();
     return collection;
 }
 
@@ -117,7 +113,7 @@ fun deployNftItemContract(
         { ownerAddress: owner, content: itemContent },
         { value: ton("0.05"), bounce: true },
     );
-    res.wait();
+    res.waitForFirstTransaction();
     return NftItemContract.fromAddress(collection.getNftAddressByIndex(itemIndex));
 }
 

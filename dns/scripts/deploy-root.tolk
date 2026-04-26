@@ -18,7 +18,7 @@ fun main() {
     println("Prepared root address: {}", root.address);
 
     val res = root.deploy(deployer.address, { value: ton("0.01"), bounce: false });
-    if (!res.wait()) {
+    if (res.waitForFirstTransaction() == null) {
         println("Root deployment was not confirmed");
         return;
     }

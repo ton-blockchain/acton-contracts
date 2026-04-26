@@ -19,7 +19,7 @@ fun main() {
     );
 
     val res = minter.sendMint(admin.address, recipient, mintAmount, 1, ton("0.08"));
-    res.wait();
+    res.waitForFirstTransaction();
 
     printJettonMinterInfo(minter, "JETTON");
     printJettonWalletInfo(minter, recipient, "JETTON_RECIPIENT");

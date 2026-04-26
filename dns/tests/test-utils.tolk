@@ -5,6 +5,7 @@ import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/tlb/maybe"
+import "@acton/types/message"
 import "@acton/types/transaction"
 import "../contracts/dns-utils"
 import "../contracts/messages"
@@ -354,4 +355,18 @@ fun expectedAuctionDurationAt(nowTime: int): int {
     }
 
     return AUCTION_START_DURATION - (AUCTION_START_DURATION - AUCTION_END_DURATION) * months / 12;
+}
+
+fun TlbCommonMessageInfo.toInternal(self): TlbInternalMessage {
+    match (self) {
+        TlbInternalMessage => {
+            return self;
+        }
+        TlbExternalInMessageInfo => {
+            Assert.fail("expected internal message info");
+        }
+        TlbExternalOutMessageInfo => {
+            Assert.fail("expected internal message info");
+        }
+    }
 }

@@ -62,7 +62,10 @@ fun executeOrder(mutate storage: MultisigStorage, orderBody: DirectOrderActionsM
 }
 
 type AllowedMessageToMultisig =
-NewOrderRequest | ExecuteOrderRequest | ExecuteInternalRequest | TextComment
+    | NewOrderRequest
+    | ExecuteOrderRequest
+    | ExecuteInternalRequest
+    | TextComment
 
 fun onInternalMessage(in: InMessage) {
     val msg = lazy AllowedMessageToMultisig.fromSlice(in.body);

@@ -40,7 +40,7 @@ fun main() {
             println("Counter is not deployed at {}", counter.address);
             return;
         }
-        counter.deploy(deployer.address, { value: deployValue }).wait();
+        counter.deploy(deployer.address, { value: deployValue }).waitForFirstTransaction();
     }
 
     println("Counter address: {}", counter.address);

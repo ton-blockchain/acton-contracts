@@ -37,7 +37,7 @@ fun main() {
     if (minterAddress == null) {
         if (!scripts.isContractDeployed(minter.address)) {
             val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
-            if (!deployRes.wait()) {
+            if (deployRes.waitForFirstTransaction() == null) {
                 println("Deployment failed");
                 return;
             }
@@ -59,7 +59,7 @@ fun main() {
         forwardTonAmount,
         totalTonAmount,
     );
-    if (!mintRes.wait()) {
+    if (mintRes.waitForFirstTransaction() == null) {
         println("Mint failed");
         return;
     }

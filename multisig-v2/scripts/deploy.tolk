@@ -34,7 +34,7 @@ fun main() {
         );
     } else {
         val deployResult = multisig.deploy(deployer.address, { value: deployValue, bounce: false });
-        if (!deployResult.wait()) {
+        if (deployResult.waitForFirstTransaction() == null) {
             println("Multisig deployment was not confirmed");
             return;
         }

@@ -102,7 +102,7 @@ get fun `test item auction: bids require 5 percent and notify previous bidder`()
     });
     expect(refundTx).toBeNotNull();
     val refundMsg = refundTx!.loadInMsg<OutbidNotification>();
-    expect(refundMsg.info.value.grams).toEqual(auctionBeforeBid.maxBidAmount);
+    expect(refundMsg.info.toInternal().value.grams).toEqual(auctionBeforeBid.maxBidAmount);
 
     val auctionAfterBid = item.getAuctionInfo();
     expect(auctionAfterBid.maxBidAddress).toEqual(bidder.address);
@@ -157,7 +157,7 @@ get fun `test item auction: completion sets owner and enforces top-up permission
     });
     expect(fillUpTx).toBeNotNull();
     val fillUpMsg = fillUpTx!.loadInMsg<FillUp>();
-    expect(fillUpMsg.info.value.grams).toBeGreater(0);
+    expect(fillUpMsg.info.toInternal().value.grams).toBeGreater(0);
 
     expect(item.getEditor()).toEqual(owner.address);
     expect(testing.getAccountBalance(item.address)).toEqual(MIN_TONS_FOR_STORAGE);

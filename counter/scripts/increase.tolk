@@ -41,12 +41,12 @@ fun main() {
             println("Counter is not deployed at {}", counter.address);
             return;
         }
-        counter.deploy(deployer.address, { value: deployValue }).wait();
+        counter.deploy(deployer.address, { value: deployValue }).waitForFirstTransaction();
     }
 
     println("Increasing counter by {}", delta);
     val res = counter.sendIncreaseCounter(deployer.address, delta);
-    res.wait();
+    res.waitForFirstTransaction();
 
     println("Counter address: {}", counter.address);
     println("COUNTER_ADDRESS={}", counter.address);

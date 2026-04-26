@@ -125,7 +125,7 @@ fun onInternalMessage(in: InMessage) {
             reserveToncoinsOnBalance(
                 ton("0.01"),
                 RESERVE_MODE_EXACT_AMOUNT,
-            );                                                                // reserve for storage fees
+            ); // reserve for storage fees
 
             val deployMsg = createMessage({
                 bounce: BounceMode.Only256BitsOfBody,

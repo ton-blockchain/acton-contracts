@@ -10,7 +10,7 @@ fun main() {
     val batchCount = promptInt("Enter batch size", NFT_DEFAULT_BATCH_COUNT);
 
     val res = deployNftBatch(collection, deployer, batchOwner, batchCount);
-    res.wait();
+    res.waitForFirstTransaction();
 
     printNftCollectionInfo(collection, "NFT");
 }
