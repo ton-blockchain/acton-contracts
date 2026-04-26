@@ -89,7 +89,7 @@ fun main() {
         createdAt,
         batchValue,
     );
-    if (!sendResult.wait()) {
+    if (sendResult.waitForFirstTransaction() == null) {
         println("Highload batch was not confirmed");
         return;
     }

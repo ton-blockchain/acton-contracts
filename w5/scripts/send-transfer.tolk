@@ -35,7 +35,7 @@ fun main() {
         println("Wallet v5 external transfer could not be submitted");
         return;
     }
-    if (!res.wait()) {
+    if (res.waitForFirstTransaction() == null) {
         println("Wallet v5 transfer was not confirmed");
         return;
     }

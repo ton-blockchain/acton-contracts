@@ -29,7 +29,7 @@ fun main() {
         1,
         null,
     );
-    res.wait();
+    res.waitForFirstTransaction();
 
     printJettonMinterInfo(minter, "JETTON");
     printJettonWalletInfo(minter, sender.address, "JETTON_SENDER");

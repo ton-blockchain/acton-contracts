@@ -40,15 +40,15 @@ fun main() {
             println("Counter is not deployed at {}", counter.address);
             return;
         }
-        counter.deploy(deployer.address, { value: deployValue }).wait();
+        counter.deploy(deployer.address, { value: deployValue }).waitForFirstTransaction();
     }
 
     val inc = counter.sendIncreaseCounter(deployer.address, 7);
-    inc.wait();
+    inc.waitForFirstTransaction();
 
     println("Counter before reset: {}", counter.currentCounter());
     val res = counter.sendResetCounter(deployer.address);
-    res.wait();
+    res.waitForFirstTransaction();
 
     println("Counter address: {}", counter.address);
     println("COUNTER_ADDRESS={}", counter.address);

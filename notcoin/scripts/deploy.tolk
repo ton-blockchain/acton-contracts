@@ -29,7 +29,7 @@ fun main() {
     println("Prepared minter address: {}", minter.address);
 
     val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
-    if (!deployRes.wait()) {
+    if (deployRes.waitForFirstTransaction() == null) {
         println("Deployment failed");
         return;
     }

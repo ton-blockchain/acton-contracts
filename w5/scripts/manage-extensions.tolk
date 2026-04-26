@@ -22,7 +22,7 @@ fun main() {
     addActions.push(AddExtensionExtraAction { addr: extension });
     var signedBody = w5BuildSignedActions(keyPair, seqno, addActions);
     var res = wallet.sendSignedBody(deployer.address, signedBody, { value });
-    if (!res.wait()) {
+    if (res.waitForFirstTransaction() == null) {
         println("Failed to add extension");
         return;
     }
@@ -35,7 +35,7 @@ fun main() {
         extraActions: extensionActions,
     }.toCell();
     res = wallet.sendExtensionActionRequest(extension, extBody, 0, { value });
-    if (!res.wait()) {
+    if (res.waitForFirstTransaction() == null) {
         println("Failed to disable signatures from extension");
         return;
     }
@@ -48,7 +48,7 @@ fun main() {
         extraActions: extensionActions,
     }.toCell();
     res = wallet.sendExtensionActionRequest(extension, extBody, 1, { value });
-    if (!res.wait()) {
+    if (res.waitForFirstTransaction() == null) {
         println("Failed to re-enable signatures from extension");
         return;
     }
@@ -59,7 +59,7 @@ fun main() {
     removeActions.push(RemoveExtensionExtraAction { addr: extension });
     signedBody = w5BuildSignedActions(keyPair, seqno, removeActions);
     res = wallet.sendSignedBody(deployer.address, signedBody, { value });
-    if (!res.wait()) {
+    if (res.waitForFirstTransaction() == null) {
         println("Failed to remove extension");
         return;
     }

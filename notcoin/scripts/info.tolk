@@ -51,7 +51,7 @@ fun main() {
         val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
         println("Deploying local minter for inspection with value {}", deployValue);
         val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
-        if (!deployRes.wait()) {
+        if (deployRes.waitForFirstTransaction() == null) {
             println("Deployment failed");
             return;
         }

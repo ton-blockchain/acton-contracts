@@ -44,7 +44,7 @@ fun main() {
                 { value: ton("0.1"), bounce: true },
             );
 
-            if (!editResult.wait()) {
+            if (editResult.waitForFirstTransaction() == null) {
                 println("Name record update was not confirmed");
                 return;
             }
@@ -60,7 +60,7 @@ fun main() {
                 { value: ton("0.1"), bounce: true },
             );
 
-            if (!changeRecord.wait()) {
+            if (changeRecord.waitForFirstTransaction() == null) {
                 println("Wallet record update was not confirmed");
                 return;
             }
@@ -80,7 +80,7 @@ fun main() {
                 },
                 { value: ton("0.2"), bounce: true },
             );
-            if (!transferResult.wait()) {
+            if (transferResult.waitForFirstTransaction() == null) {
                 println("Ownership transfer was not confirmed");
                 return;
             }

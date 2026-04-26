@@ -103,7 +103,7 @@ fun main() {
         queryId as uint64,
         { value: orderValue, bounce: true },
     );
-    if (!result.wait()) {
+    if (result.waitForFirstTransaction() == null) {
         println("New order was not confirmed");
         return;
     }

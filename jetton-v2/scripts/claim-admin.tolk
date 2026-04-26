@@ -10,7 +10,7 @@ fun main() {
     val minter = promptJettonMinter("Enter Jetton Minter address");
 
     val res = minter.sendClaimAdmin(claimer.address);
-    res.wait();
+    res.waitForFirstTransaction();
 
     println("JETTON CLAIM_SENDER={}", claimer.address);
     printJettonMinterInfo(minter, "JETTON");

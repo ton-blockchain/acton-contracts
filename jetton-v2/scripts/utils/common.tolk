@@ -129,7 +129,7 @@ fun promptJettonMinterStorage(admin: address): MinterStorage {
 fun deployJettonMinter(deployer: ActonWallet, storage: MinterStorage): JettonMinter {
     val minter = JettonMinter.fromStorage(storage);
     val res = minter.sendDeploy(deployer.address, { value: ton("0.05") });
-    res.wait();
+    res.waitForFirstTransaction();
     return minter;
 }
 

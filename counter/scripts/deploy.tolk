@@ -41,7 +41,7 @@ fun main() {
             return;
         }
         val res = counter.deploy(deployer.address, { value: deployValue });
-        res.wait();
+        res.waitForFirstTransaction();
     }
 
     println("Deployed counter to {}", counter.address);

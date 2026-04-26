@@ -32,7 +32,7 @@ fun main() {
     if (minterAddress == null) {
         if (!scripts.isContractDeployed(minter.address)) {
             val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
-            if (!deployRes.wait()) {
+            if (deployRes.waitForFirstTransaction() == null) {
                 println("Deployment failed");
                 return;
             }
@@ -46,7 +46,7 @@ fun main() {
     println("Admin before claim: {}", minter.getAdminAddress());
 
     val claimRes = minter.sendClaimAdmin(deployer.address);
-    if (!claimRes.wait()) {
+    if (claimRes.waitForFirstTransaction() == null) {
         println("Claim admin failed");
         return;
     }
