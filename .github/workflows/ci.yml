@@ -33,7 +33,7 @@ jobs:
         uses: ton-blockchain/setup-acton@master
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
-          acton-version: 'trunk'
+          version: 'trunk'
 
       - name: Version
         run: acton --version
