@@ -16,8 +16,8 @@ concurrency:
 permissions: { }
 
 jobs:
-  build-and-test:
-    name: Build and Test
+  test-1:
+    name: Test 1
     runs-on: ubuntu-latest
 
     permissions:
@@ -30,7 +30,29 @@ jobs:
           persist-credentials: false
 
       - name: Setup Acton
-        uses: ton-blockchain/setup-acton@master
+        uses: ton-blockchain/setup-acton@danil42russia/checksum
+        with:
+          github-token: ${{ secrets.ACTON_TOKEN }}
+          version: 'latest'
+
+      - name: Version
+        run: acton --version
+
+  test-2:
+    name: Test 2
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Acton
+        uses: ton-blockchain/setup-acton@danil42russia/checksum
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
           version: 'trunk'
@@ -38,14 +60,25 @@ jobs:
       - name: Version
         run: acton --version
 
-      - name: Build
-        run: acton build
+  test-3:
+    name: Test 3
+    runs-on: ubuntu-latest
 
-      - name: Test
-        run: acton test
+    permissions:
+      contents: read
 
-      - name: Linter
-        run: acton check --output-format github
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-      - name: Formatter
-        run: acton fmt --check
+      - name: Setup Acton
+        uses: ton-blockchain/setup-acton@danil42russia/checksum
+        with:
+          github-token: ${{ secrets.ACTON_TOKEN }}
+          version: 'trunk'
+          checksum: 'cc51f7974010c0216af591b88909503cc6e5bba0635c0678908da58cc4dcd6d1'
+
+      - name: Version
+        run: acton --version
