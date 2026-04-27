@@ -11,6 +11,7 @@ struct (0x6578746E) W5ExtensionActionRequest {
 
 const W5_ACTION_SEND_MSG_PREFIX = 0x0ec3c86d
 
+// there is no not-manual pretty way to serialize this
 fun createSingleWalletSendAction(messageCell: cell): cell {
     return beginCell()
         .storeRef(createEmptyCell())

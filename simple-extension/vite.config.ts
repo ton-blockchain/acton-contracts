@@ -1,9 +1,22 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: 'app',
-  plugins: [react()],
+  envDir: projectRoot,
+  envPrefix: ['VITE_', 'TONCENTER_'],
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': path.resolve(projectRoot, 'app/src'),
+      '@wrappers': path.resolve(projectRoot, 'wrappers'),
+    },
+  },
   build: {
     emptyOutDir: true,
     outDir: '../dist',
@@ -50,7 +63,7 @@ export default defineConfig({
   },
   server: {
     fs: {
-      allow: ['..'],
+      allow: ['.', path.resolve(projectRoot, 'wrappers')],
     },
     host: '0.0.0.0',
     port: 5173,

@@ -17,6 +17,9 @@ depends = []
 [lint]
 exclude = ["**/contracts/vendor/**"]
 
+[wrappers.typescript]
+output-dir = "wrappers"
+
 [fmt]
 width = 100
 ignore = []

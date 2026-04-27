@@ -15,7 +15,12 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["app/src/*"],
+      "@wrappers/*": ["wrappers/*"]
+    }
   },
   "include": ["app/src", "wrappers", "vite.config.ts"]
 }

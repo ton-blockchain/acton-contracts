@@ -1,4 +1,5 @@
 import "@stdlib/gas-payments"
+import "@contracts/errors"
 import "@contracts/types"
 import "@contracts/w5-types"
 import "types"
@@ -9,9 +10,14 @@ contract SimpleExtension {
     incomingExternal: AllowedExternalMessages
 }
 
-type AllowedInternalMessages = TopUp | CancelSubscription | ReceivePaymentFromWallet
+type AllowedInternalMessages =
+    | TopUp
+    | CancelSubscription
+    | ReceivePaymentFromWallet
 
-type AllowedExternalMessages = CollectPaymentFromWallet | WithdrawExtensionBalance
+type AllowedExternalMessages =
+    | CollectPaymentFromWallet
+    | WithdrawExtensionBalance
 
 const MIN_PLUGIN_AMOUNT = ton("0.5")
 
@@ -22,12 +28,12 @@ fun onExternalMessage(inMsg: slice) {
         CollectPaymentFromWallet => {
             val storage = lazy ExtensionStorage.load();
 
-            // either its the first payment or enought time has passed
+            // either its the first payment or enough time has passed
             assert (
                 storage.lastPaymentTime == null ||
                 storage.lastPaymentTime + storage.paymentTimeInterval <
                 blockchain.now()
-            ) throw 1011;
+            ) throw Errors.PaymentIntervalNotPassed;
 
             acceptExternalMessage();
 
@@ -57,7 +63,7 @@ fun onExternalMessage(inMsg: slice) {
 
             assert (
                 contract.getOriginalBalance() > storage.subscriptionAmount + MIN_PLUGIN_AMOUNT
-            ) throw 2312;
+            ) throw Errors.NotEnoughExtensionBalance;
 
             acceptExternalMessage();
 
@@ -69,7 +75,7 @@ fun onExternalMessage(inMsg: slice) {
             withdrawMsg.send(SEND_MODE_REGULAR);
         }
         else => {
-            throw 2222;
+            throw Errors.UnsupportedExternalMessage;
         }
     }
 }
@@ -81,7 +87,7 @@ fun onInternalMessage(in: InMessage) {
         CancelSubscription => {
             val storage = lazy ExtensionStorage.load();
 
-            assert (storage.admin == in.senderAddress) throw 1337;
+            assert (storage.admin == in.senderAddress) throw Errors.OnlyAdmin;
 
             val removeExtensionMsg = createMessage({
                 body: W5ExtensionActionRequest {
@@ -103,7 +109,7 @@ fun onInternalMessage(in: InMessage) {
         ReceivePaymentFromWallet => {
             var storage = lazy ExtensionStorage.load();
 
-            assert (storage.walletAddress == in.senderAddress) throw 22123;
+            assert (storage.walletAddress == in.senderAddress) throw Errors.OnlyWallet;
 
             storage.lastPaymentTime = blockchain.now();
             storage.save();

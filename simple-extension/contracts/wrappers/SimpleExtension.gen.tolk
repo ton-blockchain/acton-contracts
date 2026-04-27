@@ -8,6 +8,7 @@ import "@acton/emulation/network"
 import "@acton/testing/assert"
 import "@contracts/types"
 
+/// Storage `ExtensionStorage` is defined in `@contracts/types`
 struct SimpleExtension {
     address: address
     stateInit: ContractState? = null
@@ -22,9 +23,7 @@ fun SimpleExtension.fromStorage(
         code: build("SimpleExtension"),
         data: storage.toCell(),
     };
-    val address = toShard == null
-        ? AutoDeployAddress { stateInit }.calculateAddress()
-        : AutoDeployAddress { stateInit, toShard }.calculateAddress();
+    val address = AutoDeployAddress { stateInit, toShard }.calculateAddress();
     return SimpleExtension { address, stateInit };
 }
 

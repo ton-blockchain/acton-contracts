@@ -8,6 +8,8 @@ import "@acton/types/message"
 import "../contracts/messages"
 import "../contracts/storage"
 
+const ERROR_WALLET_V5_INIT_REQUIRED = 666
+
 fun constructAddressFromWorkchainAndHash(wc: int8, hash: uint256): address {
     return beginCell().storeUint(4, 3).storeUint(wc, 8).storeUint(hash, 256).toSlice() as address;
 }
@@ -35,7 +37,7 @@ fun WalletV5Contract.fromStorage(storage: Storage) {
 
 fun WalletV5Contract.deploy(self, from: address, config: SendParams = {}): SendResultList {
     if (self.init == null) {
-        throw 666;
+        throw ERROR_WALLET_V5_INIT_REQUIRED;
     }
     val msgDeploy = createMessage({
         bounce: config.bounce,
