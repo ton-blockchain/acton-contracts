@@ -9,8 +9,8 @@ import "../contracts/errors"
 import "../contracts/fees-management"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/NftCollectionContract"
-import "../wrappers/NftItemContract"
+import "../wrappers/NftCollection.gen"
+import "../wrappers/NftItem.gen"
 
 const MIN_EDGE_DELTA = 1
 
@@ -40,7 +40,7 @@ fun setActiveDataCell(addr: address, newData: cell) {
     testing.setShardAccount(addr, updatedShard);
 }
 
-fun forceItemUninitialized(item: NftItemContract, collection: NftCollectionContract) {
+fun forceItemUninitialized(item: NftItem, collection: NftCollection) {
     val data = item.getNftData();
     setActiveDataCell(
         item.address,
@@ -304,7 +304,7 @@ get fun `test mutation: ownership transfer should fail one nanotone below forwar
         transferBody.sendExcessesTo,
         transferBody.customPayload,
         transferBody.forwardTonAmount,
-        createEmptySlice(),
+        transferBody.forwardPayload,
         { value: minimalValue - MIN_EDGE_DELTA, bounce: true },
     );
 
@@ -335,7 +335,7 @@ get fun `test mutation: ownership transfer with zero forward amount should exhau
         transferBody.sendExcessesTo,
         transferBody.customPayload,
         transferBody.forwardTonAmount,
-        createEmptySlice(),
+        transferBody.forwardPayload,
         { value: exactValue, bounce: true },
     );
 
@@ -379,7 +379,7 @@ get fun `test mutation: ownership transfer with forward amount should emit exact
         transferBody.sendExcessesTo,
         transferBody.customPayload,
         transferBody.forwardTonAmount,
-        createEmptySlice(),
+        transferBody.forwardPayload,
         { value: exactValue, bounce: true },
     );
 

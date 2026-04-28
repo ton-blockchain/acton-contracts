@@ -4,8 +4,9 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/MultisigV2"
-import "../wrappers/MultisigV2Order"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 const DEFAULT_ORDER_TTL = 1200
 const DEFAULT_TRANSFER_VALUE = ton("0.01")
@@ -21,7 +22,7 @@ fun main() {
     }
 
     val deployer = scripts.wallet("deployer");
-    val multisig = MultisigV2.fromAddress(multisigAddress!);
+    val multisig = Multisig.fromAddress(multisigAddress!);
     if (!scripts.isContractDeployed(multisig.address)) {
         println("Multisig is not deployed in the current execution context: {}", multisig.address);
         return;
@@ -72,7 +73,7 @@ fun main() {
     var order: DirectOrderActionsMap = [];
     order.set(0, action.toCell());
 
-    val estimatedOrderValue = multisig.getOrderEstimate(order, expirationDate);
+    val estimatedOrderValue = multisig.getOrderEstimateForOrder(order, expirationDate);
     val orderValue: int = env("MSIG_ORDER_VALUE") ?? estimatedOrderValue;
     if (orderValue < estimatedOrderValue) {
         println(
@@ -83,7 +84,7 @@ fun main() {
         return;
     }
 
-    val orderContract = MultisigV2Order.fromAddress(multisig.getOrderAddress(expectedOrderSeqno));
+    val orderContract = Order.fromAddress(multisig.getOrderAddress(expectedOrderSeqno));
 
     println("Using wallet: deployer");
     println("Target multisig: {}", multisig.address);

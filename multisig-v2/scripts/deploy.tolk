@@ -2,7 +2,9 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
-import "../wrappers/MultisigV2"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 const DEFAULT_DEPLOY_VALUE = ton("0.1")
 
@@ -22,7 +24,7 @@ fun main() {
     var proposers = array<address> [];
     proposers.push(deployer.address);
 
-    val multisig = MultisigV2.fromConfig(1, signers, proposers, allowArbitraryOrderSeqno);
+    val multisig = Multisig.fromConfig(1, signers, proposers, allowArbitraryOrderSeqno);
 
     println("Using wallet: deployer");
     println("Prepared multisig address: {}", multisig.address);
@@ -33,7 +35,10 @@ fun main() {
             multisig.address,
         );
     } else {
-        val deployResult = multisig.deploy(deployer.address, { value: deployValue, bounce: false });
+        val deployResult = multisig.deployWithInitBody(
+            deployer.address,
+            { value: deployValue, bounce: false },
+        );
         if (deployResult.waitForFirstTransaction() == null) {
             println("Multisig deployment was not confirmed");
             return;

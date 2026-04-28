@@ -6,8 +6,9 @@ import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/NotcoinWallet.gen"
+import "../wrappers/utils"
 
 get fun `test wallet: owner can send jettons`() {
     val (minter, deployer, notDeployer) = setupTest();

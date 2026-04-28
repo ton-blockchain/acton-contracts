@@ -2,7 +2,8 @@ import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "test-utils"
-import "../wrappers/HighloadWalletV3"
+import "../wrappers/HighloadWalletV3.gen"
+import "../wrappers/utils"
 
 get fun `test timeout replay attack`() {
     val ctx = setupHighloadTest();

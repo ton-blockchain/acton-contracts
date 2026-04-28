@@ -1,3 +1,4 @@
+import "messages"
 import "types"
 
 struct MultisigStorage {
@@ -31,6 +32,27 @@ struct OrderStorageRemaining {
     approvalsNum: uint8
     expirationDate: uint48
     order: DirectOrderActionsMap
+}
+
+// TODO: dict to map
+struct MultisigDataReply {
+    nextOrderSeqno: int
+    threshold: int
+    signers: dict
+    proposers: dict
+}
+
+// TODO: dict to map
+struct OrderDataReply {
+    multisigAddress: address
+    orderSeqno: int
+    threshold: int?
+    sentForExecution: bool?
+    signers: dict
+    approvalsMask: int?
+    approvalsNum: int?
+    expirationDate: int?
+    order: dict
 }
 
 fun OrderStorageInitialized.save(self) {

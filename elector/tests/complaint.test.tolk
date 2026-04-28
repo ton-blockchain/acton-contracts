@@ -5,7 +5,8 @@ import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/Elector"
+import "../wrappers/Elector.gen"
+import "../wrappers/utils"
 
 /// Test that complaint from basechain is rejected
 get fun `test new complaint not mc`() {

@@ -1,8 +1,10 @@
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
+import "../contracts/c5-register-validation"
 import "../contracts/storage"
-import "../wrappers/WalletV5Contract"
+import "../wrappers/WalletV5.gen"
+import "../wrappers/utils"
 
 get fun `test w5: get seqno`() {
     val expectedSeqno = 12345;

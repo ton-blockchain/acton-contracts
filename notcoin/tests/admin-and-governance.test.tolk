@@ -8,13 +8,14 @@ import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/NotcoinWallet.gen"
+import "../wrappers/utils"
 
 get fun `test admin: deploy should create minter without bounce`() {
     val deployer = testing.treasury("deployer-manual-deploy");
 
-    val minter = JettonMinter.fromStorage(MinterStorage {
+    val minter = NotcoinMinter.fromStorage(MinterStorage {
         totalSupply: 0,
         adminAddress: deployer.address,
         jettonWalletCode: build("NotcoinWallet"),

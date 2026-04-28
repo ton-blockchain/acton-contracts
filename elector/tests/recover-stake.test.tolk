@@ -6,7 +6,8 @@ import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/Elector"
+import "../wrappers/Elector.gen"
+import "../wrappers/utils"
 
 /// Test that recover stake is rejected from basechain
 get fun `test recover stake not mc`() {

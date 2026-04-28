@@ -7,7 +7,8 @@ import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/Elector"
+import "../wrappers/Elector.gen"
+import "../wrappers/utils"
 
 /// Test that vset is not installed before elections finish
 get fun `test vset installed not finished`() {

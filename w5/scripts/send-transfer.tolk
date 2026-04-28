@@ -3,7 +3,9 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "common"
-import "../wrappers/WalletV5Contract"
+import "../contracts/c5-register-validation"
+import "../wrappers/WalletV5.gen"
+import "../wrappers/utils"
 
 fun main() {
     val keyPair = w5KeyPair();

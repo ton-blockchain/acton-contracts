@@ -3,7 +3,8 @@ import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/types"
-import "../wrappers/Elector"
+import "../wrappers/Elector.gen"
+import "../wrappers/utils"
 
 /// Test that elections don't finish before close time
 get fun `test elections ongoing`() {

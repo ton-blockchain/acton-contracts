@@ -3,8 +3,10 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "common"
+import "../contracts/c5-register-validation"
 import "../contracts/messages"
-import "../wrappers/WalletV5Contract"
+import "../wrappers/WalletV5.gen"
+import "../wrappers/utils"
 
 fun main() {
     val deployer = scripts.wallet("deployer");
@@ -34,7 +36,7 @@ fun main() {
         outActions: [],
         extraActions: extensionActions,
     }.toCell();
-    res = wallet.sendExtensionActionRequest(extension, extBody, 0, { value });
+    res = wallet.sendExtensionActionBody(extension, extBody, 0, { value });
     if (res.waitForFirstTransaction() == null) {
         println("Failed to disable signatures from extension");
         return;
@@ -47,7 +49,7 @@ fun main() {
         outActions: [],
         extraActions: extensionActions,
     }.toCell();
-    res = wallet.sendExtensionActionRequest(extension, extBody, 1, { value });
+    res = wallet.sendExtensionActionBody(extension, extBody, 1, { value });
     if (res.waitForFirstTransaction() == null) {
         println("Failed to re-enable signatures from extension");
         return;

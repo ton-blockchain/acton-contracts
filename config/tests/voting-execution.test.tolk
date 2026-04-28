@@ -6,7 +6,7 @@ import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/ConfigContract"
+import "../wrappers/Config.gen"
 
 get fun `test voting: should process votes for code update and regular parameter`() {
     val ctx = setupConfigTest();

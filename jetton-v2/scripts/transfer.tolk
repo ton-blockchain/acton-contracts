@@ -2,8 +2,9 @@ import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "utils/common"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/JettonMinter.gen"
+import "../wrappers/JettonWallet.gen"
+import "../wrappers/utils"
 
 fun main() {
     val sender = promptJettonWallet("JETTON_SENDER", "Select Jetton Sender ActonWallet");

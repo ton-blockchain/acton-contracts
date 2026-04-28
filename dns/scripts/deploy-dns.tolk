@@ -6,7 +6,7 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/DnsCollection"
+import "../wrappers/DnsCollection.gen"
 
 fun main() {
     val deployer = scripts.wallet("deployer-2");
@@ -14,7 +14,7 @@ fun main() {
     val collectionUri: string = env("DNS_COLLECTION_CONTENT_URI") ??
     "https://example.com/dns/collection.json";
 
-    val collection = NftCollectionContract.fromStorage(CollectionStorage {
+    val collection = DnsCollection.fromStorage(CollectionStorage {
         content: collectionUri.prefixWith01().toCell(),
         nftItemCode: build("DnsItem"),
     });

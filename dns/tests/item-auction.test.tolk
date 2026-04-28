@@ -7,7 +7,8 @@ import "test-utils"
 import "../contracts/dns-utils"
 import "../contracts/errors"
 import "../contracts/messages"
-import "../wrappers/DnsItem"
+import "../wrappers/DnsItem.gen"
+import "../wrappers/utils"
 
 get fun `test item auction: initializes only from collection and handles repeated init`() {
     val collection = newActor("item_init_collection");
@@ -15,7 +16,9 @@ get fun `test item auction: initializes only from collection and handles repeate
     val outsider = newActor("item_init_outsider", ton("100000"));
 
     testing.setNow((AUCTION_START_TIME + 1));
-    val itemTemplate = NftItemContract.fromStorage(makeItemStorageNonInit(collection.address));
+    val itemTemplate = DnsItem.fromNotInitializedStorage(
+        makeItemStorageNonInit(collection.address),
+    );
     expect(itemTemplate.stateInit).toBeNotNull();
     val initBody = makeItemInitBody(owner.address, DEFAULT_DOMAIN);
 
@@ -45,7 +48,7 @@ get fun `test item auction: initializes only from collection and handles repeate
     );
     expect(okDeploy).toHaveSuccessfulTx({ from: collection.address, to: itemTemplate.address });
 
-    val item = NftItemContract.fromAddress(itemTemplate.address);
+    val item = DnsItem.fromAddress(itemTemplate.address);
 
     val nftData = item.getNftData();
     expect(nftData.isInitialized).toEqual(true);

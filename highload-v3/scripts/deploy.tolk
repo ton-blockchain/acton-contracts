@@ -3,7 +3,8 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
-import "../wrappers/HighloadWalletV3"
+import "../wrappers/HighloadWalletV3.gen"
+import "../wrappers/utils"
 
 const HIGHLOAD_DEFAULT_SUBWALLET_ID = 239
 const HIGHLOAD_DEFAULT_TIMEOUT = 128

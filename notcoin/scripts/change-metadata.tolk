@@ -4,8 +4,9 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "common"
-import "../contracts/types"
-import "../wrappers/JettonMinter"
+import "../contracts/storage"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/utils"
 
 fun metadataUriFromContent(contentCell: cell): string? {
     val metadata = OnchainMetadataReply.fromCell(contentCell);
@@ -29,7 +30,7 @@ fun main() {
     );
     val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
 
-    val expectedMinter = JettonMinter.fromStorage({
+    val expectedMinter = NotcoinMinter.fromStorage({
         totalSupply: initialSupply,
         adminAddress: deployer.address,
         jettonWalletCode: build("NotcoinWallet"),
@@ -39,9 +40,9 @@ fun main() {
     val minterAddress: address? = env("JETTON_MINTER_ADDRESS");
     var minter = expectedMinter;
     if (minterAddress != null) {
-        minter = JettonMinter {
+        minter = NotcoinMinter {
             address: minterAddress,
-            init: expectedMinter.init,
+            stateInit: expectedMinter.stateInit,
         };
     }
 

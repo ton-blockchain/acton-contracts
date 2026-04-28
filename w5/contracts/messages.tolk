@@ -1,5 +1,3 @@
-import "c5-register-validation"
-
 struct (0x02) AddExtensionExtraAction {
     addr: address
 }
@@ -16,6 +14,9 @@ type ExtraAction =
     | AddExtensionExtraAction
     | RemoveExtensionExtraAction
     | SetSignatureAllowedExtraAction
+
+/// "OutActionList" is what's pushed to c5.
+type OutActionsCell = cell
 
 // "extra actions" are represented in a snake format: "data".ref("data.ref("data"...))
 type SnakedExtraActions = RemainingBitsAndRefs

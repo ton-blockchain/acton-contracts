@@ -4,7 +4,6 @@ import "fees-management"
 import "jetton-utils"
 import "messages"
 import "storage"
-import "types"
 
 contract NotcoinWallet {
     author: "The Tolk Team"

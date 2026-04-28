@@ -4,8 +4,9 @@ import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
-import "../wrappers/MultisigV2"
-import "../wrappers/MultisigV2Order"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 get fun `test invariants: multisig unknown opcode should keep state unchanged`() {
     val ctx = setupMultisig(2, 3, 1, false);
@@ -47,7 +48,7 @@ get fun `test invariants: order unknown opcode should fail with ERROR_UNKNOWN_OP
         makeTransferAction(randomAddress("inv_order_target"), DEFAULT_TRANSFER_VALUE, 111),
     );
 
-    val order = MultisigV2Order.fromConfig(multisig.address, 0);
+    val order = Order.fromConfig(multisig.address, 0);
     val deploy = order.deployWithInit(
         multisig.address,
         2,
@@ -82,7 +83,7 @@ get fun `test invariants: proposer compromise does not allow approvals`() {
     val create = sendOrderByProposer(ctx, orderBody, nowPlus(1000));
     expect(create).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: orderAddress });
 
-    val order = MultisigV2Order.fromAddress(orderAddress);
+    val order = Order.fromAddress(orderAddress);
 
     val proposerApprove = order.sendApprove(
         ctx.proposer.address,
@@ -138,7 +139,7 @@ get fun `test invariants: less than threshold compromised signers can be removed
     });
 
     val seqno = ctx.multisig.getData().nextOrderSeqno - 1;
-    val order = MultisigV2Order.fromAddress(ctx.multisig.getOrderAddress(seqno));
+    val order = Order.fromAddress(ctx.multisig.getOrderAddress(seqno));
 
     val approve = order.sendApprove(ctx.signers.get(2), 2, 77, { value: ton("0.2"), bounce: true });
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({

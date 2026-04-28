@@ -5,8 +5,9 @@ import "@acton/types/message"
 import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/messages"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/JettonMinter.gen"
+import "../wrappers/JettonWallet.gen"
+import "../wrappers/utils"
 
 get fun `test minter restores supply on internal_transfer bounce`() {
     val (minter, deployer, _) = setupTest();

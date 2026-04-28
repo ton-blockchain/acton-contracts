@@ -109,19 +109,6 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
-// TODO: dict to map
-struct OrderDataReply {
-    multisigAddress: address
-    orderSeqno: int
-    threshold: int?
-    sentForExecution: bool?
-    signers: dict
-    approvalsMask: int?
-    approvalsNum: int?
-    expirationDate: int?
-    order: dict
-}
-
 get fun get_order_data(): OrderDataReply {
     val storageLoader = startLoadingOrderStorage();
     val header = storageLoader.loadHeader();

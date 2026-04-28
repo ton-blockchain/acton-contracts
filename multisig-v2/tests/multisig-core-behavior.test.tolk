@@ -6,8 +6,9 @@ import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/MultisigV2"
-import "../wrappers/MultisigV2Order"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 get fun `test multisig: should deploy`() {
     val ctx = setupMultisig();
@@ -258,7 +259,7 @@ get fun `test multisig: should reject order creation with insufficient incoming 
     val order = singleActionOrder(makeTransferAction(randomAddress("value_target")));
 
     val expiration = 2000000000;
-    val estimate = ctx.multisig.getOrderEstimate(order, expiration);
+    val estimate = ctx.multisig.getOrderEstimateForOrder(order, expiration);
 
     val seqno = ctx.multisig.getData().nextOrderSeqno;
     val orderAddress = ctx.multisig.getOrderAddress(seqno);
@@ -344,7 +345,7 @@ get fun `test multisig: deployed order state should match requested`() {
     val res = sendOrderBySigner(ctx, orderBody, nowPlus(1000), signerIndex);
     expect(res).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: orderAddress });
 
-    val order = MultisigV2Order.fromAddress(orderAddress);
+    val order = Order.fromAddress(orderAddress);
     val orderData = order.getData();
 
     expect(orderData.multisigAddress).toEqual(ctx.multisig.address);
@@ -395,7 +396,7 @@ get fun `test multisig: expired order execution should be denied`() {
     expect(deploy).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: orderAddress });
 
     testing.setNow(testing.getNow() + 2);
-    val order = MultisigV2Order.fromAddress(orderAddress);
+    val order = Order.fromAddress(orderAddress);
     val approve = order.sendApprove(ctx.signers.get(0), 0, 1, { value: ton("1"), bounce: true });
 
     expect(approve).toHaveFailedTx<ExecuteOrderRequest>({
@@ -423,7 +424,7 @@ get fun `test multisig: order execution at exact expiration should succeed`() {
     expect(deploy).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: orderAddress });
 
     testing.setNow(expiration);
-    val order = MultisigV2Order.fromAddress(orderAddress);
+    val order = Order.fromAddress(orderAddress);
     val approve = order.sendApprove(ctx.signers.get(0), 0, 77, { value: ton("1"), bounce: true });
 
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({
@@ -449,7 +450,7 @@ get fun `test multisig: should be possible to execute order by post init approva
     val deploy = sendOrderByProposer(ctx, orderBody, nowPlus(1000));
     expect(deploy).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: orderAddress });
 
-    val order = MultisigV2Order.fromAddress(orderAddress);
+    val order = Order.fromAddress(orderAddress);
     val before = order.getData();
     expect(before.approvalsNum).toEqual(0);
     expect(before.sentForExecution).toEqual(false);
@@ -478,7 +479,7 @@ get fun `test multisig: multisig-created order should persist approvals and reje
     val create = sendOrderByProposer(ctx, orderBody, nowPlus(1000));
     expect(create).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: orderAddress });
 
-    val order = MultisigV2Order.fromAddress(orderAddress);
+    val order = Order.fromAddress(orderAddress);
     val signer = ctx.signers.get(1);
 
     val first = order.sendApprove(signer, 1, 11, { value: ton("1"), bounce: true });
@@ -520,7 +521,7 @@ get fun `test multisig: multisig-created order should resolve comment approvals 
     val create = sendOrderByProposer(ctx, orderBody, nowPlus(1000));
     expect(create).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: orderAddress });
 
-    val order = MultisigV2Order.fromAddress(orderAddress);
+    val order = Order.fromAddress(orderAddress);
     val before = order.getData();
 
     val outsider = order.sendAny(
@@ -596,8 +597,8 @@ get fun `test multisig: order estimate should work`() {
     val ctx = setupMultisig();
     val order = singleActionOrder(makeTransferAction(randomAddress("estimate_target")));
 
-    val oneHour = ctx.multisig.getOrderEstimate(order, 2000003600);
-    val oneYear = ctx.multisig.getOrderEstimate(order, 2031536000);
+    val oneHour = ctx.multisig.getOrderEstimateForOrder(order, 2000003600);
+    val oneYear = ctx.multisig.getOrderEstimateForOrder(order, 2031536000);
 
     expect(oneHour).toBeGreater(0);
     expect(oneYear).toBeGreater(oneHour);
@@ -958,7 +959,7 @@ get fun `test multisig: multisig should invalidate previous orders if signers ch
     val updateRes = sendOrderBySigner(ctx, updateOrder, nowPlus(1000));
     expect(updateRes).toHaveSuccessfulTx<ExecuteOrderRequest>({ to: ctx.multisig.address });
 
-    val order = MultisigV2Order.fromAddress(pendingOrderAddress);
+    val order = Order.fromAddress(pendingOrderAddress);
     val approveOld = order.sendApprove(ctx.signers.get(0), 0, 9, { value: ton("1"), bounce: true });
 
     expect(approveOld).toHaveFailedTx<ExecuteOrderRequest>({
@@ -989,7 +990,7 @@ get fun `test multisig: multisig should invalidate previous orders if threshold 
     val updateOrder = singleActionOrder(update);
     sendOrderBySigner(ctx, updateOrder, nowPlus(1000));
 
-    val order = MultisigV2Order.fromAddress(pendingOrderAddress);
+    val order = Order.fromAddress(pendingOrderAddress);
     val approveOld = order.sendApprove(
         ctx.signers.get(0),
         0,
@@ -1010,9 +1011,9 @@ get fun `test multisig: multisig should not execute orders deployed by other mul
     val hackerProposer = testing.treasury("evil-msig-proposer");
     val hackerSigners = array<address> [hackerDeployer.address, createFundedAddress()];
     val hackerProposers = array<address> [hackerProposer.address];
-    val hackerMultisig = MultisigV2.fromConfig(1, hackerSigners, hackerProposers, false);
+    val hackerMultisig = Multisig.fromConfig(1, hackerSigners, hackerProposers, false);
 
-    val hackerDeploy = hackerMultisig.deploy(
+    val hackerDeploy = hackerMultisig.deployWithInitBody(
         hackerDeployer.address,
         { value: ton("10"), bounce: false },
     );

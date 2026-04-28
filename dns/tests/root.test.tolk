@@ -3,7 +3,7 @@ import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/dns-utils"
-import "../wrappers/DnsRoot"
+import "../wrappers/RootDns.gen"
 
 get fun `test root: accepts plain top-up messages`() {
     val (root, _) = deployRootContract();

@@ -10,8 +10,9 @@ import "../contracts/messages"
 import "../contracts/sharding"
 import "../contracts/storage"
 import "../contracts/types"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/JettonMinter.gen"
+import "../wrappers/JettonWallet.gen"
+import "../wrappers/utils"
 
 fun extractUriString(contentCell: cell): string? {
     val metadata = OnchainMetadataReply.fromCell(contentCell);

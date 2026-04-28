@@ -188,22 +188,6 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
-struct JettonDataReply {
-    totalSupply: int
-    mintable: bool
-    adminAddress: address?
-    jettonContent: Cell<OnchainMetadataReply>
-    jettonWalletCode: cell
-}
-
-struct (0x00) OnchainMetadataReply {
-    contentDict: map<uint256, Cell<SnakeDataReply>>
-}
-
-struct (0x00) SnakeDataReply {
-    string: string
-}
-
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
     val jettonWalletCode = jettonWalletCompiledCode();

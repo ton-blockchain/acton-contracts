@@ -6,7 +6,7 @@ import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/dns-utils"
 import "../contracts/errors"
-import "../wrappers/DnsCollection"
+import "../wrappers/DnsCollection.gen"
 
 get fun `test collection: validates domain format and minimum bid rules`() {
     val (collection, _, user) = deployCollectionContract();

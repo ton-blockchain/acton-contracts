@@ -4,8 +4,9 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "common"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/NotcoinWallet.gen"
+import "../wrappers/utils"
 
 fun main() {
     val walletName = "deployer";
@@ -19,7 +20,7 @@ fun main() {
     println("Metadata URI: {}", metadataUri);
     println("Deploy value: {}", deployValue);
 
-    val minter = JettonMinter.fromStorage({
+    val minter = NotcoinMinter.fromStorage({
         totalSupply: initialSupply,
         adminAddress: deployer.address,
         jettonWalletCode: build("NotcoinWallet"),
@@ -34,7 +35,7 @@ fun main() {
         return;
     }
 
-    val adminWallet = JettonWallet { address: minter.getWalletAddress(deployer.address) };
+    val adminWallet = NotcoinWallet { address: minter.getWalletAddress(deployer.address) };
     val adminWalletDeployed = scripts.isContractDeployed(adminWallet.address);
 
     println("Deployed notcoin minter at {}", minter.address);

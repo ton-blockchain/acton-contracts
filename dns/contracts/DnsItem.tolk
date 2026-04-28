@@ -270,14 +270,6 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
-struct NftDataReply {
-    isInitialized: bool
-    index: uint256
-    collectionAddress: address
-    ownerAddress: address?
-    content: Cell<DnsRecords>?
-}
-
 get fun get_nft_data(): NftDataReply {
     val loading = startLoadingDnsItemStorage();
 
