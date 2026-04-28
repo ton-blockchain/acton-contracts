@@ -2,7 +2,9 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
-import "../wrappers/MultisigV2"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 fun main() {
     val multisigAddress: address? = env("MSIG_ADDRESS");
@@ -12,7 +14,7 @@ fun main() {
         return;
     }
 
-    val multisig = MultisigV2.fromAddress(multisigAddress!);
+    val multisig = Multisig.fromAddress(multisigAddress!);
     if (!scripts.isContractDeployed(multisig.address)) {
         println("Multisig is not deployed in the current execution context: {}", multisig.address);
         return;

@@ -10,9 +10,9 @@ import "@acton/types/transaction"
 import "../contracts/dns-utils"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/DnsCollection"
-import "../wrappers/DnsItem"
-import "../wrappers/DnsRoot"
+import "../wrappers/DnsCollection.gen"
+import "../wrappers/DnsItem.gen"
+import "../wrappers/RootDns.gen"
 
 // values from actual dns config
 const ROOT_TON_RESOLVER_HASH = 0x348bcf827469c5fc38541c77fdd91d4e347eac200f6f2d9fd62dc08885f0415f
@@ -212,7 +212,7 @@ fun setDnsBlacklist(index: uint256) {
 
 fun deployRootContract() {
     val deployer = newActor("dns_root_deployer", ton("100"));
-    val root = RootDnsContract.fromStorage({
+    val root = RootDns.fromStorage({
         tonAddress: rootTonResolverAddress(),
         tMeAddress: rootTMeResolverAddress(),
         tonWwwAddress: rootTonWwwResolverAddress(),
@@ -228,7 +228,7 @@ fun deployCollectionContract() {
     val deployer = newActor("dns_collection_deployer", ton("100000"));
     val user = newActor("dns_collection_user", ton("100000"));
 
-    val collection = NftCollectionContract.fromStorage(makeCollectionStorage());
+    val collection = DnsCollection.fromStorage(makeCollectionStorage());
     expect(collection.stateInit).toBeNotNull();
     val deployMsg = createMessage({
         bounce: false,
@@ -260,7 +260,7 @@ fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = 
     expect(itemDeployTx).toBeNotNull();
 
     val itemAddress = itemDeployTx!.getAccountAddress();
-    val item = NftItemContract.fromAddress(itemAddress);
+    val item = DnsItem.fromAddress(itemAddress);
 
     return (item, collection, deployer, bidder);
 }
@@ -322,7 +322,7 @@ fun setGovernanceDecision(index: uint256, decision: RemainingBitsAndRefs) {
     expect(testing.setConfig(config)).toEqual(true);
 }
 
-fun completeAuction(item: NftItemContract, sender: address, queryId: int = 1): SendResultList {
+fun completeAuction(item: DnsItem, sender: address, queryId: int = 1): SendResultList {
     val auction = item.getAuctionInfo();
     testing.setNow((auction.auctionEndTime + 1));
 

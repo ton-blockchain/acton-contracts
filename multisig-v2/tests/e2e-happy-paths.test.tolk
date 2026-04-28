@@ -5,8 +5,9 @@ import "@acton/tlb/maybe"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/MultisigV2"
-import "../wrappers/MultisigV2Order"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 const MULTISIG_E2E_THRESHOLD = 2
 const MULTISIG_E2E_SIGNER_COUNT = 5
@@ -17,7 +18,7 @@ const MULTISIG_E2E_FINAL_APPROVE_QUERY_ID = 8102
 
 struct MultisigE2eFixture {
     ctx: MultisigTestContext
-    order: MultisigV2Order
+    order: Order
     orderSeqno: int
     recipient: address
     orderBody: DirectOrderActionsMap
@@ -53,7 +54,7 @@ fun createOrderStage(ctx: MultisigTestContext): MultisigE2eFixture {
         to: ctx.multisig.address,
     });
 
-    val order = MultisigV2Order.fromAddress(orderAddress);
+    val order = Order.fromAddress(orderAddress);
     val orderData = order.getData();
     expect(orderData.multisigAddress).toEqual(ctx.multisig.address);
     expect(orderData.orderSeqno).toEqual(orderSeqno);

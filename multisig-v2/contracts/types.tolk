@@ -1,12 +1,7 @@
 import "errors"
+import "messages"
 
 const MAX_ORDER_SEQNO = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-
-type IndexedAddressMap = map<uint8, address>
-
-type DirectIndexedAddressMap = map<uint8, address>
-
-type DirectOrderActionsMap = map<uint8, cell>
 
 fun DirectIndexedAddressMap.packToBuilder(self, mutate b: builder) {
     val dictRoot = self.toLowLevelDict();

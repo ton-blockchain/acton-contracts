@@ -5,8 +5,9 @@ import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/MultisigV2"
-import "../wrappers/MultisigV2Order"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 get fun `test multisig: multisig parameters update with threshold = 0 should fail`() {
     val ctx = setupMultisig(1, 4, 1, false);
@@ -173,7 +174,7 @@ get fun `test multisig: subsequent order creation with same seqno should result 
 
     val targetSeqno = 4242;
     val orderAddress = ctx.multisig.getOrderAddress(4242);
-    val orderContract = MultisigV2Order.fromAddress(orderAddress);
+    val orderContract = Order.fromAddress(orderAddress);
 
     var i = 0;
     while (i < ctx.threshold) {

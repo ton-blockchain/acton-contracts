@@ -9,8 +9,9 @@ import "@acton/types/transaction"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/MultisigV2"
-import "../wrappers/MultisigV2Order"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 const DEFAULT_ORDER_CREATE_VALUE = ton("2")
 const DEFAULT_APPROVE_VALUE = ton("0.1")
@@ -20,7 +21,7 @@ const LARGE_ORDER_CHAIN_HEAD_SIZE = 253
 const LARGE_ORDER_MAX_INLINE = 254
 
 struct MultisigTestContext {
-    multisig: MultisigV2
+    multisig: Multisig
     deployer: Treasury
     proposer: Treasury
     outsider: Treasury
@@ -81,9 +82,9 @@ fun setupMultisig(
     val signers = createSignerAddresses(signerCount, deployer.address);
     val proposers = createProposerAddresses(proposerCount, proposer.address);
 
-    val multisig = MultisigV2.fromConfig(threshold, signers, proposers, allowArbitraryOrderSeqno);
+    val multisig = Multisig.fromConfig(threshold, signers, proposers, allowArbitraryOrderSeqno);
 
-    val deploy = multisig.deploy(deployer.address, { value: ton("10"), bounce: false });
+    val deploy = multisig.deployWithInitBody(deployer.address, { value: ton("10"), bounce: false });
     expect(deploy).toHaveSuccessfulDeploy({ to: multisig.address });
 
     return {
@@ -237,16 +238,16 @@ fun nowPlus(delta: int = DEFAULT_ORDER_TTL): int {
     return testing.getNow() + delta;
 }
 
-fun deployOrderFor(multisigAddress: address, orderSeqno: int): MultisigV2Order {
-    return MultisigV2Order.fromAddress(
-        MultisigV2.fromAddress(multisigAddress).getOrderAddress(orderSeqno),
+fun deployOrderFor(multisigAddress: address, orderSeqno: int): Order {
+    return Order.fromAddress(
+        Multisig.fromAddress(multisigAddress).getOrderAddress(orderSeqno),
     );
 }
 
-fun nextOrder(multisig: MultisigV2): (MultisigV2Order, int) {
+fun nextOrder(multisig: Multisig): (Order, int) {
     val data = multisig.getData();
     val seqno = data.nextOrderSeqno;
-    return (MultisigV2Order.fromAddress(multisig.getOrderAddress(seqno)), seqno);
+    return (Order.fromAddress(multisig.getOrderAddress(seqno)), seqno);
 }
 
 fun sendOrderBySigner(

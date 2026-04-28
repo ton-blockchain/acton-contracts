@@ -155,14 +155,6 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
-// TODO: dict to map
-struct MultisigDataReply {
-    nextOrderSeqno: int
-    threshold: int
-    signers: dict
-    proposers: dict
-}
-
 get fun get_multisig_data(): MultisigDataReply {
     val storage = lazy MultisigStorage.load();
 

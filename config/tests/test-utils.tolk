@@ -11,7 +11,7 @@ import "@acton/types/out_actions"
 import "@acton/types/transaction"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/ConfigContract"
+import "../wrappers/Config.gen"
 
 const CUSTOM_SLOT_1 = -1024
 const CUSTOM_SLOT_2 = -1025
@@ -36,7 +36,7 @@ struct ValidatorFixture {
 }
 
 struct ConfigTestContext {
-    contract: ConfigContract
+    contract: Config
     deployer: Treasury
     outsider: Treasury
     proposer: address
@@ -232,7 +232,7 @@ fun setupConfigTest(): ConfigTestContext {
     testing.topUp(validatorSender, ton("1000"));
 
     val storageConfig = createMapFromLowLevelDict<int32, cell>(config.toLowLevelDict());
-    val contract = ConfigContract.fromStorage(Storage {
+    val contract = Config.fromStorage(Storage {
         config: storageConfig,
         storedSeqno: 0,
         publicKey: 0,
@@ -308,24 +308,24 @@ fun setActiveDataCell(addr: address, newData: cell) {
     testing.setShardAccount(addr, updatedShard);
 }
 
-fun getStorage(contract: ConfigContract): Storage {
+fun getStorage(contract: Config): Storage {
     return Storage.fromCell(activeDataCell(contract.address));
 }
 
-fun setStorage(contract: ConfigContract, storage: Storage) {
+fun setStorage(contract: Config, storage: Storage) {
     setActiveDataCell(contract.address, storage.toCell());
 }
 
-fun contractDataHash(contract: ConfigContract): uint256 {
+fun contractDataHash(contract: Config): uint256 {
     return activeDataCell(contract.address).hash();
 }
 
-fun getConfigParam(contract: ConfigContract, paramId: int32): cell? {
+fun getConfigParam(contract: Config, paramId: int32): cell? {
     val storage = getStorage(contract);
     return storage.config.getById(paramId);
 }
 
-fun assertConfigParam(contract: ConfigContract, paramId: int32, expected: cell) {
+fun assertConfigParam(contract: Config, paramId: int32, expected: cell) {
     val value = getConfigParam(contract, paramId);
     expect(value).toEqual(expected);
 }
@@ -371,7 +371,7 @@ fun parseProposalFull(raw: tuple): ProposalFullView {
     };
 }
 
-fun getProposalOrNull(contract: ConfigContract, hash: uint256): ProposalTupleView? {
+fun getProposalOrNull(contract: Config, hash: uint256): ProposalTupleView? {
     val raw = contract.getProposal(hash);
     if (raw == null) {
         return null;
@@ -379,7 +379,7 @@ fun getProposalOrNull(contract: ConfigContract, hash: uint256): ProposalTupleVie
     return parseProposal(raw!);
 }
 
-fun getProposalFullOrNull(contract: ConfigContract, hash: uint256): ProposalFullView? {
+fun getProposalFullOrNull(contract: Config, hash: uint256): ProposalFullView? {
     val raw = contract.getProposal(hash);
     if (raw == null) {
         return null;
@@ -550,7 +550,7 @@ fun buildExternalVoteBody(
         .endCell();
 }
 
-fun sendExternalRaw(contract: ConfigContract, body: cell): SendResultList {
+fun sendExternalRaw(contract: Config, body: cell): SendResultList {
     val res = trySendExternalRaw(contract, body);
     if (res == null) {
         Assert.fail("External message was not accepted for execution");
@@ -558,7 +558,7 @@ fun sendExternalRaw(contract: ConfigContract, body: cell): SendResultList {
     return res!;
 }
 
-fun trySendExternalRaw(contract: ConfigContract, body: cell): SendResultList? {
+fun trySendExternalRaw(contract: Config, body: cell): SendResultList? {
     val msg = net.createExternalMessage(contract.address, body.beginParse());
     return net.sendExternal(msg);
 }
@@ -664,7 +664,7 @@ fun hasSetCodeAction(res: SendResultList, account: address): bool {
 }
 
 fun injectProposalStatus(
-    contract: ConfigContract,
+    contract: Config,
     proposal: ConfigProposal,
     isCritical: bool,
     expiresAt: uint32,
@@ -707,7 +707,7 @@ fun setGlobalConfigParam(index: uint32, value: cell) {
     expect(testing.setConfig(config)).toEqual(true);
 }
 
-fun setStorageConfigParam(contract: ConfigContract, index: int32, value: cell?) {
+fun setStorageConfigParam(contract: Config, index: int32, value: cell?) {
     var storage = getStorage(contract);
     if (value == null) {
         storage.config.deleteById(index);
@@ -718,7 +718,7 @@ fun setStorageConfigParam(contract: ConfigContract, index: int32, value: cell?) 
 }
 
 fun setVotingSetup(
-    contract: ConfigContract,
+    contract: Config,
     normal: ConfigProposalSetup,
     critical: ConfigProposalSetup,
 ) {
@@ -745,7 +745,7 @@ fun setNextValidatorsBody(vset: cell, queryId: uint64 = DEFAULT_QUERY_ID): cell 
     return SetNextValidatorSetRequest { queryId, vset }.toCell();
 }
 
-fun proposalCount(contract: ConfigContract): int {
+fun proposalCount(contract: Config): int {
     return contract.listProposals().calculateSize();
 }
 

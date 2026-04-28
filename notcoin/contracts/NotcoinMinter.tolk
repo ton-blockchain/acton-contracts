@@ -3,7 +3,6 @@ import "fees-management"
 import "jetton-utils"
 import "messages"
 import "storage"
-import "types"
 
 contract NotcoinMinter {
     author: "The Tolk Team"

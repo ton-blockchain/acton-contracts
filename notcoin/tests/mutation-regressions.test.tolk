@@ -12,8 +12,9 @@ import "../contracts/errors"
 import "../contracts/fees-management"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/NotcoinWallet.gen"
+import "../wrappers/utils"
 
 fun expectSendActionMode(
     res: SendResultList,

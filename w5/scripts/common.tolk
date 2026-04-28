@@ -4,9 +4,11 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
+import "../contracts/c5-register-validation"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/WalletV5Contract"
+import "../wrappers/WalletV5.gen"
+import "../wrappers/utils"
 
 const W5_DEFAULT_SEED = 0x2222222222222222222222222222222222222222222222222222222222222222
 const W5_DEFAULT_SUBWALLET_ID = 0
@@ -43,15 +45,15 @@ fun w5WalletAddress(): address? {
     return env("W5_WALLET_ADDRESS");
 }
 
-fun w5BuildWallet(): WalletV5Contract {
+fun w5BuildWallet(): WalletV5 {
     val keyPair = w5KeyPair();
     val explicitAddress = w5WalletAddress();
 
     if (explicitAddress != null) {
-        return WalletV5Contract { address: explicitAddress! };
+        return WalletV5 { address: explicitAddress! };
     }
 
-    return WalletV5Contract.fromStorage(Storage {
+    return WalletV5.fromLibraryStorage(Storage {
         isSignatureAllowed: true,
         seqno: 0,
         subwalletId: w5SubwalletId(),
@@ -60,9 +62,9 @@ fun w5BuildWallet(): WalletV5Contract {
     });
 }
 
-fun w5DeployWallet(deployer: address): WalletV5Contract {
+fun w5DeployWallet(deployer: address): WalletV5 {
     val wallet = w5BuildWallet();
-    if (wallet.init != null) {
+    if (wallet.stateInit != null) {
         val res = wallet.deploy(deployer, { value: w5DeployValue(), bounce: false });
         res.waitForFirstTransaction();
     }
@@ -100,7 +102,7 @@ fun w5BuildSignedActions(
     return createSignedBody(keyPair, w5SubwalletId(), seqno, actions);
 }
 
-fun w5PrintInfo(wallet: WalletV5Contract) {
+fun w5PrintInfo(wallet: WalletV5) {
     val extensions = wallet.getExtensionsArray();
     println("Wallet v5 address: {}", wallet.address);
     println("Seqno: {}", wallet.getSeqno());

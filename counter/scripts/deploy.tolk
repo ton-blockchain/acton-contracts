@@ -4,7 +4,7 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 
 import "../contracts/types"
-import "../wrappers/Counter"
+import "../wrappers/Counter.gen"
 
 fun counterDeployValue(): coins {
     return env<coins>("COUNTER_DEPLOY_VALUE_NANOS") ?? 5000000;
@@ -25,7 +25,7 @@ fun targetCounter(): Counter {
     }
     return Counter {
         address: counterAddress!,
-        init: expected.init,
+        stateInit: expected.stateInit,
     };
 }
 

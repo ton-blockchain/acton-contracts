@@ -5,7 +5,7 @@ import "@acton/testing/expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
-import "../wrappers/ConfigContract"
+import "../wrappers/Config.gen"
 
 get fun `test vset: should reject already-current set and accept future set`() {
     val ctx = setupConfigTest();

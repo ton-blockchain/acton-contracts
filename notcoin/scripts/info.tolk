@@ -4,9 +4,10 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "common"
-import "../contracts/types"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../contracts/storage"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/NotcoinWallet.gen"
+import "../wrappers/utils"
 
 fun metadataUriFromContent(contentCell: cell): string? {
     val metadata = OnchainMetadataReply.fromCell(contentCell);
@@ -19,7 +20,7 @@ fun metadataUriFromContent(contentCell: cell): string? {
     return uri.string;
 }
 
-fun getWalletStatus(wallet: JettonWallet): int {
+fun getWalletStatus(wallet: NotcoinWallet): int {
     return net.runGetMethod(wallet.address, "get_status");
 }
 
@@ -31,7 +32,7 @@ fun main() {
     val minterAddress: address? = env("JETTON_MINTER_ADDRESS");
     val ownerAddress = envOr("JETTON_OWNER_ADDRESS", deployer.address);
 
-    val expectedMinter = JettonMinter.fromStorage({
+    val expectedMinter = NotcoinMinter.fromStorage({
         totalSupply: initialSupply,
         adminAddress: deployer.address,
         jettonWalletCode: build("NotcoinWallet"),
@@ -40,9 +41,9 @@ fun main() {
     });
     var minter = expectedMinter;
     if (minterAddress != null) {
-        minter = JettonMinter {
+        minter = NotcoinMinter {
             address: minterAddress,
-            init: expectedMinter.init,
+            stateInit: expectedMinter.stateInit,
         };
     }
 
@@ -65,7 +66,7 @@ fun main() {
 
     val data = minter.getJettonData();
     val uri = metadataUriFromContent(data.jettonContent);
-    val wallet = JettonWallet { address: minter.getWalletAddress(ownerAddress) };
+    val wallet = NotcoinWallet { address: minter.getWalletAddress(ownerAddress) };
     val walletDeployed = scripts.isContractDeployed(wallet.address);
 
     println("Total supply: {}", data.totalSupply);

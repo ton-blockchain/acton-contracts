@@ -63,12 +63,6 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
-struct CollectionDataReply {
-    nextItemIndex: int
-    content: cell
-    ownerAddress: address?
-}
-
 get fun get_collection_data(): CollectionDataReply {
     val st = CollectionStorage.load();
     return {

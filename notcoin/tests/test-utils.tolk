@@ -10,8 +10,9 @@ import "@acton/types/transaction"
 import "../contracts/jetton-utils"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/NotcoinWallet.gen"
+import "../wrappers/utils"
 
 // Common values used across tests (nanotons for TON amounts)
 const TEST_JETTON_UNIT = 1
@@ -86,9 +87,9 @@ fun sendRawTransferPayload(
     return net.send(from, outMessage);
 }
 
-fun userWallet(minter: JettonMinter, userAddress: address): JettonWallet {
+fun userWallet(minter: NotcoinMinter, userAddress: address): NotcoinWallet {
     val address = minter.getWalletAddress(userAddress);
-    return JettonWallet { address };
+    return NotcoinWallet { address };
 }
 
 fun walletStateInit(storage: WalletStorage): ContractState {
@@ -102,7 +103,7 @@ fun deployWalletFromStorage(
     storage: WalletStorage,
     from: address,
     value: coins = ton("10"),
-): JettonWallet {
+): NotcoinWallet {
     val init = storage.jettonBalance == 0
         ? calcDeployedJettonWallet(
             storage.ownerAddress,
@@ -123,10 +124,10 @@ fun deployWalletFromStorage(
     );
     expect(deployResult).toHaveSuccessfulDeploy({ to: address });
 
-    return JettonWallet { address };
+    return NotcoinWallet { address };
 }
 
-fun setupDirectWallet(initialBalance: coins = 0): (JettonWallet, Treasury, Treasury, Treasury) {
+fun setupDirectWallet(initialBalance: coins = 0): (NotcoinWallet, Treasury, Treasury, Treasury) {
     val owner = testing.treasury("direct-wallet-owner");
     val minter = testing.treasury("direct-wallet-minter");
     val outsider = testing.treasury("direct-wallet-outsider");
@@ -140,7 +141,7 @@ fun setupDirectWallet(initialBalance: coins = 0): (JettonWallet, Treasury, Treas
         owner.address,
     );
 
-    if (initialBalance) {
+    if (initialBalance != 0) {
         val topUp = net.send(
             minter.address,
             createMessage({
@@ -197,11 +198,11 @@ fun hasSetCodeAction(res: SendResultList, account: address): bool {
     return false;
 }
 
-fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
+fun setupTest(initialSupply: int = 0): (NotcoinMinter, Treasury, Treasury) {
     val deployer = testing.treasury("deployer");
     val notDeployer = testing.treasury("not-deployer");
 
-    val minter = JettonMinter.fromStorage(MinterStorage {
+    val minter = NotcoinMinter.fromStorage(MinterStorage {
         totalSupply: initialSupply,
         adminAddress: deployer.address,
         jettonWalletCode: build("NotcoinWallet"),
@@ -215,7 +216,12 @@ fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
     return (minter, deployer, notDeployer);
 }
 
-fun mintTo(minter: JettonMinter, admin: Treasury, recipient: address, amount: coins): JettonWallet {
+fun mintTo(
+    minter: NotcoinMinter,
+    admin: Treasury,
+    recipient: address,
+    amount: coins,
+): NotcoinWallet {
     val supplyBefore = minter.getTotalSupply();
     val wallet = userWallet(minter, recipient);
 

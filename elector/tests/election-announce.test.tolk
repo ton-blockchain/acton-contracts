@@ -5,7 +5,8 @@ import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/types"
-import "../wrappers/Elector"
+import "../wrappers/Elector.gen"
+import "../wrappers/utils"
 
 get fun `test election announce not elector`() {
     // Deploy elector with default config (elector address matches config param 1)
@@ -40,9 +41,9 @@ get fun `test election announce not elector`() {
 
 get fun `test election announce not masterchain`() {
     // Deploy elector on basechain instead of masterchain
-    val elector = Elector.fromStorage(defaultStorage(), null, BASECHAIN);
+    val elector = Elector.fromStorageInWorkchain(defaultStorage(), null, BASECHAIN);
     val deployer = testing.treasury("deployer");
-    val res = elector.deploy(deployer.address, { value: ton("1000") });
+    val res = elector.deployInWorkchain(deployer.address, BASECHAIN, { value: ton("1000") });
     expect(res).toHaveSuccessfulDeploy({ to: elector.address });
 
     // Verify elector is on basechain (workchain 0)

@@ -51,7 +51,7 @@ fun onInternalMessage(in: InMessage) {
             storage.jettonBalance += msg.jettonAmount;
             storage.save();
 
-            if (msg.forwardTonAmount) {
+            if (msg.forwardTonAmount != 0) {
                 val notifyOwnerMsg = createMessage({
                     bounce: BounceMode.NoBounce,
                     dest: storage.ownerAddress,
@@ -157,13 +157,6 @@ fun onInternalMessage(in: InMessage) {
 
         else => throw 0xFFFF,
     }
-}
-
-struct JettonWalletDataReply {
-    jettonBalance: coins
-    ownerAddress: address
-    minterAddress: address
-    jettonWalletCode: cell
 }
 
 get fun get_wallet_data(): JettonWalletDataReply {

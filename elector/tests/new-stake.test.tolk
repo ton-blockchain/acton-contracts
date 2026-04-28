@@ -7,7 +7,8 @@ import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/Elector"
+import "../wrappers/Elector.gen"
+import "../wrappers/utils"
 
 get fun `test new stake no elections`() {
     val setup = setupElector();

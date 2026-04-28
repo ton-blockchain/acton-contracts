@@ -25,6 +25,12 @@ struct CollectionStorage {
     nftItemCode: cell
 }
 
+struct CollectionDataReply {
+    nextItemIndex: int
+    content: cell
+    ownerAddress: address?
+}
+
 fun CollectionStorage.load() {
     return CollectionStorage.fromCell(contract.getData());
 }
@@ -62,6 +68,14 @@ struct ItemStorageInitialized {
     domain: cell
     auction: Cell<AuctionState>?
     lastFillUpTime: uint64
+}
+
+struct NftDataReply {
+    isInitialized: bool
+    index: uint256
+    collectionAddress: address
+    ownerAddress: address?
+    content: Cell<DnsRecords>?
 }
 
 fun ItemStorageInitialized.save(self) {

@@ -4,11 +4,11 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../contracts/storage"
 import "../tests/test-utils"
-import "../wrappers/DnsRoot"
+import "../wrappers/RootDns.gen"
 
 fun main() {
     val deployer = scripts.wallet("deployer-2");
-    val root = RootDnsContract.fromStorage(RootDnsStorage {
+    val root = RootDns.fromStorage(RootDnsStorage {
         tonAddress: env("ROOT_TON_RESOLVER") ?? rootTonResolverAddress(),
         tMeAddress: env("ROOT_TME_RESOLVER") ?? rootTMeResolverAddress(),
         tonWwwAddress: env("ROOT_TON_WWW_RESOLVER") ?? rootTonWwwResolverAddress(),

@@ -7,8 +7,8 @@ import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/dns-utils"
 import "../contracts/messages"
-import "../wrappers/DnsCollection"
-import "../wrappers/DnsItem"
+import "../wrappers/DnsCollection.gen"
+import "../wrappers/DnsItem.gen"
 
 const E2E_DOMAIN = "benchflow"
 const E2E_INITIAL_BID = ton("1000")
@@ -33,12 +33,12 @@ fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL
     val itemDeployTx = deploy.findTransaction({ from: collection.address, deploy: true });
     expect(itemDeployTx).toBeNotNull();
 
-    val item = NftItemContract.fromAddress(itemDeployTx!.getAccountAddress());
+    val item = DnsItem.fromAddress(itemDeployTx!.getAccountAddress());
     return (item, collection, deployer, bidder, governanceCaller);
 }
 
 fun processNewBidStage(
-    item: NftItemContract,
+    item: DnsItem,
     previousWinnerAddress: address,
     bidderAddress: address,
     bidValue: coins = E2E_NEXT_BID,
@@ -54,7 +54,7 @@ fun processNewBidStage(
     expect(auction.maxBidAmount).toEqual(bidValue);
 }
 
-fun applyOwnershipStage(item: NftItemContract, collectionAddress: address, expectedOwner: address) {
+fun applyOwnershipStage(item: DnsItem, collectionAddress: address, expectedOwner: address) {
     val apply = completeAuction(item, expectedOwner, 5001);
     expect(apply).toHaveSuccessfulTx<FillUp>({ from: item.address, to: collectionAddress });
 
@@ -65,7 +65,7 @@ fun applyOwnershipStage(item: NftItemContract, collectionAddress: address, expec
 }
 
 fun processGovernanceDecisionStage(
-    item: NftItemContract,
+    item: DnsItem,
     callerAddress: address,
     newOwner: address,
 ) {
