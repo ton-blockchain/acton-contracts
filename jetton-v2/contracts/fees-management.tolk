@@ -48,7 +48,9 @@ fun forwardInitStateOverhead() {
 }
 
 fun calcMinimalTransferAmount(forwardTonAmount: int, fwdFee: int) {
-    val fwdCount = forwardTonAmount != 0 ? 2 : 1; // second sending (forward) will be cheaper than first
+    val fwdCount = forwardTonAmount != 0
+        ? 2
+        : 1;                                      // second sending (forward) will be cheaper than first
 
     val jettonWalletGasConsumption = getPrecompiledGasConsumption();
     val sendTransferGasConsumption = (jettonWalletGasConsumption == null)
