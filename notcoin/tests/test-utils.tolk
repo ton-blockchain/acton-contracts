@@ -141,7 +141,7 @@ fun setupDirectWallet(initialBalance: coins = 0): (NotcoinWallet, Treasury, Trea
         owner.address,
     );
 
-    if (initialBalance) {
+    if (initialBalance != 0) {
         val topUp = net.send(
             minter.address,
             createMessage({

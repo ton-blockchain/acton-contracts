@@ -130,7 +130,7 @@ fun calculateMinimalTransferValue(
         if (required < 0) {
             required = 0;
         }
-        if (body.forwardTonAmount) {
+        if (body.forwardTonAmount != 0) {
             required += body.forwardTonAmount + fwdFee;
         }
         if (body.sendExcessesTo != null) {
@@ -150,7 +150,7 @@ fun calculateRestAmount(
     fwdFee: coins,
 ): coins {
     var restAmount = balanceBefore + msgValue - MIN_TONS_FOR_STORAGE;
-    if (body.forwardTonAmount) {
+    if (body.forwardTonAmount != 0) {
         restAmount -= (body.forwardTonAmount + fwdFee);
     }
     if (body.sendExcessesTo != null) {

@@ -90,7 +90,7 @@ fun processNewStake(msg: NewStakeMessage): void {
     storage.currectElections = elect.toCell();
     storage.save();
 
-    if (msg.queryId) {
+    if (msg.queryId != 0) {
         sendConfirmation(InMessage.source(), msg.queryId, StakeReason.Ok);
     }
 }
@@ -397,9 +397,11 @@ fun tryElect(
     var n = 0;
     var sdict: map<SortKey, SortValue> = [];
     var pubkey = -1;
+    var memberFound = true;
     do {
         val memberLookup = members.findKeyGreater(pubkey);
-        if (memberLookup.isFound) {
+        memberFound = memberLookup.isFound;
+        if (memberFound) {
             val member = memberLookup.loadValue();
             pubkey = memberLookup.getKey();
             sdict.set(
@@ -416,7 +418,7 @@ fun tryElect(
             );
             n += 1;
         }
-    } while (memberLookup.isFound);
+    } while (memberFound);
 
     n = min(n, limits.maxValidators);
     if (n < minValidators) {
@@ -515,7 +517,7 @@ fun tryElect(
             totStake += trueStake;
             totWeight += weight;
 
-            if (adnlAddr) {
+            if (adnlAddr != 0) {
                 vset.set(
                     ii,
                     ValidatorDescrWithAdnlAddr {
@@ -545,7 +547,7 @@ fun tryElect(
             );
         }
 
-        if (remainingStake) {
+        if (remainingStake != 0) {
             // credit unused portion of stake
             credits.creditTo(member.srcAddr, remainingStake);
         }

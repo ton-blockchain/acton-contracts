@@ -44,7 +44,7 @@ fun onInternalMessage(in: InMessage) {
 
             val fwdFee = in.originalForwardFee;
             var restAmount = contract.getOriginalBalance() - MIN_TONS_FOR_STORAGE;
-            if (msg.forwardTonAmount) {
+            if (msg.forwardTonAmount != 0) {
                 restAmount -= (msg.forwardTonAmount + fwdFee);
             }
             if (msg.sendExcessesTo != null) {
@@ -58,7 +58,7 @@ fun onInternalMessage(in: InMessage) {
                 restAmount >= 0
             ) throw ERROR_TOO_SMALL_REST_AMOUNT;                        // base nft spends fixed amount of gas, will not check for response
 
-            if (msg.forwardTonAmount) {
+            if (msg.forwardTonAmount != 0) {
                 val ownershipMsg = createMessage({
                     bounce: BounceMode.NoBounce,
                     dest: msg.newOwnerAddress,
