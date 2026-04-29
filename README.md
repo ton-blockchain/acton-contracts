@@ -1,8 +1,8 @@
 # Acton Contracts
 
-Reference-grade TON contracts in Tolk, built with the Acton toolchain.
+Reference-grade TON contracts in Tolk, built with the [Acton toolchain](https://ton-blockchain.github.io/acton/).
 
-This monorepo collects reference implementations for main TON ecosystem contracts, build with modern Tolk + Acton stack. Each contract system is kept interface-compatible with its original FunC version. Where it was possible, Tolk BoCs were tested against existing Typescript Sandbox tests.
+This monorepo collects reference implementations for main TON ecosystem contracts, build with modern Tolk + Acton stack. Each contract system is kept interface-compatible with its original FunC version. Where it was possible, Tolk BoCs were tested against existing TypeScript Sandbox tests.
 
 ## Included
 
@@ -12,6 +12,26 @@ This monorepo collects reference implementations for main TON ecosystem contract
 - Minimal example: [`counter`](./counter/)
 
 Each suite is organized as a self-contained package with `contracts/`, `tests/`, and, where needed, `scripts/`. Selected suites also carry benchmark baselines for regression tracking.
+
+## Get started with Acton
+
+[Acton](https://ton-blockchain.github.io/acton/) is a modern toolchain for TON smart contract development. Acton contains runtime for native Tolk testing, IDE-integrated debugger, dApp-ready templates and wallet managment with testnet faucet and script framework.
+
+Install Acton with
+```bash
+curl -LsSf https://ton.org/acton/install.sh | sh
+```
+
+Learn more at [Acton documentation](https://ton-blockchain.github.io/acton/docs/welcome).
+
+## Wrappers
+
+All `WrapperName.gen.tolk` wrappers in this monorepo are auto-generated and used for Tolk testing and scripting.
+
+To generate TypeScript wrappers, use
+```bash
+acton wrapper --ts ContractName
+```
 
 ## Workflow
 
