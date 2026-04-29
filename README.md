@@ -37,7 +37,7 @@ npx skills add https://github.com/ton-blockchain/acton-contracts/tree/skills/ski
 
 Then ask your agent to complete an engineering task in this project:
 
-**Optimize multisig-v2 gas usage. Use $acton and $tolk skills. Make gas snapshots and run benchmarks for comparison between different versions. Your optimizations should pass all current tests.**
+"Optimize multisig-v2 gas usage. Use $acton and $tolk skills. Make gas snapshots and run benchmarks for comparison between different versions. Your optimizations should pass all current tests."
 
 
 ## Wrappers
