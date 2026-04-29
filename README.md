@@ -24,6 +24,20 @@ curl -LsSf https://ton.org/acton/install.sh | sh
 
 Learn more at [Acton documentation](https://ton-blockchain.github.io/acton/docs/welcome).
 
+## AI integrations
+
+Acton and this monorepo work well with AI coding agents. Install TON-development skills with
+```bash
+npx skills add https://github.com/ton-blockchain/acton-contracts/tree/skills/skills
+# Or for specific agent
+npx skills add https://github.com/ton-blockchain/acton-contracts/tree/skills/skills/acton -g -a claude-code -y
+```
+
+Then ask your agent to complete some task on this project
+```
+Optimize multisig-v2 gas usage. Use $acton and $tolk skills. Make gas snapshots and run benchmarks for comparison between different versions. Your optimizations should pass all current tests.
+```
+
 ## Wrappers
 
 All `WrapperName.gen.tolk` wrappers in this monorepo are auto-generated and used for Tolk testing and scripting.
