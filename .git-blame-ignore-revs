@@ -14,5 +14,5 @@
 #   git blame --ignore-revs-file .git-blame-ignore-revs path/to/file
 
 # feat: format all
-# https://github.com/i582/acton-contracts/pull/19
+# https://github.com/ton-blockchain/acton-contracts/pull/19
 37d892f7955fec3d30fdd7a085c13f355962f4d8
