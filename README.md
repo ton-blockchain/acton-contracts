@@ -11,7 +11,7 @@ This monorepo collects reference implementations for core TON ecosystem contract
 - Tokens and assets: [`nft`](./nft/), [`jetton-v2`](./jetton-v2/), [`notcoin`](./notcoin/)
 - Minimal example: [`counter`](./counter/)
 
-Each suite is organized as a self-contained package with `contracts/`, `tests/`, and, where needed, `scripts/`. Selected suites also include benchmark baselines for regression tracking.
+Each suite is organized as a self-contained package with `contracts/`, `tests/`, and `scripts/`. Selected suites also include benchmark baselines for regression tracking.
 
 ## Get started with Acton
 
@@ -42,7 +42,7 @@ Then ask your agent to complete an engineering task in this project:
 
 ## Wrappers
 
-All `WrapperName.gen.tolk` wrappers in this monorepo are generated automatically and used for Tolk testing and scripting.
+All `WrapperName.gen.tolk` wrappers in this monorepo are generated automatically and used for Tolk testing and scripting. Use `acton wrapper ContractName` to generate them.
 
 To generate TypeScript wrappers:
 
@@ -66,6 +66,12 @@ acton test dns/tests
 acton test elector/tests
 acton test multisig-v2/tests
 ```
+
+### Benchmarks
+
+Each `**/tests/benchmarks/*.json` file is a gas snapshot baseline, that can be used to compare different implementations in terms of gas efficency. See `**/tests/e2e-happy-paths.test.tolk` for end-to-end tests, that are used as benchmark for gas measurements.
+
+Using DNS set of contracts as example (replace DNS with desired contract-set folder):
 
 Run a benchmark comparison against the checked-in DNS baseline:
 
