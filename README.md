@@ -1,4 +1,4 @@
-# Acton Contracts
+# Reference TON contracts
 
 Reference-grade TON contracts in Tolk, built with the [Acton toolchain](https://ton-blockchain.github.io/acton/).
 
