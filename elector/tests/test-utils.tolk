@@ -7,7 +7,8 @@ import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/Elector"
+import "../wrappers/Elector.gen"
+import "../wrappers/utils"
 
 /// Message format for elected validator set sent to config contract.
 struct (0x4e565354) ElectedVSetMsg {
@@ -80,10 +81,10 @@ fun defaultStakeLimits(): StakeLimits {
 fun setupElector(): ElectorSetup {
     testing.setNow(NOW_CONST);
 
-    val elector = Elector.fromStorage(defaultStorage(), null, MASTERCHAIN);
+    val elector = Elector.fromStorageInWorkchain(defaultStorage(), null, MASTERCHAIN);
     val deployer = testing.treasury("deployer");
 
-    val res = elector.deploy(deployer.address, { value: ton("1000") });
+    val res = elector.deployInWorkchain(deployer.address, MASTERCHAIN, { value: ton("1000") });
     expect(res).toHaveSuccessfulDeploy({ to: elector.address });
 
     // Generate a config contract address on masterchain

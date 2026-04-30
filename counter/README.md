@@ -1,7 +1,7 @@
 # Counter
 
-This suite has no original FunC counterpart; it is a native Tolk example used to exercise the Acton toolchain.
+This suite has no original FunC counterpart; it is a native Tolk example for exercising the Acton toolchain.
 
-It provides a minimal stateful counter contract for demonstrating build, test, wrapper, and deployment flows. Tests cover the core increment and read behavior in a single focused suite.
+It provides a minimal stateful counter contract for demonstrating build, test, wrapper, and deployment flows. Tests exercise the increment and read paths in a focused suite.
 
-Scripts in `scripts/` cover deployment, state inspection, and the basic counter actions via `deploy.tolk`, `info.tolk`, `increase.tolk`, and `reset.tolk`. Run them with `acton script counter/scripts/<name>.tolk`.
+Scripts in `scripts/` provide operational entry points for deployment, state inspection, and basic counter actions: `deploy.tolk`, `info.tolk`, `increase.tolk`, and `reset.tolk`. Run them with `acton script counter/scripts/<name>.tolk`.

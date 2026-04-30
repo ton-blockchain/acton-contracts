@@ -2,7 +2,8 @@ import "@acton/env"
 import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
-import "../wrappers/HighloadWalletV3"
+import "../wrappers/HighloadWalletV3.gen"
+import "../wrappers/utils"
 
 fun main() {
     val walletAddress: address? = env("HIGHLOAD_WALLET_ADDRESS");

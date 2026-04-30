@@ -5,7 +5,7 @@ import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/ConfigContract"
+import "../wrappers/Config.gen"
 
 const CONFIG_E2E_REGULAR_PARAM = -420
 const CONFIG_E2E_SPECIAL_PARAM = -999

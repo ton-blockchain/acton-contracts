@@ -10,16 +10,17 @@ import "test-utils"
 import "../contracts/messages"
 import "../contracts/order-helpers"
 import "../contracts/types"
-import "../wrappers/MultisigV2"
-import "../wrappers/MultisigV2Order"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 const FEE_BASE_EXPIRATION = 2000000000
 const FEE_TEST_NOW = 1760000000
 const FEE_DEFAULT_CREATE_VALUE = ton("10")
 
 struct FeeContext {
-    wallet: MultisigV2
-    jumboWallet: MultisigV2
+    wallet: Multisig
+    jumboWallet: Multisig
     deployer: Treasury
     second: Treasury
     proposer: Treasury
@@ -34,13 +35,16 @@ fun setupFeeContext(): FeeContext {
     val second = testing.treasury("fee-second");
     val proposer = testing.treasury("fee-proposer");
 
-    val wallet = MultisigV2.fromConfig(
+    val wallet = Multisig.fromConfig(
         2,
         array<address> [deployer.address, second.address],
         array<address> [proposer.address],
         false,
     );
-    val walletDeploy = wallet.deploy(deployer.address, { value: ton("20"), bounce: false });
+    val walletDeploy = wallet.deployWithInitBody(
+        deployer.address,
+        { value: ton("20"), bounce: false },
+    );
     expect(walletDeploy).toHaveSuccessfulDeploy({ to: wallet.address });
 
     var jumboSigners = array<address> [];
@@ -53,13 +57,16 @@ fun setupFeeContext(): FeeContext {
         i += 1;
     }
 
-    val jumboWallet = MultisigV2.fromConfig(
+    val jumboWallet = Multisig.fromConfig(
         2,
         jumboSigners,
         array<address> [proposer.address],
         false,
     );
-    val jumboDeploy = jumboWallet.deploy(deployer.address, { value: ton("200"), bounce: false });
+    val jumboDeploy = jumboWallet.deployWithInitBody(
+        deployer.address,
+        { value: ton("200"), bounce: false },
+    );
     expect(jumboDeploy).toHaveSuccessfulDeploy({ to: jumboWallet.address });
 
     return {
@@ -131,14 +138,14 @@ fun manualOrderProcessingCost(
 }
 
 fun executeEstimatedOrder(
-    wallet: MultisigV2,
+    wallet: Multisig,
     firstSigner: address,
     secondSigner: address,
     order: DirectOrderActionsMap,
     expirationDate: int,
     extraValue: coins = ton("1"),
 ): (coins, SendResultList, SendResultList) {
-    val estimate = wallet.getOrderEstimate(order, expirationDate);
+    val estimate = wallet.getOrderEstimateForOrder(order, expirationDate);
     val seqno = wallet.getData().nextOrderSeqno;
 
     val create = wallet.sendNewOrder(
@@ -155,7 +162,7 @@ fun executeEstimatedOrder(
     expect(create).toHaveSuccessfulTx<NewOrderRequest>({ from: firstSigner, to: wallet.address });
 
     val orderAddress = wallet.getOrderAddress(seqno);
-    val orderContract = MultisigV2Order.fromAddress(orderAddress);
+    val orderContract = Order.fromAddress(orderAddress);
 
     val approve = orderContract.sendApprove(
         secondSigner,
@@ -231,9 +238,9 @@ get fun `test fee: should estimate correctly on gas fees change`() {
     gasPrices.other.gasPrice *= 3;
     newConfig.setGasPrices(gasPrices, BASECHAIN);
 
-    val estBefore = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
+    val estBefore = ctx.jumboWallet.getOrderEstimateForOrder(order, FEE_BASE_EXPIRATION);
     expect(testing.setConfig(newConfig)).toEqual(true);
-    val estAfter = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
+    val estAfter = ctx.jumboWallet.getOrderEstimateForOrder(order, FEE_BASE_EXPIRATION);
 
     expect(estAfter).toBeGreater(estBefore);
 
@@ -261,9 +268,9 @@ get fun `test fee: should estimate correctly on forward fees change`() {
     msgPrices.cellPrice *= 10;
     newConfig.setMsgForwardPrices(msgPrices, BASECHAIN);
 
-    val estBefore = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
+    val estBefore = ctx.jumboWallet.getOrderEstimateForOrder(order, FEE_BASE_EXPIRATION);
     expect(testing.setConfig(newConfig)).toEqual(true);
-    val estAfter = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
+    val estAfter = ctx.jumboWallet.getOrderEstimateForOrder(order, FEE_BASE_EXPIRATION);
 
     expect(estAfter).toBeGreater(estBefore);
 
@@ -293,9 +300,9 @@ get fun `test fee: should estimate correctly on storage fees change`() {
     storagePrices.setInitial(initial);
     newConfig.setStoragePrices(storagePrices);
 
-    val estBefore = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
+    val estBefore = ctx.jumboWallet.getOrderEstimateForOrder(order, FEE_BASE_EXPIRATION);
     expect(testing.setConfig(newConfig)).toEqual(true);
-    val estAfter = ctx.jumboWallet.getOrderEstimate(order, FEE_BASE_EXPIRATION);
+    val estAfter = ctx.jumboWallet.getOrderEstimateForOrder(order, FEE_BASE_EXPIRATION);
 
     expect(estAfter).toBeGreater(estBefore);
 
@@ -333,17 +340,20 @@ fun runCommonCase(
         i += 1;
     }
 
-    val wallet = MultisigV2.fromConfig(
+    val wallet = Multisig.fromConfig(
         threshold,
         signers,
         array<address> [proposer.address],
         false,
     );
-    val deployRes = wallet.deploy(deployer.address, { value: ton("100"), bounce: false });
+    val deployRes = wallet.deployWithInitBody(
+        deployer.address,
+        { value: ton("100"), bounce: false },
+    );
     expect(deployRes).toHaveSuccessfulDeploy({ to: wallet.address });
 
     val actions = buildTransferActions(transferCount, 8000);
-    val estimate = wallet.getOrderEstimate(actions, expirationDate);
+    val estimate = wallet.getOrderEstimateForOrder(actions, expirationDate);
 
     val creator = signerCreates ? signers.get(0) : proposer.address;
     val creatorIndex = 0;
@@ -362,7 +372,7 @@ fun runCommonCase(
     expect(create).toHaveSuccessfulTx<NewOrderRequest>({ from: creator, to: wallet.address });
 
     val seqno = wallet.getData().nextOrderSeqno - 1;
-    val order = MultisigV2Order.fromAddress(wallet.getOrderAddress(seqno));
+    val order = Order.fromAddress(wallet.getOrderAddress(seqno));
 
     var signerIdx = signerCreates ? 1 : 0;
     var approveRes = create;
@@ -409,7 +419,7 @@ get fun `test fee: should be enough for 75 years`() {
     val timeSpan = 365 * 24 * 3600 * 75;
     val expirationDate = testing.getNow() + timeSpan;
 
-    val estimate = ctx.wallet.getOrderEstimate(order, expirationDate);
+    val estimate = ctx.wallet.getOrderEstimateForOrder(order, expirationDate);
     val seqno = ctx.wallet.getData().nextOrderSeqno;
 
     val create = ctx
@@ -425,7 +435,7 @@ get fun `test fee: should be enough for 75 years`() {
             { value: (estimate + ton("5")), bounce: true },
         );
 
-    val orderContract = MultisigV2Order.fromAddress(ctx.wallet.getOrderAddress(seqno));
+    val orderContract = Order.fromAddress(ctx.wallet.getOrderAddress(seqno));
     expect(create).toHaveSuccessfulDeploy({ to: orderContract.address });
 
     testing.setNow((expirationDate - 10));

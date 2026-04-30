@@ -7,8 +7,8 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../../contracts/messages"
 import "../../contracts/types"
-import "../../wrappers/NftCollectionContract"
-import "../../wrappers/NftItemContract"
+import "../../wrappers/NftCollection.gen"
+import "../../wrappers/NftItem.gen"
 
 const ONCHAIN_CONTENT_PREFIX = 0x00
 const SNAKE_PREFIX = 0x00
@@ -59,14 +59,14 @@ fun promptNftCollectionInfo(): NftCollectionInfo {
     };
 }
 
-fun promptNftCollectionContract(message: string): NftCollectionContract {
+fun promptNftCollection(message: string): NftCollection {
     val s = prompt(message, "EQ... / kQ...", "");
-    return NftCollectionContract.fromAddress(parseAddress(s));
+    return NftCollection.fromAddress(parseAddress(s));
 }
 
-fun promptNftItemContract(message: string): NftItemContract {
+fun promptNftItem(message: string): NftItem {
     val s = prompt(message, "EQ... / kQ...", "");
-    return NftItemContract.fromAddress(parseAddress(s));
+    return NftItem.fromAddress(parseAddress(s));
 }
 
 fun makeNftCollectionStorage(admin: address, info: NftCollectionInfo): NftCollectionStorage {
@@ -86,11 +86,11 @@ fun makeNftCollectionStorage(admin: address, info: NftCollectionInfo): NftCollec
     };
 }
 
-fun deployNftCollectionContract(
+fun deployNftCollection(
     deployer: ActonWallet,
     info: NftCollectionInfo,
-): NftCollectionContract {
-    val collection = NftCollectionContract.fromStorage(
+): NftCollection {
+    val collection = NftCollection.fromStorage(
         makeNftCollectionStorage(deployer.address, info),
     );
     val res = collection.deploy(deployer.address, { value: ton("0.05"), bounce: false });
@@ -98,12 +98,12 @@ fun deployNftCollectionContract(
     return collection;
 }
 
-fun deployNftItemContract(
-    collection: NftCollectionContract,
+fun deployNftItemFromCollection(
+    collection: NftCollection,
     deployer: ActonWallet,
     owner: address,
     itemContent: string,
-): NftItemContract {
+): NftItem {
     val itemIndex = collection.getCollectionData().nextItemIndex;
     val res = collection.sendDeployNft(
         deployer.address,
@@ -114,11 +114,11 @@ fun deployNftItemContract(
         { value: ton("0.05"), bounce: true },
     );
     res.waitForFirstTransaction();
-    return NftItemContract.fromAddress(collection.getNftAddressByIndex(itemIndex));
+    return NftItem.fromAddress(collection.getNftAddressByIndex(itemIndex));
 }
 
 fun deployNftBatch(
-    collection: NftCollectionContract,
+    collection: NftCollection,
     deployer: ActonWallet,
     owner: address,
     count: int,
@@ -152,7 +152,7 @@ fun deployNftBatch(
     );
 }
 
-fun printNftCollectionInfo(collection: NftCollectionContract, label: string) {
+fun printNftCollectionInfo(collection: NftCollection, label: string) {
     val data = collection.getCollectionData();
     val royalty = collection.royaltyParams();
     println("{} COLLECTION_ADDRESS={}", label, collection.address);
@@ -169,7 +169,7 @@ fun printNftCollectionInfo(collection: NftCollectionContract, label: string) {
     );
 }
 
-fun printNftItemInfo(item: NftItemContract, label: string) {
+fun printNftItemInfo(item: NftItem, label: string) {
     val data = item.getNftData();
     println("{} ITEM_ADDRESS={}", label, item.address);
     println("{} INITIALIZED={}", label, data.isInitialized);

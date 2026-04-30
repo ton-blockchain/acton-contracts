@@ -9,7 +9,8 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../../contracts/messages"
 import "../../contracts/storage"
-import "../../wrappers/WalletV5Contract"
+import "../../wrappers/WalletV5.gen"
+import "../../wrappers/utils"
 
 const W5_DEFAULT_SEED_HEX = "0x2222222222222222222222222222222222222222222222222222222222222222"
 const W5_DEFAULT_SUBWALLET_ID = "0"
@@ -100,8 +101,8 @@ fun promptW5SubwalletId(): int {
     );
 }
 
-fun buildW5FromKey(keyPair: KeyPair, subwalletId: int): WalletV5Contract {
-    return WalletV5Contract.fromStorage(Storage {
+fun buildW5FromKey(keyPair: KeyPair, subwalletId: int): WalletV5 {
+    return WalletV5.fromLibraryStorage(Storage {
         isSignatureAllowed: true,
         seqno: 0,
         subwalletId,
@@ -110,7 +111,7 @@ fun buildW5FromKey(keyPair: KeyPair, subwalletId: int): WalletV5Contract {
     });
 }
 
-fun resolveW5Wallet(keyPair: KeyPair, subwalletId: int): WalletV5Contract {
+fun resolveW5Wallet(keyPair: KeyPair, subwalletId: int): WalletV5 {
     val derived = buildW5FromKey(keyPair, subwalletId);
     val explicit = env<address>("W5_WALLET_ADDRESS");
     if (explicit != null && explicit != derived.address) {
@@ -119,7 +120,7 @@ fun resolveW5Wallet(keyPair: KeyPair, subwalletId: int): WalletV5Contract {
             explicit,
             derived.address,
         );
-        return WalletV5Contract { address: explicit };
+        return WalletV5 { address: explicit };
     }
     return derived;
 }
@@ -129,7 +130,7 @@ fun deployW5Wallet(
     keyPair: KeyPair,
     subwalletId: int,
     value: coins,
-): WalletV5Contract {
+): WalletV5 {
     val wallet = buildW5FromKey(keyPair, subwalletId);
     val res = wallet.deploy(deployer.address, { value, bounce: false });
     res.waitForFirstTransaction();
@@ -157,7 +158,7 @@ fun buildSendAction(
     };
 }
 
-fun printW5Info(wallet: WalletV5Contract, label: string) {
+fun printW5Info(wallet: WalletV5, label: string) {
     val deployed = scripts.isContractDeployed(wallet.address);
     println("{} ADDRESS={}", label, wallet.address);
     println("{} DEPLOYED={}", label, deployed);

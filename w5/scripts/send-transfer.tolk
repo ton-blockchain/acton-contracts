@@ -3,7 +3,8 @@ import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "utils/common"
-import "../wrappers/WalletV5Contract"
+import "../wrappers/WalletV5.gen"
+import "../wrappers/utils"
 
 fun main() {
     val keyPair = promptW5KeyPair();

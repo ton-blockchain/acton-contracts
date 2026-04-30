@@ -4,7 +4,8 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "common"
-import "../wrappers/JettonMinter"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/utils"
 
 fun main() {
     val walletName = "deployer";
@@ -14,7 +15,7 @@ fun main() {
     val nextAdmin = envOr("JETTON_NEXT_ADMIN", deployer.address);
     val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
 
-    val expectedMinter = JettonMinter.fromStorage({
+    val expectedMinter = NotcoinMinter.fromStorage({
         totalSupply: initialSupply,
         adminAddress: deployer.address,
         jettonWalletCode: build("NotcoinWallet"),
@@ -24,9 +25,9 @@ fun main() {
     var minter = expectedMinter;
     val minterAddress: address? = env("JETTON_MINTER_ADDRESS");
     if (minterAddress != null) {
-        minter = JettonMinter {
+        minter = NotcoinMinter {
             address: minterAddress,
-            init: expectedMinter.init,
+            stateInit: expectedMinter.stateInit,
         };
     }
 

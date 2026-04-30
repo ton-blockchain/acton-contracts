@@ -12,9 +12,11 @@ fun CreditsMap.unfreezeWithoutBonuces(mutate self, freezeDict: FrozenDict, total
     var total = 0;
     var recovered = 0;
     var pubkey = -1;
+    var freezeFound = true;
     do {
         val freezeLookup = freezeDict.findKeyGreater(pubkey);
-        if (freezeLookup.isFound) {
+        freezeFound = freezeLookup.isFound;
+        if (freezeFound) {
             val freezeVal = freezeLookup.loadValue();
             pubkey = freezeLookup.getKey();
             if (freezeVal.isBanned) {
@@ -24,7 +26,7 @@ fun CreditsMap.unfreezeWithoutBonuces(mutate self, freezeDict: FrozenDict, total
             }
             total += freezeVal.stake;
         }
-    } while (freezeLookup.isFound);
+    } while (freezeFound);
 
     assert (total == totalStakes) throw 59;
     return (recovered);
@@ -40,9 +42,11 @@ fun CreditsMap.unfreezeWithBonuces(
     var recovered = 0;
     var returnedBonuces = 0;
     var pubkey = -1;
+    var freezeFound = true;
     do {
         val freezeLookup = freezeDict.findKeyGreater(pubkey);
-        if (freezeLookup.isFound) {
+        freezeFound = freezeLookup.isFound;
+        if (freezeFound) {
             val freezeVal = freezeLookup.loadValue();
             pubkey = freezeLookup.getKey();
             if (freezeVal.isBanned) {
@@ -54,7 +58,7 @@ fun CreditsMap.unfreezeWithBonuces(
             }
             total += freezeVal.stake;
         }
-    } while (freezeLookup.isFound);
+    } while (freezeFound);
 
     assert ((total == totalStakes) && (returnedBonuces <= totalBonuses)) throw 59;
 
@@ -64,14 +68,16 @@ fun CreditsMap.unfreezeWithBonuces(
 fun stakesSum(frozenDict: FrozenDict): int {
     var total = 0;
     var pubkey = -1;
+    var freezeFound = true;
     do {
         val freezeLookup = frozenDict.findKeyGreater(pubkey);
-        if (freezeLookup.isFound) {
+        freezeFound = freezeLookup.isFound;
+        if (freezeFound) {
             val freezeVal = freezeLookup.loadValue();
             pubkey = freezeLookup.getKey();
             total += freezeVal.stake;
         }
-    } while (freezeLookup.isFound);
+    } while (freezeFound);
     return total;
 }
 

@@ -1,0 +1,396 @@
+{
+  "timestamp": 1777479645,
+  "opcodes": {
+    "0xd6745242": {
+      "min_gas": 888,
+      "max_gas": 888,
+      "avg_gas": 888,
+      "samples": 1,
+      "all_values": [
+        888
+      ]
+    },
+    "SetCustomParamRequest": {
+      "min_gas": 7877,
+      "max_gas": 7877,
+      "avg_gas": 7877,
+      "samples": 2,
+      "all_values": [
+        7877,
+        7877
+      ]
+    },
+    "0xee565052": {
+      "min_gas": 888,
+      "max_gas": 888,
+      "avg_gas": 888,
+      "samples": 1,
+      "all_values": [
+        888
+      ]
+    },
+    "NewVotingProposalRequest": {
+      "min_gas": 13478,
+      "max_gas": 13478,
+      "avg_gas": 13478,
+      "samples": 1,
+      "all_values": [
+        13478
+      ]
+    },
+    "VoteForProposalRequest": {
+      "min_gas": 12206,
+      "max_gas": 12206,
+      "avg_gas": 12206,
+      "samples": 1,
+      "all_values": [
+        12206
+      ]
+    },
+    "0xef764f4b": {
+      "min_gas": 309,
+      "max_gas": 309,
+      "avg_gas": 309,
+      "samples": 2,
+      "all_values": [
+        309,
+        309
+      ]
+    }
+  },
+  "trace_chains": {
+    "test config e2e bench: stage 2 set custom slot::trace#12": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 12",
+      "tx_count": 2,
+      "total_gas_used": 8186,
+      "total_gas_fees": 3274400,
+      "total_forward_fees": 728273,
+      "total_fees": 3407731
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#8": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#1": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#1": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#9": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#5": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#7": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#6": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#11": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 1271,
+      "total_gas_fees": 508400,
+      "total_forward_fees": 127931377,
+      "total_fees": 508400
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#10": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#13": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 13",
+      "tx_count": 3,
+      "total_gas_used": 14366,
+      "total_gas_fees": 5746400,
+      "total_forward_fees": 13775573,
+      "total_fees": 12412964
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#11": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 1271,
+      "total_gas_fees": 508400,
+      "total_forward_fees": 127931377,
+      "total_fees": 508400
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#2": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#5": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#7": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#8": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#3": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#3": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#2": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#10": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#9": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#11": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 1271,
+      "total_gas_fees": 508400,
+      "total_forward_fees": 127931377,
+      "total_fees": 508400
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#10": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#4": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#3": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#12": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 12",
+      "tx_count": 2,
+      "total_gas_used": 8186,
+      "total_gas_fees": 3274400,
+      "total_forward_fees": 728273,
+      "total_fees": 3407731
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#9": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#7": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#6": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#2": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#1": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 547738,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#4": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 2 set custom slot::trace#8": {
+      "test_name": "test config e2e bench: stage 2 set custom slot",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#4": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#5": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test config e2e bench: stage 1 deploy contract::trace#6": {
+      "test_name": "test config e2e bench: stage 1 deploy contract",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 6666718,
+      "total_fees": 0
+    },
+    "test config e2e bench: stage 3 create proposal and record first internal vote::trace#14": {
+      "test_name": "test config e2e bench: stage 3 create proposal and record first internal vote",
+      "trace_name": "Trace 14",
+      "tx_count": 3,
+      "total_gas_used": 13094,
+      "total_gas_fees": 5237600,
+      "total_forward_fees": 13869974,
+      "total_fees": 11904164
+    }
+  }
+}

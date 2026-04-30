@@ -11,8 +11,9 @@ import "../contracts/jetton-utils"
 import "../contracts/messages"
 import "../contracts/storage"
 import "../contracts/types"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/JettonMinter.gen"
+import "../wrappers/JettonWallet.gen"
+import "../wrappers/utils"
 
 fun buildTestMetadata(uri: string): cell {
     var metadata: OnchainMetadataReply = { contentDict: [] };
@@ -146,7 +147,7 @@ fun setupDirectWallet(initialBalance: coins = 0): (JettonWallet, Treasury, Treas
         owner.address,
     );
 
-    if (initialBalance) {
+    if (initialBalance != 0) {
         val topUp = net.send(
             minter.address,
             createMessage({

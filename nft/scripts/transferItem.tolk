@@ -3,17 +3,17 @@ import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "utils/common"
-import "../wrappers/NftItemContract"
+import "../wrappers/utils"
 
 fun main() {
     val deployer = promptNftWallet("Select NFT Deployer");
-    val item = promptNftItemContract("Enter NFT Item address");
+    val item = promptNftItem("Enter NFT Item address");
     val newOwner = promptNftAddress(
         "Enter new owner address",
         scripts.wallet("nft-new-owner").address,
     );
 
-    val res = item.sendAskToChangeOwnership(
+    val res = item.sendTransferPayloadAuto(
         deployer.address,
         0,
         newOwner,

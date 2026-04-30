@@ -6,7 +6,8 @@ import "@acton/types/out_actions"
 import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/messages"
-import "../wrappers/HighloadWalletV3"
+import "../wrappers/HighloadWalletV3.gen"
+import "../wrappers/utils"
 
 fun messageWithInternalSource(src: address, dest: address): cell {
     var msg = (createMessage({

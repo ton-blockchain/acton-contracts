@@ -1,21 +1,16 @@
-import "@acton/build"
 import "@acton/crypto"
 import "@acton/ffi"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/types/out_actions"
+import "HighloadWalletV3.gen"
 import "../contracts/messages"
 import "../contracts/storage"
 
 const HIGHLOAD_BIT_NUMBER_SIZE = 10
 const HIGHLOAD_MAX_INLINE_ACTIONS = 254
 const HIGHLOAD_CHAIN_CUT = 253
-
-struct HighloadWalletV3 {
-    address: address
-    stateInit: ContractState? = null
-}
 
 struct HighloadExternalRequest {
     messageToSend: cell
@@ -26,29 +21,12 @@ struct HighloadExternalRequest {
     timeout: int
 }
 
-fun HighloadWalletV3.fromStorage(
-    storage: HighloadWalletStorage,
-    toShard: AddressShardingOptions? = null,
-) {
-    val stateInit = ContractState {
-        code: build("HighloadWalletV3"),
-        data: storage.toCell(),
-    };
-    val cAddress = toShard == null
-        ? AutoDeployAddress { stateInit }.calculateAddress()
-        : AutoDeployAddress { stateInit, toShard }.calculateAddress();
-    return HighloadWalletV3 {
-        address: cAddress,
-        stateInit,
-    };
-}
-
 fun HighloadWalletV3.fromConfig(
     publicKey: int,
     subwalletId: int,
     timeout: int,
     toShard: AddressShardingOptions? = null,
-) {
+): HighloadWalletV3 {
     return HighloadWalletV3.fromStorage(
         HighloadWalletStorage {
             publicKey,
@@ -60,10 +38,6 @@ fun HighloadWalletV3.fromConfig(
         },
         toShard,
     );
-}
-
-fun HighloadWalletV3.fromAddress(address: address) {
-    return HighloadWalletV3 { address };
 }
 
 fun HighloadWalletV3.code(self): cell {
@@ -80,38 +54,9 @@ fun HighloadWalletV3.initialData(self): cell {
     return self.stateInit!.data;
 }
 
-fun HighloadWalletV3.deploy(self, from: address, config: SendParams = {}): SendResultList {
-    if (self.stateInit == null) {
-        Assert.fail("Cannot deploy contract created from address only");
-    }
-    val deployMessage = createMessage({
-        bounce: config.bounce,
-        value: config.value,
-        dest: { stateInit: self.stateInit! },
-    });
-    return net.send(from, deployMessage);
-}
-
-fun HighloadWalletV3.getPublicKey(self): int {
-    return net.runGetMethod(self.address, "get_public_key");
-}
-
-fun HighloadWalletV3.getSubwalletId(self): int {
-    return net.runGetMethod(self.address, "get_subwallet_id");
-}
-
-fun HighloadWalletV3.getTimeout(self): int {
-    return net.runGetMethod(self.address, "get_timeout");
-}
-
-fun HighloadWalletV3.getLastCleanTime(self): int {
-    return net.runGetMethod(self.address, "get_last_clean_time");
-}
-
 fun HighloadWalletV3.isProcessed(self, queryId: int, needClean: bool = true): bool {
     val cleanFlag = needClean ? -1 : 0;
-    val res: int = net.runGetMethod(self.address, "processed?", [queryId, cleanFlag]);
-    return res != 0;
+    return self.processed(queryId, cleanFlag);
 }
 
 fun HighloadWalletV3.queryIdShift(queryId: int): uint13 {

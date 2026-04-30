@@ -5,7 +5,7 @@ import "@acton/testing/expect"
 import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
-import "../wrappers/ConfigContract"
+import "../wrappers/Config.gen"
 
 const OP_ELECTOR_CODE_CHANGE_ACTION = 0x4e436f64
 const TEST_SPECIAL_PUBKEY_INT = 0x123456789abcdef

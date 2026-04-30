@@ -1,8 +1,8 @@
-# Acton Contracts
+# Reference TON contracts
 
-Reference-grade TON contracts in Tolk, built with the Acton toolchain.
+Reference-grade TON contracts in Tolk, built with the [Acton toolchain](https://ton-blockchain.github.io/acton/).
 
-This monorepo collects reference implementations for main TON ecosystem contracts, build with modern Tolk + Acton stack. Each contract system is kept interface-compatible with its original FunC version. Where it was possible, Tolk BoCs were tested against existing Typescript Sandbox tests.
+This monorepo collects reference implementations for core TON ecosystem contracts, built on the modern Tolk and Acton stack. Each contract system preserves interface compatibility with its original FunC implementation. Where practical, compiled Tolk BoCs are validated against the existing TypeScript Sandbox test suites.
 
 ## Included
 
@@ -11,7 +11,44 @@ This monorepo collects reference implementations for main TON ecosystem contract
 - Tokens and assets: [`nft`](./nft/), [`jetton-v2`](./jetton-v2/), [`notcoin`](./notcoin/)
 - Minimal example: [`counter`](./counter/)
 
-Each suite is organized as a self-contained package with `contracts/`, `tests/`, and, where needed, `scripts/`. Selected suites also carry benchmark baselines for regression tracking.
+Each suite is organized as a self-contained package with `contracts/`, `tests/`, and `scripts/`. Selected suites also include benchmark baselines for regression tracking.
+
+## Get started with Acton
+
+[Acton](https://ton-blockchain.github.io/acton/) is a modern toolchain for TON smart contract development. It includes a native Tolk test runtime, an IDE-integrated debugger, dApp-ready templates, wallet management with testnet faucet support, and a scripting framework.
+
+Install Acton:
+
+```bash
+curl -LsSf https://ton.org/acton/install.sh | sh
+```
+
+Learn more in the [Acton documentation](https://ton-blockchain.github.io/acton/docs/welcome).
+
+## AI integrations
+
+Acton and this monorepo are designed to work well with AI coding agents. Install the TON development skills:
+
+```bash
+npx skills add https://github.com/ton-blockchain/acton-contracts/tree/skills/skills
+# Or for a specific agent
+npx skills add https://github.com/ton-blockchain/acton-contracts/tree/skills/skills/acton -g -a claude-code -y
+```
+
+Then ask your agent to complete an engineering task in this project:
+
+"Optimize multisig-v2 gas usage. Use $acton and $tolk skills. Make gas snapshots and run benchmarks for comparison between different versions. Your optimizations should pass all current tests."
+
+
+## Wrappers
+
+All `WrapperName.gen.tolk` wrappers in this monorepo are generated automatically and used for Tolk testing and scripting. Use `acton wrapper ContractName` to generate them.
+
+To generate TypeScript wrappers:
+
+```bash
+acton wrapper --ts ContractName
+```
 
 ## Workflow
 
@@ -29,6 +66,12 @@ acton test dns/tests
 acton test elector/tests
 acton test multisig-v2/tests
 ```
+
+### Benchmarks
+
+Each `**/tests/benchmarks/*.json` file is a gas snapshot baseline, that can be used to compare different implementations in terms of gas efficency. See `**/tests/e2e-happy-paths.test.tolk` for end-to-end tests, that are used as benchmark for gas measurements.
+
+Using DNS set of contracts as example (replace DNS with desired contract-set folder):
 
 Run a benchmark comparison against the checked-in DNS baseline:
 

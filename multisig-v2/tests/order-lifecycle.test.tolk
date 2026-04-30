@@ -6,12 +6,14 @@ import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/MultisigV2Order"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 struct OrderFixture {
     multisig: Treasury
     notSigner: Treasury
-    order: MultisigV2Order
+    order: Order
     signers: array<address>
     orderBody: DirectOrderActionsMap
     threshold: int
@@ -34,7 +36,7 @@ fun setupOrderFixture(threshold: int = 5, signerCount: int = 10): OrderFixture {
     val recipient = randomAddress("order_recipient");
     val orderBody = singleActionOrder(makeTransferAction(recipient, DEFAULT_TRANSFER_VALUE, 12345));
 
-    val order = MultisigV2Order.fromConfig(multisig.address, 0);
+    val order = Order.fromConfig(multisig.address, 0);
     val expirationDate = nowPlus(1000);
 
     val deploy = order.deployWithInit(
@@ -106,7 +108,7 @@ get fun `test order: should deploy`() {
 
 get fun `test order: should only accept init message from multisig`() {
     val fixture = setupOrderFixture();
-    val nextOrder = MultisigV2Order.fromConfig(fixture.multisig.address, 1234);
+    val nextOrder = Order.fromConfig(fixture.multisig.address, 1234);
     val outsider = testing.treasury("order-outsider-init");
 
     val fail = nextOrder.deployWithInit(
@@ -152,7 +154,7 @@ get fun `test order: should only accept init message from multisig`() {
 
 get fun `test order: should reject already expired init message`() {
     val fixture = setupOrderFixture();
-    val nextOrder = MultisigV2Order.fromConfig(fixture.multisig.address, 777);
+    val nextOrder = Order.fromConfig(fixture.multisig.address, 777);
 
     val fail = nextOrder.deployWithInit(
         fixture.multisig.address,
@@ -717,7 +719,7 @@ get fun `test order: should handle 255 signers`() {
         makeTransferAction(randomAddress("order_255_target"), DEFAULT_TRANSFER_VALUE, 42),
     );
 
-    val jumboOrder = MultisigV2Order.fromConfig(multisig.address, 1);
+    val jumboOrder = Order.fromConfig(multisig.address, 1);
     val deploy = jumboOrder.deployWithInit(
         multisig.address,
         255,

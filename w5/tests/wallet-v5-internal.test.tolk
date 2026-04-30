@@ -2,10 +2,12 @@ import "@acton/crypto"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
+import "../contracts/c5-register-validation"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/WalletV5Contract"
+import "../wrappers/WalletV5.gen"
+import "../wrappers/utils"
 
 get fun `test w5: Send a simple transfer`() {
     val keyPair = crypto.generateKeyPair();
@@ -674,7 +676,7 @@ get fun `test w5: Should fail disallowing signature auth with no exts`() {
         extraActions,
     }.toCell();
 
-    val receipt = walletV5.sendExtensionActionRequest(
+    val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
         actionsBody,
         0,
@@ -703,7 +705,7 @@ get fun `test w5: Should fail allowing signature auth when allowed`() {
         extraActions,
     }.toCell();
 
-    val receipt = walletV5.sendExtensionActionRequest(
+    val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
         actionsBody,
         0,
@@ -735,7 +737,7 @@ get fun `test w5: Should add ext and disallow signature auth`() {
         extraActions,
     }.toCell();
 
-    val receipt = walletV5.sendExtensionActionRequest(
+    val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
         actionsBody,
         0,
@@ -776,7 +778,7 @@ get fun `test w5: Should add ext and disallow signature auth in separate txs`() 
         extraActions: extraActions1,
     }.toCell();
 
-    val receipt1 = walletV5.sendExtensionActionRequest(
+    val receipt1 = walletV5.sendExtensionActionBody(
         deployer.address,
         actionsBody1,
         0,
@@ -804,7 +806,7 @@ get fun `test w5: Should add ext and disallow signature auth in separate txs`() 
         extraActions: extraActions2,
     }.toCell();
 
-    val receipt2 = walletV5.sendExtensionActionRequest(
+    val receipt2 = walletV5.sendExtensionActionBody(
         deployer.address,
         actionsBody2,
         0,
@@ -843,7 +845,7 @@ get fun `test w5: Should add ext disallow sign allow sign remove ext in one tx t
         extraActions,
     }.toCell();
 
-    val receipt = walletV5.sendExtensionActionRequest(
+    val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
         actionsBody,
         0,
@@ -907,7 +909,7 @@ get fun `test w5: Should fail removing last extension with signature auth disabl
         extraActions,
     }.toCell();
 
-    val receipt = walletV5.sendExtensionActionRequest(
+    val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
         actionsBody,
         0,
@@ -940,7 +942,7 @@ get fun `test w5: Should fail disallowing signature auth twice in tx`() {
         extraActions,
     }.toCell();
 
-    val receipt = walletV5.sendExtensionActionRequest(
+    val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
         actionsBody,
         0,
@@ -972,7 +974,7 @@ get fun `test w5: Should add ext disallow sig auth then fail different signed tx
         extraActions,
     }.toCell();
 
-    val receipt1 = walletV5.sendExtensionActionRequest(
+    val receipt1 = walletV5.sendExtensionActionBody(
         deployer.address,
         actionsBody,
         0,

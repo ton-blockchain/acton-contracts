@@ -1,0 +1,457 @@
+{
+  "timestamp": 1777479637,
+  "opcodes": {
+    "ExecuteOrderRequest": {
+      "min_gas": 4647,
+      "max_gas": 4647,
+      "avg_gas": 4647,
+      "samples": 1,
+      "all_values": [
+        4647
+      ]
+    },
+    "ApproveRequest": {
+      "min_gas": 4949,
+      "max_gas": 7221,
+      "avg_gas": 5706,
+      "samples": 3,
+      "all_values": [
+        4949,
+        4949,
+        7221
+      ]
+    },
+    "TextComment": {
+      "min_gas": 594,
+      "max_gas": 594,
+      "avg_gas": 594,
+      "samples": 3,
+      "all_values": [
+        594,
+        594,
+        594
+      ]
+    },
+    "0x00067932": {
+      "min_gas": 388,
+      "max_gas": 388,
+      "avg_gas": 388,
+      "samples": 1,
+      "all_values": [
+        388
+      ]
+    },
+    "InitOrderRequest": {
+      "min_gas": 2563,
+      "max_gas": 2563,
+      "avg_gas": 2563,
+      "samples": 3,
+      "all_values": [
+        2563,
+        2563,
+        2563
+      ]
+    },
+    "NewOrderRequest": {
+      "min_gas": 9441,
+      "max_gas": 9441,
+      "avg_gas": 9441,
+      "samples": 3,
+      "all_values": [
+        9441,
+        9441,
+        9441
+      ]
+    },
+    "ApproveAccepted": {
+      "min_gas": 309,
+      "max_gas": 309,
+      "avg_gas": 309,
+      "samples": 2,
+      "all_values": [
+        309,
+        309
+      ]
+    }
+  },
+  "trace_chains": {
+    "test multisig e2e bench: stage 1 create new order::trace#11": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#10": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#5": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#10": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#2": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 549871,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#8": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#5": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#12": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 594,
+      "total_gas_fees": 237600,
+      "total_forward_fees": 5772311,
+      "total_fees": 237600
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#12": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 594,
+      "total_gas_fees": 237600,
+      "total_forward_fees": 5772311,
+      "total_fees": 237600
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#13": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 13",
+      "tx_count": 2,
+      "total_gas_used": 12004,
+      "total_gas_fees": 4801600,
+      "total_forward_fees": 2075750,
+      "total_fees": 5519989
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#6": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#4": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#13": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 13",
+      "tx_count": 2,
+      "total_gas_used": 12004,
+      "total_gas_fees": 4801600,
+      "total_forward_fees": 2075750,
+      "total_fees": 5519989
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#9": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#2": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 549871,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#7": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#9": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#6": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#6": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#10": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#9": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#8": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#14": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 14",
+      "tx_count": 2,
+      "total_gas_used": 5258,
+      "total_gas_fees": 2103200,
+      "total_forward_fees": 533338,
+      "total_fees": 2236531
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#1": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 549871,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#8": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#11": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#1": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 549871,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#7": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#4": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#3": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 549871,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#3": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 549871,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#5": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#1": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 549871,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#2": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 549871,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#14": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 14",
+      "tx_count": 2,
+      "total_gas_used": 5258,
+      "total_gas_fees": 2103200,
+      "total_forward_fees": 533338,
+      "total_fees": 2236531
+    },
+    "test multisig e2e bench: stage 1 create new order::trace#3": {
+      "test_name": "test multisig e2e bench: stage 1 create new order",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 549871,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#4": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#11": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#15": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 15",
+      "tx_count": 5,
+      "total_gas_used": 12256,
+      "total_gas_fees": 4902400,
+      "total_forward_fees": 1808815,
+      "total_fees": 5673454
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#12": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 594,
+      "total_gas_fees": 237600,
+      "total_forward_fees": 5772311,
+      "total_fees": 237600
+    },
+    "test multisig e2e bench: stage 2 vote for order::trace#13": {
+      "test_name": "test multisig e2e bench: stage 2 vote for order",
+      "trace_name": "Trace 13",
+      "tx_count": 2,
+      "total_gas_used": 12004,
+      "total_gas_fees": 4801600,
+      "total_forward_fees": 2075750,
+      "total_fees": 5519989
+    },
+    "test multisig e2e bench: stage 3 execute order::trace#7": {
+      "test_name": "test multisig e2e bench: stage 3 execute order",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 0,
+      "total_gas_fees": 0,
+      "total_forward_fees": 266669,
+      "total_fees": 0
+    }
+  }
+}

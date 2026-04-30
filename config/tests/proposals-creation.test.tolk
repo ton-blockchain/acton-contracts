@@ -7,7 +7,7 @@ import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/ConfigContract"
+import "../wrappers/Config.gen"
 
 fun assertProposalCreateOutcome(
     ctx: ConfigTestContext,

@@ -6,7 +6,8 @@ import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/Elector"
+import "../wrappers/Elector.gen"
+import "../wrappers/utils"
 
 /// Set up config param 34 with known validators (with ADNL addresses).
 /// Returns array of KeyPairs used for the validators.

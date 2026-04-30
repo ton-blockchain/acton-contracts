@@ -7,7 +7,7 @@ import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
 import "../contracts/storage"
-import "../wrappers/ConfigContract"
+import "../wrappers/Config.gen"
 
 fun deepCell(depth: int): cell {
     var c = beginCell().storeUint(1, 1).endCell();

@@ -9,7 +9,9 @@ import "test-utils"
 import "../contracts/messages"
 import "../contracts/order-helpers"
 import "../contracts/types"
-import "../wrappers/MultisigV2"
+import "../wrappers/Multisig.gen"
+import "../wrappers/Order.gen"
+import "../wrappers/utils"
 
 const PROBE_NOW = 1000
 
@@ -97,9 +99,12 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
         i += 1;
     }
 
-    val multisig = MultisigV2.fromConfig(2, signers, array<address> [proposer.address], false);
+    val multisig = Multisig.fromConfig(2, signers, array<address> [proposer.address], false);
     val deployValue = signerCount > 10 ? ton("200") : ton("20");
-    val deploy = multisig.deploy(signer0.address, { value: deployValue, bounce: false });
+    val deploy = multisig.deployWithInitBody(
+        signer0.address,
+        { value: deployValue, bounce: false },
+    );
     expect(deploy).toHaveSuccessfulDeploy({ to: multisig.address });
 
     val signersMap = toDirectIndexedAddressMap(signers);

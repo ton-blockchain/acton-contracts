@@ -4,8 +4,9 @@ import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/NotcoinWallet.gen"
+import "../wrappers/utils"
 
 get fun `test validation: malformed forward payload should be rejected`() {
     val (minter, deployer, _) = setupTest();

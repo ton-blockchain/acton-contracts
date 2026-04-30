@@ -5,7 +5,7 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../contracts/storage"
 import "../tests/test-utils"
-import "../wrappers/DnsItem"
+import "../wrappers/DnsItem.gen"
 
 fun main() {
     val deployer = scripts.wallet("deployer-2");
@@ -20,7 +20,7 @@ fun main() {
         return;
     }
 
-    val item = NftItemContract.fromAddress(itemAddress!);
+    val item = DnsItem.fromAddress(itemAddress!);
     if (!scripts.isContractDeployed(item.address)) {
         println("Item is not deployed in the current execution context: {}", item.address);
         return;

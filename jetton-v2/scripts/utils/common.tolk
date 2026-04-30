@@ -1,5 +1,4 @@
 import "@stdlib/strings"
-import "@acton/build"
 import "@acton/env"
 import "@acton/fmt"
 import "@acton/io"
@@ -8,8 +7,9 @@ import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../../contracts/storage"
 import "../../contracts/types"
-import "../../wrappers/JettonMinter"
-import "../../wrappers/JettonWallet"
+import "../../wrappers/JettonMinter.gen"
+import "../../wrappers/JettonWallet.gen"
+import "../../wrappers/utils"
 
 const JETTON_DEFAULT_NAME = "Acton Sample Jetton"
 const JETTON_DEFAULT_SYMBOL = "ACTON"
@@ -72,13 +72,7 @@ fun promptJettonWallet(envName: string, message: string): ActonWallet {
 
 fun promptJettonMinter(message: string): JettonMinter {
     val addr = promptJettonAddressRequired("JETTON_MINTER_ADDRESS", message);
-    return JettonMinter {
-        address: addr,
-        init: ContractState {
-            code: build("JettonMinter"),
-            data: beginCell().endCell(),
-        },
-    };
+    return JettonMinter.fromAddress(addr);
 }
 
 fun promptJettonMetadata(descriptionDefault: string): JettonMetadata {

@@ -7,7 +7,7 @@ import "test-utils"
 import "../contracts/dns-utils"
 import "../contracts/errors"
 import "../contracts/messages"
-import "../wrappers/DnsItem"
+import "../wrappers/DnsItem.gen"
 
 fun setupCompletedItem() {
     val (item, collection, owner, bidder) = deployItemThroughCollection();

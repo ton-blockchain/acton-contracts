@@ -4,8 +4,8 @@ import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "../contracts/messages"
 import "../contracts/types"
-import "../wrappers/NftCollectionContract"
-import "../wrappers/NftItemContract"
+import "../wrappers/NftCollection.gen"
+import "../wrappers/NftItem.gen"
 
 struct Royalty {
     numerator: int
@@ -66,7 +66,7 @@ get fun `test nft: should not allow any other opcode not from owner`() {
     shouldNotAllowAnyOtherOpcodeNotFromOwner(0x42);
 }
 
-fun nftFixture(nftCollection: NftCollectionContract, nftOwnerAddress: address) {
+fun nftFixture(nftCollection: NftCollection, nftOwnerAddress: address) {
     val deployer = testing.treasury("deployer");
     val nextItemIndex = nftCollection.getCollectionData().nextItemIndex;
     val nftDeployResult = nftCollection.sendDeployNft(
@@ -87,7 +87,7 @@ fun nftFixture(nftCollection: NftCollectionContract, nftOwnerAddress: address) {
 
     expect(nftDeployResult).toHaveSuccessfulDeploy({ from: nftCollection.address, to: nftAddress });
 
-    return NftItemContract.fromAddress(nftAddress);
+    return NftItem.fromAddress(nftAddress);
 }
 
 /// Initializes the test environment, creating a fresh instance of the contract.
@@ -102,7 +102,7 @@ fun setupTest() {
     };
 
     // Initialize and deploy the contract with default values
-    val nftCollection = NftCollectionContract.fromStorage({
+    val nftCollection = NftCollection.fromStorage({
         adminAddress: deployer.address,
         nextItemIndex: 0,
         content: CollectionContent {
@@ -148,7 +148,7 @@ get fun `test nft: should deploy nft`() {
         // TODO initCode: nftItemCode,
     });
 
-    val nftItem = NftItemContract.fromAddress(nftAddress);
+    val nftItem = NftItem.fromAddress(nftAddress);
     val data = nftItem.getNftData();
 
     expect(data.isInitialized).toBeTrue();
@@ -285,7 +285,7 @@ get fun `test nft: should deploy some nfts via batch deploy`() {
             to: nftAddress,
         });
 
-        val nftItem = NftItemContract.fromAddress(nftAddress);
+        val nftItem = NftItem.fromAddress(nftAddress);
         val data = nftItem.getNftData();
 
         expect(data.isInitialized).toBeTrue();

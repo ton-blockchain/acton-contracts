@@ -1,10 +1,14 @@
-import "types"
-
 const COMMENT_APPROVE = "approve".literalSlice()
 
 struct (0x00000000) TextComment {
     comment: RemainingBitsAndRefs
 }
+
+type IndexedAddressMap = map<uint8, address>
+
+type DirectIndexedAddressMap = map<uint8, address>
+
+type DirectOrderActionsMap = map<uint8, cell>
 
 // if signer wants to approve, he will provide his index;
 // just false otherwise

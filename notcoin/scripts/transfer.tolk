@@ -4,8 +4,9 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "common"
-import "../wrappers/JettonMinter"
-import "../wrappers/JettonWallet"
+import "../wrappers/NotcoinMinter.gen"
+import "../wrappers/NotcoinWallet.gen"
+import "../wrappers/utils"
 
 fun main() {
     val walletName = "deployer";
@@ -23,7 +24,7 @@ fun main() {
     val prefundMintTonAmount = envOr("JETTON_PREFUND_MINT_TON_AMOUNT", ton("0.08"));
     val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
 
-    val expectedMinter = JettonMinter.fromStorage({
+    val expectedMinter = NotcoinMinter.fromStorage({
         totalSupply: initialSupply,
         adminAddress: deployer.address,
         jettonWalletCode: build("NotcoinWallet"),
@@ -33,9 +34,9 @@ fun main() {
     val minterAddress: address? = env("JETTON_MINTER_ADDRESS");
     var minter = expectedMinter;
     if (minterAddress != null) {
-        minter = JettonMinter {
+        minter = NotcoinMinter {
             address: minterAddress,
-            init: expectedMinter.init,
+            stateInit: expectedMinter.stateInit,
         };
     }
 
@@ -52,7 +53,7 @@ fun main() {
         return;
     }
 
-    val senderWallet = JettonWallet { address: minter.getWalletAddress(deployer.address) };
+    val senderWallet = NotcoinWallet { address: minter.getWalletAddress(deployer.address) };
     val senderWalletDeployed = scripts.isContractDeployed(senderWallet.address);
     val senderBalanceBefore = senderWalletDeployed ? senderWallet.getJettonBalance() : 0 as coins;
     if (!senderWalletDeployed || senderBalanceBefore < transferAmount) {
@@ -91,7 +92,7 @@ fun main() {
         return;
     }
 
-    val recipientWallet = JettonWallet { address: minter.getWalletAddress(transferRecipient) };
+    val recipientWallet = NotcoinWallet { address: minter.getWalletAddress(transferRecipient) };
 
     println("Sender balance after: {}", senderWallet.getJettonBalance());
     println("Recipient wallet: {}", recipientWallet.address);

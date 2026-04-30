@@ -9,7 +9,8 @@ import "@acton/types/out_actions"
 import "@acton/types/transaction"
 import "../contracts/bitmap"
 import "../contracts/storage"
-import "../wrappers/HighloadWalletV3"
+import "../wrappers/HighloadWalletV3.gen"
+import "../wrappers/utils"
 
 const SUBWALLET_ID = 239
 const DEFAULT_TIMEOUT = 128
