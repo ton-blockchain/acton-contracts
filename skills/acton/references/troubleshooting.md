@@ -119,20 +119,6 @@ Use these checks before deeper debugging.
   - `acton retrace ...`
   - `acton rpc ...`
 
-## Localnet issues
-
-- Verify the node is running:
-  - `acton localnet start`
-- Pass `--port` explicitly when port assumptions matter. The fallback is `[localnet].port` or runtime default `5411`.
-- `--load-state` and `--db-path` cannot be used together.
-- If startup accounts fail, confirm `[localnet].accounts` names resolve to real wallets.
-- For localnet deploys, start the node first:
-  - `acton localnet start`
-  - `acton script scripts/deploy.tolk --net localnet`
-- Fund local accounts with:
-  - `acton localnet airdrop <address> --amount <ton>`
-  - or `acton wallet airdrop <wallet-name> --net localnet`
-
 ## Verification mismatch
 
 - Rebuild locally with `acton build --clear-cache`.
@@ -159,5 +145,5 @@ Use these checks before deeper debugging.
 ## Missing deploy command confusion
 
 - Use `acton script scripts/deploy.tolk` for local emulation.
-- Use `acton script scripts/deploy.tolk --net testnet|mainnet|localnet` for network deployment.
+- Use `acton script scripts/deploy.tolk --net testnet|mainnet` for network deployment.
 - Acton deployment is script-driven by design; there is no `acton deploy` command.

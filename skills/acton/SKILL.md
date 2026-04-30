@@ -1,6 +1,6 @@
 ---
 name: acton
-description: "Acton CLI workflow for TON smart contract development in Tolk: install/update, project bootstrap, Acton.toml configuration, build/compile/wrapper generation, tests with coverage/gas/fuzz/mutation/UI, scripts and deployment, wallets, verification, localnet, RPC inspection, libraries, lint/format/hooks, LSP/completions, and troubleshooting."
+description: "Acton CLI workflow for TON smart contract development in Tolk: install/update, project bootstrap, Acton.toml configuration, build/compile/wrapper generation, tests with coverage/gas/fuzz/mutation/UI, scripts and deployment, wallets, verification, RPC inspection, libraries, lint/format/hooks, LSP/completions, and troubleshooting."
 ---
 
 # Acton TON CLI Workflow
@@ -16,12 +16,18 @@ description: "Acton CLI workflow for TON smart contract development in Tolk: ins
   - `https://ton-blockchain.github.io/acton/docs/welcome/`
   - `https://ton-blockchain.github.io/acton/docs/commands/`
   - `https://ton-blockchain.github.io/acton/llms-full.txt`
+- Use the official examples repo for real project patterns and reference contracts:
+  - `https://github.com/ton-blockchain/acton-contracts`
 - Read bundled references only when needed:
   - `references/command-map.md` for fast command selection
   - `references/troubleshooting.md` for common failure modes
 - Do not assume local paths, private checkouts, or a specific developer machine.
-- Use GitHub source or examples only when the user explicitly asks to inspect upstream implementation or reference contracts. For normal Acton usage, hosted docs plus the local CLI help are enough.
+- Use GitHub source only when the user explicitly asks to inspect upstream implementation. Treat `acton-contracts` as examples of project structure and contract patterns, not as the source of truth for CLI flags.
 - If docs and the installed CLI disagree, state the Acton version and follow the installed CLI for that local workflow. If the user wants latest behavior, suggest `acton up` or the install/update flow first.
+
+## First-release exclusions
+
+- Do not recommend `acton localnet` or `--net localnet`. That feature may remain visible in source or trunk help, but it is excluded from the first release and should be treated as unavailable in public workflows.
 
 ## Install or update Acton
 
@@ -66,7 +72,6 @@ Update and version management:
    - `[wrappers.tolk]`
    - `[wrappers.typescript]`
    - `[fmt]`
-   - `[localnet]`
    - `[test]`
    - `[lint]`
    - `[networks]`
@@ -142,7 +147,7 @@ Project-root rule: config-relative paths are resolved from the project root. Rel
   - `--mutation-workers <n>`
   - `--mutation-minimum-percent <percent>`
 - Fork tests:
-  - `acton test --fork-net testnet|mainnet|localnet|custom:<name>`
+  - `acton test --fork-net testnet|mainnet|custom:<name>`
   - `acton test --fork-net testnet --fork-block-number <seqno>`
 - Test UI and traces:
   - `acton test --ui`
@@ -180,7 +185,7 @@ Project-root rule: config-relative paths are resolved from the project root. Rel
   3. `acton script <path>` to emulate locally
   4. `acton script <path> --net testnet`
   5. only after testnet validation, `acton script <path> --net mainnet`
-- `--net <network>` broadcasts real transactions to `testnet`, `mainnet`, `localnet`, or `custom:<name>`. If `--net` is omitted, execution stays local.
+- `--net <network>` broadcasts real transactions to `testnet`, `mainnet`, or `custom:<name>`. If `--net` is omitted, execution stays local.
 - `--fork-net <network>` reads remote state while executing locally. When `--net` is set, omitted `--fork-net` defaults to the selected network for reads.
 - Common script flags: `--debug`, `--debug-port`, `--backtrace full`, `--verbose`, `--clear-cache`, `--fork-net`, `--fork-block-number`, `--net`, `--explorer tonscan|toncx|dton|tonviewer`, `--show-bodies`.
 - `acton run <script-name> [args...]` runs entries from `[scripts]` in `Acton.toml`.
@@ -190,7 +195,7 @@ Project-root rule: config-relative paths are resolved from the project root. Rel
   - `TONCENTER_MAINNET_API_KEY`
   - `<NORMALIZED_NAME>_API_KEY` for `custom:<name>`
 
-## Wallets, verification, localnet, and inspection
+## Wallets, verification, and inspection
 
 - Wallets:
   - `acton wallet new`
@@ -204,12 +209,6 @@ Project-root rule: config-relative paths are resolved from the project root. Rel
 - Verification:
   - `acton verify [contract-name] --address <addr> --net testnet|mainnet`
   - Useful flags: `--wallet <name>`, `--compiler-version <version>`, `--dry-run`.
-- Local development node:
-  - `acton localnet start`
-  - `acton localnet airdrop <address>`
-  - Common flags: `--port`, `--fork-net`, `--fork-block-number`, `--accounts`, `--db-path`, `--rate-limit`, `--load-state`, `--dump-state`.
-  - Default port is `[localnet].port` or runtime fallback `5411`.
-  - `--load-state` and `--db-path` cannot be used together.
 - RPC inspection:
   - `acton rpc info <address>`
   - `acton rpc block`

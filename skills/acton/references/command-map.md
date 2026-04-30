@@ -76,8 +76,8 @@ Use this file for fast command selection before opening full docs or `acton help
 - `acton test --save-test-trace [DIR]`
 - Use for offline trace bundles.
 
-- `acton test --fork-net testnet|mainnet|localnet|custom:<name> [--fork-block-number N]`
-- Use for forked-state tests against remote or local chain data.
+- `acton test --fork-net testnet|mainnet|custom:<name> [--fork-block-number N]`
+- Use for forked-state tests against remote chain data.
 
 - `acton check [TARGET] [--fix] [--output-format plain|json|sarif|github|gitlab] [--output-file PATH]`
 - Use for linting Tolk code and CI annotations.
@@ -93,19 +93,19 @@ Use this file for fast command selection before opening full docs or `acton help
 - `acton script <PATH> [ARGS...]`
 - Use for local script execution and safe emulation.
 
-- `acton script <PATH> --net testnet|mainnet|localnet|custom:<name> [--explorer tonscan|toncx|dton|tonviewer]`
+- `acton script <PATH> --net testnet|mainnet|custom:<name> [--explorer tonscan|toncx|dton|tonviewer]`
 - Use for network transactions. This can spend TON on real networks.
 
-- `acton script <PATH> --fork-net testnet|mainnet|localnet|custom:<name> [--fork-block-number N]`
+- `acton script <PATH> --fork-net testnet|mainnet|custom:<name> [--fork-block-number N]`
 - Use for read paths against forked chain state without broadcasting.
 
 - `acton run <SCRIPT_NAME> [ARGS...]`
 - Use for shortcuts defined under `[scripts]` in `Acton.toml`.
 
-## Wallets, verification, libraries, localnet, and RPC
+## Wallets, verification, libraries, and RPC
 
 - `acton wallet new|import|list|export-mnemonic|sign|remove|airdrop`
-- Use for wallet lifecycle, signing, and testnet/localnet faucet flows.
+- Use for wallet lifecycle, signing, and testnet faucet flows.
 
 - `acton verify [CONTRACT_NAME] --address <ADDRESS> [--net testnet|mainnet] [--wallet NAME] [--compiler-version VER] [--dry-run]`
 - Use for source verification against TON Verifier.
@@ -113,16 +113,10 @@ Use this file for fast command selection before opening full docs or `acton help
 - `acton library publish|fetch|info|topup`
 - Use for on-chain library lifecycle tasks.
 
-- `acton localnet start [--port PORT] [--fork-net NET] [--fork-block-number N] [--accounts a,b] [--db-path PATH] [--load-state PATH] [--dump-state PATH] [--rate-limit RPS]`
-- Use for local TON-compatible node workflows, fork mode, snapshots, startup accounts, and faucet-backed localnet.
-
-- `acton localnet airdrop <ADDRESS> [--amount TON] [--port PORT]`
-- Use for localnet faucet funding.
-
-- `acton rpc info <ADDRESS> [--net testnet|mainnet|localnet|custom:<name>]`
+- `acton rpc info <ADDRESS> [--net testnet|mainnet|custom:<name>]`
 - Use for remote account inspection and storage decoding when ABI is known.
 
-- `acton rpc block|block-number [--net testnet|mainnet|localnet|custom:<name>]`
+- `acton rpc block|block-number [--net testnet|mainnet|custom:<name>]`
 - Use for quick network liveness and current masterchain block checks.
 
 - `acton rpc trace <HASH> [--net NET] [--summary|--tree|--verbose] [--show-bodies]`
