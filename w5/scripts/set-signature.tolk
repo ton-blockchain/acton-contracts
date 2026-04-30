@@ -9,6 +9,10 @@ import "../wrappers/WalletV5.gen"
 import "../wrappers/utils"
 
 fun main() {
+    val extensionSender = promptW5Wallet(
+        "W5_EXTENSION_SENDER",
+        "Select ActonWallet that is registered as an extension on the W5 wallet",
+    );
     val keyPair = promptW5KeyPair();
     val subwalletId = promptW5SubwalletId();
     val wallet = resolveW5Wallet(keyPair, subwalletId);
@@ -26,23 +30,39 @@ fun main() {
         : confirm(
             "Allow signature?",
             !current,
-            "false disables external signed flow until restored by an extension",
+            "false disables external signed flow until only extensions can act",
         );
 
-    val seqno = wallet.getSeqno();
-    val actions = ActionsList {
-        outActions: [],
-        extraActions: [SetSignatureAllowedExtraAction { allowSignature: target } as ExtraAction],
-    };
-    val body = createExternalSignedBody(keyPair, subwalletId, seqno, actions);
-
-    val res = wallet.sendExternalSigned(body);
-    if (res == null) {
-        println("Set-signature external could not be submitted");
+    val extensions = wallet.getExtensionsArray();
+    var extensionRegistered = false;
+    var i = 0;
+    while (i < extensions.size()) {
+        if (extensions.get(i) == extensionSender.address) {
+            extensionRegistered = true;
+        }
+        i += 1;
+    }
+    if (!extensionRegistered) {
+        println(
+            "Sender {} is not registered as an extension on W5 {}. SetSignatureAllowedExtraAction requires an extension-authenticated request — run add-extension.tolk first.",
+            extensionSender.address,
+            wallet.address,
+        );
         return;
     }
+
+    val actionsBody = ActionsList {
+        outActions: [],
+        extraActions: [SetSignatureAllowedExtraAction { allowSignature: target } as ExtraAction],
+    }.toCell();
+    val res = wallet.sendExtensionActionBody(
+        extensionSender.address,
+        actionsBody,
+        0,
+        { value: ton("0.03") },
+    );
     if (res.waitForFirstTransaction() == null) {
-        println("Set-signature was not confirmed");
+        println("Set-signature extension request was not confirmed");
         return;
     }
 
