@@ -4,35 +4,14 @@ description = "Rewritten Acton contracts monorepo"
 version = "0.1.0"
 license = "MIT"
 
-# Counter
-[contracts.Counter]
-src = "counter/contracts/Counter.tolk"
-depends = []
-
-# Config
 [contracts.Config]
 src = "config/contracts/Config.tolk"
 depends = []
 
-# Notcoin 
-[contracts.NotcoinMinter]
-src = "notcoin/contracts/NotcoinMinter.tolk"
+[contracts.Counter]
+src = "counter/contracts/Counter.tolk"
 depends = []
 
-[contracts.NotcoinWallet]
-src = "notcoin/contracts/NotcoinWallet.tolk"
-depends = []
-
-# Jetton v2
-[contracts.JettonMinter]
-src = "jetton-v2/contracts/JettonMinter.tolk"
-depends = [{ name = "JettonWallet", function = "jettonWalletCompiledCode" }]
-
-[contracts.JettonWallet]
-src = "jetton-v2/contracts/JettonWallet.tolk"
-depends = []
-
-# DNS
 [contracts.DnsCollection]
 src = "dns/contracts/DnsCollection.tolk"
 depends = []
@@ -41,25 +20,33 @@ depends = []
 src = "dns/contracts/DnsItem.tolk"
 depends = []
 
-[contracts.RootDns]
-src = "dns/contracts/RootDns.tolk"
-depends = []
+[contracts.Elector]
+src = "elector/contracts/Elector.tolk"
 
-# Highload v3
 [contracts.HighloadWalletV3]
 src = "highload-v3/contracts/HighloadWalletV3.tolk"
 depends = []
 
-# Multisig v2
-[contracts.Multisig]
-src = "multisig-v2/contracts/Multisig.tolk"
-depends = [{ name = "Order", function = "orderCompiledCode" }]
+[contracts.JettonMinter]
+src = "jetton-v2/contracts/JettonMinter.tolk"
 
-[contracts.Order]
-src = "multisig-v2/contracts/Order.tolk"
+[[contracts.JettonMinter.depends]]
+name = "JettonWallet"
+kind = "embed_code"
+function = "jettonWalletCompiledCode"
+
+[contracts.JettonWallet]
+src = "jetton-v2/contracts/JettonWallet.tolk"
 depends = []
 
-# NFT
+[contracts.Multisig]
+src = "multisig-v2/contracts/Multisig.tolk"
+
+[[contracts.Multisig.depends]]
+name = "Order"
+kind = "embed_code"
+function = "orderCompiledCode"
+
 [contracts.NftCollection]
 src = "nft/contracts/NftCollection.tolk"
 depends = ["NftItem"]
@@ -68,53 +55,61 @@ depends = ["NftItem"]
 src = "nft/contracts/NftItem.tolk"
 depends = []
 
-# Elector
-[contracts.Elector]
-src = "elector/contracts/Elector.tolk"
+[contracts.NotcoinMinter]
+src = "notcoin/contracts/NotcoinMinter.tolk"
+depends = []
 
-# W5
+[contracts.NotcoinWallet]
+src = "notcoin/contracts/NotcoinWallet.tolk"
+depends = []
+
+[contracts.Order]
+src = "multisig-v2/contracts/Order.tolk"
+depends = []
+
+[contracts.RootDns]
+src = "dns/contracts/RootDns.tolk"
+depends = []
+
 [contracts.WalletV5]
 src = "w5/contracts/WalletV5.tolk"
 depends = []
 
-[lint.JettonMinter]
-asm-function-missing-safety-comment = "allow"
-
-[test]
-
 [test.mutation]
-minimum-percent = 75
-
-[build]
-output-fift = "build/fift"
+minimum-percent = 75.0
 
 [lint]
 max-warnings = 0
 
 [lint.rules]
-explicit-return-type = "allow"
-unused-import = "allow"
-throw-requires-errors-enum = "allow"
 dict-type-use = "allow"
+explicit-return-type = "allow"
+throw-requires-errors-enum = "allow"
+unused-import = "allow"
+
+[lint.JettonMinter]
+asm-function-missing-safety-comment = "allow"
 
 [fmt]
 width = 100
 ignore = []
 
+[build]
+output-fift = "build/fift"
+
 [scripts]
 test-counter = "acton test counter/tests"
+test-dns = "acton test dns/tests"
+test-elector = "acton test elector/tests"
+test-highload = "acton test highload-v3/tests"
+test-jetton-v2 = "acton test jetton-v2/tests"
 test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
-test-jetton-v2 = "acton test jetton-v2/tests"
-test-dns = "acton test dns/tests"
 test-w5 = "acton test w5/tests"
-test-highload = "acton test highload-v3/tests"
-test-elector = "acton test elector/tests"
-
-[litenode]
-accounts = ["deployer"]
-port = 3010
 
 [import-mappings]
 acton = ".acton"
+contracts = "contracts"
 gen = "gen"
+tests = "tests"
+wrappers = "wrappers"
