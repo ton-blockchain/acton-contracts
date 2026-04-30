@@ -3,6 +3,7 @@ import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "utils/common"
+import "../contracts/messages"
 import "../wrappers/WalletV5Contract"
 
 fun main() {
@@ -15,34 +16,28 @@ fun main() {
         return;
     }
 
-    val recipient = promptW5AddressRequired("W5_RECIPIENT", "Enter recipient address");
-    val value = promptW5Coins(
-        "W5_TRANSFER_VALUE",
-        "Enter transfer value",
-        W5_DEFAULT_TRANSFER_VALUE,
-    );
-
+    val extension = promptW5AddressRequired("W5_EXTENSION", "Enter extension address to add");
     val seqno = wallet.getSeqno();
+
     val actions = ActionsList {
-        outActions: [buildSendAction(recipient, value)],
-        extraActions: [],
+        outActions: [],
+        extraActions: [AddExtensionExtraAction { addr: extension } as ExtraAction],
     };
     val body = createExternalSignedBody(keyPair, subwalletId, seqno, actions);
 
     val res = wallet.sendExternalSigned(body);
     if (res == null) {
-        println("W5 external transfer could not be submitted");
+        println("Add-extension external could not be submitted");
         return;
     }
     if (res.waitForFirstTransaction() == null) {
-        println("W5 transfer was not confirmed");
+        println("Add-extension was not confirmed");
         return;
     }
 
-    println("W5 RECIPIENT={}", recipient);
-    println("W5 TRANSFER_VALUE={}", value);
+    println("W5 EXTENSION_ADDED={}", extension);
     if (net.isBroadcasting()) {
-        println("Transfer broadcast — re-run info to fetch updated on-chain seqno.");
+        println("Extension add broadcast — re-run info to inspect updated state.");
         return;
     }
     printW5Info(wallet, "W5");
