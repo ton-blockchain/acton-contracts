@@ -13,8 +13,8 @@ fun main() {
 
     val paramId = promptConfigInt(
         "CONFIG_PARAM_ID",
-        "Enter param id (e.g. 1, 2, -1000)",
-        CONFIG_DEFAULT_PARAM_ID,
+        "Enter param id (e.g. 1, 2, -1000; -1024/-1025 are rejected as custom slots)",
+        CONFIG_DEFAULT_PROPOSAL_PARAM_ID,
     );
 
     val critical = promptConfigBool(

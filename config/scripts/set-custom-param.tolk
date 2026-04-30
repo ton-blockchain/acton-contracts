@@ -14,7 +14,7 @@ fun main() {
     val paramId = promptConfigInt(
         "CONFIG_CUSTOM_PARAM_ID",
         "Enter custom param id (-1024 = slot 1, -1025 = slot 2)",
-        CONFIG_DEFAULT_PARAM_ID,
+        CONFIG_DEFAULT_CUSTOM_PARAM_ID,
     ) as int32;
 
     val receiver = promptConfigAddress(
