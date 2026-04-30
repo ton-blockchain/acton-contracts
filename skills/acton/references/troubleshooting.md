@@ -2,17 +2,26 @@
 
 Use these checks before deeper debugging.
 
-## Docs and source disagree
+## Acton is missing
 
-- Treat current source and checked-in docs as authoritative over hosted mirrors.
-- Verify command names and defaults in:
-  - `src/bin/acton.rs`
-  - `src/commands/**`
-  - `crates/acton-config/src/config.rs`
-- Known mismatches in this checkout:
-  - no current `acton hooks` command even if some hosted docs mention it
-  - use `acton up --canary`, not older `--trunk`
-  - use `acton test --coverage-format`, not older `--format`
+- Check `command -v acton`.
+- If missing and the task requires the CLI, install it:
+  - `curl -LsSf https://ton.org/acton/install.sh | sh`
+- Open a fresh shell or reload the shell profile if `acton` is still not on `PATH`.
+- Verify with `acton --version`.
+
+## Docs and CLI disagree
+
+- Record the installed version with `acton --version`.
+- Confirm the exact command syntax with `acton help <command>` or `acton <command> --help`.
+- Use hosted docs for concepts and workflows, but follow the installed CLI for local execution.
+- If the user wants latest behavior, update first with `acton up` or a fresh install.
+- Treat these old names and flags as stale unless the installed binary explicitly supports them:
+  - `acton litenode`
+  - `[mappings]`
+  - `--broadcast`
+  - `--api-key`
+  - `acton up --canary`
 
 ## Project root or manifest confusion
 
@@ -21,21 +30,24 @@ Use these checks before deeper debugging.
 - Re-run with explicit project selection:
   - `acton --project-root /abs/path ...`
   - `acton --manifest-path /abs/path/Acton.toml ...`
-- Remember: project-root controls relative outputs like `.acton`, `wallets.toml`, `test-results`, and traces.
+- Remember:
+  - project-root controls config-relative outputs like `.acton`, `build`, `gen`, traces, and configured wrapper paths
+  - relative CLI path flags stay relative to the current working directory unless absolute
 
 ## Build or import resolution failures
 
 - Run `acton build --clear-cache`.
-- Confirm every `[contracts.*]` entry in `Acton.toml` has a valid `src`.
+- Confirm every `[contracts.<name>]` entry in `Acton.toml` has a valid `src`.
 - Confirm dependency names in `depends` match real contract keys.
-- Inspect `[mappings]` and resolve imports relative to project root.
-- If the project was added manually, run `acton init` to patch default mappings and `.gitignore`.
+- Inspect `[import-mappings]`, not old `[mappings]`.
+- If the project was added manually, run `acton init` to backfill default import mappings and `.gitignore`.
+- If an existing manifest has comments or unknown keys, warn that `acton init` may rewrite `Acton.toml` and drop them.
 
 ## Wrapper generation problems
 
-- Confirm the contract is declared in `Acton.toml`; `acton wrapper` takes a contract id, not a file path.
-- Confirm the contract compiles cleanly with `acton build <contract-id>`.
-- If wrapper methods are missing, inspect the contract header:
+- Confirm the contract is declared in `Acton.toml`; `acton wrapper` takes a contract name, not a file path.
+- Confirm the contract compiles cleanly with `acton build <contract-name>`.
+- If wrapper methods are missing, inspect the contract header ABI:
   - `storage: ...`
   - `incomingMessages: ...`
 - If `acton wrapper --ts` fails, verify Node.js, npm, and `npx` are installed.
@@ -45,30 +57,38 @@ Use these checks before deeper debugging.
 
 - Re-run a focused case:
   - `acton test --filter "<specific-test>" --backtrace full`
-- Check whether the script or test is using:
-  - `--broadcast`
-  - `--fork-net`
-  - `--show-bodies`
-  - local emulation vs remote state
+- Compare execution mode:
+  - tests run locally unless they use `--fork-net`
+  - scripts run locally unless they use `--net`
+  - `--fork-net` reads remote state but keeps execution local
+  - `--net` broadcasts transactions to the selected network
 - If ABI changed, regenerate wrappers instead of debugging old generated code.
+
+## Coverage, profiling, fuzzing, or reporter confusion
+
+- Prefer current spellings:
+  - `--coverage-format lcov|text`
+  - `--coverage-file <path>`
+  - `--coverage-minimum-percent <percent>`
+  - `--coverage-include-wrappers`
+  - `--coverage-include-tests`
+  - `--reporter console|dot|teamcity|junit`
+  - `--fuzz-seed <seed>`
+- For gas regressions:
+  - create a baseline with `acton test --snapshot build/gas-baseline.json`
+  - compare with `acton test --baseline-snapshot build/gas-baseline.json`
+  - enforce in CI with `--fail-on-diff`
+- For mutation sessions:
+  - use `--mutation-session-id <id>` to resume an interrupted run
+  - use `--mutation-id <id>` to rerun specific mutants from a previous report
 
 ## Test UI will not start
 
-- Selected port may already be busy; retry with `acton test --ui --ui-port 23456`.
-- If the test run itself fails before UI bootstrap, run without `--ui` first to isolate compile/runtime errors.
+- The selected port may be busy; retry with `acton test --ui --ui-port <port>`.
+- If the test run fails before UI startup, run without `--ui` first to isolate compile or runtime errors.
+- For coverage browsing in the UI, combine `acton test --coverage --ui`.
 
-## Coverage, profiling, or reporter confusion
-
-- Prefer current source spellings:
-  - `--coverage-format lcov`
-  - `--coverage-file <path>`
-  - `--reporter console|dot|teamcity|junit`
-- For gas regressions:
-  - create baseline with `acton test --snapshot gas-baseline.json`
-  - compare with `acton test --baseline-snapshot gas-baseline.json`
-  - enforce in CI with `--fail-on-diff`
-
-## Wallet, faucet, or broadcast issues
+## Wallet, faucet, or network transaction issues
 
 - Run `acton wallet list --balance`.
 - Confirm the selected wallet exists in local or global config.
@@ -80,27 +100,38 @@ Use these checks before deeper debugging.
 - Confirm expected addresses match the target network.
 - Verify `--net` matches the funded wallet environment.
 - Use `mnemonic-env` for CI instead of plaintext secrets.
+- For real-network scripts, remember that `acton script <path> --net testnet|mainnet` is the broadcasting mode.
 
-## TonCenter rate limits or slow network operations
+## TonCenter API keys and rate limits
 
-- Retry with `--api-key <KEY>` or set `TONCENTER_API_KEY`.
-- This commonly affects:
-  - `acton script --broadcast`
+- Acton reads API keys from environment variables, not `--api-key` flags:
+  - `TONCENTER_TESTNET_API_KEY`
+  - `TONCENTER_MAINNET_API_KEY`
+  - `<NORMALIZED_NAME>_API_KEY` for `custom:<name>`
+- Acton loads `.env` automatically during project work.
+- Missing or rate-limited keys commonly affect:
+  - `acton script --net ...`
+  - `acton script --fork-net ...`
   - `acton verify`
   - `acton wallet list --balance`
   - `acton test --fork-net ...`
   - `acton disasm --address ...`
   - `acton retrace ...`
+  - `acton rpc ...`
 
-## LiteNode and localnet issues
+## Localnet issues
 
-- If localnet commands fail, verify the node is actually running:
-  - `acton litenode start`
-- If port assumptions are unclear, verify current defaults from source or pass `--port` explicitly.
+- Verify the node is running:
+  - `acton localnet start`
+- Pass `--port` explicitly when port assumptions matter. The fallback is `[localnet].port` or runtime default `5411`.
 - `--load-state` and `--db-path` cannot be used together.
-- If startup wallets fail, confirm `[litenode].accounts` names resolve to real wallets.
-- For script deploys, remember localnet broadcasting expects the local node to be running:
-  - `acton script scripts/deploy.tolk --broadcast --net localnet`
+- If startup accounts fail, confirm `[localnet].accounts` names resolve to real wallets.
+- For localnet deploys, start the node first:
+  - `acton localnet start`
+  - `acton script scripts/deploy.tolk --net localnet`
+- Fund local accounts with:
+  - `acton localnet airdrop <address> --amount <ton>`
+  - or `acton wallet airdrop <wallet-name> --net localnet`
 
 ## Verification mismatch
 
@@ -110,19 +141,23 @@ Use these checks before deeper debugging.
   - `acton verify <contract> --address <addr> --compiler-version <version>`
 - Use `--dry-run` first when verifying unfamiliar deployments.
 
-## Disasm or retrace problems
+## RPC, disasm, or retrace problems
 
-- For live-chain reads, provide `--api-key` if rate limits bite.
+- For live-chain reads, provide the relevant API key through the environment.
 - For readable disassembly, regenerate source maps:
   - `acton compile contract.tolk --source-map contract.json --boc contract.boc`
   - `acton disasm contract.boc --source-map contract.json --show-offsets`
+- For source-level retrace, pass a contract name:
+  - `acton retrace <tx-hash> --contract <contract-name> --debug`
 
 ## `func2tolk` or LSP failures
 
-- `acton func2tolk` requires `npx`; install Node.js/npm if missing.
-- `acton ls` expects `.acton/tolk-stdlib` to exist; run `acton init` or `acton build` if the stdlib is missing.
+- `acton func2tolk` uses the npm-based converter; install Node.js/npm if conversion fails before Acton starts.
+- Override converter version with `acton func2tolk <path> --version <version>` when needed.
+- `acton ls` expects the project stdlib under `.acton/tolk-stdlib`; run `acton init` or `acton init --stdlib-only` if it is missing.
 
 ## Missing deploy command confusion
 
-- Use `acton script scripts/deploy.tolk [--broadcast ...]`.
+- Use `acton script scripts/deploy.tolk` for local emulation.
+- Use `acton script scripts/deploy.tolk --net testnet|mainnet|localnet` for network deployment.
 - Acton deployment is script-driven by design; there is no `acton deploy` command.

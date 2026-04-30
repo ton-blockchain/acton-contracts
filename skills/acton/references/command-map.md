@@ -1,30 +1,53 @@
 # Command Map
 
-Use this file for fast command selection before opening full docs.
+Use this file for fast command selection before opening full docs or `acton help`.
+
+## Setup and project context
+
+- `curl -LsSf https://ton.org/acton/install.sh | sh`
+- Use when `acton` is not installed and the task requires the CLI.
+
+- `acton --version`
+- Use to record the exact CLI version before diagnosing docs or behavior.
+
+- `acton doctor`
+- Use for project-root, manifest, stdlib, overlay, env-var, and writable-path diagnostics.
+
+- `acton --project-root <PATH> ...`
+- Use when command outputs and config-relative paths must resolve from a specific project root.
+
+- `acton --manifest-path <PATH>/Acton.toml ...`
+- Use when loading a specific manifest without changing project-root resolution.
 
 ## Bootstrap and config
 
-- `acton new <PATH> [--template empty|counter|jetton]`
-- Use for scaffolding a fresh project with templates, scripts, wrappers, `.env`, and default mappings.
+- `acton new [PATH] [--template empty|counter|jetton|nft] [--app] [--hooks] [--agents]`
+- Use for scaffolding a fresh project, optional app layout, hooks, and coding-agent guidance.
 
 - `acton init`
-- Use for adding Acton to an existing directory, discovering contracts, patching `.gitignore`, and installing `.acton`.
+- Use for adding Acton to an existing directory, discovering contracts, patching `.gitignore`, adding default `[import-mappings]`, and installing `.acton`.
 
-- `acton doctor`
-- Use for project-root, manifest, stdlib, overlay, and writable-path diagnostics.
+- `acton init --create-app [PATH]`
+- Use for creating only the TypeScript app scaffold.
+
+- `acton init --stdlib-only`
+- Use for refreshing `.acton/tolk-stdlib` without touching `Acton.toml`.
 
 ## Build and wrapper generation
 
-- `acton build [CONTRACT_ID] [--clear-cache] [--graph [PATH]] [--out-dir DIR] [--gen-dir DIR] [--output-fift DIR] [--info]`
-- Use for contract builds from `Acton.toml`.
+- `acton build [CONTRACT_NAME] [--clear-cache] [--graph PATH] [--out-dir DIR] [--gen-dir DIR] [--output-fift DIR] [--info]`
+- Use for project builds from `Acton.toml`.
 
-- `acton compile <PATH> [--json] [--base64-only] [--boc FILE] [--fift FILE] [--source-map FILE] [--abi FILE] [--clear-cache]`
+- `acton compile <PATH> [--json] [--base64-only] [--boc FILE] [--fift FILE] [--source-map FILE] [--abi FILE] [--allow-no-entrypoint] [--clear-cache]`
 - Use for single-file compilation and artifact extraction.
 
-- `acton wrapper <CONTRACT_ID> [--output PATH|--output-dir DIR] [--test] [--test-output PATH|--test-output-dir DIR]`
-- Use for Tolk wrapper generation and bootstrapping test stubs.
+- `acton wrapper <CONTRACT_NAME> [-o PATH|--output-dir DIR]`
+- Use for Tolk wrapper generation.
 
-- `acton wrapper <CONTRACT_ID> --ts [--output PATH|--output-dir DIR]`
+- `acton wrapper <CONTRACT_NAME> --test [--test-output PATH|--test-output-dir DIR]`
+- Use for generating a Tolk test stub with the wrapper.
+
+- `acton wrapper <CONTRACT_NAME> --ts [-o PATH|--output-dir DIR]`
 - Use for TypeScript client wrapper generation.
 
 ## Tests and quality
@@ -32,26 +55,29 @@ Use this file for fast command selection before opening full docs.
 - `acton test [PATH] [--filter REGEX] [--include GLOB] [--exclude GLOB] [--reporter console|dot|teamcity|junit]`
 - Use for normal test runs.
 
-- `acton test --coverage --coverage-format lcov [--coverage-file PATH]`
-- Use for code coverage and LCOV export.
+- `acton test --coverage --coverage-format lcov [--coverage-file PATH] [--coverage-minimum-percent PERCENT]`
+- Use for code coverage, LCOV export, and coverage gates.
 
-- `acton test --snapshot gas-baseline.json`
+- `acton test --snapshot build/gas-baseline.json`
 - Use for creating gas and fee baselines.
 
-- `acton test --baseline-snapshot gas-baseline.json [--fail-on-diff]`
+- `acton test --baseline-snapshot build/gas-baseline.json [--fail-on-diff]`
 - Use for gas regression checks.
 
-- `acton test --mutate --mutate-contract <contract-id> [--disable-rule RULE]`
-- Use for mutation testing.
+- `acton test --mutate --mutate-contract <CONTRACT_NAME> [--mutation-diff worktree|ref|branch] [--mutation-levels critical,major]`
+- Use for mutation testing, optionally scoped to changed lines or selected rule levels.
 
-- `acton test --debug --debug-port 8080 [--backtrace full]`
+- `acton test --debug --debug-port 12345 [--backtrace full]`
 - Use for debugger-based diagnosis.
 
-- `acton test --ui [--ui-port 23456]`
-- Use for browser-based inspection of failed tests, traces, transactions, and logs.
+- `acton test --ui [--ui-port 12344]`
+- Use for browser-based inspection of failed tests, traces, transactions, logs, and coverage.
 
-- `acton test --fork-net testnet|mainnet|custom:<name> [--fork-block-number N] [--api-key KEY]`
-- Use for forked-state tests against remote chain data.
+- `acton test --save-test-trace [DIR]`
+- Use for offline trace bundles.
+
+- `acton test --fork-net testnet|mainnet|localnet|custom:<name> [--fork-block-number N]`
+- Use for forked-state tests against remote or local chain data.
 
 - `acton check [TARGET] [--fix] [--output-format plain|json|sarif|github|gitlab] [--output-file PATH]`
 - Use for linting Tolk code and CI annotations.
@@ -59,44 +85,56 @@ Use this file for fast command selection before opening full docs.
 - `acton fmt [PATHS...] [--check]`
 - Use for formatting or CI format validation.
 
+- `acton hooks new|install|status|uninstall`
+- Use for project-local Git hook scaffolding and installation.
+
 ## Scripts, deployment, and blockchain interaction
 
 - `acton script <PATH> [ARGS...]`
-- Use for local script execution and safe dry runs.
+- Use for local script execution and safe emulation.
 
-- `acton script <PATH> --broadcast [--net testnet|mainnet|localnet|custom:<name>] [--api-key KEY] [--explorer tonscan|toncx|dton|tonviewer]`
-- Use for real network transactions; can spend TON.
+- `acton script <PATH> --net testnet|mainnet|localnet|custom:<name> [--explorer tonscan|toncx|dton|tonviewer]`
+- Use for network transactions. This can spend TON on real networks.
 
-- `acton script <PATH> --fork-net testnet|mainnet|custom:<name> [--fork-block-number N]`
-- Use for read paths against live remote state without broadcasting.
+- `acton script <PATH> --fork-net testnet|mainnet|localnet|custom:<name> [--fork-block-number N]`
+- Use for read paths against forked chain state without broadcasting.
 
-- `acton run <script-name> [-- extra args]`
+- `acton run <SCRIPT_NAME> [ARGS...]`
 - Use for shortcuts defined under `[scripts]` in `Acton.toml`.
 
-## Wallets, verification, libraries, and local node
+## Wallets, verification, libraries, localnet, and RPC
 
 - `acton wallet new|import|list|export-mnemonic|sign|remove|airdrop`
-- Use for wallet lifecycle and faucet flows.
+- Use for wallet lifecycle, signing, and testnet/localnet faucet flows.
 
-- `acton verify [CONTRACT_ID] --address <ADDRESS> [--net testnet|mainnet] [--wallet NAME] [--compiler-version VER] [--dry-run]`
-- Use for source verification against verifier.ton.org.
+- `acton verify [CONTRACT_NAME] --address <ADDRESS> [--net testnet|mainnet] [--wallet NAME] [--compiler-version VER] [--dry-run]`
+- Use for source verification against TON Verifier.
 
 - `acton library publish|fetch|info|topup`
 - Use for on-chain library lifecycle tasks.
 
-- `acton litenode start [--port PORT] [--fork-net NET] [--fork-block-number N] [--accounts a,b] [--db-path PATH] [--load-state PATH] [--dump-state PATH] [--rate-limit RPS]`
-- Use for local TON-compatible node workflows, fork mode, snapshots, and startup wallets.
+- `acton localnet start [--port PORT] [--fork-net NET] [--fork-block-number N] [--accounts a,b] [--db-path PATH] [--load-state PATH] [--dump-state PATH] [--rate-limit RPS]`
+- Use for local TON-compatible node workflows, fork mode, snapshots, startup accounts, and faucet-backed localnet.
 
-- `acton litenode airdrop <ADDRESS> [--amount TON] [--port PORT]`
+- `acton localnet airdrop <ADDRESS> [--amount TON] [--port PORT]`
 - Use for localnet faucet funding.
+
+- `acton rpc info <ADDRESS> [--net testnet|mainnet|localnet|custom:<name>]`
+- Use for remote account inspection and storage decoding when ABI is known.
+
+- `acton rpc block|block-number [--net testnet|mainnet|localnet|custom:<name>]`
+- Use for quick network liveness and current masterchain block checks.
+
+- `acton rpc trace <HASH> [--net NET] [--summary|--tree|--verbose] [--show-bodies]`
+- Use for rendering a TonCenter v3 trace as a decoded transaction tree.
 
 ## Inspection and developer tooling
 
-- `acton disasm [BOC_FILE] [--address ADDRESS] [--net NET] [--source-map FILE] [--show-offsets] [--show-hashes] [--follow-libraries]`
+- `acton disasm [BOC_FILE] [-s HEX_OR_BASE64] [-o PATH] [--json] [--address ADDRESS] [--net NET] [--source-map FILE] [--show-offsets] [--show-hashes] [--follow-libraries]`
 - Use for BoC and live-code disassembly.
 
-- `acton retrace <TX_HASH> [--net NET] [--api-key KEY] [--verbose] [--logs-dir DIR]`
-- Use for replaying on-chain transactions locally.
+- `acton retrace <TX_HASH> [--net NET] [--verbose] [--logs-dir DIR] [--contract CONTRACT] [--debug] [--debug-port PORT]`
+- Use for replaying on-chain transactions locally, optionally with source-level debugging.
 
 - `acton doc tvm <QUERY...> [--find] [--description] [--json]`
 - Use for TVM instruction lookup.
@@ -104,11 +142,11 @@ Use this file for fast command selection before opening full docs.
 - `acton ls [--stdio|--port PORT] [--log-file PATH] [--no-log]`
 - Use for TON/Tolk language-server workflows.
 
-- `acton func2tolk <PATH> [--output PATH] [--warnings-as-comments] [--no-camel-case]`
+- `acton func2tolk <PATH> [--output PATH] [--warnings-as-comments] [--no-camel-case] [--version VERSION]`
 - Use for quick FunC-to-Tolk conversion via the npm-based converter.
 
-- `acton up [VERSION] [--list] [--canary] [--stable] [--yes]`
-- Use for version management. Prefer `--canary` over any older `--trunk` examples.
+- `acton up [VERSION] [--list] [--trunk] [--stable] [--force]`
+- Use for version management.
 
-- `acton completions <SHELL>`
+- `acton completions bash|elvish|fish|powershell|zsh|nushell`
 - Use for static shell completion generation.
