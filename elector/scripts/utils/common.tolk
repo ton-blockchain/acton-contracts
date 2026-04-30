@@ -1,5 +1,5 @@
-import "@stdlib/strings"
 import "@stdlib/lisp-lists"
+import "@stdlib/strings"
 import "@acton/env"
 import "@acton/fmt"
 import "@acton/io"
@@ -15,8 +15,8 @@ import "../../wrappers/utils"
 const ELECTOR_DEFAULT_ADDRESS = "-1:3333333333333333333333333333333333333333333333333333333333333333"
 
 const ELECTOR_DEFAULT_TRANSFER_AMOUNT = "1000000000" // 1 TON
-const ELECTOR_DEFAULT_DEPLOY_AMOUNT = "1000000000"   // 1 TON
-const ELECTOR_DEFAULT_RECOVER_AMOUNT = "1000000000"  // 1 TON (carried, refunded)
+const ELECTOR_DEFAULT_DEPLOY_AMOUNT = "1000000000" // 1 TON
+const ELECTOR_DEFAULT_RECOVER_AMOUNT = "1000000000" // 1 TON (carried, refunded)
 const ELECTOR_DEFAULT_QUERY_ID = "0"
 
 const WORKCHAIN_BASECHAIN = "basechain (0)"
