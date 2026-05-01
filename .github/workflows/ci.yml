@@ -58,6 +58,7 @@ jobs:
           version: 'trunk'
 
       - name: Version
+        run: acton --version
 
   test-5:
     name: Test 5
