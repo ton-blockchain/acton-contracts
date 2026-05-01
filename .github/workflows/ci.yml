@@ -83,7 +83,7 @@ jobs:
         run: acton --version
 
   test-4:
-    name: Test 3
+    name: Test 4
     runs-on: ubuntu-latest
 
     permissions:
