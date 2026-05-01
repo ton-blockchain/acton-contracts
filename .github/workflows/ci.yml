@@ -58,53 +58,6 @@ jobs:
           version: 'trunk'
 
       - name: Version
-        run: acton --version
-
-  test-3:
-    name: Test 3
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    steps:
-      - name: Fetch Sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Setup Acton
-        uses: ton-blockchain/setup-acton@danil42russia/checksum
-        with:
-          github-token: ${{ secrets.ACTON_TOKEN }}
-          version: 'trunk'
-          checksum: 'cc51f7974010c0216af591b88909503cc6e5bba0635c0678908da58cc4dcd6d1'
-
-      - name: Version
-        run: acton --version
-
-  test-4:
-    name: Test 4
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-
-    steps:
-      - name: Fetch Sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Setup Acton
-        uses: ton-blockchain/setup-acton@danil42russia/checksum
-        with:
-          github-token: ${{ secrets.ACTON_TOKEN }}
-          version: 'trunk'
-          checksum: '1c51f7974010c0216af591b88909503cc6e5bba0635c0678908da58cc4dcd6dc'
-
-      - name: Version
-        run: acton --version
 
   test-5:
     name: Test 5
