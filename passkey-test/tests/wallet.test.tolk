@@ -1,7 +1,10 @@
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
+import "@acton/io"
 import "@acton/testing/expect"
+import "@acton/types/big_array"
 import "../contracts/messages"
+import "../contracts/passkey-verify"
 import "../contracts/storage"
 import "../wrappers/PasskeyWallet.gen"
 import "../wrappers/utils"
@@ -59,12 +62,12 @@ fun buildBody(): cell {
         .endCell();
 }
 
-fun buildExternalRequest(): cell {
-    return beginCell()
-        .storeSlice(SIGNATURE_RAW.hexToSlice())
-        .storeSlice(CDJ_CHALLENGE_43.hexToSlice())
-        .storeRef(buildBody())
-        .endCell();
+fun buildExternalRequest(): ExternalRequest {
+    return ExternalRequest {
+        signature: SIGNATURE_RAW.hexToSlice() as bits512,
+        challenge: CDJ_CHALLENGE_43.hexToSlice() as bits344,
+        body: buildBody(),
+    };
 }
 
 fun buildStorage(): Storage {
@@ -87,6 +90,52 @@ get fun `test wallet: body cell hash matches off-chain vector`() {
     expect(body.hash()).toEqual(EXPECTED_BODY_HASH);
 }
 
+// ─── Sanity: verifyB64uPrefix96 accepts our test vector ──────────────────
+get fun `test wallet: prefix96 verify accepts the precomputed vector`() {
+    val bodyHash = EXPECTED_BODY_HASH;
+    val challenge = CDJ_CHALLENGE_43.hexToSlice();
+    val ok = verifyB64uPrefix96(bodyHash, challenge);
+    expect(ok).toBeTrue();
+}
+
+// ─── Sanity: round-trip ExternalRequest serialization ────────────────────
+get fun `test wallet: ExternalRequest fromSlice round-trips`() {
+    val ext = buildExternalRequest();
+    val slice = ext.toCell().beginParse();
+    val req = ExternalRequest.fromSlice(slice);
+    expect(req.body.hash()).toEqual(EXPECTED_BODY_HASH);
+    val challengeSlice = req.challenge as slice;
+    expect(challengeSlice.bitsHash())
+        .toEqual(CDJ_CHALLENGE_43.hexToSlice().bitsHash());
+}
+
+// ─── Sanity: full pre-ACCEPT verification chain ──────────────────────────
+get fun `test wallet: full pre-ACCEPT verification (HASHEXT + P256) accepts vector`() {
+    val ext = buildExternalRequest();
+    val slice = ext.toCell().beginParse();
+    val req = ExternalRequest.fromSlice(slice);
+    val storage = buildStorage();
+
+    val bodyHash = req.body.hash();
+    val challengeSlice = req.challenge as slice;
+    val signatureSlice = req.signature as slice;
+
+    expect(verifyB64uPrefix96(bodyHash, challengeSlice)).toBeTrue();
+
+    val cdjHash = sha256ThreeSlices(
+        storage.cdjPrefix.beginParse(),
+        challengeSlice,
+        storage.cdjSuffix.beginParse(),
+    );
+    val signedMessage = beginCell()
+        .storeSlice(storage.authData as slice)
+        .storeUint(cdjHash, 256)
+        .endCell()
+        .beginParse();
+    val sigOk = p256ChkSignS(signedMessage, signatureSlice, storage.pubkey as slice);
+    expect(sigOk).toBeTrue();
+}
+
 fun deployWallet(): PasskeyWallet {
     val deployer = testing.treasury("deployer");
     val wallet = PasskeyWallet.fromStorage(buildStorage());
@@ -99,13 +148,16 @@ fun deployWallet(): PasskeyWallet {
 get fun `test wallet: passkey-signed external is accepted, seqno bumps`() {
     val wallet = deployWallet();
     expect(wallet.seqno()).toEqual(0);
+    expect(wallet.pubkey().bitsHash()).toEqual(PUBKEY_COMPRESSED.hexToSlice().bitsHash());
 
-    val receipt = wallet.sendPasskeyExternal(buildExternalRequest());
+    val ext = buildExternalRequest();
+    val receipt = wallet.sendPasskeyExternal(ext);
+    if (receipt == null) {
+        println("[test] sendPasskeyExternal returned null");
+    } else {
+        println("[test] sendPasskeyExternal succeeded, txs:", receipt.size());
+    }
     expect(receipt).toNotEqual(null);
-
-    // The verification path ran end-to-end: seqno was bumped before the
-    // outgoing send-action, so even if the synthetic outMsg can't be routed
-    // by the sandbox we still see the increment.
     expect(wallet.seqno()).toEqual(1);
 }
 
