@@ -67,6 +67,10 @@ depends = []
 src = "multisig-v2/contracts/Order.tolk"
 depends = []
 
+[contracts.PasskeyWallet]
+src = "passkey-test/contracts/PasskeyWallet.tolk"
+depends = []
+
 [contracts.RootDns]
 src = "dns/contracts/RootDns.tolk"
 depends = []

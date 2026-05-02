@@ -1,0 +1,13 @@
+{
+  "name": "passkey-test-scripts",
+  "type": "module",
+  "private": true,
+  "description": "Off-chain helpers for the Acton passkey wallet (test-vector generation, etc.)",
+  "scripts": {
+    "gen-vector": "node scripts/gen-test-vector.mjs",
+    "gen-wallet-vector": "node scripts/gen-wallet-vector.mjs"
+  },
+  "dependencies": {
+    "@ton/core": "^0.61.0"
+  }
+}
