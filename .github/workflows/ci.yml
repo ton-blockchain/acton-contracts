@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Acton
-        uses: ton-blockchain/setup-acton@master
+        uses: ton-blockchain/setup-acton@danil42russia/mv
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
           version: 'latest'
@@ -52,7 +52,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Acton
-        uses: ton-blockchain/setup-acton@master
+        uses: ton-blockchain/setup-acton@danil42russia/mv
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
           version: 'trunk'
@@ -74,7 +74,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Acton
-        uses: ton-blockchain/setup-acton@master
+        uses: ton-blockchain/setup-acton@danil42russia/mv
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
           working-directory: 'kek'
@@ -96,7 +96,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Acton
-        uses: ton-blockchain/setup-acton@master
+        uses: ton-blockchain/setup-acton@danil42russia/mv
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
 
@@ -117,7 +117,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Acton
-        uses: ton-blockchain/setup-acton@master
+        uses: ton-blockchain/setup-acton@danil42russia/mv
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
           version: 'trunk'
@@ -141,7 +141,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Acton
-        uses: ton-blockchain/setup-acton@master
+        uses: ton-blockchain/setup-acton@danil42russia/mv
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
           version: 'trunk'
@@ -164,7 +164,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Acton
-        uses: ton-blockchain/setup-acton@master
+        uses: ton-blockchain/setup-acton@danil42russia/mv
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
           version: 'trunk'
