@@ -83,93 +83,115 @@ jobs:
       - name: Version
         run: acton --version
 
-#  test-4:
-#    name: Test 4
-#    runs-on: ubuntu-latest
-#
-#    permissions:
-#      contents: read
-#
-#    steps:
-#      - name: Fetch Sources
-#        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#        with:
-#          persist-credentials: false
-#
-#      - name: Setup Acton
-#        uses: ton-blockchain/setup-acton@danil42russia/cache
-#        with:
-#          github-token: ${{ secrets.ACTON_TOKEN }}
-#
-#      - name: Version
-#        run: acton --version
-#
-#  test-5:
-#    name: Test 5
-#    runs-on: ubuntu-latest
-#
-#    permissions:
-#      contents: read
-#
-#    steps:
-#      - name: Fetch Sources
-#        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#        with:
-#          persist-credentials: false
-#
-#      - name: Setup Acton
-#        uses: ton-blockchain/setup-acton@danil42russia/cache
-#        with:
-#          github-token: ${{ secrets.ACTON_TOKEN }}
-#          version: 'trunk'
-#          architecture: 'aarch64'
-#          platform: 'apple'
-#
-#      - name: Version
-#        run: acton --version
-#
-#  test-6:
-#    name: Test 6
-#    runs-on: ubuntu-latest
-#
-#    permissions:
-#      contents: read
-#
-#    steps:
-#      - name: Fetch Sources
-#        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#        with:
-#          persist-credentials: false
-#
-#      - name: Setup Acton
-#        uses: ton-blockchain/setup-acton@danil42russia/cache
-#        with:
-#          github-token: ${{ secrets.ACTON_TOKEN }}
-#          version: 'trunk'
-#          platform: 'linux'
-#
-#      - name: Version
-#        run: acton --version
-#
-#  test-7:
-#    name: Test 7
-#    runs-on: macos-latest
-#
-#    permissions:
-#      contents: read
-#
-#    steps:
-#      - name: Fetch Sources
-#        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#        with:
-#          persist-credentials: false
-#
-#      - name: Setup Acton
-#        uses: ton-blockchain/setup-acton@danil42russia/cache
-#        with:
-#          github-token: ${{ secrets.ACTON_TOKEN }}
-#          version: 'trunk'
-#          platform: 'apple'
-#
-#      - name: Version
-#        run: acton --version
+  test-4:
+    name: Test 4
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Acton
+        uses: ton-blockchain/setup-acton@danil42russia/cache
+        with:
+          github-token: ${{ secrets.ACTON_TOKEN }}
+
+      - name: Version
+        run: acton --version
+
+  test-5:
+    name: Test 5
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Acton
+        uses: ton-blockchain/setup-acton@danil42russia/cache
+        with:
+          github-token: ${{ secrets.ACTON_TOKEN }}
+          version: 'trunk'
+          architecture: 'aarch64'
+          platform: 'apple'
+
+      - name: Version
+        run: acton --version
+
+  test-6:
+    name: Test 6
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Acton
+        uses: ton-blockchain/setup-acton@danil42russia/cache
+        with:
+          github-token: ${{ secrets.ACTON_TOKEN }}
+          version: 'trunk'
+          platform: 'linux'
+
+      - name: Version
+        run: acton --version
+
+  test-7:
+    name: Test 7
+    runs-on: macos-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Acton
+        uses: ton-blockchain/setup-acton@danil42russia/cache
+        with:
+          github-token: ${{ secrets.ACTON_TOKEN }}
+          version: 'trunk'
+          platform: 'apple'
+
+      - name: Version
+        run: acton --version
+
+  test-8:
+    name: Test 8
+    runs-on: macos-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Acton
+        uses: ton-blockchain/setup-acton@danil42russia/cache
+        with:
+          github-token: ${{ secrets.ACTON_TOKEN }}
+          platform: 'apple'
+
+      - name: Version
+        run: acton --version
