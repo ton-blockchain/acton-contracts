@@ -383,20 +383,20 @@ get fun `test w5: Should fail if signature is invalid wrong payload signed`() {
     };
 
     // Build payload with correct data
-    val payload = ExternalSignedPayload {
-        subwalletId: DEFAULT_SUBWALLET_ID,
-        validUntil: blockchain.now() + 1000,
-        seqno: 0,
+    val payload = buildExternalSignedPayload(
+        DEFAULT_SUBWALLET_ID,
+        0,
         actions,
-    };
+        blockchain.now() + 1000,
+    );
 
     // Sign a DIFFERENT payload (wrong seqno)
-    val fakePayload = ExternalSignedPayload {
-        subwalletId: DEFAULT_SUBWALLET_ID,
-        validUntil: blockchain.now() + 1000,
-        seqno: 1,
+    val fakePayload = buildExternalSignedPayload(
+        DEFAULT_SUBWALLET_ID,
+        1,
         actions,
-    };
+        blockchain.now() + 1000,
+    );
 
     val signature = crypto.sign(keyPair.privateKey, fakePayload.toCell()) as bytes64;
     val body = ExternalSignedBody { payload, signature };
@@ -542,12 +542,7 @@ get fun `test w5: Should skip message if auth kind is wrong`() {
     };
 
     // Use internal signed opcode (0x73696E74) instead of external (0x7369676E)
-    val payload = SignedPayload {
-        subwalletId: DEFAULT_SUBWALLET_ID,
-        now: blockchain.now() + 1000,
-        seqno: 0,
-        actions,
-    };
+    val payload = buildSignedPayload(DEFAULT_SUBWALLET_ID, 0, actions, blockchain.now() + 1000);
 
     val signature = crypto.sign(keyPair.privateKey, payload.toCell()) as bytes64;
     val body = SignedBody { payload, signature };

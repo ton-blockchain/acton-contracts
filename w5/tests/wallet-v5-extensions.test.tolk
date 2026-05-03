@@ -28,7 +28,7 @@ get fun `test w5: do a transfer from extension`() {
     val actionsBody = ActionsList {
         outActions,
         extraActions: [],
-    }.toCell();
+    };
 
     val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
@@ -77,7 +77,7 @@ get fun `test w5: do two transfers from extension and add other extension`() {
     var extraActions: array<ExtraAction> = [];
     extraActions.push(AddExtensionExtraAction { addr: testOtherExtension });
 
-    val actionsBody = ActionsList { outActions, extraActions }.toCell();
+    val actionsBody = ActionsList { outActions, extraActions };
 
     val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
@@ -136,7 +136,7 @@ get fun `test w5: add and remove other extension from extension`() {
     val actionsBody1 = ActionsList {
         outActions: [],
         extraActions: extraActions1,
-    }.toCell();
+    };
 
     val receipt1 = walletV5.sendExtensionActionBody(
         deployer.address,
@@ -163,7 +163,7 @@ get fun `test w5: add and remove other extension from extension`() {
     val actionsBody2 = ActionsList {
         outActions: [],
         extraActions: extraActions2,
-    }.toCell();
+    };
 
     val receipt2 = walletV5.sendExtensionActionBody(
         deployer.address,
@@ -197,7 +197,7 @@ get fun `test w5: extension removes itself`() {
     val actionsBody = ActionsList {
         outActions: [],
         extraActions,
-    }.toCell();
+    };
 
     val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
@@ -232,7 +232,7 @@ get fun `test w5: extension must be in dict to pass authorization`() {
     val actionsBody = ActionsList {
         outActions,
         extraActions: [],
-    }.toCell();
+    };
 
     val receipt = walletV5.sendExtensionActionBody(
         sender.address,
@@ -277,7 +277,7 @@ get fun `test w5: disallow signature auth and do a transfer from extension`() {
     val actionsBody0 = ActionsList {
         outActions: [],
         extraActions: extraActions0,
-    }.toCell();
+    };
 
     walletV5.sendExtensionActionBody(deployer.address, actionsBody0, 0, { value: ton("0.1") });
 
@@ -293,7 +293,7 @@ get fun `test w5: disallow signature auth and do a transfer from extension`() {
     val actionsBody = ActionsList {
         outActions,
         extraActions: [],
-    }.toCell();
+    };
 
     val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
@@ -332,7 +332,7 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
     val actionsBody0 = ActionsList {
         outActions: [],
         extraActions: extraActions0,
-    }.toCell();
+    };
     walletV5.sendExtensionActionBody(deployer.address, actionsBody0, 0, { value: ton("0.1") });
 
     expect(walletV5.isSignatureAllowed()).toEqual(false);
@@ -344,7 +344,7 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
     val actionsBody1 = ActionsList {
         outActions: [],
         extraActions: extraActions1,
-    }.toCell();
+    };
 
     val receipt = walletV5.sendExtensionActionBody(
         deployer.address,
@@ -420,7 +420,7 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
     val actionsBody0 = ActionsList {
         outActions: [],
         extraActions: extraActions0,
-    }.toCell();
+    };
 
     val receipt0 = walletV5.sendExtensionActionBody(
         deployer.address,
@@ -446,7 +446,7 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
     val actionsBody1 = ActionsList {
         outActions: [],
         extraActions: extraActions1,
-    }.toCell();
+    };
 
     val receipt1 = walletV5.sendExtensionActionBody(
         deployer.address,

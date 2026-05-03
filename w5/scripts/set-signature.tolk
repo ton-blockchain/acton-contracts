@@ -54,7 +54,7 @@ fun main() {
     val actionsBody = ActionsList {
         outActions: [],
         extraActions: [SetSignatureAllowedExtraAction { allowSignature: target } as ExtraAction],
-    }.toCell();
+    };
     val res = wallet.sendExtensionActionBody(
         extensionSender.address,
         actionsBody,

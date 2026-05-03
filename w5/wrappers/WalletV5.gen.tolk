@@ -47,16 +47,23 @@ fun WalletV5.sendExtensionActionRequest(
     self,
     from: address,
     queryId: uint64,
-    outActions: OutActionsCell?,
+    outActions: Cell<OutActionWithSendMessageOnly>?,
     hasExtraActions: bool,
     extraActions: SnakedExtraActions,
     config: SendParams = {},
 ): SendResultList {
+    // build body cell manually, because some fields have @abi.clientType
+    val bodyB = beginCell()
+        .storeUint(0x6578746e, 32)
+        .storeAny(queryId)
+        .storeAny(outActions)
+        .storeAny(hasExtraActions)
+        .storeAny(extraActions);
     val genericMsg = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: ExtensionActionRequest { queryId, outActions, hasExtraActions, extraActions },
+        body: ExtensionActionRequest.fromSlice(bodyB.toSlice()),
     });
     return net.send(from, genericMsg);
 }
@@ -67,23 +74,25 @@ fun WalletV5.sendInternalSignedRequest(
     walletId: uint32,
     validUntil: uint32,
     seqno: uint32,
-    outActions: OutActionsCell?,
+    outActions: Cell<OutActionWithSendMessageOnly>?,
     hasExtraActions: bool,
     extraActions: SnakedExtraActions,
     config: SendParams = {},
 ): SendResultList {
+    // build body cell manually, because some fields have @abi.clientType
+    val bodyB = beginCell()
+        .storeUint(0x73696e74, 32)
+        .storeAny(walletId)
+        .storeAny(validUntil)
+        .storeAny(seqno)
+        .storeAny(outActions)
+        .storeAny(hasExtraActions)
+        .storeAny(extraActions);
     val genericMsg = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: InternalSignedRequest {
-            walletId,
-            validUntil,
-            seqno,
-            outActions,
-            hasExtraActions,
-            extraActions,
-        },
+        body: InternalSignedRequest.fromSlice(bodyB.toSlice()),
     });
     return net.send(from, genericMsg);
 }
