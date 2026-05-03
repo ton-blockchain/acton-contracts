@@ -112,7 +112,7 @@ get fun `test w5: get empty extensions`() {
     val (walletV5, _) = deployWallet(defaultStorage());
 
     val actual = walletV5.getExtensions();
-    expect(actual).toEqual(null);
+    expect(actual).toHaveLength(0);
 }
 
 get fun `test w5: get empty extensions array`() {
