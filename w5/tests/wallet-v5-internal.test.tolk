@@ -526,7 +526,12 @@ get fun `test w5: Should skip message if auth kind is wrong`() {
     };
 
     // Use external signed opcode (0x7369676E) instead of internal (0x73696E74)
-    val payload = buildExternalSignedPayload(DEFAULT_SUBWALLET_ID, 0, actions, blockchain.now() + 1000);
+    val payload = buildExternalSignedPayload(
+        DEFAULT_SUBWALLET_ID,
+        0,
+        actions,
+        blockchain.now() + 1000,
+    );
 
     val signature = crypto.sign(keyPair.privateKey, payload.toCell()) as bytes64;
     val body = ExternalSignedBody { payload, signature };

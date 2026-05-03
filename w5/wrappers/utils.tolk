@@ -87,7 +87,9 @@ struct ActionsList {
 /// Returns null when there are no actions; otherwise a cell whose contents are the head OutAction
 /// with `prev` linking back through the chain to a terminating empty cell.
 fun buildOutActionsCell(specs: array<SendAction>): Cell<OutActionWithSendMessageOnly>? {
-    if (specs.size() == 0) { return null; }
+    if (specs.size() == 0) {
+        return null;
+    }
     var prev: cell = (Empty {}).toCell();
     var i = specs.size() - 1;
     while (i > 0) {
@@ -114,8 +116,7 @@ fun buildExtraActionsSlice(actions: array<ExtraAction>): SnakedExtraActions {
     if (n == 0) {
         return createEmptyCell().beginParse() as SnakedExtraActions;
     }
-    var b: builder = beginCell()
-        .storeSlice(actions.get(0).toCell().beginParse());
+    var b: builder = beginCell().storeSlice(actions.get(0).toCell().beginParse());
     if (n > 1) {
         var snaked: cell = actions.get(n - 1).toCell();
         var j = n - 2;
@@ -291,7 +292,10 @@ fun addExtensionSigned(
         keyPair,
         DEFAULT_SUBWALLET_ID,
         seqno,
-        ActionsList { outActions: [], extraActions },
+        ActionsList {
+            outActions: [],
+            extraActions,
+        },
     );
     return walletV5.sendSignedBody(sender, signedBody, { value: ton("0.1") });
 }
