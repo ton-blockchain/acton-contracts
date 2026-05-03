@@ -56,7 +56,7 @@ jobs:
         with:
           github-token: ${{ secrets.ACTON_TOKEN }}
           version: 'trunk'
-          cache: false
+          save-cache: false
 
       - name: Version
         run: acton --version
