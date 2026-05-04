@@ -34,7 +34,6 @@ struct OrderStorageRemaining {
     order: DirectOrderActionsMap
 }
 
-// TODO: dict to map
 struct MultisigDataReply {
     nextOrderSeqno: int
     threshold: int
@@ -42,7 +41,6 @@ struct MultisigDataReply {
     proposers: dict
 }
 
-// TODO: dict to map
 struct OrderDataReply {
     multisigAddress: address
     orderSeqno: int
@@ -63,7 +61,6 @@ struct OrderStorageMaybeNotInitialized {
     contractData: slice
 }
 
-// TODO: load in place?
 fun startLoadingOrderStorage(): OrderStorageMaybeNotInitialized {
     return { contractData: contract.getData().beginParse() };
 }

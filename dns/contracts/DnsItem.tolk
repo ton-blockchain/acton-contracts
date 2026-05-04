@@ -163,7 +163,6 @@ fun onInternalMessage(in: InMessage) {
 
             var dnsRecords = storage.content.load();
 
-            // TODO: use unpack here
             if (msg.value.remainingRefsCount() > 0) {
                 dnsRecords.set(msg.key, msg.value.loadRef());
             } else {
@@ -176,7 +175,6 @@ fun onInternalMessage(in: InMessage) {
         }
 
         ProcessGovernanceDecision => {
-            // TODO: bench gas usage for isNull auction
             assert (isAuctionNull) throw ERROR_GOVERNANCE_REQUIRES_NO_AUCTION;
 
             val configCell = blockchain.configParam(DNS_CONFIG_ID);
@@ -332,7 +330,6 @@ get fun dnsresolve(subdomain: slice, category: uint256): DnsResolveResponse {
     val dnsRecord = st.content.load();
 
     val startsWithZeroByte = subdomain.preloadInt(BYTE_SIZE) == 0;
-    // TODO: why we reuse this error here?
     assert (startsWithZeroByte) throw ERROR_GOVERNANCE_REQUIRES_NO_AUCTION;
 
     if (subdomainBits > BYTE_SIZE) {

@@ -23,7 +23,6 @@ fun onInternalMessage(in: InMessage) {
         return; // just accept tons
     }
 
-    // TODO: other way to do this?
     if (in.body.preloadUint(32) != OP_INTERNAL_TRANSFER) {
         return;
     }

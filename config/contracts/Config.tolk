@@ -134,7 +134,6 @@ fun onInternalMessage(in: InMessage) {
 fun onExternalMessage(inMsgBody: slice) {
     assert (inMsgBody.depth() <= 128) throw ERROR_EXTERNAL_BODY_TOO_DEEP;
 
-    // TODO: lazy bench
     val msg = lazy ExternalSignedMessage.fromSlice(inMsgBody, { throwIfOpcodeDoesNotMatch: 0 });
 
     assert (msg.action.validUntil >= blockchain.now()) throw ERROR_VALID_UNTIL_EXPIRED;
@@ -144,7 +143,6 @@ fun onExternalMessage(inMsgBody: slice) {
 
     val validatorContext = getCurrentValidatorContext(msg.action.validatorIndex);
 
-    // TODO: bench skip vs RemainingBits vs skip val
     assert (
         isSliceSignatureValid(
             inMsgBody.skipBits(512),
@@ -199,7 +197,6 @@ fun onRunTickTock() {
     }
 
     if (!updated) {
-        // TODO: mutate?
         scanRandomProposal(mutate storage.voteDict);
     }
 

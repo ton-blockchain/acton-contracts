@@ -19,7 +19,6 @@ fun ConfigDict.getById(self, index: int32): cell? {
     return lookup.loadValue();
 }
 
-// TODO: replace
 fun ConfigDict.setById(mutate self, index: int32, value: cell) {
     self.set(index, value);
 }
@@ -40,8 +39,6 @@ fun ConfigDict.deleteById(mutate self, index: int32) {
 
 fun ConfigDict.packToBuilder(self, mutate b: builder) {
     val dictRoot = self.toLowLevelDict();
-    // TODO? 
-    // assert (dictRoot != null) throw ERROR_EMPTY_CONFIG_DICT;
     b.storeRef(dictRoot!);
 }
 
