@@ -161,7 +161,8 @@ fun JettonWallet.getJettonBalance(self): coins {
     return result.jettonBalance;
 }
 
-fun JettonWallet.sendTransfer(
+/// Sends `AskToTransfer` with `forwardPayload` inlined into the message body.
+fun JettonWallet.sendTransferPayloadInline(
     self,
     from: address,
     value: int,
@@ -170,26 +171,96 @@ fun JettonWallet.sendTransfer(
     responseAddress: address,
     customPayload: cell?,
     forwardTonAmount: int,
-    forwardPayload: cell?,
+    forwardPayload: slice,
 ): SendResultList {
-    val outMessage = createMessage({
-        bounce: true,
-        value,
-        dest: self.address,
-        body: AskToTransfer {
-            queryId: 0,
+    return self.sendAskToTransfer(
+        from,
+        0,
+        jettonAmount,
+        recipient,
+        responseAddress,
+        customPayload,
+        forwardTonAmount,
+        PayloadInline { value: forwardPayload },
+        { value, bounce: true },
+    );
+}
+
+/// Sends `AskToTransfer` with `forwardPayload` stored in a separate cell ref.
+fun JettonWallet.sendTransferPayloadInRef(
+    self,
+    from: address,
+    value: int,
+    jettonAmount: int,
+    recipient: address,
+    responseAddress: address,
+    customPayload: cell?,
+    forwardTonAmount: int,
+    forwardPayload: cell,
+): SendResultList {
+    return self.sendAskToTransfer(
+        from,
+        0,
+        jettonAmount,
+        recipient,
+        responseAddress,
+        customPayload,
+        forwardTonAmount,
+        PayloadInRef { value: forwardPayload as Cell<RemainingBitsAndRefs> },
+        { value, bounce: true },
+    );
+}
+
+/// Sends `AskToTransfer` picking inline vs ref storage for `forwardPayload`
+/// based on how much fits alongside the rest of the body.
+fun JettonWallet.sendTransferPayloadAuto(
+    self,
+    from: address,
+    value: int,
+    jettonAmount: int,
+    recipient: address,
+    responseAddress: address,
+    customPayload: cell?,
+    forwardTonAmount: int,
+    forwardPayload: slice,
+): SendResultList {
+    val (bodyBits, bodyRefs) = AskToTransfer {
+        queryId: 0,
+        jettonAmount,
+        transferRecipient: recipient,
+        sendExcessesTo: responseAddress,
+        customPayload,
+        forwardTonAmount,
+        forwardPayload: createEmptySlice(),
+    }.toCell()
+        .beginParse()
+        .remainingBitsAndRefsCount();
+
+    // +1 for the prefix bit added by `PayloadInline`/`PayloadInRef`
+    val fitsInline = (1023 - bodyBits - 1) >= forwardPayload.remainingBitsCount() &&
+    (4 - bodyRefs) > forwardPayload.remainingRefsCount();
+
+    return fitsInline
+        ? self.sendTransferPayloadInline(
+            from,
+            value,
             jettonAmount,
-            transferRecipient: recipient,
-            sendExcessesTo: responseAddress,
+            recipient,
+            responseAddress,
             customPayload,
             forwardTonAmount,
-            forwardPayload: beginCell()
-                .storeMaybeRef(forwardPayload.toCell())
-                .endCell()
-                .beginParse(),
-        },
-    });
-    return net.send(from, outMessage);
+            forwardPayload,
+        )
+        : self.sendTransferPayloadInRef(
+            from,
+            value,
+            jettonAmount,
+            recipient,
+            responseAddress,
+            customPayload,
+            forwardTonAmount,
+            forwardPayload.toCell(),
+        );
 }
 
 fun JettonWallet.sendBurn(

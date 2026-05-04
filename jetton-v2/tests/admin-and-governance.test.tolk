@@ -329,7 +329,7 @@ get fun `test shard: wallet address should keep owner shard prefix in get/discov
         val discoveryBody = discoveryTx!.loadBody<ResponseWalletAddress>();
         expect(discoveryBody.jettonWalletAddress).toEqual(expectedWalletAddress);
 
-        val transfer = senderWallet.sendTransfer(
+        val transfer = senderWallet.sendTransferPayloadInline(
             deployer.address,
             DEFAULT_TRANSFER_MSG_VALUE,
             TEST_JETTON_UNIT,
@@ -337,7 +337,7 @@ get fun `test shard: wallet address should keep owner shard prefix in get/discov
             deployer.address,
             null,
             0,
-            null,
+            createEmptySlice(),
         );
         expect(transfer).toHaveSuccessfulTx<AskToTransfer>({
             from: deployer.address,

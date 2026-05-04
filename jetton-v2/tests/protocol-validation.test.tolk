@@ -106,7 +106,7 @@ get fun `test validation: wallet cannot send to masterchain`() {
     val wallet = mintTo(minter, deployer, deployer.address, ton("1"));
     val masterAddr = address.fromWorkchainAndHash(-1, 0);
 
-    val res = wallet.sendTransfer(
+    val res = wallet.sendTransferPayloadInline(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         ton("1"),
@@ -114,7 +114,7 @@ get fun `test validation: wallet cannot send to masterchain`() {
         deployer.address,
         null,
         DEFAULT_FORWARD_TON_AMOUNT,
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
@@ -222,7 +222,7 @@ get fun `test validation: minter cannot force transfer tokens`() {
             sendExcessesTo: notDeployer.address,
             customPayload: null,
             forwardTonAmount: 0,
-            forwardPayload: beginCell().storeMaybeRef(null).endCell().beginParse(),
+            forwardPayload: makeTinyForwardPayload(),
         },
     });
     val res = net.send(minter.address, transferMsg);
@@ -233,7 +233,7 @@ get fun `test validation: minter cannot force transfer tokens`() {
     });
     expect(wallet.getJettonBalance()).toEqual(balanceBefore);
 
-    val ok = wallet.sendTransfer(
+    val ok = wallet.sendTransferPayloadInline(
         notDeployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         ton("1"),
@@ -241,7 +241,7 @@ get fun `test validation: minter cannot force transfer tokens`() {
         notDeployer.address,
         null,
         0,
-        null,
+        createEmptySlice(),
     );
     expect(ok).toHaveSuccessfulTx<AskToTransfer>({ from: notDeployer.address, to: wallet.address });
 }

@@ -327,7 +327,7 @@ get fun `test gas: forward ton transfer should fail when fees are insufficient`(
     val (minter, deployer, notDeployer) = setupTest();
     val senderWallet = mintTo(minter, deployer, deployer.address, ton("2"));
 
-    val res = senderWallet.sendTransfer(
+    val res = senderWallet.sendTransferPayloadInline(
         deployer.address,
         LOW_TRANSFER_MSG_VALUE,
         ton("1"),
@@ -335,7 +335,7 @@ get fun `test gas: forward ton transfer should fail when fees are insufficient`(
         deployer.address,
         null,
         ton("0.5"),
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,

@@ -20,7 +20,7 @@ fun main() {
     );
 
     val senderWallet = JettonWallet { address: minter.getWalletAddress(sender.address) };
-    val res = senderWallet.sendTransfer(
+    val res = senderWallet.sendTransferPayloadInline(
         sender.address,
         ton("0.08"),
         transferAmount,
@@ -28,7 +28,7 @@ fun main() {
         sender.address,
         null,
         1,
-        null,
+        createEmptySlice(),
     );
     res.waitForFirstTransaction();
 

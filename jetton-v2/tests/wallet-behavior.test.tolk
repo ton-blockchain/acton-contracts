@@ -16,7 +16,7 @@ get fun `test wallet: owner can send jettons`() {
     val senderWallet = mintTo(minter, deployer, deployer.address, ton("20"));
     val receiverWallet = userWallet(minter, notDeployer.address);
 
-    val res = senderWallet.sendTransfer(
+    val res = senderWallet.sendTransferPayloadInline(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         transferAmount,
@@ -24,7 +24,7 @@ get fun `test wallet: owner can send jettons`() {
         deployer.address,
         null,
         DEFAULT_FORWARD_TON_AMOUNT,
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveSuccessfulTx<AskToTransfer>({
         from: deployer.address,
@@ -40,7 +40,7 @@ get fun `test wallet: non-owner cannot send jettons`() {
     val wallet = mintTo(minter, deployer, deployer.address, ton("7"));
     val balanceBefore = wallet.getJettonBalance();
 
-    val res = wallet.sendTransfer(
+    val res = wallet.sendTransferPayloadInline(
         notDeployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         ton("3"),
@@ -48,7 +48,7 @@ get fun `test wallet: non-owner cannot send jettons`() {
         deployer.address,
         null,
         DEFAULT_FORWARD_TON_AMOUNT,
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: notDeployer.address,
@@ -64,7 +64,7 @@ get fun `test wallet: cannot send more jettons than balance`() {
     val wallet = mintTo(minter, deployer, deployer.address, ton("2"));
     val balanceBefore = wallet.getJettonBalance();
 
-    val res = wallet.sendTransfer(
+    val res = wallet.sendTransferPayloadInline(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         ton("5"),
@@ -72,7 +72,7 @@ get fun `test wallet: cannot send more jettons than balance`() {
         deployer.address,
         null,
         DEFAULT_FORWARD_TON_AMOUNT,
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
@@ -88,7 +88,7 @@ get fun `test wallet: zero forward ton means no transfer notification`() {
     val senderWallet = mintTo(minter, deployer, deployer.address, ton("2"));
     val receiverWallet = userWallet(minter, notDeployer.address);
 
-    val res = senderWallet.sendTransfer(
+    val res = senderWallet.sendTransferPayloadInline(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         ton("1"),
@@ -96,7 +96,7 @@ get fun `test wallet: zero forward ton means no transfer notification`() {
         deployer.address,
         null,
         0,
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveSuccessfulTx<AskToTransfer>({
         from: deployer.address,
@@ -115,7 +115,7 @@ get fun `test wallet: transfer notification should preserve forward payload`() {
     val sentAmount = ton("0.5");
     val forwardPayload = beginCell().storeUint(0x1234567890abcdef, 128).endCell();
 
-    val res = senderWallet.sendTransfer(
+    val res = senderWallet.sendTransferPayloadInRef(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         sentAmount,
@@ -165,7 +165,7 @@ get fun `test wallet: transfer to undeployed recipient wallet should still work`
     val recipientWallet = userWallet(minter, recipientOwner);
     val sentAmount = ton("0.5");
 
-    val res = senderWallet.sendTransfer(
+    val res = senderWallet.sendTransferPayloadInline(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         sentAmount,
@@ -173,7 +173,7 @@ get fun `test wallet: transfer to undeployed recipient wallet should still work`
         deployer.address,
         null,
         0,
-        null,
+        createEmptySlice(),
     );
 
     expect(res).toHaveAllSuccessfulTxs();
