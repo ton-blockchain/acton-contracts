@@ -1,4 +1,6 @@
+import "@stdlib/strings"
 import "errors"
+import "fees-management"
 import "messages"
 import "types"
 
@@ -37,8 +39,8 @@ fun onInternalMessage(in: InMessage) {
     match (msg) {
         DeployNft => {
             var storage = lazy NftCollectionStorage.load();
-            assert (in.senderAddress == storage.adminAddress) throw ERROR_NOT_FROM_ADMIN;
-            assert (msg.itemIndex <= storage.nextItemIndex) throw ERROR_INVALID_ITEM_INDEX;
+            assert (in.senderAddress == storage.adminAddress) throw Errors.NotFromAdmin;
+            assert (msg.itemIndex <= storage.nextItemIndex) throw Errors.InvalidItemIndex;
 
             val isLast = msg.itemIndex == storage.nextItemIndex;
             deployNftItem(msg.itemIndex, storage.nftItemCode, msg.attachTonAmount, msg.initParams);
@@ -64,18 +66,19 @@ fun onInternalMessage(in: InMessage) {
 
         BatchDeployNfts => {
             var storage = lazy NftCollectionStorage.load();
-            assert (in.senderAddress == storage.adminAddress) throw ERROR_NOT_FROM_ADMIN;
+            assert (in.senderAddress == storage.adminAddress) throw Errors.NotFromAdmin;
 
             var counter = 0;
             var r = msg.deployList.findFirst();
             while (r.isFound) {
                 counter += 1;
-                assert (
-                    counter < 250
-                ) throw ERROR_BATCH_LIMIT_EXCEEDED;                      // due to limits of action list size
+                assert (counter < BATCH_SIZE_LIMIT) throw Errors.BatchLimitExceeded;
 
+                // Error cast is used to replicate exit codes from FunC version
                 val itemIndex = r.getKey();
-                assert (itemIndex <= storage.nextItemIndex) throw ERROR_NOT_FROM_ADMIN + counter;
+                assert (
+                    itemIndex <= storage.nextItemIndex
+                ) throw (Errors.NotFromAdmin as int) + counter;
 
                 val dictItem = r.loadValue();
                 deployNftItem(
@@ -95,7 +98,7 @@ fun onInternalMessage(in: InMessage) {
 
         ChangeCollectionAdmin => {
             var storage = lazy NftCollectionStorage.load();
-            assert (in.senderAddress == storage.adminAddress) throw ERROR_NOT_FROM_ADMIN;
+            assert (in.senderAddress == storage.adminAddress) throw Errors.NotFromAdmin;
             storage.adminAddress = msg.newAdminAddress;
             storage.save();
         }
@@ -145,7 +148,8 @@ get fun get_nft_content(
     // common content = "https://site.org/my-collection/"
     // individual nft = "my-picture-123.png"  (probably, a long string, snake-encoded)
     // result         = concatenation
-    return OffchainMetadataReply {
-        string: content.commonContent.concat(individualNftContent),
-    }.toCell();
+    var b = StringBuilder.create();
+    b.append(content.commonContent);
+    b.append(individualNftContent);
+    return OffchainMetadataReply { string: b.build() }.toCell();
 }

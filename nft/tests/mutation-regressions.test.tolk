@@ -1,4 +1,3 @@
-import "@stdlib/tvm-dicts"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/assert"
@@ -82,17 +81,38 @@ fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: co
     return outgoingMessage.estimateFeeWithoutSending(SEND_MODE_REGULAR);
 }
 
+struct OwnershipTransferBody {
+    queryId: uint64
+    newOwnerAddress: address
+    sendExcessesTo: address?
+    customPayload: cell?
+    forwardTonAmount: coins
+    forwardPayload: Payload
+}
+
+fun OwnershipTransferBody.toCell(self): cell {
+    return beginCell()
+        .storeUint(0x5fcc3d14, 32)
+        .storeAny(self.queryId)
+        .storeAny(self.newOwnerAddress)
+        .storeAny(self.sendExcessesTo)
+        .storeAny(self.customPayload)
+        .storeAny(self.forwardTonAmount)
+        .storeAny(self.forwardPayload)
+        .endCell();
+}
+
 fun makeOwnershipTransferBody(
     newOwnerAddress: address,
     sendExcessesTo: address?,
     forwardTonAmount: coins,
     forwardPayload: slice,
-): AskToChangeOwnership {
-    val (bodyBits, bodyRefs) = AskToChangeOwnership {
+): OwnershipTransferBody {
+    val (bodyBits, bodyRefs) = OwnershipTransferBody {
         queryId: 0,
         newOwnerAddress,
         sendExcessesTo,
-        customPayload: createEmptyDict(),
+        customPayload: null,
         forwardTonAmount,
         forwardPayload: PayloadInline { value: createEmptySlice() },
     }.toCell()
@@ -108,7 +128,7 @@ fun makeOwnershipTransferBody(
         queryId: 0,
         newOwnerAddress,
         sendExcessesTo,
-        customPayload: createEmptyDict(),
+        customPayload: null,
         forwardTonAmount,
         forwardPayload: payload,
     };
@@ -116,16 +136,17 @@ fun makeOwnershipTransferBody(
 
 fun calculateMinimalTransferValue(
     itemAddress: address,
-    body: AskToChangeOwnership,
+    body: OwnershipTransferBody,
     balanceBefore: coins,
 ): coins {
     var value = 0;
     var previous = -1;
+    val bodyCell = body.toCell();
 
     while (value != previous) {
         previous = value;
 
-        val fwdFee = estimateMessageForwardFee(body, itemAddress, true, value);
+        val fwdFee = estimateMessageForwardFee(bodyCell, itemAddress, true, value);
         var required = MIN_TONS_FOR_STORAGE - balanceBefore;
         if (required < 0) {
             required = 0;
@@ -146,7 +167,7 @@ fun calculateMinimalTransferValue(
 fun calculateRestAmount(
     balanceBefore: coins,
     msgValue: coins,
-    body: AskToChangeOwnership,
+    body: OwnershipTransferBody,
     fwdFee: coins,
 ): coins {
     var restAmount = balanceBefore + msgValue - MIN_TONS_FOR_STORAGE;
@@ -182,7 +203,7 @@ get fun `test mutation: batch deploy should reject action-list overflow and pres
     expect(result).toHaveFailedTx<BatchDeployNfts>({
         from: deployer.address,
         to: nftCollection.address,
-        exitCode: ERROR_BATCH_LIMIT_EXCEEDED,
+        exitCode: Errors.BatchLimitExceeded,
     });
     expect(result).toNotHaveTx({ from: nftCollection.address, deploy: true });
     expect(nftCollection.getCollectionData().nextItemIndex).toEqual(nextItemIndex);
@@ -208,7 +229,7 @@ get fun `test mutation: batch deploy should report exact failing counter for ski
     expect(result).toHaveFailedTx<BatchDeployNfts>({
         from: deployer.address,
         to: nftCollection.address,
-        exitCode: ERROR_NOT_FROM_ADMIN + 2,
+        exitCode: (Errors.NotFromAdmin as int) + 2,
     });
     expect(result).toNotHaveTx({ from: nftCollection.address, deploy: true });
     expect(nftCollection.getCollectionData().nextItemIndex).toEqual(nextItemIndex);
@@ -278,7 +299,7 @@ get fun `test mutation: uninitialized item should reject initialization from non
     expect(result).toHaveFailedTx({
         from: outsider.address,
         to: nftItem.address,
-        exitCode: ERROR_NOT_FROM_COLLECTION,
+        exitCode: Errors.NotFromCollection,
     });
 
     val data = nftItem.getNftData();
@@ -311,7 +332,7 @@ get fun `test mutation: ownership transfer should fail one nanotone below forwar
     expect(result).toHaveFailedTx<AskToChangeOwnership>({
         from: owner.address,
         to: nftItem.address,
-        exitCode: ERROR_TOO_SMALL_REST_AMOUNT,
+        exitCode: Errors.TooSmallRestAmount,
     });
     expect(nftItem.getNftData().ownerAddress!).toEqual(owner.address);
 }
@@ -326,7 +347,12 @@ get fun `test mutation: ownership transfer with zero forward amount should exhau
 
     val balanceBefore = testing.getAccountBalance(nftItem.address);
     val exactValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
-    val fwdFee = estimateMessageForwardFee(transferBody, nftItem.address, true, exactValue);
+    val fwdFee = estimateMessageForwardFee(
+        transferBody.toCell(),
+        nftItem.address,
+        true,
+        exactValue,
+    );
     val expectedRestAmount = calculateRestAmount(balanceBefore, exactValue, transferBody, fwdFee);
     val result = nftItem.sendAskToChangeOwnership(
         owner.address,
@@ -370,7 +396,12 @@ get fun `test mutation: ownership transfer with forward amount should emit exact
 
     val balanceBefore = testing.getAccountBalance(nftItem.address);
     val exactValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
-    val fwdFee = estimateMessageForwardFee(transferBody, nftItem.address, true, exactValue);
+    val fwdFee = estimateMessageForwardFee(
+        transferBody.toCell(),
+        nftItem.address,
+        true,
+        exactValue,
+    );
     val expectedRestAmount = calculateRestAmount(balanceBefore, exactValue, transferBody, fwdFee);
     val result = nftItem.sendAskToChangeOwnership(
         owner.address,

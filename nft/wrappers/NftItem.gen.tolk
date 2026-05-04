@@ -9,14 +9,17 @@ import "@acton/testing/assert"
 import "../contracts/messages"
 import "../contracts/types"
 
-/// Storage `NftItemStorage` is defined in `../contracts/types`
+/// Storage `NftItemStorageNotInitialized` is defined in `../contracts/types`
 struct NftItem {
     address: address
     stateInit: ContractState? = null
 }
 
 /// Creates a contract wrapper instance from the storage data
-fun NftItem.fromStorage(storage: NftItemStorage, toShard: AddressShardingOptions? = null): NftItem {
+fun NftItem.fromStorage(
+    storage: NftItemStorageNotInitialized,
+    toShard: AddressShardingOptions? = null,
+): NftItem {
     val stateInit = ContractState {
         code: build("NftItem"),
         data: storage.toCell(),
@@ -49,23 +52,25 @@ fun NftItem.sendAskToChangeOwnership(
     queryId: uint64,
     newOwnerAddress: address,
     sendExcessesTo: address?,
-    customPayload: dict,
+    customPayload: cell?,
     forwardTonAmount: coins,
     forwardPayload: Payload,
     config: SendParams = {},
 ): SendResultList {
+    // build body cell manually, because some fields have @abi.clientType
+    val bodyB = beginCell()
+        .storeUint(0x5fcc3d14, 32)
+        .storeAny(queryId)
+        .storeAny(newOwnerAddress)
+        .storeAny(sendExcessesTo)
+        .storeAny(customPayload)
+        .storeAny(forwardTonAmount)
+        .storeAny(forwardPayload);
     val genericMsg = createMessage({
         bounce: config.bounce,
         value: config.value,
         dest: self.address,
-        body: AskToChangeOwnership {
-            queryId,
-            newOwnerAddress,
-            sendExcessesTo,
-            customPayload,
-            forwardTonAmount,
-            forwardPayload,
-        },
+        body: AskToChangeOwnership.fromSlice(bodyB.toSlice()),
     });
     return net.send(from, genericMsg);
 }
