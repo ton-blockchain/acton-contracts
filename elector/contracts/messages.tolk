@@ -37,13 +37,14 @@ struct (0xee764f6f) ConfigConfirmedAlt {
 struct (0x52674370) NewComplaint {
     queryId: uint64
     electionId: uint32
+    @abi.clientType(Complaint)
     rawComplaint: RemainingBitsAndRefs
 }
 
 struct (0x56744370) SignedVoteForComplaint {
     queryId: uint64
     signature: bits512
-    // Actually it is VoteForComplaint
+    @abi.clientType(VoteForComplaint)
     vote: RemainingBitsAndRefs
 }
 

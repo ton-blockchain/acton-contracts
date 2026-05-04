@@ -15,7 +15,7 @@ fun main() {
         ELECTOR_DEFAULT_DEPLOY_AMOUNT,
     );
 
-    val elector = deployElector(deployer, defaultElectorStorage(), workchain, deployValue);
+    val elector = deployElector(deployer, workchain, deployValue);
 
     printElectorInfo(elector, "ELECTOR");
 }

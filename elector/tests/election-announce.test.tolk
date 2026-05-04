@@ -41,9 +41,9 @@ get fun `test election announce not elector`() {
 
 get fun `test election announce not masterchain`() {
     // Deploy elector on basechain instead of masterchain
-    val elector = Elector.fromStorageInWorkchain(defaultStorage(), null, BASECHAIN);
+    val elector = Elector.fromConfig(BASECHAIN);
     val deployer = testing.treasury("deployer");
-    val res = elector.deployInWorkchain(deployer.address, BASECHAIN, { value: ton("1000") });
+    val res = elector.deployToWorkchain(deployer.address, BASECHAIN, { value: ton("1000") });
     expect(res).toHaveSuccessfulDeploy({ to: elector.address });
 
     // Verify elector is on basechain (workchain 0)

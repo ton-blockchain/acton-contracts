@@ -24,18 +24,6 @@ struct ElectorSetup {
     configAddr: address
 }
 
-/// Default empty storage for elector contract
-fun defaultStorage(): Storage {
-    return Storage {
-        currectElections: null,
-        credits: [],
-        pastElections: [],
-        grams: 0,
-        activeId: 0,
-        activeHash: 0,
-    };
-}
-
 /// Create default validators set cell (already expired)
 fun defaultValidators(): VSet {
     return VSet {
@@ -81,10 +69,10 @@ fun defaultStakeLimits(): StakeLimits {
 fun setupElector(): ElectorSetup {
     testing.setNow(NOW_CONST);
 
-    val elector = Elector.fromStorageInWorkchain(defaultStorage(), null, MASTERCHAIN);
+    val elector = Elector.fromConfig();
     val deployer = testing.treasury("deployer");
 
-    val res = elector.deployInWorkchain(deployer.address, MASTERCHAIN, { value: ton("1000") });
+    val res = elector.deployToWorkchain(deployer.address, MASTERCHAIN, { value: ton("1000") });
     expect(res).toHaveSuccessfulDeploy({ to: elector.address });
 
     // Generate a config contract address on masterchain

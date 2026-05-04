@@ -133,7 +133,7 @@ get fun `test bench new complaint`() {
         sender,
         1,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("500") },
     );
     expect(res).toHaveTx({ from: elector.address, to: sender });
@@ -218,7 +218,7 @@ fun registerTestComplaint(
         sender,
         1,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("500") },
     );
 
@@ -243,8 +243,7 @@ fun sendVote(
         electId,
         chash,
     };
-    val voteCell = vote.toCell();
-    val sig = crypto.sign(privateKey, voteCell).loadBits(512) as bits512;
+    val sig = crypto.sign(privateKey, vote.toCell()).loadBits(512) as bits512;
 
     val voter = randomAddress("voter", MASTERCHAIN);
     testing.topUp(voter, ton("10"));
@@ -252,7 +251,7 @@ fun sendVote(
         voter,
         queryId,
         sig,
-        voteCell.beginParse(),
+        vote,
         { value: ton("1") },
     );
 }

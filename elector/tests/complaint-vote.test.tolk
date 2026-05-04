@@ -65,7 +65,7 @@ fun registerTestComplaintFull(
         sender,
         1,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("500") },
     );
 
@@ -103,8 +103,7 @@ fun sendVote(
         electId,
         chash,
     };
-    val voteCell = vote.toCell();
-    val sig = crypto.sign(privateKey, voteCell).loadBits(512) as bits512;
+    val sig = crypto.sign(privateKey, vote.toCell()).loadBits(512) as bits512;
 
     val voter = randomAddress("voter", MASTERCHAIN);
     testing.topUp(voter, ton("10"));
@@ -112,7 +111,7 @@ fun sendVote(
         voter,
         queryId,
         sig,
-        voteCell.beginParse(),
+        vote,
         { value: ton("1") },
     );
 }
@@ -127,14 +126,13 @@ get fun `test vote wrong tag`() {
     val kps = setupVsetWithKnownValidators(5);
     registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
 
-    // Build vote with wrong sign tag — must use manual cell since struct enforces correct tag
-    val wrongVoteCell = beginCell()
-        .storeUint(0xDEADBEEF, 32)
-        .storeUint(0, 16)
-        .storeUint(stakeAt, 32)
-        .storeUint(0, 256)
-        .endCell();
-    val sig = crypto.sign(kps.get(0).privateKey, wrongVoteCell).loadBits(512) as bits512;
+    val wrongVote = VoteForComplaint {
+        signTag: 0xDEADBEEF,
+        idx: 0,
+        electId: stakeAt,
+        chash: 0,
+    };
+    val sig = crypto.sign(kps.get(0).privateKey, wrongVote.toCell()).loadBits(512) as bits512;
 
     val voter = randomAddress("voter", MASTERCHAIN);
     testing.topUp(voter, ton("10"));
@@ -142,7 +140,7 @@ get fun `test vote wrong tag`() {
         voter,
         1,
         sig,
-        wrongVoteCell.beginParse(),
+        wrongVote,
         { value: ton("1") },
     );
     expect(res).toHaveFailedTx({ to: elector.address, exitCode: 37 });
@@ -165,8 +163,7 @@ get fun `test vote invalid signature`() {
         electId: stakeAt,
         chash: 0,
     };
-    val voteCell = vote.toCell();
-    val sig = crypto.sign(wrongKp.privateKey, voteCell).loadBits(512) as bits512; // wrong key
+    val sig = crypto.sign(wrongKp.privateKey, vote.toCell()).loadBits(512) as bits512; // wrong key
 
     val voter = randomAddress("voter", MASTERCHAIN);
     testing.topUp(voter, ton("10"));
@@ -174,7 +171,7 @@ get fun `test vote invalid signature`() {
         voter,
         1,
         sig,
-        voteCell.beginParse(),
+        vote,
         { value: ton("1") },
     );
     expect(res).toHaveFailedTx({ to: elector.address, exitCode: 34 });

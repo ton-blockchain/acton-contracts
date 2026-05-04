@@ -84,20 +84,9 @@ fun promptElector(envName: string, message: string): Elector {
     return Elector.fromAddress(addr);
 }
 
-fun defaultElectorStorage(): Storage {
-    return Storage {
-        currectElections: null,
-        credits: [],
-        pastElections: [],
-        grams: 0,
-        activeId: 0,
-        activeHash: 0,
-    };
-}
-
-fun deployElector(deployer: ActonWallet, storage: Storage, workchain: int8, value: coins): Elector {
-    val elector = Elector.fromStorageInWorkchain(storage, null, workchain);
-    val res = elector.deployInWorkchain(deployer.address, workchain, { value });
+fun deployElector(deployer: ActonWallet, workchain: int8, value: coins): Elector {
+    val elector = Elector.fromConfig(workchain);
+    val res = elector.deployToWorkchain(deployer.address, workchain, { value });
     res.waitForFirstTransaction();
     return elector;
 }
