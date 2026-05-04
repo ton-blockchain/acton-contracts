@@ -1,6 +1,5 @@
 import "@stdlib/strings"
 import "@acton/build"
-import "@acton/fmt"
 import "@acton/io"
 import "@acton/prompts"
 import "@acton/emulation/network"
@@ -27,15 +26,11 @@ struct NftCollectionInfo {
     image: string
 }
 
-fun string.toSnakeString(self): cell {
-    return beginCell().storeUint(SNAKE_PREFIX, 8).storeSlice(self.beginParse()).endCell();
-}
-
 fun buildOnchainMetadata(info: NftCollectionInfo): cell {
-    var dict: map<uint256, cell> = [];
-    dict.set("name".sha256(), info.name.toSnakeString());
-    dict.set("description".sha256(), info.description.toSnakeString());
-    dict.set("image".sha256(), info.image.toSnakeString());
+    var dict: map<uint256, string_prefixed0x> = [];
+    dict.set("name".sha256(), info.name.prefixWith00());
+    dict.set("description".sha256(), info.description.prefixWith00());
+    dict.set("image".sha256(), info.image.prefixWith00());
     return beginCell()
         .storeUint(ONCHAIN_CONTENT_PREFIX, 8)
         .storeDict(dict.toLowLevelDict())
@@ -46,9 +41,8 @@ fun promptNftWallet(message: string): ActonWallet {
     return scripts.wallet(promptWallet(message));
 }
 
-fun promptNftAddress(message: string, default: address): address {
-    val s = prompt(message, "", format("{}", default));
-    return parseAddress(s);
+fun promptNftAddress(message: string, default: address? = null): address {
+    return promptAddress(message, default);
 }
 
 fun promptNftCollectionInfo(): NftCollectionInfo {
@@ -60,13 +54,11 @@ fun promptNftCollectionInfo(): NftCollectionInfo {
 }
 
 fun promptNftCollection(message: string): NftCollection {
-    val s = prompt(message, "EQ... / kQ...", "");
-    return NftCollection.fromAddress(parseAddress(s));
+    return NftCollection.fromAddress(promptAddress(message));
 }
 
 fun promptNftItem(message: string): NftItem {
-    val s = prompt(message, "EQ... / kQ...", "");
-    return NftItem.fromAddress(parseAddress(s));
+    return NftItem.fromAddress(promptAddress(message));
 }
 
 fun makeNftCollectionStorage(admin: address, info: NftCollectionInfo): NftCollectionStorage {
@@ -86,10 +78,7 @@ fun makeNftCollectionStorage(admin: address, info: NftCollectionInfo): NftCollec
     };
 }
 
-fun deployNftCollection(
-    deployer: ActonWallet,
-    info: NftCollectionInfo,
-): NftCollection {
+fun deployNftCollection(deployer: ActonWallet, info: NftCollectionInfo): NftCollection {
     val collection = NftCollection.fromStorage(
         makeNftCollectionStorage(deployer.address, info),
     );
@@ -98,7 +87,7 @@ fun deployNftCollection(
     return collection;
 }
 
-fun deployNftItemFromCollection(
+fun deployNftItem(
     collection: NftCollection,
     deployer: ActonWallet,
     owner: address,
@@ -126,29 +115,36 @@ fun deployNftBatch(
     var deployList: map<uint64, BatchDeployDictItem> = [];
     var i = 0;
     val nextItemIndex = collection.getCollectionData().nextItemIndex;
+    val perItemAmount = ton("0.03");
 
     while (i < count) {
         val index = (nextItemIndex + i);
+        val content = StringBuilder
+            .create()
+            .append(NFT_DEFAULT_BATCH_CONTENT_PREFIX)
+            .append(index.toDecimalString())
+            .append(".json")
+            .build();
+
         deployList.set(
             index,
             BatchDeployDictItem {
-                attachTonAmount: ton("0.03"),
+                attachTonAmount: perItemAmount,
                 initParams: NftItemInitAtDeployment {
                     ownerAddress: owner,
-                    content: NFT_DEFAULT_BATCH_CONTENT_PREFIX
-                        .concat(index.toDecimalString())
-                        .concat(".json"),
+                    content,
                 }.toCell(),
             },
         );
         i += 1;
     }
 
+    val messageValue = perItemAmount * count + ton("0.1");
     return collection.sendBatchDeployNfts(
         deployer.address,
         0,
         deployList,
-        { value: ton("0.15"), bounce: true },
+        { value: messageValue, bounce: true },
     );
 }
 

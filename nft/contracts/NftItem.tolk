@@ -9,16 +9,19 @@ contract NftItem {
     description: "Standard NFT Item. TEP-62 and TEP-64 compliant"
     incomingMessages: AllowedMessageToNftItem
     storage: NftItemStorage
+    storageAtDeployment: NftItemStorageNotInitialized
 }
 
-type AllowedMessageToNftItem = AskToChangeOwnership | RequestStaticData
+type AllowedMessageToNftItem =
+    | AskToChangeOwnership
+    | RequestStaticData
 
 fun onInternalMessage(in: InMessage) {
     var loadingStorage = NftItemStorage.startLoading();
     if (loadingStorage.isNotInitialized()) {
         assert (
             in.senderAddress == loadingStorage.collectionAddress
-        ) throw ERROR_NOT_FROM_COLLECTION;
+        ) throw Errors.NotFromCollection;
 
         // using a message from collection, convert "uninitialized" to "initialized" state
         val initParams = NftItemInitAtDeployment.fromSlice(in.body);
@@ -38,9 +41,16 @@ fun onInternalMessage(in: InMessage) {
 
     match (msg) {
         AskToChangeOwnership => {
-            assert (in.senderAddress == storage.ownerAddress) throw ERROR_NOT_FROM_OWNER;
+            assert (in.senderAddress == storage.ownerAddress) throw Errors.NotFromOwner;
 
-            assert (msg.newOwnerAddress.getWorkchain() == BASECHAIN) throw ERROR_INVALID_WORKCHAIN;
+            // validate Either format: bit 0 = inline (any payload follows),
+            // bit 1 = ref (must be exactly 1 bit + 1 ref)
+            val (fwdBits, fwdRefs) = msg.forwardPayload.remainingBitsAndRefsCount();
+            assert (fwdBits != 0) throw Errors.IncorrectForwardPayload;
+            if (msg.forwardPayload.preloadUint(1) != 0) {
+                assert (fwdBits == 1 && fwdRefs == 1) throw Errors.IncorrectForwardPayload;
+            }
+            assert (msg.newOwnerAddress.getWorkchain() == BASECHAIN) throw Errors.InvalidWorkchain;
 
             val fwdFee = in.originalForwardFee;
             var restAmount = contract.getOriginalBalance() - MIN_TONS_FOR_STORAGE;
@@ -50,13 +60,12 @@ fun onInternalMessage(in: InMessage) {
             if (msg.sendExcessesTo != null) {
                 assert (
                     msg.sendExcessesTo.getWorkchain() == BASECHAIN
-                ) throw ERROR_INVALID_WORKCHAIN;
+                ) throw Errors.InvalidWorkchain;
                 restAmount -= fwdFee;
             }
 
-            assert (
-                restAmount >= 0
-            ) throw ERROR_TOO_SMALL_REST_AMOUNT;                        // base nft spends fixed amount of gas, will not check for response
+            // base nft spends fixed amount of gas, will not check for response
+            assert (restAmount >= 0) throw Errors.TooSmallRestAmount;
 
             if (msg.forwardTonAmount != 0) {
                 val ownershipMsg = createMessage({

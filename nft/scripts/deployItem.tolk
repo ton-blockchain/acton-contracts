@@ -1,6 +1,4 @@
 import "@acton/prompts"
-import "@acton/emulation/network"
-import "@acton/emulation/scripts"
 import "utils/common"
 
 fun main() {
@@ -9,7 +7,7 @@ fun main() {
     val itemContent = prompt("Enter item content path", "", NFT_DEFAULT_ITEM_CONTENT);
     val owner = promptNftAddress("Enter NFT Item owner", deployer.address);
 
-    val item = deployNftItemFromCollection(collection, deployer, owner, itemContent);
+    val item = deployNftItem(collection, deployer, owner, itemContent);
 
     printNftItemInfo(item, "NFT");
 }
