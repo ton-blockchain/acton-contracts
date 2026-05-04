@@ -304,7 +304,7 @@ get fun `test mutation: direct wallet exact-balance transfer should persist and 
     val (wallet, owner, _, _) = setupDirectWallet(startBalance);
     val recipientOwner = testing.treasury("direct-wallet-transfer-recipient");
 
-    val res = wallet.sendTransfer(
+    val res = wallet.sendTransferPayloadInline(
         owner.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         startBalance,
@@ -312,7 +312,7 @@ get fun `test mutation: direct wallet exact-balance transfer should persist and 
         owner.address,
         null,
         0,
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveSuccessfulTx<AskToTransfer>({ from: owner.address, to: wallet.address });
     expect(wallet.getJettonBalance()).toEqual(0);
@@ -328,7 +328,7 @@ get fun `test mutation: direct wallet should reject non-owner transfers`() {
     val (wallet, _, _, outsider) = setupDirectWallet(ton("3"));
     val receiver = testing.treasury("direct-wallet-non-owner-receiver");
 
-    val res = wallet.sendTransfer(
+    val res = wallet.sendTransferPayloadInline(
         outsider.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         ton("1"),
@@ -336,7 +336,7 @@ get fun `test mutation: direct wallet should reject non-owner transfers`() {
         outsider.address,
         null,
         0,
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: outsider.address,
@@ -366,7 +366,7 @@ get fun `test mutation: direct wallet should reject overspending jettons`() {
         recipientOwner.address,
     );
 
-    val res = wallet.sendTransfer(
+    val res = wallet.sendTransferPayloadInline(
         owner.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         ton("5"),
@@ -374,7 +374,7 @@ get fun `test mutation: direct wallet should reject overspending jettons`() {
         owner.address,
         null,
         0,
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
@@ -389,7 +389,7 @@ get fun `test mutation: direct wallet should reject masterchain recipients`() {
     val (wallet, owner, _, _) = setupDirectWallet(ton("3"));
     val masterAddr = address.fromWorkchainAndHash(-1, 0);
 
-    val res = wallet.sendTransfer(
+    val res = wallet.sendTransferPayloadInline(
         owner.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         ton("1"),
@@ -397,7 +397,7 @@ get fun `test mutation: direct wallet should reject masterchain recipients`() {
         owner.address,
         null,
         0,
-        null,
+        createEmptySlice(),
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: owner.address,

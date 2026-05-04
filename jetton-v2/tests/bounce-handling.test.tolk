@@ -13,7 +13,7 @@ get fun `test minter restores supply on internal_transfer bounce`() {
     val (minter, deployer, _) = setupTest();
     val supplyBefore = minter.getTotalSupply();
     val mintAmount = ton("2");
-    val forwardPayload = beginCell().storeMaybeRef(null).endCell().beginParse();
+    val forwardPayload = makeTinyForwardPayload();
 
     val mintMsg = createMessage({
         bounce: false,
@@ -59,7 +59,7 @@ get fun `test wallet restores balance on internal_transfer bounce`() {
     val (minter, deployer, notDeployer) = setupTest();
     val senderWallet = mintTo(minter, deployer, deployer.address, ton("5"));
     val balanceBefore = senderWallet.getJettonBalance();
-    val forwardPayload = beginCell().storeMaybeRef(null).endCell().beginParse();
+    val forwardPayload = makeTinyForwardPayload();
 
     val transferMsg = createMessage({
         bounce: true,
