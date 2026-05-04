@@ -57,11 +57,7 @@ fun calculateOrderProcessingCost(
     return gasFees + forwardFees + storageFees;
 }
 
-// TODO: optimize short-return?
 fun getTextComment(inMsgBody: RemainingBitsAndRefs): slice {
-    // if (inMsgBody.remainingRefsCount() == 0) {
-    //     return inMsgBody;
-    // }
     var result = beginCell();
 
     result.storeSlice(inMsgBody.preloadBits(inMsgBody.remainingBitsCount()));
@@ -134,7 +130,6 @@ fun sendApproveRejected(responseAddress: address, queryId: uint64, exitCode: uin
     rejectedMsg.send(SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE | SEND_MODE_BOUNCE_ON_ACTION_FAIL);
 }
 
-// TODO: bug with inline
 @inline_ref
 fun OrderStorageInitialized.approve(
     mutate self,

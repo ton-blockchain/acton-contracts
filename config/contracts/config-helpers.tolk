@@ -103,7 +103,7 @@ fun changeElectorCode(codeBody: slice) {
     actionMsg.send(SEND_MODE_REGULAR);
 }
 
-// TODO: ?
+// get method to keep the function
 @method_id(1666)
 fun afterCodeUpgrade(_param: slice, _oldCode: continuation) {}
 
@@ -150,7 +150,6 @@ struct CurrentValidatorContext {
 fun unpackValidatorDescr(validatorDescription: slice): ValidatorKeyAndWeight {
     val descr = lazy ValidatorDescr.fromSlice(validatorDescription);
 
-    // TODO: optimize
     match (descr) {
         ValidatorDescrSimple => {
             assert (descr.pubkeyTag == OP_ED25519_PUBKEY) throw ERROR_WRONG_VALIDATOR_DESCRIPTION;
@@ -246,7 +245,6 @@ fun acceptProposal(
     return { paramId, paramVal: proposal.paramValue };
 }
 
-// TODO: refactor to match?
 @inline_ref
 fun performProposedAction(publicKey: int, paramId: int, paramVal: cell?): uint256 {
     // appoint or depose dictator
@@ -364,7 +362,6 @@ fun registerVote(
     // not enough votes, or proposal already accepted in this round
     // simply update remainingWeight
     if ((status.remainingWeight ^ oldWeightRemaining) >= 0) {
-        // TODO: toSlice
         voteDict.set(proposalHash, status.toCell().beginParse());
 
         return { acceptedProposal: null, status: 2 };
@@ -384,7 +381,6 @@ fun registerVote(
     }
 
     status.wins = wins;
-    // TODO: same
     voteDict.set(proposalHash, status.toCell().beginParse());
 
     return { acceptedProposal: null, status: 2 };
@@ -491,7 +487,6 @@ fun scanProposal(statusSlice: slice): ProposalScanResult {
         VOTE_WEIGHT_THRESHOLD_DENOMINATOR,
     );
 
-    // TODO: same with slice
     return { proposalStatusSlice: status.toCell().beginParse(), changed: true };
 }
 
@@ -632,7 +627,6 @@ fun registerVotingProposal(msg: NewVotingProposalRequest, msgValue: coins): int 
         }
 
         status.expires = expireAt;
-        // TODO: same with slice
         voteDict.set(proposalHash, status.toCell().beginParse());
 
         storage.voteDict = voteDict;
@@ -653,7 +647,6 @@ fun registerVotingProposal(msg: NewVotingProposalRequest, msgValue: coins): int 
         VOTE_WEIGHT_THRESHOLD_DENOMINATOR,
     );
 
-    // TODO: same with slice
     voteDict.set(
         proposalHash,
         ConfigProposalStatus {

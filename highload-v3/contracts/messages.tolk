@@ -5,7 +5,6 @@ struct (0xae42e5a4) InternalTransfer {
     actions: cell // c5
 }
 
-// TODO: rename
 struct MsgInner {
     subwalletId: uint32
     messageToSend: cell

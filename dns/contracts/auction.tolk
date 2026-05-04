@@ -99,7 +99,6 @@ fun applyOwnershipTransfer(
     }
 
     if (needResponse) {
-        // TODO: smartcast?
         responseDestination!.forceBasechain();
 
         val excessesMsg = createMessage({

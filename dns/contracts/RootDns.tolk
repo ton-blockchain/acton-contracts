@@ -34,10 +34,6 @@ get fun dnsresolve(subdomain: slice, _category: int): DnsResolveResponse {
 
     val rootStorage = lazy RootDnsStorage.fromCell(contract.getData());
 
-    // TODO: discuss null-encoding, prefetched bytes
-    // val wwwDomainBuilder = StringBuilder.create();
-    // wwwDomainBuilder.append("ton");
-
     val tonWwwDomain = beginCell()
         .storeSlice("ton".literalSlice())
         .storeUint(0, BYTE_SIZE)

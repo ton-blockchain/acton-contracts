@@ -50,7 +50,6 @@ get fun `test minter restores supply on internal_transfer bounce`() {
         dest: minter.address,
         body: bouncedBody,
     }).bounced();
-    // todo: rich bounces
     testing.processSingleTraceStep(wallet.address, bouncedMsg);
 
     expect(minter.getTotalSupply()).toEqual(supplyBefore);
