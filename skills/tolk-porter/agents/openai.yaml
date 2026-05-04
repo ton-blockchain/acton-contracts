@@ -1,5 +1,0 @@
-interface:
-  display_name: "Tolk Porter"
-  short_description: "Port FunC contracts to Tolk with Acton"
-  default_prompt: "Use $tolk-porter to port this FunC contract to modern Tolk using Acton (build, wrapper, tests, scripts)."
-

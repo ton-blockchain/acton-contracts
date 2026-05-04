@@ -1,9 +1,9 @@
 ---
-name: tolk-porter
-description: "Port TON smart contracts from FunC (.fc/.func) to modern Tolk (.tolk) with Acton: rewrite storage/messages/opcodes using structs + serialization, implement Acton-style entrypoints (onInternalMessage/onExternalMessage/onBouncedMessage), generate wrappers, migrate JS/TS tests to native Tolk tests, and use acton build/test/script/verify/disasm to ship safely. Use when a repo has both FunC and Tolk versions (for example contracts_FunC/ and contracts_Tolk/) or when asked to rewrite legacy FunC contracts into Tolk idioms while preserving TL-B compatibility."
+name: func2tolk
+description: "Port TON smart contracts from FunC (.fc/.func) to modern Tolk (.tolk) with Acton: use acton func2tolk when helpful, then refactor storage/messages/opcodes into typed structs and serialization, implement Acton-style entrypoints, generate wrappers, migrate JS/TS tests to native Tolk tests, and use acton build/test/script/verify/disasm to preserve TL-B compatibility and behavior. Use when asked to convert, port, or modernize FunC contracts into idiomatic Tolk."
 ---
 
-# Tolk Porter
+# func2tolk
 
 ## Overview
 
@@ -14,7 +14,9 @@ Port a legacy FunC smart contract to Tolk while preserving:
 
 Prefer Acton as the development framework (build, wrappers, native Tolk tests, scripts, deploy, verify).
 
-For common mappings and gotchas, open `references/porting-checklist.md`.
+Use `acton func2tolk` as a first-pass converter when it accelerates the job, then treat the output as a draft to audit and refactor into idiomatic, testable Tolk.
+
+For common mappings and gotchas, open `references/porting-checklist.md`. For public idiomatic examples and original FunC baselines, open `references/repo-examples.md`.
 
 ## Non-negotiable rules (MUST follow)
 
@@ -36,27 +38,27 @@ Forbidden unless explicitly justified by compatibility:
 - raw `udict_*` operations spread through core business branches instead of typed map helpers
 - finishing the run without a checklist-based self-audit
 
-## Portable references and example corpora
+## Portable references and example corpus
 
 - Skill references in this skill directory:
   - `references/porting-checklist.md`
   - `references/repo-examples.md`
-- Preferred paired corpus when available:
-  - any repo that keeps original FunC and rewritten Tolk side by side, commonly as `contracts_FunC/` and `contracts_Tolk/`
-  - a local benchmark repo such as `tolk-bench`, if present in the environment
-- Useful Acton/Tolk examples in `ton-blockchain/acton-contracts`:
-  - `https://github.com/ton-blockchain/acton-contracts/tree/main/acton-jetton/contracts`
-  - `https://github.com/ton-blockchain/acton-contracts/tree/main/dns/contracts`
-  - `https://github.com/ton-blockchain/acton-contracts/tree/main/nft/contracts`
-  - `https://github.com/ton-blockchain/acton-contracts/tree/main/highload-v3/contracts`
-- Useful upstream baselines when present:
-  - a DNS-style `func/` directory
-  - a single-file baseline such as `contracts/highload-wallet-v3.func`
-  - paired corpus examples such as `contracts_FunC/01_jetton/`, `contracts_FunC/02_nft/`, and `contracts_FunC/05_wallet-v5/`
+- Primary public style oracle:
+  - `https://github.com/ton-blockchain/acton-contracts`
+  - Each contract suite contains Acton/Tolk contracts, native tests, scripts, generated wrappers, benchmark snapshots where relevant, and a README linking to the original FunC implementation.
+- High-value Acton/Tolk suites to study:
+  - `jetton-v2` paired with `https://github.com/ton-blockchain/jetton-contract/tree/jetton-2.0`
+  - `nft` paired with `https://github.com/ton-blockchain/nft-contract`
+  - `w5` paired with `https://github.com/ton-blockchain/wallet-contract-v5`
+  - `dns` paired with `https://github.com/ton-blockchain/dns-contract`
+  - `multisig-v2` paired with `https://github.com/ton-blockchain/multisig-contract-v2`
+  - `highload-v3` paired with `https://github.com/ton-blockchain/highload-wallet-contract-v3`
+  - `notcoin` paired with `https://github.com/OpenBuilders/notcoin-contract`
+  - `config` paired with `https://github.com/ton-blockchain/ton/blob/master/crypto/smartcont/config-with-ownable-params.fc`
+  - `elector` paired with `https://github.com/ton-blockchain/ton/blob/master/crypto/smartcont/elector-code.fc`
+- `counter` in `acton-contracts` has no original FunC counterpart; use it only for minimal Acton project mechanics.
 - Acton docs:
   - `https://github.com/ton-blockchain/acton/tree/master/docs/content/docs`
-  - `https://github.com/ton-blockchain/acton/blob/master/src/bin/acton.rs`
-  - `https://github.com/ton-blockchain/acton/tree/master/src/commands`
   - otherwise use `acton --help` and the official hosted docs
 - Tolk idioms and conventions (docs-first style target):
   - `https://docs.ton.org/languages/tolk/idioms-conventions`
@@ -147,7 +149,7 @@ Forbidden unless explicitly justified by compatibility:
 - After deployment:
   - `acton verify CONTRACT_ID --address EQ... --net testnet|mainnet`
 
-## High-signal FunC -> idiomatic Tolk patterns (from Jetton/DNS/NFT/Highload + tolk-bench)
+## High-signal FunC -> idiomatic Tolk patterns (from acton-contracts)
 
 Use this section as the default translation strategy unless compatibility constraints force lower-level code.
 
@@ -326,18 +328,20 @@ Do not end the run until all items below are checked.
 
 If any gate item cannot be completed, do not silently finish. Report the blocker and list incomplete gate items explicitly.
 
-## Using a paired FunC/Tolk repo as a style oracle (when available)
+## Using acton-contracts as a style oracle
 
-If the current workspace or an attached reference repo contains `contracts_FunC/` and `contracts_Tolk/`, use:
-- the FunC version as behavioral baseline (especially for edge cases)
-- the Tolk version as the canonical target style and module layout
+Use `https://github.com/ton-blockchain/acton-contracts` as the default public style oracle for production ports:
+
+- use each suite's README to find the original FunC repo or file
+- use the original FunC source as the behavioral baseline, especially for edge cases
+- use the matching Acton/Tolk suite as the target style for module layout, typed storage, message unions, wrappers, scripts, tests, and benchmark snapshots
 
 Prefer searching by:
 - opcode hex (for example `0xd53276db`)
 - message type name (for example `InternalTransferStep`)
 - storage field name (for example `totalSupply`, `ownerAddress`)
 
-Open `references/repo-examples.md` for folder mapping patterns, example directory layouts, and search targets.
+Open `references/repo-examples.md` for suite mappings, original FunC links, and search targets.
 
 ## Docs-first lookups
 
