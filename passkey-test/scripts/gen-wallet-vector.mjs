@@ -1,8 +1,9 @@
 // End-to-end test-vector generator for the Acton PasskeyWallet contract.
 //
-// Builds a real Body cell, takes its TVM cell hash, uses that hash as the
-// WebAuthn challenge, runs a P-256 keypair through the WebAuthn cdj signing
-// flow, and prints all values needed to drive an integration test.
+// Builds a real v4r2-compatible unsigned payload cell, takes its TVM cell hash,
+// uses that hash as the WebAuthn challenge, runs a P-256 keypair through the
+// WebAuthn cdj signing flow, and prints all values needed to drive an
+// integration test.
 //
 // Run with:  cd passkey-test && bun install && node scripts/gen-wallet-vector.mjs
 
@@ -78,8 +79,9 @@ const authData = Buffer.concat([
   Buffer.from([0, 0, 0, 1]),
 ]);
 
-// ─── Build the Body cell exactly as the contract will deserialize it ──────
-// Body { seqno: uint32, validUntil: uint32, sendMode: uint8, outMsg: cell }
+// ─── Build the v4r2-compatible payload cell ───────────────────────────────
+// payload: subwallet_id:uint32 valid_until:uint32 seqno:uint32 op:uint8
+// op=0 body: repeated (mode:uint8, ref message) pairs.
 //
 // outMsg is a real internal-message cell. We build a minimal one that the
 // wallet would forward. Sandbox tests can decode this and check the receiver.
@@ -95,25 +97,29 @@ const outMsg = beginCell()
   .storeUint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1) // currency_collection, ihr_fee, fwd_fee, created_lt, created_at, init?, body inline
   .endCell();
 
+const subwalletId = 698983191; // v4r2 default wallet id
 const seqno = 0;
 // Fixed far-future timestamp so the test vector doesn't decay. Tests should
 // arrange `blockchain.now` to be earlier than this (Acton sandbox starts in
 // 2024, plenty of headroom).
 const validUntil = 4102444800; // 2100-01-01 UTC
+const op = 0;
 const sendMode = 3; // pay_gas_separately + ignore_errors
 
-const bodyCell = beginCell()
-  .storeUint(seqno, 32)
+const payloadCell = beginCell()
+  .storeUint(subwalletId, 32)
   .storeUint(validUntil, 32)
+  .storeUint(seqno, 32)
+  .storeUint(op, 8)
   .storeUint(sendMode, 8)
   .storeRef(outMsg)
   .endCell();
 
-const bodyHash = bodyCell.hash(); // 32-byte Buffer (Uint8Array): TVM HASHCU equivalent
-const bodyHashBuf = Buffer.from(bodyHash);
+const payloadHash = payloadCell.hash(); // 32-byte Buffer (Uint8Array): TVM HASHCU equivalent
+const payloadHashBuf = Buffer.from(payloadHash);
 
-// ─── Build clientDataJSON with challenge = base64url(bodyHash) ────────────
-const challengeB64u = bodyHashBuf
+// ─── Build clientDataJSON with challenge = base64url(payloadHash) ─────────
+const challengeB64u = payloadHashBuf
   .toString('base64')
   .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const cdj = JSON.stringify({
@@ -133,6 +139,7 @@ const cmEnd = cm + challengeMarker.length;
 const challengeEnd = cdjStr.indexOf('"', cmEnd);
 const cdjPrefixBuf = Buffer.from(cdjStr.slice(0, cmEnd), 'utf8');
 const cdjSuffixBuf = Buffer.from(cdjStr.slice(challengeEnd), 'utf8');
+const cdjPartsBuf = Buffer.concat([cdjPrefixBuf, cdjSuffixBuf]);
 
 // ─── Sign authData || sha256(cdj) with ECDSA-P256-SHA256 ──────────────────
 // ECDSA uses a random k each call, so re-signing changes the signature.
@@ -176,19 +183,24 @@ console.log('// All values are hex strings ready for `"...".hexToSlice()` in Tol
 console.log();
 console.log('// Storage init values:');
 out('PUBKEY_COMPRESSED  ', pubkeyCompressed);
-out('AUTH_DATA          ', authData);
-out('CDJ_PREFIX         ', cdjPrefixBuf);
-out('CDJ_SUFFIX         ', cdjSuffixBuf);
 console.log(`// initial seqno: 0`);
 console.log();
-console.log('// External-message values (one signing of the body below):');
+console.log('// External WebAuthn witness values:');
+out('RP_ID_HASH         ', rpIdHash);
+out('AUTH_TAIL          ', authData.slice(32));
+out('CDJ_PREFIX         ', cdjPrefixBuf);
+out('CDJ_SUFFIX         ', cdjSuffixBuf);
+out('CDJ_PARTS          ', cdjPartsBuf);
+console.log(`// CDJ_PREFIX_BYTES = ${cdjPrefixBuf.length}`);
+console.log();
+console.log('// External-message values (one signing of the payload below):');
 out('SIGNATURE_RAW      ', sigRaw);
 out('CDJ_CHALLENGE_43   ', Buffer.from(challengeB64u, 'utf8'));
 console.log();
-console.log('// Body cell that was signed (TVM-serialised):');
-out('BODY_BOC           ', bodyCell.toBoc({ idx: false }));
-out('BODY_HASH          ', bodyHashBuf);
-console.log(`// Body fields:  seqno=${seqno}  validUntil=${validUntil}  sendMode=${sendMode}`);
+console.log('// v4r2-compatible payload cell that was signed (TVM-serialised):');
+out('PAYLOAD_BOC        ', payloadCell.toBoc({ idx: false }));
+out('PAYLOAD_HASH       ', payloadHashBuf);
+console.log(`// Payload fields: subwalletId=${subwalletId}  validUntil=${validUntil}  seqno=${seqno}  op=${op}  sendMode=${sendMode}`);
 console.log(`// outMsg sends ${toNano('0.001')} nanoTON to ${RECEIVER.toString()}`);
 console.log();
 console.log(`// Sanity:`);

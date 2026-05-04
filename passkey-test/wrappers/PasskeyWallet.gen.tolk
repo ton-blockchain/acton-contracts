@@ -80,10 +80,14 @@ fun PasskeyWallet.seqno(self): int {
     return net.runGetMethod(self.address, "seqno");
 }
 
+fun PasskeyWallet.getSubwalletId(self): int {
+    return net.runGetMethod(self.address, "get_subwallet_id");
+}
+
 fun PasskeyWallet.pubkey(self): slice {
     return net.runGetMethod(self.address, "pubkey");
 }
 
-fun PasskeyWallet.authData(self): slice {
-    return net.runGetMethod(self.address, "authData");
+fun PasskeyWallet.rpIdHash(self): slice {
+    return net.runGetMethod(self.address, "rpIdHash");
 }

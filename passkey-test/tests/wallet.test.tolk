@@ -17,26 +17,30 @@ import "../wrappers/utils"
 
 // Storage init values:
 const PUBKEY_COMPRESSED  = "02a1cc76cf544c0a06daf6712e755eac9cb657b8fc2b6c7e818bf58ff40a2374ce";
-const AUTH_DATA          = "49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000001";
+const RP_ID_HASH         = "49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d9763";
+const AUTH_TAIL          = "0500000001"; // flags=UP|UV, signCount=1
 const CDJ_PREFIX_HEX     = "7b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a22";
 const CDJ_SUFFIX_HEX     = "222c226f726967696e223a22687474703a2f2f6c6f63616c686f73743a3532323631222c2263726f73734f726967696e223a66616c73657d";
+const CDJ_PREFIX_BYTES   = 36;
 
 // External-message values:
-const SIGNATURE_RAW      = "dc5d862d0ab453dbe64d609c6decc59fc8e64069c5098838e009791a2622d367a08d2795fc24ed49380c9c4a4a577b98015f43b14884e492ff150df9af297048";
-const CDJ_CHALLENGE_43   = "486967444848306e5f755a37664c5271794d797171764a6167624f6433787961717755733059413747636b";
+const SIGNATURE_RAW      = "19ec3f46fa12b2d61af5cfcc7a7f032fcd2c13bd6e065576ed924ef23aa34596e5226284ef4d5c1c29e53a172d7af3974d66fcdcac2ee4f89463030dde19ccda";
+const CDJ_CHALLENGE_43   = "395774314c507547533661707a30595565645f77742d75384b58643635793459674464446d514978503863";
 
-// Body fields (must reproduce the cell built by gen-wallet-vector.mjs):
-const BODY_SEQNO         = 0;
-const BODY_VALID_UNTIL   = 4102444800;   // 2100-01-01
-const BODY_SEND_MODE     = 3;
+// v4r2-compatible payload fields (must reproduce gen-wallet-vector.mjs):
+const PAYLOAD_SUBWALLET_ID = 698983191;  // v4r2 default wallet id
+const PAYLOAD_SEQNO        = 0;
+const PAYLOAD_VALID_UNTIL  = 4102444800; // 2100-01-01
+const PAYLOAD_OP           = 0;
+const PAYLOAD_SEND_MODE    = 3;
 const RECEIVER_HASH      = 0;            // workchain 0, all-zero hash
 const FORWARD_VALUE_NANO = 1000000;      // 0.001 TON
-const EXPECTED_BODY_HASH: uint256 = 0x1e28031c7d27fee67b7cb46ac8ccaaaaf25a81b39ddf1c9aab052cd1803b19c9;
+const EXPECTED_PAYLOAD_HASH: uint256 = 0xf56b752cfb864ba6a9cf461479dff0b7ebbc29777ae72e188037439902313fc7;
 
-// Build the outgoing-message cell that the body wraps. Its construction must
+// Build the outgoing-message cell that the payload wraps. Its construction must
 // match @ton/core's `beginCell().storeUint(0b01_0000, 6).storeAddress(...)
 // .storeCoins(...).storeUint(0, ...)` byte-for-byte so the resulting cell
-// hash matches the off-chain BODY_HASH.
+// hash matches the off-chain PAYLOAD_HASH.
 fun buildOutMsg(): cell {
     val receiver: address = beginCell()
         .storeUint(0b100, 3)         // addr_std prefix + no anycast
@@ -53,12 +57,23 @@ fun buildOutMsg(): cell {
         .endCell();
 }
 
-fun buildBody(): cell {
+fun buildPayload(): cell {
     return beginCell()
-        .storeUint(BODY_SEQNO, 32)
-        .storeUint(BODY_VALID_UNTIL, 32)
-        .storeUint(BODY_SEND_MODE, 8)
+        .storeUint(PAYLOAD_SUBWALLET_ID, 32)
+        .storeUint(PAYLOAD_VALID_UNTIL, 32)
+        .storeUint(PAYLOAD_SEQNO, 32)
+        .storeUint(PAYLOAD_OP, 8)
+        .storeUint(PAYLOAD_SEND_MODE, 8)
         .storeRef(buildOutMsg())
+        .endCell();
+}
+
+fun buildWebAuthnWitness(): cell {
+    return beginCell()
+        .storeSlice(AUTH_TAIL.hexToSlice())
+        .storeUint(CDJ_PREFIX_BYTES, 8)
+        .storeSlice(CDJ_PREFIX_HEX.hexToSlice())
+        .storeSlice(CDJ_SUFFIX_HEX.hexToSlice())
         .endCell();
 }
 
@@ -66,35 +81,30 @@ fun buildExternalRequest(): ExternalRequest {
     return ExternalRequest {
         signature: SIGNATURE_RAW.hexToSlice() as bits512,
         challenge: CDJ_CHALLENGE_43.hexToSlice() as bits344,
-        body: buildBody(),
+        webauthn: buildWebAuthnWitness(),
+        payload: buildPayload().beginParse(),
     };
 }
 
 fun buildStorage(): Storage {
     val pubkey   = PUBKEY_COMPRESSED.hexToSlice() as bits264;
-    val authData = AUTH_DATA.hexToSlice() as bits296;
-    val prefix   = beginCell().storeSlice(CDJ_PREFIX_HEX.hexToSlice()).endCell();
-    val suffix   = beginCell().storeSlice(CDJ_SUFFIX_HEX.hexToSlice()).endCell();
     return Storage {
         seqno: 0,
+        subwalletId: PAYLOAD_SUBWALLET_ID,
         pubkey,
-        authData,
-        cdjPrefix: prefix,
-        cdjSuffix: suffix,
     };
 }
 
-// ─── Sanity: the off-chain BODY_HASH must equal what TVM computes ────────
-get fun `test wallet: body cell hash matches off-chain vector`() {
-    val body = buildBody();
-    expect(body.hash()).toEqual(EXPECTED_BODY_HASH);
+// ─── Sanity: the off-chain PAYLOAD_HASH must equal what TVM computes ─────
+get fun `test wallet: payload cell hash matches off-chain vector`() {
+    expect(buildPayload().hash()).toEqual(EXPECTED_PAYLOAD_HASH);
 }
 
-// ─── Sanity: verifyB64uPrefix96 accepts our test vector ──────────────────
-get fun `test wallet: prefix96 verify accepts the precomputed vector`() {
-    val bodyHash = EXPECTED_BODY_HASH;
+// ─── Sanity: verifyB64uPrefix114 accepts our test vector ─────────────────
+get fun `test wallet: prefix114 verify accepts the precomputed vector`() {
+    val payloadHash = EXPECTED_PAYLOAD_HASH;
     val challenge = CDJ_CHALLENGE_43.hexToSlice();
-    val ok = verifyB64uPrefix96(bodyHash, challenge);
+    val ok = verifyB64uPrefix114(payloadHash, challenge);
     expect(ok).toBeTrue();
 }
 
@@ -103,7 +113,9 @@ get fun `test wallet: ExternalRequest fromSlice round-trips`() {
     val ext = buildExternalRequest();
     val slice = ext.toCell().beginParse();
     val req = ExternalRequest.fromSlice(slice);
-    expect(req.body.hash()).toEqual(EXPECTED_BODY_HASH);
+    val payloadSlice = req.payload as slice;
+    expect(payloadSlice.hash()).toEqual(EXPECTED_PAYLOAD_HASH);
+    expect(req.webauthn.hash()).toEqual(buildWebAuthnWitness().hash());
     val challengeSlice = req.challenge as slice;
     expect(challengeSlice.bitsHash())
         .toEqual(CDJ_CHALLENGE_43.hexToSlice().bitsHash());
@@ -112,26 +124,29 @@ get fun `test wallet: ExternalRequest fromSlice round-trips`() {
 // ─── Sanity: full pre-ACCEPT verification chain ──────────────────────────
 get fun `test wallet: full pre-ACCEPT verification (HASHEXT + P256) accepts vector`() {
     val ext = buildExternalRequest();
-    val slice = ext.toCell().beginParse();
-    val req = ExternalRequest.fromSlice(slice);
+    var inBodyMut = ext.toCell().beginParse();
     val storage = buildStorage();
 
-    val bodyHash = req.body.hash();
-    val challengeSlice = req.challenge as slice;
-    val signatureSlice = req.signature as slice;
+    val signatureSlice: slice = inBodyMut.loadBits(512);
+    val challengeSlice: slice = inBodyMut.loadBits(344);
+    var webauthn = inBodyMut.loadRef().beginParse();
+    val payloadHash = inBodyMut.hash();
 
-    expect(verifyB64uPrefix96(bodyHash, challengeSlice)).toBeTrue();
+    expect(verifyB64uPrefix114(payloadHash, challengeSlice)).toBeTrue();
 
+    val authTail = webauthn.loadBits(40);
+    val cdjPrefixBytes = webauthn.loadUint(8);
+    val cdjPrefix = webauthn.loadBits(cdjPrefixBytes * 8);
     val cdjHash = sha256ThreeSlices(
-        storage.cdjPrefix.beginParse(),
+        cdjPrefix,
         challengeSlice,
-        storage.cdjSuffix.beginParse(),
+        webauthn,
     );
     val signedMessage = beginCell()
-        .storeSlice(storage.authData as slice)
+        .storeSlice(RP_ID_HASH.hexToSlice())
+        .storeSlice(authTail)
         .storeUint(cdjHash, 256)
-        .endCell()
-        .beginParse();
+        .toSlice();
     val sigOk = p256ChkSignS(signedMessage, signatureSlice, storage.pubkey as slice);
     expect(sigOk).toBeTrue();
 }
@@ -148,6 +163,7 @@ fun deployWallet(): PasskeyWallet {
 get fun `test wallet: passkey-signed external is accepted, seqno bumps`() {
     val wallet = deployWallet();
     expect(wallet.seqno()).toEqual(0);
+    expect(wallet.getSubwalletId()).toEqual(PAYLOAD_SUBWALLET_ID);
     expect(wallet.pubkey().bitsHash()).toEqual(PUBKEY_COMPRESSED.hexToSlice().bitsHash());
 
     val ext = buildExternalRequest();
@@ -156,6 +172,7 @@ get fun `test wallet: passkey-signed external is accepted, seqno bumps`() {
         println("[test] sendPasskeyExternal returned null");
     } else {
         println("[test] sendPasskeyExternal succeeded, txs:", receipt.size());
+        println("[test] wallet external tx gas:", receipt.at(0).gasUsed);
     }
     expect(receipt).toNotEqual(null);
     expect(wallet.seqno()).toEqual(1);
@@ -170,7 +187,7 @@ get fun `test wallet: replay of the same external is rejected`() {
     expect(first).toNotEqual(null);
     expect(wallet.seqno()).toEqual(1);
 
-    // Re-sending the same external: post-ACCEPT the body.seqno=0 vs
+    // Re-sending the same external: post-ACCEPT the payload seqno=0 vs
     // storage.seqno=1 check throws ERROR_INVALID_SEQNO. seqno must NOT
     // advance again.
     wallet.sendPasskeyExternal(ext);

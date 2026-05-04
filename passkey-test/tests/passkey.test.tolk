@@ -47,7 +47,7 @@ const CDJ_SUFFIX          = "222c226f726967696e223a22687474703a2f2f6c6f63616c686
 const PRECOMPUTED_CDJ_HASH: uint256 = 0x0892ad0578c81da83b51e7cdfe5a20a1846fbf1fb8c8c548dc6afabe3656f60b;
 
 // ──────────────────────────────────────────────────────────────────────────
-// The external-message layout we want the contract to consume:
+// The old 5-cell WebAuthn layout this unit test exercises:
 //
 //   root cell:
 //     data:   signature_raw (64 bytes = 512 bits)
@@ -59,12 +59,13 @@ const PRECOMPUTED_CDJ_HASH: uint256 = 0x0892ad0578c81da83b51e7cdfe5a20a1846fbf1f
 //                                  the contents of ref[1] — that's how the WebAuthn
 //                                  challenge binds to a TON cell.
 //
-// On-chain verification flow:
+// Verification flow:
 //   1. cdjHash = HASHEXT_SHA256(ref[0], ref[1], ref[2])  -> reproduces sha256(clientDataJSON)
 //   2. signed  = authData || cdjHash                     -> what passkey actually signed
 //   3. P256_CHKSIGNS(signed, sig, pubKey)                -> ECDSA verify
-//   4. (separately) compare base64url(cell.hash(ref[3])) with the bytes of ref[1]
-//      to bind the signature to body. Implemented in the contract, not here.
+//   4. (separately) compare base64url(cell.hash(ref[3])) with the bytes of ref[1].
+//      The current wallet external layout is more compact, but the crypto flow
+//      is identical.
 // ──────────────────────────────────────────────────────────────────────────
 
 fun buildExternalRoot(): cell {
@@ -113,8 +114,7 @@ get fun `test passkey: end-to-end verify from 5-cell layout`() {
     val signed = beginCell()
         .storeSlice(AUTH_DATA.hexToSlice())
         .storeUint(cdjHash, 256)
-        .endCell()
-        .beginParse();
+        .toSlice();
 
     // 3. ECDSA-P256-SHA256 verify.
     val ok = p256ChkSignS(signed, sig, PUBKEY_COMPRESSED.hexToSlice());
@@ -132,8 +132,7 @@ get fun `test passkey: tampered cdj prefix breaks verification`() {
     val signed = beginCell()
         .storeSlice(AUTH_DATA.hexToSlice())
         .storeUint(cdjHash, 256)
-        .endCell()
-        .beginParse();
+        .toSlice();
     val ok = p256ChkSignS(signed, SIGNATURE_RAW.hexToSlice(), PUBKEY_COMPRESSED.hexToSlice());
     expect(ok).toBeFalse();
 }
@@ -150,8 +149,7 @@ get fun `test passkey: tampered challenge bytes break verification`() {
     val signed = beginCell()
         .storeSlice(AUTH_DATA.hexToSlice())
         .storeUint(cdjHash, 256)
-        .endCell()
-        .beginParse();
+        .toSlice();
     val ok = p256ChkSignS(signed, SIGNATURE_RAW.hexToSlice(), PUBKEY_COMPRESSED.hexToSlice());
     expect(ok).toBeFalse();
 }
@@ -167,8 +165,7 @@ get fun `test passkey: tampered authData breaks verification`() {
     val signed = beginCell()
         .storeSlice(badAuthData)
         .storeUint(cdjHash, 256)
-        .endCell()
-        .beginParse();
+        .toSlice();
     val ok = p256ChkSignS(signed, SIGNATURE_RAW.hexToSlice(), PUBKEY_COMPRESSED.hexToSlice());
     expect(ok).toBeFalse();
 }

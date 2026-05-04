@@ -1,9 +1,7 @@
 struct Storage {
     seqno: uint32        // replay counter, incremented per accepted external
+    subwalletId: uint32  // v4r2-compatible payload field
     pubkey: bits264      // SEC1 compressed P-256 public key (33 bytes)
-    authData: bits296    // WebAuthn authenticatorData: rpIdHash(32) || flags(1) || signCount(4) = 37 bytes
-    cdjPrefix: cell      // bytes of `{"type":"webauthn.get","challenge":"`              (36 bytes)
-    cdjSuffix: cell      // bytes of `","origin":"<origin>","crossOrigin":false}`        (~56 bytes)
 }
 
 fun Storage.load() {

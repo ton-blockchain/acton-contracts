@@ -69,9 +69,8 @@ const authenticatorData = Buffer.concat([rpIdHash, flags, signCount]); // 37 byt
 // the message being signed, base64url-encoded. Here we just embed an arbitrary
 // 32-byte buffer so the test data is realistic.
 // 32-byte challenge = full TVM cell hash. With the two-phase flow used in
-// b64url-fast.test.tolk we check only the first 96 bits pre-ACCEPT (≈ 5.1k
-// gas), ACCEPT_MESSAGE, then verify the remaining 160 bits post-ACCEPT.
-// Use the 12-byte form below for the single-phase 9894-gas variant.
+// b64url-fast.test.tolk we check only the first 114 bits pre-ACCEPT, then
+// ACCEPT_MESSAGE, then verify the full 256-bit challenge post-ACCEPT.
 const challengeBytes = Buffer.from(
   '4a4b4c4d4e4f50515253545556575859505152535455565758595a5b5c5d5e5f',
   'hex',
@@ -146,4 +145,3 @@ out('cdj_challengeB64u', challengeBuf);
 out('cdj_suffix      ', suffixBuf);
 console.log(`// challenge as plain hex (32 bytes, the value the wallet wants to bind to a body cell):`);
 out('challenge_bytes ', challengeBytes);
-

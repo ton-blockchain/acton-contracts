@@ -45,7 +45,7 @@ fun b64urlEncode32_v2(hash: uint256): slice {
     }
     val last = (hash & 0xF) << 2;
     b = b.storeUint(b64urlCharArith(last), 8);
-    return b.endCell().beginParse();
+    return b.toSlice();
 }
 
 fun verifyB64uChallenge_v2(hash: uint256, challenge: slice): bool {
@@ -299,6 +299,233 @@ fun verifyB64uChallenge_v10(hash: uint256, challenge: slice): bool {
     return input.loadUint(24) == expected;
 }
 
+// ─── V14: SWAR char map over packed 6-bit lanes ─────────────────────────
+// The standard high-performance base64 trick is "unpack bits once, then map
+// the 6-bit values to ASCII in parallel". On scalar CPUs this is done with
+// SIMD/SWAR byte lanes; here we emulate the same idea inside one TVM integer:
+// each 48-bit input chunk becomes 8 bytes, each byte holding one 0..63 value.
+//
+// Then `hasMoreBytes64` computes per-byte threshold masks:
+//   hasMore(x, n) = ((x + 0x01..01*(127-n)) | x) & 0x80..80
+// Since all bytes are in 0..63, additions by 65..102 never carry between byte
+// lanes. The result has 0x01 in each matching byte lane after `>> 7`, so
+// multiplying by a small correction adds/subtracts the base64 alphabet offsets
+// lane-wise.
+@inline
+fun b64urlPackedAscii64(packed6: int): int {
+    return packed6
+        + 0x4141414141414141
+        + ((((packed6 + 0x6666666666666666) | packed6) & 0x8080808080808080) >> 7) * 6
+        - ((((packed6 + 0x4C4C4C4C4C4C4C4C) | packed6) & 0x8080808080808080) >> 7) * 75
+        - ((((packed6 + 0x4242424242424242) | packed6) & 0x8080808080808080) >> 7) * 13
+        + ((((packed6 + 0x4141414141414141) | packed6) & 0x8080808080808080) >> 7) * 49;
+}
+
+@inline
+fun pack48To6BitBytes(chunk: int): int {
+    val y = ((chunk >> 24) << 32) | (chunk & 0xFFFFFF);
+    return ((y & 0x00FC000000FC0000) << 6)
+        | ((y & 0x0003F0000003F000) << 4)
+        | ((y & 0x00000FC000000FC0) << 2)
+        |  (y & 0x0000003F0000003F);
+}
+
+fun verifyB64uChallenge_v14_128(hash128: int, challenge: slice): bool {
+    var input: slice = challenge;
+
+    val chunk0 = (hash128 >> 80) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk0))) {
+        return false;
+    }
+
+    val chunk1 = (hash128 >> 32) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk1))) {
+        return false;
+    }
+
+    // Trailing 32 bits -> 6 chars. Put those six 6-bit values into the top six
+    // byte lanes and drop the two mapped padding lanes after SWAR conversion.
+    val last32 = hash128 & 0xFFFFFFFF;
+    val tailPacked =
+          (((last32 >> 26) & 0x3F) << 56)
+        | (((last32 >> 20) & 0x3F) << 48)
+        | (((last32 >> 14) & 0x3F) << 40)
+        | (((last32 >>  8) & 0x3F) << 32)
+        | (((last32 >>  2) & 0x3F) << 24)
+        | (((last32 & 0x3) << 4) << 16);
+    return input.loadUint(48) == (b64urlPackedAscii64(tailPacked) >> 16);
+}
+
+fun verifyB64uChallenge_v14_prefix132(hash: uint256, challenge: slice): bool {
+    val hash132 = hash >> 124;
+    var input: slice = challenge;
+
+    val chunk0 = (hash132 >> 84) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk0))) {
+        return false;
+    }
+
+    val chunk1 = (hash132 >> 36) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk1))) {
+        return false;
+    }
+
+    val last36 = hash132 & 0xFFFFFFFFF;
+    val tailPacked =
+          (((last36 >> 30) & 0x3F) << 56)
+        | (((last36 >> 24) & 0x3F) << 48)
+        | (((last36 >> 18) & 0x3F) << 40)
+        | (((last36 >> 12) & 0x3F) << 32)
+        | (((last36 >>  6) & 0x3F) << 24)
+        | (( last36        & 0x3F) << 16);
+    return input.loadUint(48) == (b64urlPackedAscii64(tailPacked) >> 16);
+}
+
+fun verifyB64uChallenge_v19_prefix132_singleCompare(hash: uint256, challenge: slice): bool {
+    val hash132 = hash >> 124;
+
+    val chunk0 = (hash132 >> 84) & 0xFFFFFFFFFFFF;
+    val ascii0 = b64urlPackedAscii64(pack48To6BitBytes(chunk0));
+
+    val chunk1 = (hash132 >> 36) & 0xFFFFFFFFFFFF;
+    val ascii1 = b64urlPackedAscii64(pack48To6BitBytes(chunk1));
+
+    val last36 = hash132 & 0xFFFFFFFFF;
+    val tailPacked =
+          (((last36 >> 30) & 0x3F) << 56)
+        | (((last36 >> 24) & 0x3F) << 48)
+        | (((last36 >> 18) & 0x3F) << 40)
+        | (((last36 >> 12) & 0x3F) << 32)
+        | (((last36 >>  6) & 0x3F) << 24)
+        | (( last36        & 0x3F) << 16);
+    val tail = b64urlPackedAscii64(tailPacked) >> 16;
+
+    val expected = (ascii0 << 112) | (ascii1 << 48) | tail;
+    return challenge.loadUint(176) == expected;
+}
+
+fun verifyB64uChallenge_v15_prefix114(hash: uint256, challenge: slice): bool {
+    val hash114 = hash >> 142;
+    var input: slice = challenge;
+
+    val chunk0 = (hash114 >> 66) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk0))) {
+        return false;
+    }
+
+    val chunk1 = (hash114 >> 18) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk1))) {
+        return false;
+    }
+
+    val last18 = hash114 & 0x3FFFF;
+    val tailPacked =
+          (((last18 >> 12) & 0x3F) << 56)
+        | (((last18 >>  6) & 0x3F) << 48)
+        | (( last18        & 0x3F) << 40);
+    return input.loadUint(24) == (b64urlPackedAscii64(tailPacked) >> 40);
+}
+
+fun verifyB64uChallenge_v16_prefix114_tailArith(hash: uint256, challenge: slice): bool {
+    val hash114 = hash >> 142;
+    var input: slice = challenge;
+
+    val chunk0 = (hash114 >> 66) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk0))) {
+        return false;
+    }
+
+    val chunk1 = (hash114 >> 18) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk1))) {
+        return false;
+    }
+
+    val last18 = hash114 & 0x3FFFF;
+    val expected =
+          (b64urlCharArith((last18 >> 12) & 0x3F) << 16)
+        | (b64urlCharArith((last18 >>  6) & 0x3F) <<  8)
+        |  b64urlCharArith( last18        & 0x3F);
+    return input.loadUint(24) == expected;
+}
+
+fun verifyB64uChallenge_v17_prefix114_tailLookup(hash: uint256, challenge: slice): bool {
+    val alpha: slice = B64URL_ALPHABET;
+    val hash114 = hash >> 142;
+    var input: slice = challenge;
+
+    val chunk0 = (hash114 >> 66) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk0))) {
+        return false;
+    }
+
+    val chunk1 = (hash114 >> 18) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk1))) {
+        return false;
+    }
+
+    val last18 = hash114 & 0x3FFFF;
+    var a0 = alpha; a0.skipBits(((last18 >> 12) & 0x3F) * 8);
+    var a1 = alpha; a1.skipBits(((last18 >>  6) & 0x3F) * 8);
+    var a2 = alpha; a2.skipBits(( last18        & 0x3F) * 8);
+    val expected =
+          (a0.preloadUint(8) << 16)
+        | (a1.preloadUint(8) <<  8)
+        |  a2.preloadUint(8);
+    return input.loadUint(24) == expected;
+}
+
+fun verifyB64uChallenge_v18_prefix114_singleCompare(hash: uint256, challenge: slice): bool {
+    val alpha: slice = B64URL_ALPHABET;
+    val hash114 = hash >> 142;
+
+    val chunk0 = (hash114 >> 66) & 0xFFFFFFFFFFFF;
+    val ascii0 = b64urlPackedAscii64(pack48To6BitBytes(chunk0));
+
+    val chunk1 = (hash114 >> 18) & 0xFFFFFFFFFFFF;
+    val ascii1 = b64urlPackedAscii64(pack48To6BitBytes(chunk1));
+
+    val last18 = hash114 & 0x3FFFF;
+    var a0 = alpha; a0.skipBits(((last18 >> 12) & 0x3F) * 8);
+    var a1 = alpha; a1.skipBits(((last18 >>  6) & 0x3F) * 8);
+    var a2 = alpha; a2.skipBits(( last18        & 0x3F) * 8);
+    val tail =
+          (a0.preloadUint(8) << 16)
+        | (a1.preloadUint(8) <<  8)
+        |  a2.preloadUint(8);
+
+    val expected = (ascii0 << 88) | (ascii1 << 24) | tail;
+    return challenge.loadUint(152) == expected;
+}
+
+fun verifyB64uChallenge_v14_96(hash96: int, challenge: slice): bool {
+    var input: slice = challenge;
+    val chunk0 = (hash96 >> 48) & 0xFFFFFFFFFFFF;
+    if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk0))) {
+        return false;
+    }
+    val chunk1 = hash96 & 0xFFFFFFFFFFFF;
+    return input.loadUint(64) == b64urlPackedAscii64(pack48To6BitBytes(chunk1));
+}
+
+fun verifyB64uChallenge_v14_256(hash: uint256, challenge: slice): bool {
+    var input: slice = challenge;
+    var shift: int = 208;
+    repeat (5) {
+        val chunk = (hash >> shift) & 0xFFFFFFFFFFFF;
+        if (input.loadUint(64) != b64urlPackedAscii64(pack48To6BitBytes(chunk))) {
+            return false;
+        }
+        shift -= 48;
+    }
+
+    val last16 = hash & 0xFFFF;
+    val tailPacked =
+          (((last16 >> 10) & 0x3F) << 56)
+        | (((last16 >>  4) & 0x3F) << 48)
+        | (((last16 & 0xF) << 2) << 40);
+    return input.loadUint(24) == (b64urlPackedAscii64(tailPacked) >> 40);
+}
+
 // ─── V5: drain via right-shift, no MUL on `acc` ──────────────────────────
 // We extract from the bottom instead of the top: take the lowest 6 bits of
 // the working copy each step, then `>>= 6`. This dodges the V5-as-left-shift
@@ -505,7 +732,7 @@ const AUTH_DATA          = "49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995c
 const CDJ_PREFIX         = "7b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a22";
 const CDJ_SUFFIX         = "222c226f726967696e223a22687474703a2f2f6c6f63616c686f73743a3532323631222c2263726f73734f726967696e223a66616c73657d";
 const CDJ_CHALLENGE_43   = "536b744d545535505546465355315256566c645957564252556c4e5556565a5857466c6157317864586c38";
-// First 12 bytes of the body hash (96-bit prefix), used by the cheap pre-ACCEPT check.
+// First 12 bytes of the body hash, used by the older 96-bit benchmark.
 const FAKE_BODY_HASH_96  = 0x4a4b4c4d4e4f505152535455;
 // Full 32-byte body hash, used by the full post-ACCEPT check.
 const FAKE_BODY_HASH_256 = 0x4a4b4c4d4e4f50515253545556575859505152535455565758595a5b5c5d5e5f;
@@ -514,6 +741,7 @@ const FAKE_BODY_HASH_256 = 0x4a4b4c4d4e4f505152535455565758595051525354555657585
 
 const HASH32_HEX        = "4a4b4c4d4e4f50515253545556575859505152535455565758595a5b5c5d5e5f";
 const EXPECTED_B64U_HEX = "536b744d545535505546465355315256566c645957564252556c4e5556565a5857466c6157317864586c38";
+const EXPECTED_PREFIX114_HEX = "536b744d545535505546465355315256566c64";
 
 fun loadHash32(): uint256 {
     var s: slice = HASH32_HEX.hexToSlice();
@@ -640,6 +868,62 @@ get fun `test fast: V13 (V12 unrolled) is correct`() {
     expect(ok).toBeTrue();
 }
 
+get fun `test fast: V14 SWAR 128-bit hash is correct`() {
+    val hash128: int = 0x4a4b4c4d4e4f50515253545556575859;
+    val expected22 = "536b744d545535505546465355315256566c64595751".hexToSlice();
+    val ok = verifyB64uChallenge_v14_128(hash128, expected22);
+    expect(ok).toBeTrue();
+}
+
+get fun `test fast: V14 SWAR 132-bit full-challenge prefix is correct`() {
+    val ok = verifyB64uChallenge_v14_prefix132(loadHash32(), EXPECTED_B64U_HEX.hexToSlice());
+    expect(ok).toBeTrue();
+}
+
+get fun `test fast: V19 SWAR 132-bit single compare is correct`() {
+    val ok = verifyB64uChallenge_v19_prefix132_singleCompare(loadHash32(), EXPECTED_B64U_HEX.hexToSlice());
+    expect(ok).toBeTrue();
+}
+
+get fun `test fast: V15 SWAR 114-bit full-challenge prefix is correct`() {
+    val ok = verifyB64uChallenge_v15_prefix114(loadHash32(), EXPECTED_PREFIX114_HEX.hexToSlice());
+    expect(ok).toBeTrue();
+}
+
+get fun `test fast: V16 114-bit prefix with arithmetic tail is correct`() {
+    val ok = verifyB64uChallenge_v16_prefix114_tailArith(loadHash32(), EXPECTED_PREFIX114_HEX.hexToSlice());
+    expect(ok).toBeTrue();
+}
+
+get fun `test fast: V17 114-bit prefix with lookup tail is correct`() {
+    val ok = verifyB64uChallenge_v17_prefix114_tailLookup(loadHash32(), EXPECTED_PREFIX114_HEX.hexToSlice());
+    expect(ok).toBeTrue();
+}
+
+get fun `test fast: V18 114-bit prefix single compare is correct`() {
+    val ok = verifyB64uChallenge_v18_prefix114_singleCompare(loadHash32(), EXPECTED_PREFIX114_HEX.hexToSlice());
+    expect(ok).toBeTrue();
+}
+
+get fun `test fast: V14 SWAR 96-bit hash is correct`() {
+    val hash96: int = 0x4a4b4c4d4e4f505152535455;
+    val expected = "536b744d545535505546465355315256".hexToSlice();
+    val ok = verifyB64uChallenge_v14_96(hash96, expected);
+    expect(ok).toBeTrue();
+}
+
+get fun `test fast: V14 SWAR full 256-bit hash is correct`() {
+    val ok = verifyB64uChallenge_v14_256(loadHash32(), EXPECTED_B64U_HEX.hexToSlice());
+    expect(ok).toBeTrue();
+}
+
+get fun `test fast: V14 SWAR rejects a wrong 128-bit challenge`() {
+    val hash128: int = 0x4a4b4c4d4e4f50515253545556575859;
+    val bad = "536b744d545535505546465355315256566c64595752".hexToSlice();
+    val ok = verifyB64uChallenge_v14_128(hash128, bad);
+    expect(ok).toBeFalse();
+}
+
 get fun `test fast: V3 rejects a wrong challenge`() {
     val bad = "536b744d545535505546465355315256566c645957564252556c4e5556565a5857466c6157317864586c39".hexToSlice();
     val ok = verifyB64uChallenge_v3(loadHash32(), bad);
@@ -704,6 +988,43 @@ get fun `test fast gas: print all variants`() {
     val r13 = verifyB64uChallenge_v13(hash96, challenge96);
     val l1 = getGasConsumedAtTheMoment();
 
+    val m0 = getGasConsumedAtTheMoment();
+    val r14_128 = verifyB64uChallenge_v14_128(hash128, challenge128);
+    val m1 = getGasConsumedAtTheMoment();
+
+    val n0 = getGasConsumedAtTheMoment();
+    val r14_96 = verifyB64uChallenge_v14_96(hash96, challenge96);
+    val n1 = getGasConsumedAtTheMoment();
+
+    val o0 = getGasConsumedAtTheMoment();
+    val r14_256 = verifyB64uChallenge_v14_256(hash, challenge);
+    val o1 = getGasConsumedAtTheMoment();
+
+    val p0 = getGasConsumedAtTheMoment();
+    val r14_132 = verifyB64uChallenge_v14_prefix132(hash, challenge);
+    val p1 = getGasConsumedAtTheMoment();
+
+    val u0 = getGasConsumedAtTheMoment();
+    val r19_132 = verifyB64uChallenge_v19_prefix132_singleCompare(hash, challenge);
+    val u1 = getGasConsumedAtTheMoment();
+
+    val challenge114 = EXPECTED_PREFIX114_HEX.hexToSlice();
+    val q0 = getGasConsumedAtTheMoment();
+    val r15_114 = verifyB64uChallenge_v15_prefix114(hash, challenge114);
+    val q1 = getGasConsumedAtTheMoment();
+
+    val r0 = getGasConsumedAtTheMoment();
+    val r16_114 = verifyB64uChallenge_v16_prefix114_tailArith(hash, challenge114);
+    val r1 = getGasConsumedAtTheMoment();
+
+    val s0 = getGasConsumedAtTheMoment();
+    val r17_114 = verifyB64uChallenge_v17_prefix114_tailLookup(hash, challenge114);
+    val s1 = getGasConsumedAtTheMoment();
+
+    val t0 = getGasConsumedAtTheMoment();
+    val r18_114 = verifyB64uChallenge_v18_prefix114_singleCompare(hash, challenge114);
+    val t1 = getGasConsumedAtTheMoment();
+
     expect(r2).toBeTrue();
     expect(r3).toBeTrue();
     expect(r4).toBeTrue();
@@ -716,6 +1037,15 @@ get fun `test fast gas: print all variants`() {
     expect(r11).toBeTrue();
     expect(r12).toBeTrue();
     expect(r13).toBeTrue();
+    expect(r14_128).toBeTrue();
+    expect(r14_96).toBeTrue();
+    expect(r14_256).toBeTrue();
+    expect(r14_132).toBeTrue();
+    expect(r19_132).toBeTrue();
+    expect(r15_114).toBeTrue();
+    expect(r16_114).toBeTrue();
+    expect(r17_114).toBeTrue();
+    expect(r18_114).toBeTrue();
     println("V2 (arith char + repeat + SDEQ)        : ", a1 - a0 - 26, " gas");
     println("V3 (compare-as-you-go, repeat, MUL)    : ", b1 - b0 - 26, " gas");
     println("V4 (compare-as-you-go, accumulator)    : ", c1 - c0 - 26, " gas");
@@ -728,6 +1058,15 @@ get fun `test fast gas: print all variants`() {
     println("V11 (128-bit truncated hash, 22 chars) : ", j1 - j0 - 26, " gas");
     println("V12 ( 96-bit truncated hash, 16 chars) : ", k1 - k0 - 26, " gas");
     println("V13 (V12 unrolled, 2 chunks)           : ", l1 - l0 - 26, " gas");
+    println("V14 (SWAR 128-bit, 22 chars)           : ", m1 - m0 - 26, " gas");
+    println("V14 (SWAR 132-bit prefix, 22 chars)    : ", p1 - p0 - 26, " gas");
+    println("V19 (132-bit, single 22-byte compare)  : ", u1 - u0 - 26, " gas");
+    println("V15 (SWAR 114-bit prefix, 19 chars)    : ", q1 - q0 - 26, " gas");
+    println("V16 (114-bit, SWAR + arith tail)       : ", r1 - r0 - 26, " gas");
+    println("V17 (114-bit, SWAR + lookup tail)      : ", s1 - s0 - 26, " gas");
+    println("V18 (114-bit, single 19-byte compare)  : ", t1 - t0 - 26, " gas");
+    println("V14 (SWAR  96-bit, 16 chars)           : ", n1 - n0 - 26, " gas");
+    println("V14 (SWAR 256-bit, 43 chars)           : ", o1 - o0 - 26, " gas");
 }
 
 // ─── End-to-end pre-ACCEPT cost ──────────────────────────────────────────
@@ -754,8 +1093,7 @@ get fun `test fast gas: end-to-end (HASHEXT + V13 b64u + P256_CHKSIGNS)`() {
     val signed = beginCell()
         .storeSlice(authData)
         .storeUint(cdjHash, 256)
-        .endCell()
-        .beginParse();
+        .toSlice();
     val sigOk = p256ChkSignS(signed, sig, pubKey);
 
     val end = getGasConsumedAtTheMoment();
@@ -763,5 +1101,167 @@ get fun `test fast gas: end-to-end (HASHEXT + V13 b64u + P256_CHKSIGNS)`() {
     expect(boundOk).toBeTrue();
     expect(sigOk).toBeTrue();
     println("end-to-end pre-ACCEPT verification gas : ", end - start - 26);
+    println("  (target: <= 10000 gas)");
+}
+
+get fun `test fast gas: end-to-end (HASHEXT + V14 96-bit b64u + P256_CHKSIGNS)`() {
+    val bodyHash96 = FAKE_BODY_HASH_96;
+    val challenge = CDJ_CHALLENGE_43.hexToSlice();
+    val prefix = CDJ_PREFIX.hexToSlice();
+    val suffix = CDJ_SUFFIX.hexToSlice();
+    val authData = AUTH_DATA.hexToSlice();
+    val sig = SIGNATURE_RAW.hexToSlice();
+    val pubKey = PUBKEY_COMPRESSED.hexToSlice();
+
+    val start = getGasConsumedAtTheMoment();
+
+    val boundOk = verifyB64uChallenge_v14_96(bodyHash96, challenge);
+    val cdjHash = sha256ThreeSlices(prefix, challenge, suffix);
+    val signed = beginCell()
+        .storeSlice(authData)
+        .storeUint(cdjHash, 256)
+        .toSlice();
+    val sigOk = p256ChkSignS(signed, sig, pubKey);
+
+    val end = getGasConsumedAtTheMoment();
+
+    expect(boundOk).toBeTrue();
+    expect(sigOk).toBeTrue();
+    println("end-to-end V14 96-bit pre-ACCEPT gas   : ", end - start - 26);
+    println("  (target: <= 10000 gas)");
+}
+
+get fun `test fast gas: end-to-end (HASHEXT + V14 132-bit b64u + P256_CHKSIGNS)`() {
+    val bodyHash = FAKE_BODY_HASH_256;
+    val challenge = CDJ_CHALLENGE_43.hexToSlice();
+    val prefix = CDJ_PREFIX.hexToSlice();
+    val suffix = CDJ_SUFFIX.hexToSlice();
+    val authData = AUTH_DATA.hexToSlice();
+    val sig = SIGNATURE_RAW.hexToSlice();
+    val pubKey = PUBKEY_COMPRESSED.hexToSlice();
+
+    val start = getGasConsumedAtTheMoment();
+
+    val boundOk = verifyB64uChallenge_v14_prefix132(bodyHash, challenge);
+    val cdjHash = sha256ThreeSlices(prefix, challenge, suffix);
+    val signed = beginCell()
+        .storeSlice(authData)
+        .storeUint(cdjHash, 256)
+        .toSlice();
+    val sigOk = p256ChkSignS(signed, sig, pubKey);
+
+    val end = getGasConsumedAtTheMoment();
+
+    expect(boundOk).toBeTrue();
+    expect(sigOk).toBeTrue();
+    println("end-to-end V14 132-bit pre-ACCEPT gas  : ", end - start - 26);
+    println("  (target: <= 10000 gas)");
+}
+
+get fun `test fast gas: end-to-end (HASHEXT + V19 132-bit b64u + P256_CHKSIGNS)`() {
+    val bodyHash = FAKE_BODY_HASH_256;
+    val challenge = CDJ_CHALLENGE_43.hexToSlice();
+    val prefix = CDJ_PREFIX.hexToSlice();
+    val suffix = CDJ_SUFFIX.hexToSlice();
+    val authData = AUTH_DATA.hexToSlice();
+    val sig = SIGNATURE_RAW.hexToSlice();
+    val pubKey = PUBKEY_COMPRESSED.hexToSlice();
+
+    val start = getGasConsumedAtTheMoment();
+
+    val boundOk = verifyB64uChallenge_v19_prefix132_singleCompare(bodyHash, challenge);
+    val cdjHash = sha256ThreeSlices(prefix, challenge, suffix);
+    val signed = beginCell()
+        .storeSlice(authData)
+        .storeUint(cdjHash, 256)
+        .toSlice();
+    val sigOk = p256ChkSignS(signed, sig, pubKey);
+
+    val end = getGasConsumedAtTheMoment();
+
+    expect(boundOk).toBeTrue();
+    expect(sigOk).toBeTrue();
+    println("end-to-end V19 132-bit pre-ACCEPT gas  : ", end - start - 26);
+    println("  (target: <= 10000 gas)");
+}
+
+get fun `test fast gas: end-to-end (HASHEXT + V15 114-bit b64u + P256_CHKSIGNS)`() {
+    val bodyHash = FAKE_BODY_HASH_256;
+    val challenge = CDJ_CHALLENGE_43.hexToSlice();
+    val prefix = CDJ_PREFIX.hexToSlice();
+    val suffix = CDJ_SUFFIX.hexToSlice();
+    val authData = AUTH_DATA.hexToSlice();
+    val sig = SIGNATURE_RAW.hexToSlice();
+    val pubKey = PUBKEY_COMPRESSED.hexToSlice();
+
+    val start = getGasConsumedAtTheMoment();
+
+    val boundOk = verifyB64uChallenge_v15_prefix114(bodyHash, challenge);
+    val cdjHash = sha256ThreeSlices(prefix, challenge, suffix);
+    val signed = beginCell()
+        .storeSlice(authData)
+        .storeUint(cdjHash, 256)
+        .toSlice();
+    val sigOk = p256ChkSignS(signed, sig, pubKey);
+
+    val end = getGasConsumedAtTheMoment();
+
+    expect(boundOk).toBeTrue();
+    expect(sigOk).toBeTrue();
+    println("end-to-end V15 114-bit pre-ACCEPT gas  : ", end - start - 26);
+    println("  (target: <= 10000 gas)");
+}
+
+get fun `test fast gas: end-to-end (HASHEXT + V17 114-bit b64u + P256_CHKSIGNS)`() {
+    val bodyHash = FAKE_BODY_HASH_256;
+    val challenge = CDJ_CHALLENGE_43.hexToSlice();
+    val prefix = CDJ_PREFIX.hexToSlice();
+    val suffix = CDJ_SUFFIX.hexToSlice();
+    val authData = AUTH_DATA.hexToSlice();
+    val sig = SIGNATURE_RAW.hexToSlice();
+    val pubKey = PUBKEY_COMPRESSED.hexToSlice();
+
+    val start = getGasConsumedAtTheMoment();
+
+    val boundOk = verifyB64uChallenge_v17_prefix114_tailLookup(bodyHash, challenge);
+    val cdjHash = sha256ThreeSlices(prefix, challenge, suffix);
+    val signed = beginCell()
+        .storeSlice(authData)
+        .storeUint(cdjHash, 256)
+        .toSlice();
+    val sigOk = p256ChkSignS(signed, sig, pubKey);
+
+    val end = getGasConsumedAtTheMoment();
+
+    expect(boundOk).toBeTrue();
+    expect(sigOk).toBeTrue();
+    println("end-to-end V17 114-bit pre-ACCEPT gas  : ", end - start - 26);
+    println("  (target: <= 10000 gas)");
+}
+
+get fun `test fast gas: end-to-end (HASHEXT + V18 114-bit b64u + P256_CHKSIGNS)`() {
+    val bodyHash = FAKE_BODY_HASH_256;
+    val challenge = CDJ_CHALLENGE_43.hexToSlice();
+    val prefix = CDJ_PREFIX.hexToSlice();
+    val suffix = CDJ_SUFFIX.hexToSlice();
+    val authData = AUTH_DATA.hexToSlice();
+    val sig = SIGNATURE_RAW.hexToSlice();
+    val pubKey = PUBKEY_COMPRESSED.hexToSlice();
+
+    val start = getGasConsumedAtTheMoment();
+
+    val boundOk = verifyB64uChallenge_v18_prefix114_singleCompare(bodyHash, challenge);
+    val cdjHash = sha256ThreeSlices(prefix, challenge, suffix);
+    val signed = beginCell()
+        .storeSlice(authData)
+        .storeUint(cdjHash, 256)
+        .toSlice();
+    val sigOk = p256ChkSignS(signed, sig, pubKey);
+
+    val end = getGasConsumedAtTheMoment();
+
+    expect(boundOk).toBeTrue();
+    expect(sigOk).toBeTrue();
+    println("end-to-end V18 114-bit pre-ACCEPT gas  : ", end - start - 26);
     println("  (target: <= 10000 gas)");
 }
