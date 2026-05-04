@@ -1,7 +1,7 @@
 import "@acton/io"
 import "@acton/emulation/network"
-import "../wrappers/NftCollection.gen"
 import "utils/common"
+import "../wrappers/NftCollection.gen"
 
 fun main() {
     val deployer = promptNftWallet("Select NFT Deployer");

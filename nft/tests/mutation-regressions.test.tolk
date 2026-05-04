@@ -347,7 +347,12 @@ get fun `test mutation: ownership transfer with zero forward amount should exhau
 
     val balanceBefore = testing.getAccountBalance(nftItem.address);
     val exactValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
-    val fwdFee = estimateMessageForwardFee(transferBody.toCell(), nftItem.address, true, exactValue);
+    val fwdFee = estimateMessageForwardFee(
+        transferBody.toCell(),
+        nftItem.address,
+        true,
+        exactValue,
+    );
     val expectedRestAmount = calculateRestAmount(balanceBefore, exactValue, transferBody, fwdFee);
     val result = nftItem.sendAskToChangeOwnership(
         owner.address,
@@ -391,7 +396,12 @@ get fun `test mutation: ownership transfer with forward amount should emit exact
 
     val balanceBefore = testing.getAccountBalance(nftItem.address);
     val exactValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
-    val fwdFee = estimateMessageForwardFee(transferBody.toCell(), nftItem.address, true, exactValue);
+    val fwdFee = estimateMessageForwardFee(
+        transferBody.toCell(),
+        nftItem.address,
+        true,
+        exactValue,
+    );
     val expectedRestAmount = calculateRestAmount(balanceBefore, exactValue, transferBody, fwdFee);
     val result = nftItem.sendAskToChangeOwnership(
         owner.address,

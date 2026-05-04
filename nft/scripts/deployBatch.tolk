@@ -3,8 +3,8 @@ import "@acton/io"
 import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "../contracts/fees-management"
 import "utils/common"
+import "../contracts/fees-management"
 
 fun main() {
     val deployer = promptNftWallet("Select NFT Deployer");
