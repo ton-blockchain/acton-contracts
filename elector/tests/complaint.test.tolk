@@ -25,7 +25,7 @@ get fun `test new complaint not mc`() {
         bcAddr,
         1,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("50") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: bcAddr });
@@ -37,7 +37,7 @@ get fun `test new complaint not mc`() {
         mcAddr,
         2,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("50") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: mcAddr });
@@ -60,7 +60,7 @@ get fun `test new complaint wrong elections`() {
         sender,
         1,
         (stakeAt + 1),
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("50") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: sender });
@@ -70,7 +70,7 @@ get fun `test new complaint wrong elections`() {
         sender,
         2,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("50") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
@@ -93,7 +93,7 @@ get fun `test new complaint fine too large`() {
         sender,
         1,
         stakeAt,
-        complaint1.toCell().beginParse(),
+        complaint1,
         { value: ton("500") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: sender });
@@ -116,7 +116,7 @@ get fun `test new complaint fine too large`() {
         sender,
         2,
         stakeAt,
-        complaint2.toCell().beginParse(),
+        complaint2,
         { value: ton("500") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
@@ -127,7 +127,7 @@ get fun `test new complaint fine too large`() {
         sender,
         3,
         stakeAt,
-        complaint3.toCell().beginParse(),
+        complaint3,
         { value: ton("500") },
     );
     expect(res3).toHaveTx({ from: elector.address, to: sender });
@@ -154,7 +154,7 @@ get fun `test new complaint already expired`() {
         sender,
         1,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("50") },
     );
     expect(res).toHaveTx({ from: elector.address, to: sender });
@@ -176,7 +176,7 @@ get fun `test new complaint no money`() {
         sender,
         1,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("0.1") },
     );
     expect(res).toHaveTx({ from: elector.address, to: sender });
@@ -199,7 +199,7 @@ get fun `test new complaint paid more than fine`() {
         sender,
         1,
         stakeAt,
-        zeroFineComplaint.toCell().beginParse(),
+        zeroFineComplaint,
         { value: ton("500") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: sender });
@@ -210,7 +210,7 @@ get fun `test new complaint paid more than fine`() {
         sender,
         2,
         stakeAt,
-        goodComplaint.toCell().beginParse(),
+        goodComplaint,
         { value: ton("500") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
@@ -233,7 +233,7 @@ get fun `test new complaint duplicate`() {
         sender,
         1,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("500") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: sender });
@@ -243,7 +243,7 @@ get fun `test new complaint duplicate`() {
         sender,
         2,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("500") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
@@ -263,7 +263,7 @@ get fun `test new complaint duplicate`() {
         sender,
         3,
         stakeAt,
-        diffDescr.toCell().beginParse(),
+        diffDescr,
         { value: ton("500") },
     );
     expect(res3).toHaveTx({ from: elector.address, to: sender });
@@ -283,7 +283,7 @@ get fun `test new complaint duplicate`() {
         sender,
         4,
         stakeAt,
-        diffSeverity.toCell().beginParse(),
+        diffSeverity,
         { value: ton("500") },
     );
     expect(res4).toHaveTx({ from: elector.address, to: sender });
@@ -294,7 +294,7 @@ get fun `test new complaint duplicate`() {
         sender,
         5,
         stakeAt,
-        diffFine.toCell().beginParse(),
+        diffFine,
         { value: ton("500") },
     );
     expect(res5).toHaveTx({ from: elector.address, to: sender });
@@ -305,7 +305,7 @@ get fun `test new complaint duplicate`() {
         sender,
         6,
         stakeAt,
-        diffFinePart.toCell().beginParse(),
+        diffFinePart,
         { value: ton("500") },
     );
     expect(res6).toHaveTx({ from: elector.address, to: sender });
@@ -329,7 +329,7 @@ get fun `test new complaint success`() {
         sender,
         1,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("500") },
     );
     expect(res).toHaveTx({ from: elector.address, to: sender });
@@ -401,7 +401,7 @@ get fun `test new complaint cell too deep`() {
         sender,
         1,
         stakeAt,
-        deepComplaint.toCell().beginParse(),
+        deepComplaint,
         { value: ton("500") },
     );
     expect(res1).toHaveTx({
@@ -416,7 +416,7 @@ get fun `test new complaint cell too deep`() {
         sender,
         2,
         stakeAt,
-        normalComplaint.toCell().beginParse(),
+        normalComplaint,
         { value: ton("500") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
@@ -439,7 +439,7 @@ get fun `test new complaint wrong validator`() {
         sender,
         1,
         stakeAt,
-        complaint.toCell().beginParse(),
+        complaint,
         { value: ton("50") },
     );
     expect(res).toHaveTx({ from: elector.address, to: sender });

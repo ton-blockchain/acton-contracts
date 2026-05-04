@@ -6,10 +6,10 @@
 import "@acton/build"
 import "@acton/emulation/network"
 import "@acton/testing/assert"
-import "../contracts/messages"
-import "../contracts/types"
+import "../elector/contracts/messages"
+import "../elector/contracts/types"
 
-/// Storage `Storage` is defined in `../contracts/types`
+/// Storage `Storage` is defined in `../elector/contracts/types`
 struct Elector {
     address: address
     stateInit: ContractState? = null

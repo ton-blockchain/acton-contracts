@@ -15,6 +15,133 @@ contract Elector {
     storage: Storage
 }
 
+type AllowedMessages =
+    | SimpleTransfer
+    | NewStakeMessage
+    | RecoverStakeRequest
+    | UpgradeCode
+    | ConfigConfirmed
+    | ConfigConfirmedAlt
+    | NewComplaint
+    | SignedVoteForComplaint
+    | FallbackMessage
+
+fun onInternalMessage(in: InMessage) {
+    // Special case with empty body
+    if (in.body.isEmpty()) {
+        processSimpleTransfer();
+        return;
+    }
+    val msg = lazy AllowedMessages.fromSlice(in.body);
+    match (msg) {
+        SimpleTransfer => {
+            processSimpleTransfer();
+            return;
+        }
+        NewStakeMessage => {
+            processNewStake(msg);
+            return;
+        }
+        RecoverStakeRequest => {
+            recoverStake(msg.queryId);
+            return;
+        }
+        UpgradeCode => {
+            // Accepted only from config contract
+            val ok = upgradeCode(msg);
+            sendMessageBack(
+                InMessage.source(),
+                ok ? 0xce436f64 : 0xffffffff,
+                msg.queryId,
+                UpgradeCode.getDeclaredPackPrefix(),
+                0,
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
+            );
+            return;
+        }
+        ConfigConfirmed => {
+            configSetConfirmed(msg.queryId, true);
+            return;
+        }
+        ConfigConfirmedAlt => {
+            configSetConfirmed(msg.queryId, false);
+            return;
+        }
+        NewComplaint => {
+            var price = 0;
+            // Changed from FunC original src. This if statement was inside the `registerComplaint()`
+            if (in.body.depth() >= 128) {
+                price = ComplaintError.CellTooDeep as int;
+            } else {
+                price = registerComplaint(msg, InMessage.value());
+            }
+            var mode = SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE;
+            var ansTag = -price;
+            if (price >= 0) {
+                // ok, debit price
+                reserveToncoinsOnBalance(price, RESERVE_MODE_INCREASE_BY_ORIGINAL_BALANCE);
+                ansTag = 0;
+                mode = SEND_MODE_CARRY_ALL_BALANCE;
+            }
+            sendMessageBack(
+                InMessage.source(),
+                ansTag + 0xf2676350,
+                msg.queryId,
+                NewComplaint.getDeclaredPackPrefix(),
+                0,
+                mode,
+            );
+            return;
+        }
+        SignedVoteForComplaint => {
+            val vote = VoteForComplaint.fromSlice(msg.vote);
+            assert (vote.signTag == 0x56744350) throw 37;
+            val vDescr = getValidatorDescr(vote.idx);
+            assert (
+                isSignatureValid(
+                    msg.vote.hash(),
+                    msg.signature as slice,
+                    vDescr.this.validatorPubkey,
+                )
+            ) throw 34;
+            val res = proceedRegisterVote(
+                vote.electId,
+                vote.chash,
+                vote.idx,
+                vDescr.this.validatorWeight,
+            );
+            sendMessageBack(
+                InMessage.source(),
+                (res as int + 0xd6745240),
+                msg.queryId,
+                SignedVoteForComplaint.getDeclaredPackPrefix(),
+                0,
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
+            );
+            return;
+        }
+        FallbackMessage => {
+            sendMessageBack(
+                InMessage.source(),
+                0xffffffff,
+                msg.queryId,
+                msg.opcodeBits as uint32,
+                0,
+                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
+            );
+            return;
+        }
+        else => {
+            // Ignore message
+            return;
+        }
+    }
+}
+
+fun onBouncedMessage(_in: InMessageBounced) {
+    // Elector sends some bounceable messages, but don't handle them
+}
+
 fun processNewStake(msg: NewStakeMessage): void {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
     var storage = Storage.load();
@@ -220,133 +347,6 @@ fun upgradeCode(msg: UpgradeCode): bool {
         throw 0;
     }
     return true;
-}
-
-type AllowedMessages =
-    | SimpleTransfer
-    | NewStakeMessage
-    | RecoverStakeRequest
-    | UpgradeCode
-    | ConfigConfirmed
-    | ConfigConfirmedAlt
-    | NewComplaint
-    | SignedVoteForComplaint
-    | FallbackMessage
-
-fun onInternalMessage(in: InMessage) {
-    // Special case with empty body
-    if (in.body.isEmpty()) {
-        processSimpleTransfer();
-        return;
-    }
-    val msg = lazy AllowedMessages.fromSlice(in.body);
-    match (msg) {
-        SimpleTransfer => {
-            processSimpleTransfer();
-            return;
-        }
-        NewStakeMessage => {
-            processNewStake(msg);
-            return;
-        }
-        RecoverStakeRequest => {
-            recoverStake(msg.queryId);
-            return;
-        }
-        UpgradeCode => {
-            // Accepted only from config contract
-            val ok = upgradeCode(msg);
-            sendMessageBack(
-                InMessage.source(),
-                ok ? 0xce436f64 : 0xffffffff,
-                msg.queryId,
-                UpgradeCode.getDeclaredPackPrefix(),
-                0,
-                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
-            );
-            return;
-        }
-        ConfigConfirmed => {
-            configSetConfirmed(msg.queryId, true);
-            return;
-        }
-        ConfigConfirmedAlt => {
-            configSetConfirmed(msg.queryId, false);
-            return;
-        }
-        NewComplaint => {
-            var price = 0;
-            // Changed from FunC original src. This if statement was inside the `registerComplaint()`
-            if (in.body.depth() >= 128) {
-                price = ComplaintError.CellTooDeep as int;
-            } else {
-                price = registerComplaint(msg, InMessage.value());
-            }
-            var mode = SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE;
-            var ansTag = -price;
-            if (price >= 0) {
-                // ok, debit price
-                reserveToncoinsOnBalance(price, RESERVE_MODE_INCREASE_BY_ORIGINAL_BALANCE);
-                ansTag = 0;
-                mode = SEND_MODE_CARRY_ALL_BALANCE;
-            }
-            sendMessageBack(
-                InMessage.source(),
-                ansTag + 0xf2676350,
-                msg.queryId,
-                NewComplaint.getDeclaredPackPrefix(),
-                0,
-                mode,
-            );
-            return;
-        }
-        SignedVoteForComplaint => {
-            val vote = VoteForComplaint.fromSlice(msg.vote);
-            assert (vote.signTag == 0x56744350) throw 37;
-            val vDescr = getValidatorDescr(vote.idx);
-            assert (
-                isSignatureValid(
-                    msg.vote.hash(),
-                    msg.signature as slice,
-                    vDescr.this.validatorPubkey,
-                )
-            ) throw 34;
-            val res = proceedRegisterVote(
-                vote.electId,
-                vote.chash,
-                vote.idx,
-                vDescr.this.validatorWeight,
-            );
-            sendMessageBack(
-                InMessage.source(),
-                (res as int + 0xd6745240),
-                msg.queryId,
-                SignedVoteForComplaint.getDeclaredPackPrefix(),
-                0,
-                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
-            );
-            return;
-        }
-        FallbackMessage => {
-            sendMessageBack(
-                InMessage.source(),
-                0xffffffff,
-                msg.queryId,
-                msg.opcodeBits as uint32,
-                0,
-                SEND_MODE_CARRY_ALL_REMAINING_MESSAGE_VALUE,
-            );
-            return;
-        }
-        else => {
-            // Ignore message
-            return;
-        }
-    }
-}
-
-fun onBouncedMessage(_in: InMessageBounced) {
-    // Elector sends some bounceable messages, but don't handle them
 }
 
 // Sorting key for election: orders by stake ascending, then time descending, then pubkey
