@@ -84,7 +84,7 @@ fun transferToRecipientStage(ctx: JettonE2eContext) {
     val forwardPayload = jettonE2eForwardPayload();
     val transfer = ctx
         .senderWallet
-        .sendTransfer(
+        .sendAskToTransfer(
             ctx.admin.address,
             JETTON_E2E_TRANSFER_VALUE,
             JETTON_E2E_TRANSFER_AMOUNT,
@@ -92,7 +92,7 @@ fun transferToRecipientStage(ctx: JettonE2eContext) {
             ctx.admin.address,
             null,
             JETTON_E2E_FORWARD_AMOUNT,
-            forwardPayload,
+            Payload.fromCell(forwardPayload),
         );
 
     expect(transfer).toHaveSuccessfulTx<AskToTransfer>({
