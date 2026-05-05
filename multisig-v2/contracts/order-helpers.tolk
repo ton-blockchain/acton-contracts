@@ -70,6 +70,7 @@ fun getTextComment(inMsgBody: RemainingBitsAndRefs): slice {
     return result.toSlice();
 }
 
+// Why not address -> bool map?
 fun DirectIndexedAddressMap.findSignerByAddress(self, signerAddress: address): (uint8, bool) {
     var signerIndex: uint8 = 0;
     var foundSigner = false;

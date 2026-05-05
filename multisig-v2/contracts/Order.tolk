@@ -66,6 +66,8 @@ fun onInternalMessage(in: InMessage) {
                 return;
             }
 
+            // OUnoblious, but needed when two different signers initiate an offer in one time
+
             var storage = header.loadInitialized();
 
             assert (msg.threshold == storage.remaining.threshold) throw ERROR_ALREADY_INITED;
@@ -82,6 +84,7 @@ fun onInternalMessage(in: InMessage) {
                 msg.order.hashCell() == storage.remaining.order.hashCell()
             ) throw ERROR_ALREADY_INITED;
 
+            // Why there is no expiration date check for this case? Probably won't fire but still
             assert (msg.signerIndexOnInit != null) throw ERROR_ALREADY_INITED;
 
             val signerIndex = msg.signerIndexOnInit!;
@@ -102,6 +105,8 @@ fun onInternalMessage(in: InMessage) {
             assert (signerAddress.isFound) throw ERROR_UNAUTHORIZED_SIGN;
             assert (in.senderAddress == signerAddress.loadValue()) throw ERROR_UNAUTHORIZED_SIGN;
 
+            // Same, no expiration check
+
             storage.approve(msg.signerIndex, in.senderAddress, msg.queryId);
         }
 
@@ -109,6 +114,8 @@ fun onInternalMessage(in: InMessage) {
     }
 }
 
+
+// Why different return type?
 get fun get_order_data(): OrderDataReply {
     val storageLoader = startLoadingOrderStorage();
     val header = storageLoader.loadHeader();

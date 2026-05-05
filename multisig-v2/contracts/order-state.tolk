@@ -6,6 +6,7 @@ struct OrderInitData {
     orderSeqno: uint256
 }
 
+// Optimize
 fun getOrderCodeAsLibraryReference(): cell {
     return orderCompiledCode().toLibraryReference();
 }

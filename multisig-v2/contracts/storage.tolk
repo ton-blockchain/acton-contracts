@@ -75,6 +75,7 @@ fun OrderStorageMaybeNotInitialized.loadHeader(self): OrderStorageHeader {
     return OrderStorageHeader.fromSlice(self.contractData);
 }
 
+// What about refactoring in one function?
 fun OrderStorageHeader.isInitialized(self): bool {
     return self.remaining.remainingBitsCount() > 0;
 }
