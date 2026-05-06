@@ -3,7 +3,6 @@ import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/tlb/maybe"
 import "@acton/types/big_array"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
@@ -35,14 +34,14 @@ struct (0x7abf6c01) TestExternalOutBody {
     marker: uint32
 }
 
-fun queryIdZero() {
+fun queryIdZero(): HighloadQueryId {
     return HighloadQueryId {
         shift: 0,
         bitNumber: 0,
     };
 }
 
-fun HighloadQueryId.fromShiftAndBitNumber(shift: int, bitNumber: int) {
+fun HighloadQueryId.fromShiftAndBitNumber(shift: int, bitNumber: int): HighloadQueryId {
     assert (shift >= 0) throw 11;
     assert (shift <= MAX_SHIFT) throw 11;
     assert (bitNumber >= 0) throw 11;
@@ -50,7 +49,7 @@ fun HighloadQueryId.fromShiftAndBitNumber(shift: int, bitNumber: int) {
     return HighloadQueryId { shift, bitNumber };
 }
 
-fun HighloadQueryId.fromQueryId(queryId: int) {
+fun HighloadQueryId.fromQueryId(queryId: int): HighloadQueryId {
     return HighloadQueryId.fromShiftAndBitNumber(queryId >> 10, queryId & 1023);
 }
 
@@ -58,7 +57,7 @@ fun HighloadQueryId.toInt(self): int {
     return (self.shift << 10) + self.bitNumber;
 }
 
-fun HighloadQueryId.getNext(self) {
+fun HighloadQueryId.getNext(self): HighloadQueryId {
     var nextShift = self.shift;
     var nextBit = self.bitNumber + 1;
 

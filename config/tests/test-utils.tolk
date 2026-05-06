@@ -1,4 +1,3 @@
-import "@stdlib/exotic-cells"
 import "@stdlib/lisp-lists"
 import "@acton/crypto"
 import "@acton/emulation/config"

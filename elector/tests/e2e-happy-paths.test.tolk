@@ -8,7 +8,6 @@ import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
 import "../wrappers/Elector.gen"
-import "../wrappers/utils"
 
 const ELECTOR_E2E_EXTRA_VALIDATORS = 6
 const ELECTOR_E2E_COMPLAINT_FINE = ton("100")

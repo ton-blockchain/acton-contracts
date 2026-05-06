@@ -1,8 +1,6 @@
-import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/dns-utils"
@@ -15,7 +13,13 @@ const E2E_INITIAL_BID = ton("1000")
 const E2E_NEXT_BID = ton("1050")
 const E2E_GOVERNANCE_QUERY_ID = 7001
 
-fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL_BID) {
+fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL_BID): (
+    DnsItem,
+    DnsCollection,
+    Treasury,
+    Treasury,
+    Treasury,
+) {
     val (collection, deployer, bidder) = deployCollectionContract();
     val governanceCaller = newActor("dns_e2e_governance_caller", ton("100000"));
     testing.setNow((AUCTION_START_TIME + 1));

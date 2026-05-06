@@ -1,6 +1,5 @@
 import "@acton/env"
 import "@acton/io"
-import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../tests/test-utils"
 import "../wrappers/DnsCollection.gen"

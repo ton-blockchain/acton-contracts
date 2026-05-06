@@ -3,7 +3,6 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../wrappers/Multisig.gen"
-import "../wrappers/Order.gen"
 import "../wrappers/utils"
 
 const DEFAULT_DEPLOY_VALUE = ton("0.1")

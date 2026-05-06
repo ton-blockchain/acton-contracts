@@ -9,7 +9,7 @@ contract RootDns {
     storage: RootDnsStorage
 }
 
-fun getPrefixLengthByDomain(domainLength: int, startsWithZeroByte: bool) {
+fun getPrefixLengthByDomain(domainLength: int, startsWithZeroByte: bool): int {
     return (domainLength - 1) * BYTE_SIZE + (startsWithZeroByte ? BYTE_SIZE : 0);
 }
 

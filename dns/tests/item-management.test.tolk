@@ -1,15 +1,15 @@
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/dns-utils"
 import "../contracts/errors"
 import "../contracts/messages"
+import "../wrappers/DnsCollection.gen"
 import "../wrappers/DnsItem.gen"
 
-fun setupCompletedItem() {
+fun setupCompletedItem(): (DnsItem, DnsCollection, Treasury, Treasury) {
     val (item, collection, owner, bidder) = deployItemThroughCollection();
 
     val complete = completeAuction(item, owner.address, 1);
@@ -18,7 +18,7 @@ fun setupCompletedItem() {
     return (item, collection, owner, bidder);
 }
 
-fun setupGovernanceReadyItem() {
+fun setupGovernanceReadyItem(): (DnsItem, DnsCollection, Treasury, Treasury) {
     val (item, collection, owner, bidder) = deployItemThroughCollection();
 
     val higherBid = item.sendAny(

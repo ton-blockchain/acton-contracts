@@ -3,7 +3,6 @@ import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/tlb/maybe"
 import "@acton/types/message"
 import "@acton/types/out_actions"
 import "@acton/types/transaction"
@@ -37,7 +36,7 @@ fun expectSendActionMode(
     expect(action.mode).toEqual(expectedMode);
 }
 
-fun makeBadEitherPayload() {
+fun makeBadEitherPayload(): slice {
     val payloadRef = beginCell().endCell();
     return beginCell().storeUint(1, 1).storeRef(payloadRef).storeUint(1, 1).endCell().beginParse();
 }

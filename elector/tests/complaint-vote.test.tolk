@@ -7,7 +7,6 @@ import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
 import "../wrappers/Elector.gen"
-import "../wrappers/utils"
 
 /// Set up config param 34 with known validators (with ADNL addresses).
 /// Returns array of KeyPairs used for the validators.

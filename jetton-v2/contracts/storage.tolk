@@ -11,7 +11,7 @@ struct MinterStorage {
     metadata: cell
 }
 
-fun MinterStorage.load() {
+fun MinterStorage.load(): MinterStorage {
     return MinterStorage.fromCell(contract.getData());
 }
 
@@ -19,7 +19,7 @@ fun MinterStorage.save(self) {
     contract.setData(self.toCell());
 }
 
-fun WalletStorage.load() {
+fun WalletStorage.load(): WalletStorage {
     return WalletStorage.fromCell(contract.getData());
 }
 

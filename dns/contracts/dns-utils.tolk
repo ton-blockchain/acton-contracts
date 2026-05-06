@@ -22,7 +22,7 @@ const TELEGRAM_DOMAIN_SIZE = 5 // "t.me" (3) + 2 null-encoding symbols
 const MIN_DOMAIN_SIZE = 3
 const MAX_DOMAIN_SIZE = 126
 
-fun address.toNextResolver(self) {
+fun address.toNextResolver(self): cell {
     return beginCell().storeUint(DNS_NEXT_RESOLVER_PREFIX, 16).storeAddress(self).endCell();
 }
 

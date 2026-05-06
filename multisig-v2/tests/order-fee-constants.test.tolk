@@ -10,7 +10,6 @@ import "../contracts/messages"
 import "../contracts/order-helpers"
 import "../contracts/types"
 import "../wrappers/Multisig.gen"
-import "../wrappers/Order.gen"
 import "../wrappers/utils"
 
 const PROBE_NOW = 1000

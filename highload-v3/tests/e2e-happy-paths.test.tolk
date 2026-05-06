@@ -1,7 +1,6 @@
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/tlb/maybe"
 import "@acton/types/out_actions"
 import "test-utils"
 import "../contracts/messages"
@@ -19,7 +18,7 @@ const HIGHLOAD_E2E_SINGLE_MARKER = 101
 const HIGHLOAD_E2E_INLINE_MARKER_BASE = 100000
 const HIGHLOAD_E2E_CHAINED_MARKER_BASE = 200000
 
-fun benchmarkMarkerBody(marker: int) {
+fun benchmarkMarkerBody(marker: int): cell {
     return beginCell().storeUint(marker, 32).endCell();
 }
 
@@ -28,7 +27,7 @@ fun buildBenchmarkActionListCellRange(
     count: int,
     markerBase: int,
     actionMode: int = SEND_MODE_PAY_FEES_SEPARATELY,
-) {
+): Cell<TlbOutList> {
     var actionsCell = createEmptyCell() as Cell<TlbOutList>;
     var i = 0;
     while (i < count) {
@@ -47,7 +46,7 @@ fun buildBenchmarkActionListCellRange(
     return actionsCell;
 }
 
-fun deployHighloadWalletStage() {
+fun deployHighloadWalletStage(): (TestContext, HighloadQueryId) {
     val ctx = setupHighloadTest();
 
     expect(ctx.wallet.getPublicKey()).toEqual(ctx.keyPair.publicKey);
@@ -58,7 +57,10 @@ fun deployHighloadWalletStage() {
     return (ctx, queryIdZero());
 }
 
-fun processSingleTransferStage(ctx: TestContext, queryCursor: HighloadQueryId) {
+fun processSingleTransferStage(
+    ctx: TestContext,
+    queryCursor: HighloadQueryId,
+): (HighloadQueryId, int) {
     val queryId = queryCursor.toInt();
     val recipient = randomAddress("highload-e2e-single");
     val body = benchmarkMarkerBody(HIGHLOAD_E2E_SINGLE_MARKER);
@@ -106,7 +108,10 @@ fun assertBatchStageSuccess(
     expect(wallet.isProcessed(queryId, false)).toBeTrue();
 }
 
-fun processMaxInlineBatchStage(ctx: TestContext, queryCursor: HighloadQueryId) {
+fun processMaxInlineBatchStage(
+    ctx: TestContext,
+    queryCursor: HighloadQueryId,
+): (HighloadQueryId, int) {
     val queryId = queryCursor.toInt();
     val actionsCell = buildBenchmarkActionListCellRange(
         0,
@@ -147,7 +152,7 @@ fun processChainedBatchWithCleanupStage(
     queryCursor: HighloadQueryId,
     expiredSingleQueryId: int,
     expiredInlineQueryId: int,
-) {
+): (HighloadQueryId, int) {
     testing.setNow(HIGHLOAD_E2E_CLEANUP_NOW);
 
     // Getter applies timeout window logic without mutating stored state.

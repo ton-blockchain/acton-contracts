@@ -1,8 +1,6 @@
-import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "utils/common"
-import "../wrappers/JettonMinter.gen"
 import "../wrappers/utils"
 
 fun main() {

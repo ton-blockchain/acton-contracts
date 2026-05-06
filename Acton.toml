@@ -83,9 +83,7 @@ max-warnings = 0
 
 [lint.rules]
 dict-type-use = "allow"
-explicit-return-type = "allow"
 throw-requires-errors-enum = "allow"
-unused-import = "allow"
 
 [lint.JettonMinter]
 asm-function-missing-safety-comment = "allow"

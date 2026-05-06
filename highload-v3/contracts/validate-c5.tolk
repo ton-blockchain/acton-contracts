@@ -40,7 +40,7 @@ struct MessageRelaxed {
     body: EitherBody
 }
 
-fun validateMessageToSend(messageToSend: cell) {
+fun validateMessageToSend(messageToSend: cell): bool {
     val msg = lazy MessageRelaxed.fromCell(
         messageToSend,
         { throwIfOpcodeDoesNotMatch: ERROR_INVALID_MESSAGE_TO_SEND },

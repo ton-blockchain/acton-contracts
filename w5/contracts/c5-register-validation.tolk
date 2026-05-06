@@ -17,7 +17,7 @@ fun OutActionsCell.beginParseAllowExotic(self): slice
 
 /// verify a cell containing OutActionList that it contains only "send message" actions
 fun OutActionsCell.verifyC5Actions(self, isExternal: bool): self {
-    var count = 0;
+    var remainingActions = 255;
 
     var cs = self.beginParseAllowExotic();
     do {
@@ -39,9 +39,9 @@ fun OutActionsCell.verifyC5Actions(self, isExternal: bool): self {
         }
 
         cs = outAction.prev.beginParseAllowExotic();
-        count += 1;
+        remainingActions -= 1;
     } while (!cs.isEmpty());
 
-    assert (count <= 255) throw ERROR_INVALID_C5;
+    assert (remainingActions >= 0) throw ERROR_INVALID_C5;
     return self;
 }
