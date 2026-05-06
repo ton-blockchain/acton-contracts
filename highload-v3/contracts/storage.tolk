@@ -11,7 +11,7 @@ struct HighloadWalletStorage {
     timeout: uint22
 }
 
-fun HighloadWalletStorage.load() {
+fun HighloadWalletStorage.load(): HighloadWalletStorage {
     return HighloadWalletStorage.fromCell(contract.getData());
 }
 

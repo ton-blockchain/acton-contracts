@@ -31,7 +31,7 @@ struct CollectionDataReply {
     ownerAddress: address?
 }
 
-fun CollectionStorage.load() {
+fun CollectionStorage.load(): CollectionStorage {
     return CollectionStorage.fromCell(contract.getData());
 }
 

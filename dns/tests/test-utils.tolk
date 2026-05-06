@@ -4,7 +4,6 @@ import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/assert"
 import "@acton/testing/expect"
-import "@acton/tlb/maybe"
 import "@acton/types/message"
 import "@acton/types/transaction"
 import "../contracts/dns-utils"
@@ -86,7 +85,10 @@ fun domainIndex(domain: string): uint256 {
     return domain.beginParse().hash();
 }
 
-fun makeItemStorageNonInit(collectionAddress: address, domain: string = DEFAULT_DOMAIN) {
+fun makeItemStorageNonInit(
+    collectionAddress: address,
+    domain: string = DEFAULT_DOMAIN,
+): ItemStorageNotInitialized {
     return ItemStorageNotInitialized {
         index: domainIndex(domain),
         collectionAddress,
@@ -210,7 +212,7 @@ fun setDnsBlacklist(index: uint256) {
     expect(testing.setConfig(config)).toEqual(true);
 }
 
-fun deployRootContract() {
+fun deployRootContract(): (RootDns, Treasury) {
     val deployer = newActor("dns_root_deployer", ton("100"));
     val root = RootDns.fromStorage({
         tonAddress: rootTonResolverAddress(),
@@ -223,7 +225,7 @@ fun deployRootContract() {
     return (root, deployer);
 }
 
-fun deployCollectionContract() {
+fun deployCollectionContract(): (DnsCollection, Treasury, Treasury) {
     testing.setNow((AUCTION_START_TIME - 1000));
     val deployer = newActor("dns_collection_deployer", ton("100000"));
     val user = newActor("dns_collection_user", ton("100000"));
@@ -245,7 +247,12 @@ fun deployCollectionContract() {
     return (collection, deployer, user);
 }
 
-fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = ton("1000")) {
+fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = ton("1000")): (
+    DnsItem,
+    DnsCollection,
+    Treasury,
+    Treasury,
+) {
     val (collection, deployer, bidder) = deployCollectionContract();
     testing.setNow((AUCTION_START_TIME + 1));
 

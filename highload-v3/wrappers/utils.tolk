@@ -94,14 +94,20 @@ fun packSendActionsToCell(messages: array<TlbOutActionSendMessage>, start: int, 
     return head;
 }
 
-fun HighloadWalletV3.createInternalTransferBody(queryId: int, actions: array<TlbOutAction>) {
+fun HighloadWalletV3.createInternalTransferBody(
+    queryId: int,
+    actions: array<TlbOutAction>,
+): Cell<InternalTransfer> {
     return InternalTransfer {
         queryId: queryId as uint64,
         actions: packTlbOutActions(actions),
     }.toCell();
 }
 
-fun HighloadWalletV3.createInternalTransferBodyFromActionsCell(queryId: int, actionsCell: cell) {
+fun HighloadWalletV3.createInternalTransferBodyFromActionsCell(
+    queryId: int,
+    actionsCell: cell,
+): Cell<InternalTransfer> {
     return InternalTransfer {
         queryId: queryId as uint64,
         actions: actionsCell,

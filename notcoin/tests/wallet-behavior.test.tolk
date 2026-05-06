@@ -1,12 +1,10 @@
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/tlb/maybe"
 import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
-import "../wrappers/NotcoinMinter.gen"
 import "../wrappers/NotcoinWallet.gen"
 import "../wrappers/utils"
 

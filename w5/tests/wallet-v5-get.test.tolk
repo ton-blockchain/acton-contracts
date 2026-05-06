@@ -1,7 +1,5 @@
 import "@acton/emulation/network"
-import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "../contracts/c5-register-validation"
 import "../contracts/storage"
 import "../wrappers/WalletV5.gen"
 import "../wrappers/utils"

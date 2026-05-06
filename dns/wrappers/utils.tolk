@@ -1,5 +1,4 @@
 import "@acton/build"
-import "@acton/emulation/network"
 import "DnsItem.gen"
 import "../contracts/storage"
 

@@ -1,5 +1,4 @@
 import "messages"
-import "types"
 
 struct MultisigStorage {
     nextOrderSeqno: uint256
@@ -10,7 +9,7 @@ struct MultisigStorage {
     allowArbitraryOrderSeqno: bool
 }
 
-fun MultisigStorage.load() {
+fun MultisigStorage.load(): MultisigStorage {
     return MultisigStorage.fromCell(contract.getData());
 }
 

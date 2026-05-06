@@ -6,8 +6,6 @@ import "@acton/io"
 import "@acton/prompts"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
-import "../../contracts/messages"
-import "../../contracts/types"
 import "../../wrappers/Elector.gen"
 import "../../wrappers/utils"
 

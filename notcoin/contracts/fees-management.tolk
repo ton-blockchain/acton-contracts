@@ -31,7 +31,7 @@ const GAS_CONSUMPTION_JETTON_RECEIVE = 7253
 const GAS_CONSUMPTION_BURN_REQUEST = 4368
 const GAS_CONSUMPTION_BURN_NOTIFICATION = 3855
 
-fun calculateJettonWalletMinStorageFee() {
+fun calculateJettonWalletMinStorageFee(): coins {
     return calculateStorageFee(
         MY_WORKCHAIN,
         MIN_STORAGE_DURATION,
@@ -40,7 +40,7 @@ fun calculateJettonWalletMinStorageFee() {
     );
 }
 
-fun forwardInitStateOverhead() {
+fun forwardInitStateOverhead(): coins {
     return calculateForwardFeeWithoutLumpPrice(
         MY_WORKCHAIN,
         STORAGE_SIZE_INIT_STATE_WALLET_BITS,
@@ -49,7 +49,7 @@ fun forwardInitStateOverhead() {
 }
 
 // this is the function that we would want to check
-fun calcMinimalTransferAmount(forwardTonAmount: int, fwdFee: int) {
+fun calcMinimalTransferAmount(forwardTonAmount: int, fwdFee: int): int {
     val fwdCount = forwardTonAmount != 0
         ? 2
         : 1;                                      // second sending (forward) will be cheaper than first
@@ -79,7 +79,7 @@ fun checkAmountIsEnoughToTransfer(msgValue: int, forwardTonAmount: int, fwdFee: 
     assert (msgValue > minTransferAmount) throw ERROR_NOT_ENOUGH_GAS;
 }
 
-fun calcMinimalBurnAmount() {
+fun calcMinimalBurnAmount(): coins {
     val jettonWalletGasConsumption = getPrecompiledGasConsumption();
     val sendBurnGasConsumption = (jettonWalletGasConsumption == null)
         ? GAS_CONSUMPTION_BURN_REQUEST

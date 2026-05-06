@@ -8,7 +8,7 @@ fun CreditsMap.creditTo(mutate self, addr: uint256, amount: coins) {
     self.set(addr, amount);
 }
 
-fun CreditsMap.unfreezeWithoutBonuces(mutate self, freezeDict: FrozenDict, totalStakes: int) {
+fun CreditsMap.unfreezeWithoutBonuces(mutate self, freezeDict: FrozenDict, totalStakes: int): int {
     var total = 0;
     var recovered = 0;
     var pubkey = -1;
@@ -85,7 +85,7 @@ fun CreditsMap.unfreezeAll(
     mutate self,
     pastElections: map<uint32, PastElection>,
     electionId: uint32,
-) {
+): (map<uint32, PastElection>, int) {
     val res = pastElections.deleteAndGetDeleted(electionId);
     if (!res.isFound) {
         return (pastElections, 0);

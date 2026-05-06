@@ -26,15 +26,15 @@ const CONFIG_SCALE_X10 = 10
 const GAS_SCALE_X3 = 3
 const TRANSFER_MIN_PROBE_LIMIT = 10000
 
-fun makeTinyForwardPayload() {
+fun makeTinyForwardPayload(): slice {
     return beginCell().storeUint(0, 1).toSlice();
 }
 
-fun makeRichCustomPayload() {
+fun makeRichCustomPayload(): cell {
     return beginCell().storeUint(0x123456789abcdef, 128).endCell();
 }
 
-fun makeRichForwardPayload() {
+fun makeRichForwardPayload(): slice {
     return beginCell().storeMaybeRef(makeRichCustomPayload()).endCell().beginParse();
 }
 
@@ -57,7 +57,7 @@ fun buildTransferBody(
     };
 }
 
-fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: coins) {
+fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: coins): coins {
     val estMsg = createMessage({
         body,
         dest,
@@ -68,7 +68,7 @@ fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: co
     return estMsg.estimateFeeWithoutSending(SEND_MODE_REGULAR);
 }
 
-fun estimateBodyForwardFee<T>(body: T) {
+fun estimateBodyForwardFee<T>(body: T): coins {
     return estimateMessageForwardFee(body, randomAddress(), true, ton("1"));
 }
 
@@ -77,7 +77,7 @@ fun sendRawTransferPayload(
     wallet: address,
     body: cell,
     value: int = DEFAULT_TRANSFER_MSG_VALUE,
-) {
+): SendResultList {
     val outMessage = createMessage({
         bounce: true,
         value,

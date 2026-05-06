@@ -1,12 +1,9 @@
-import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "test-utils"
-import "../contracts/messages"
 import "../contracts/types"
 import "../wrappers/Elector.gen"
-import "../wrappers/utils"
 
 /// Test that config rejected (alt) from non-config address is ignored
 get fun `test vset rejected not config`() {

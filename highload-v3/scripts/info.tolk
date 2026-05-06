@@ -1,6 +1,5 @@
 import "@acton/env"
 import "@acton/io"
-import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "../wrappers/HighloadWalletV3.gen"
 import "../wrappers/utils"

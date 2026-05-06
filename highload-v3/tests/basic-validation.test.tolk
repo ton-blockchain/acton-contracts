@@ -6,7 +6,6 @@ import "@acton/types/big_array"
 import "test-utils"
 import "../contracts/messages"
 import "../wrappers/HighloadWalletV3.gen"
-import "../wrappers/utils"
 
 get fun `test deploy`() {
     val ctx = setupHighloadTest();

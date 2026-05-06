@@ -55,7 +55,7 @@ fun makeBatchDeployList(
     ownerAddress: address,
     content: string,
     attachTonAmount: coins = ton("0.02"),
-) {
+): map<uint64, BatchDeployDictItem> {
     var deployList: map<uint64, BatchDeployDictItem> = [];
     var i = 0;
     while (i < indexes.size()) {
@@ -71,7 +71,7 @@ fun makeBatchDeployList(
     return deployList;
 }
 
-fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: coins) {
+fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: coins): coins {
     val outgoingMessage = createMessage({
         body,
         dest,

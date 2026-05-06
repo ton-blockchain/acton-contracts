@@ -1,7 +1,6 @@
 import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
-import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "test-utils"
 import "../contracts/types"

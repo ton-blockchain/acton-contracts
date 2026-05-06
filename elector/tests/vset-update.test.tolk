@@ -2,13 +2,9 @@ import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
-import "@acton/tlb/maybe"
-import "@acton/types/transaction"
 import "test-utils"
-import "../contracts/messages"
 import "../contracts/types"
 import "../wrappers/Elector.gen"
-import "../wrappers/utils"
 
 /// Test that vset is not installed before elections finish
 get fun `test vset installed not finished`() {
