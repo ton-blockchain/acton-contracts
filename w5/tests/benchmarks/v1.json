@@ -1,36 +1,27 @@
 {
-  "timestamp": 1778065787,
+  "timestamp": 1778071073,
   "opcodes": {
     "InternalSignedRequest": {
-      "min_gas": 3578,
+      "min_gas": 3568,
       "max_gas": 4800,
-      "avg_gas": 4189,
+      "avg_gas": 4184,
       "samples": 2,
       "all_values": [
-        3578,
+        3568,
         4800
       ]
     },
     "ExtensionActionRequest": {
-      "min_gas": 2529,
-      "max_gas": 2529,
-      "avg_gas": 2529,
+      "min_gas": 2519,
+      "max_gas": 2519,
+      "avg_gas": 2519,
       "samples": 1,
       "all_values": [
-        2529
+        2519
       ]
     }
   },
   "trace_chains": {
-    "test w5 bench: EXTERNAL transfer::trace#3": {
-      "test_name": "test w5 bench: EXTERNAL transfer",
-      "trace_name": "setup deploy WalletV5",
-      "tx_count": 1,
-      "total_gas_used": 705,
-      "total_gas_fees": 282000,
-      "total_forward_fees": 2438686,
-      "total_fees": 282000
-    },
     "test w5 bench: EXTERNAL transfer::trace#4": {
       "test_name": "test w5 bench: EXTERNAL transfer",
       "trace_name": "setup top up WalletV5",
@@ -40,59 +31,14 @@
       "total_forward_fees": 266669,
       "total_fees": 282000
     },
-    "test w5 bench: correctness of deploy::trace#4": {
-      "test_name": "test w5 bench: correctness of deploy",
-      "trace_name": "setup top up WalletV5",
+    "test w5 bench: ADD extension::trace#3": {
+      "test_name": "test w5 bench: ADD extension",
+      "trace_name": "setup deploy WalletV5",
       "tx_count": 1,
       "total_gas_used": 705,
       "total_gas_fees": 282000,
-      "total_forward_fees": 266669,
+      "total_forward_fees": 2438686,
       "total_fees": 282000
-    },
-    "test w5 bench: EXTERNAL transfer::trace#5": {
-      "test_name": "test w5 bench: EXTERNAL transfer",
-      "trace_name": "EXTERNAL transfer",
-      "tx_count": 1,
-      "total_gas_used": 3405,
-      "total_gas_fees": 1362000,
-      "total_forward_fees": 0,
-      "total_fees": 2507864
-    },
-    "test w5 bench: EXTENSION transfer::trace#4": {
-      "test_name": "test w5 bench: EXTENSION transfer",
-      "trace_name": "setup top up WalletV5",
-      "tx_count": 1,
-      "total_gas_used": 705,
-      "total_gas_fees": 282000,
-      "total_forward_fees": 266669,
-      "total_fees": 282000
-    },
-    "test w5 bench: INTERNAL transfer::trace#5": {
-      "test_name": "test w5 bench: INTERNAL transfer",
-      "trace_name": "INTERNAL transfer",
-      "tx_count": 2,
-      "total_gas_used": 3887,
-      "total_gas_fees": 1554800,
-      "total_forward_fees": 959475,
-      "total_fees": 1701464
-    },
-    "test w5 bench: INTERNAL transfer::trace#2": {
-      "test_name": "test w5 bench: INTERNAL transfer",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test w5 bench: EXTENSION transfer::trace#6": {
-      "test_name": "test w5 bench: EXTENSION transfer",
-      "trace_name": "EXTENSION transfer",
-      "tx_count": 2,
-      "total_gas_used": 2838,
-      "total_gas_fees": 1135200,
-      "total_forward_fees": 759473,
-      "total_fees": 1281864
     },
     "test w5 bench: EXTERNAL transfer::trace#6": {
       "test_name": "test w5 bench: EXTERNAL transfer",
@@ -103,24 +49,6 @@
       "total_forward_fees": 293336,
       "total_fees": 123600
     },
-    "test w5 bench: INTERNAL transfer::trace#1": {
-      "test_name": "test w5 bench: INTERNAL transfer",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test w5 bench: correctness of deploy::trace#3": {
-      "test_name": "test w5 bench: correctness of deploy",
-      "trace_name": "setup deploy WalletV5",
-      "tx_count": 1,
-      "total_gas_used": 705,
-      "total_gas_fees": 282000,
-      "total_forward_fees": 2438686,
-      "total_fees": 282000
-    },
     "test w5 bench: ADD extension::trace#4": {
       "test_name": "test w5 bench: ADD extension",
       "trace_name": "setup top up WalletV5",
@@ -130,107 +58,8 @@
       "total_forward_fees": 266669,
       "total_fees": 282000
     },
-    "test w5 bench: ADD extension::trace#5": {
-      "test_name": "test w5 bench: ADD extension",
-      "trace_name": "ADD extension",
-      "tx_count": 1,
-      "total_gas_used": 4513,
-      "total_gas_fees": 1805200,
-      "total_forward_fees": 0,
-      "total_fees": 2612000
-    },
-    "test w5 bench: EXTENSION transfer::trace#3": {
-      "test_name": "test w5 bench: EXTENSION transfer",
-      "trace_name": "setup deploy WalletV5",
-      "tx_count": 1,
-      "total_gas_used": 705,
-      "total_gas_fees": 282000,
-      "total_forward_fees": 2438686,
-      "total_fees": 282000
-    },
-    "test w5 bench: ADD extension::trace#2": {
-      "test_name": "test w5 bench: ADD extension",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test w5 bench: EXTENSION transfer::trace#1": {
-      "test_name": "test w5 bench: EXTENSION transfer",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test w5 bench: EXTENSION transfer::trace#5": {
-      "test_name": "test w5 bench: EXTENSION transfer",
-      "trace_name": "setup add deployer extension",
-      "tx_count": 1,
-      "total_gas_used": 4800,
-      "total_gas_fees": 1920000,
-      "total_forward_fees": 537871,
-      "total_fees": 1920000
-    },
-    "test w5 bench: ADD extension::trace#1": {
-      "test_name": "test w5 bench: ADD extension",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test w5 bench: INTERNAL transfer::trace#3": {
-      "test_name": "test w5 bench: INTERNAL transfer",
-      "trace_name": "setup deploy WalletV5",
-      "tx_count": 1,
-      "total_gas_used": 705,
-      "total_gas_fees": 282000,
-      "total_forward_fees": 2438686,
-      "total_fees": 282000
-    },
-    "test w5 bench: INTERNAL transfer::trace#4": {
-      "test_name": "test w5 bench: INTERNAL transfer",
-      "trace_name": "setup top up WalletV5",
-      "tx_count": 1,
-      "total_gas_used": 705,
-      "total_gas_fees": 282000,
-      "total_forward_fees": 266669,
-      "total_fees": 282000
-    },
-    "test w5 bench: EXTENSION transfer::trace#2": {
-      "test_name": "test w5 bench: EXTENSION transfer",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test w5 bench: correctness of deploy::trace#1": {
+    "test w5 bench: correctness of deploy::trace#3": {
       "test_name": "test w5 bench: correctness of deploy",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test w5 bench: correctness of deploy::trace#2": {
-      "test_name": "test w5 bench: correctness of deploy",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test w5 bench: ADD extension::trace#3": {
-      "test_name": "test w5 bench: ADD extension",
       "trace_name": "setup deploy WalletV5",
       "tx_count": 1,
       "total_gas_used": 705,
@@ -247,6 +76,24 @@
       "total_forward_fees": 539205,
       "total_fees": 123600
     },
+    "test w5 bench: INTERNAL transfer::trace#1": {
+      "test_name": "test w5 bench: INTERNAL transfer",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test w5 bench: EXTENSION transfer::trace#6": {
+      "test_name": "test w5 bench: EXTENSION transfer",
+      "trace_name": "EXTENSION transfer",
+      "tx_count": 2,
+      "total_gas_used": 2828,
+      "total_gas_fees": 1131200,
+      "total_forward_fees": 759473,
+      "total_fees": 1277864
+    },
     "test w5 bench: EXTERNAL transfer::trace#1": {
       "test_name": "test w5 bench: EXTERNAL transfer",
       "trace_name": "Trace 1",
@@ -255,6 +102,159 @@
       "total_gas_fees": 123600,
       "total_forward_fees": 539205,
       "total_fees": 123600
+    },
+    "test w5 bench: EXTENSION transfer::trace#5": {
+      "test_name": "test w5 bench: EXTENSION transfer",
+      "trace_name": "setup add deployer extension",
+      "tx_count": 1,
+      "total_gas_used": 4800,
+      "total_gas_fees": 1920000,
+      "total_forward_fees": 537871,
+      "total_fees": 1920000
+    },
+    "test w5 bench: EXTENSION transfer::trace#1": {
+      "test_name": "test w5 bench: EXTENSION transfer",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test w5 bench: correctness of deploy::trace#1": {
+      "test_name": "test w5 bench: correctness of deploy",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test w5 bench: EXTERNAL transfer::trace#5": {
+      "test_name": "test w5 bench: EXTERNAL transfer",
+      "trace_name": "EXTERNAL transfer",
+      "tx_count": 1,
+      "total_gas_used": 3395,
+      "total_gas_fees": 1358000,
+      "total_forward_fees": 0,
+      "total_fees": 2503864
+    },
+    "test w5 bench: ADD extension::trace#1": {
+      "test_name": "test w5 bench: ADD extension",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test w5 bench: correctness of deploy::trace#2": {
+      "test_name": "test w5 bench: correctness of deploy",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test w5 bench: correctness of deploy::trace#4": {
+      "test_name": "test w5 bench: correctness of deploy",
+      "trace_name": "setup top up WalletV5",
+      "tx_count": 1,
+      "total_gas_used": 705,
+      "total_gas_fees": 282000,
+      "total_forward_fees": 266669,
+      "total_fees": 282000
+    },
+    "test w5 bench: EXTENSION transfer::trace#3": {
+      "test_name": "test w5 bench: EXTENSION transfer",
+      "trace_name": "setup deploy WalletV5",
+      "tx_count": 1,
+      "total_gas_used": 705,
+      "total_gas_fees": 282000,
+      "total_forward_fees": 2438686,
+      "total_fees": 282000
+    },
+    "test w5 bench: EXTENSION transfer::trace#4": {
+      "test_name": "test w5 bench: EXTENSION transfer",
+      "trace_name": "setup top up WalletV5",
+      "tx_count": 1,
+      "total_gas_used": 705,
+      "total_gas_fees": 282000,
+      "total_forward_fees": 266669,
+      "total_fees": 282000
+    },
+    "test w5 bench: EXTERNAL transfer::trace#3": {
+      "test_name": "test w5 bench: EXTERNAL transfer",
+      "trace_name": "setup deploy WalletV5",
+      "tx_count": 1,
+      "total_gas_used": 705,
+      "total_gas_fees": 282000,
+      "total_forward_fees": 2438686,
+      "total_fees": 282000
+    },
+    "test w5 bench: INTERNAL transfer::trace#3": {
+      "test_name": "test w5 bench: INTERNAL transfer",
+      "trace_name": "setup deploy WalletV5",
+      "tx_count": 1,
+      "total_gas_used": 705,
+      "total_gas_fees": 282000,
+      "total_forward_fees": 2438686,
+      "total_fees": 282000
+    },
+    "test w5 bench: ADD extension::trace#5": {
+      "test_name": "test w5 bench: ADD extension",
+      "trace_name": "ADD extension",
+      "tx_count": 1,
+      "total_gas_used": 4513,
+      "total_gas_fees": 1805200,
+      "total_forward_fees": 0,
+      "total_fees": 2612000
+    },
+    "test w5 bench: ADD extension::trace#2": {
+      "test_name": "test w5 bench: ADD extension",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test w5 bench: INTERNAL transfer::trace#5": {
+      "test_name": "test w5 bench: INTERNAL transfer",
+      "trace_name": "INTERNAL transfer",
+      "tx_count": 2,
+      "total_gas_used": 3877,
+      "total_gas_fees": 1550800,
+      "total_forward_fees": 959475,
+      "total_fees": 1697464
+    },
+    "test w5 bench: EXTENSION transfer::trace#2": {
+      "test_name": "test w5 bench: EXTENSION transfer",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test w5 bench: INTERNAL transfer::trace#2": {
+      "test_name": "test w5 bench: INTERNAL transfer",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 123600,
+      "total_forward_fees": 539205,
+      "total_fees": 123600
+    },
+    "test w5 bench: INTERNAL transfer::trace#4": {
+      "test_name": "test w5 bench: INTERNAL transfer",
+      "trace_name": "setup top up WalletV5",
+      "tx_count": 1,
+      "total_gas_used": 705,
+      "total_gas_fees": 282000,
+      "total_forward_fees": 266669,
+      "total_fees": 282000
     }
   }
 }
