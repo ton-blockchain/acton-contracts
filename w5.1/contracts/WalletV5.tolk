@@ -10,6 +10,7 @@ contract WalletV5 {
     description: "Wallet V5. Extensible wallet with plugins support"
     storage: Storage
     incomingMessages: AllowedMessageToWalletV5
+    incomingExternal: AllowedExternalMessageToWalletV5
 }
 
 const SIZE_SIGNATURE = 512
