@@ -12,7 +12,10 @@ fun main() {
     val walletName = "deployer";
     val deployer = scripts.wallet(walletName);
     val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
-    val metadataUri = envOr("JETTON_METADATA_URI", "https://ton-blockchain.github.io/acton/logo.png");
+    val metadataUri = envOr(
+        "JETTON_METADATA_URI",
+        "https://ton-blockchain.github.io/acton/logo.png",
+    );
     val mintRecipient = envOr("JETTON_MINT_RECIPIENT", deployer.address);
     val mintAmount = envOr("JETTON_MINT_AMOUNT", ton("0.5"));
     val forwardTonAmount = envOr("JETTON_FORWARD_TON_AMOUNT", ton("0.01"));
