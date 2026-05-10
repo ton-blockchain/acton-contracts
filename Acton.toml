@@ -44,8 +44,8 @@ src = "multisig-v2/contracts/Multisig.tolk"
 
 [[contracts.Multisig.depends]]
 name = "Order"
-kind = "embed_code"
-function = "orderCompiledCode"
+kind = "library_ref"
+function = "orderCompiledCodeLibraryRef"
 
 [contracts.NftCollection]
 src = "nft/contracts/NftCollection.tolk"
