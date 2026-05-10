@@ -11,7 +11,7 @@ fun main() {
     val walletName = "deployer";
     val deployer = scripts.wallet(walletName);
     val initialSupply = envOr("JETTON_INITIAL_SUPPLY", 0);
-    val metadataUri = envOr("JETTON_METADATA_URI", "https://ton.org/download/ton_symbol.svg");
+    val metadataUri = envOr("JETTON_METADATA_URI", "https://ton-blockchain.github.io/acton/logo.png");
     val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
 
     val expectedMinter = NotcoinMinter.fromStorage({
