@@ -516,7 +516,7 @@ get fun `test gas: burn should fail when sent tons are clearly insufficient`() {
     val (minter, deployer, _) = setupTest();
     val wallet = mintTo(minter, deployer, deployer.address, ton("1"));
 
-    val res = wallet.sendBurn(deployer.address, ton("0.001"), ton("1"), deployer.address, null);
+    val res = wallet.sendBurn(deployer.address, ton("0.0001"), ton("1"), deployer.address, null);
     expect(res).toHaveFailedTx<AskToBurn>({
         from: deployer.address,
         to: wallet.address,
