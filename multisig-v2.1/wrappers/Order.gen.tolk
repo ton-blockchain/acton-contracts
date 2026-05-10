@@ -9,17 +9,14 @@ import "@acton/testing/assert"
 import "../contracts/messages"
 import "../contracts/storage"
 
-/// Storage `OrderStorageInitialized` is defined in `../contracts/storage`
+/// Storage `OrderStorageHeader` is defined in `../contracts/storage`
 struct Order {
     address: address
     stateInit: ContractState? = null
 }
 
 /// Creates a contract wrapper instance from the storage data
-fun Order.fromStorage(
-    storage: OrderStorageInitialized,
-    toShard: AddressShardingOptions? = null,
-): Order {
+fun Order.fromStorage(storage: OrderStorageHeader, toShard: AddressShardingOptions? = null): Order {
     val stateInit = ContractState {
         code: build("Order"),
         data: storage.toCell(),

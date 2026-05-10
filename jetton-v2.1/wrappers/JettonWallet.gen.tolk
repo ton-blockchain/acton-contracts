@@ -55,7 +55,7 @@ fun JettonWallet.sendAskToTransfer(
     sendExcessesTo: address?,
     customPayload: cell?,
     forwardTonAmount: coins,
-    forwardPayload: Payload,
+    forwardPayload: PayloadInline | PayloadInRef,
     config: SendParams = {},
 ): SendResultList {
     // build body cell manually, because some fields have @abi.clientType
@@ -103,7 +103,7 @@ fun JettonWallet.sendInternalTransferStep(
     transferInitiator: address?,
     sendExcessesTo: address?,
     forwardTonAmount: coins,
-    forwardPayload: Payload,
+    forwardPayload: PayloadInline | PayloadInRef,
     config: SendParams = {},
 ): SendResultList {
     // build body cell manually, because some fields have @abi.clientType

@@ -128,6 +128,12 @@ fun Config.sendAny(self, from: address, body: cell, config: SendParams = {}): Se
     return net.send(from, genericMsg);
 }
 
+/// Send an external-in message to the contract with a custom body cell
+fun Config.sendAnyExternal(self, body: cell): SendResultList? {
+    val msg = net.createExternalMessage(self.address, body);
+    return net.sendExternal(msg);
+}
+
 fun Config.seqno(self): int {
     return net.runGetMethod(self.address, "seqno");
 }
