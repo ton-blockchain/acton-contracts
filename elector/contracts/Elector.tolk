@@ -71,7 +71,7 @@ fun onInternalMessage(in: InMessage) {
             var price = 0;
             // Changed from FunC original src. This if statement was inside the `registerComplaint()`
             if (in.body.depth() >= 128) {
-                price = ComplaintError.CellTooDeep as int;
+                price = ComplaintError.CellTooDeep;
             } else {
                 price = registerComplaint(msg, InMessage.value());
             }

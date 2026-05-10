@@ -7,11 +7,13 @@ This monorepo collects reference implementations for core TON ecosystem contract
 ## Included
 
 - Protocol contracts: [`config`](./config/), [`elector`](./elector/), [`dns`](./dns/)
-- Wallets: [`w5`](./w5/), [`highload-v3`](./highload-v3/), [`multisig-v2`](./multisig-v2/)
-- Tokens and assets: [`nft`](./nft/), [`jetton-v2`](./jetton-v2/), [`notcoin`](./notcoin/)
+- Wallets: [`w5.1`](./w5.1/), [`highload-v3.1`](./highload-v3.1/), [`multisig-v2.1`](./multisig-v2.1/)
+- Tokens and assets: [`nft-v1.1`](./nft-v1.1/), [`jetton-v2.1`](./jetton-v2.1/), [`jetton-v1.3`](./jetton-v1.3/)
 - Minimal example: [`counter`](./counter/)
 
 Each suite is organized as a self-contained package with `contracts/`, `tests/`, and `scripts/`. Selected suites also include benchmark baselines for regression tracking.
+
+Included protocol contracts act as an example, how even the most complex contracts can be written with Acton. For now, they are not used in TON Mainnet.
 
 ## Get started with Acton
 
@@ -24,6 +26,14 @@ curl -LsSf https://ton.org/acton/install.sh | sh
 ```
 
 Learn more in the [Acton documentation](https://ton-blockchain.github.io/acton/docs/welcome).
+
+If one wants to start the project with Jetton, NFT, W5 or Counter, it is recommended to start project from acton template.
+
+```bash
+acton new
+```
+
+This command will prompt interactively.
 
 ## AI integrations
 
@@ -64,7 +74,7 @@ Run a single suite:
 ```bash
 acton test dns/tests
 acton test elector/tests
-acton test multisig-v2/tests
+acton test multisig-v2.1/tests
 ```
 
 ### Benchmarks
@@ -89,7 +99,7 @@ Run a deployment script:
 
 ```bash
 acton script dns/scripts/deploy.tolk
-acton script w5/scripts/deploy.tolk
+acton script w5.1/scripts/deploy.tolk
 ```
 
 CI executes the same build, test, lint, and format pipeline on every change.

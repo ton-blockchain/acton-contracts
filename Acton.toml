@@ -24,11 +24,11 @@ depends = []
 src = "elector/contracts/Elector.tolk"
 
 [contracts.HighloadWalletV3]
-src = "highload-v3/contracts/HighloadWalletV3.tolk"
+src = "highload-v3.1/contracts/HighloadWalletV3.tolk"
 depends = []
 
 [contracts.JettonMinter]
-src = "jetton-v2/contracts/JettonMinter.tolk"
+src = "jetton-v2.1/contracts/JettonMinter.tolk"
 
 [[contracts.JettonMinter.depends]]
 name = "JettonWallet"
@@ -36,11 +36,11 @@ kind = "embed_code"
 function = "jettonWalletCompiledCode"
 
 [contracts.JettonWallet]
-src = "jetton-v2/contracts/JettonWallet.tolk"
+src = "jetton-v2.1/contracts/JettonWallet.tolk"
 depends = []
 
 [contracts.Multisig]
-src = "multisig-v2/contracts/Multisig.tolk"
+src = "multisig-v2.1/contracts/Multisig.tolk"
 
 [[contracts.Multisig.depends]]
 name = "Order"
@@ -48,23 +48,23 @@ kind = "library_ref"
 function = "orderCompiledCodeLibraryRef"
 
 [contracts.NftCollection]
-src = "nft/contracts/NftCollection.tolk"
+src = "nft-v1.1/contracts/NftCollection.tolk"
 depends = ["NftItem"]
 
 [contracts.NftItem]
-src = "nft/contracts/NftItem.tolk"
+src = "nft-v1.1/contracts/NftItem.tolk"
 depends = []
 
 [contracts.NotcoinMinter]
-src = "notcoin/contracts/NotcoinMinter.tolk"
+src = "jetton-v1.3/contracts/NotcoinMinter.tolk"
 depends = []
 
 [contracts.NotcoinWallet]
-src = "notcoin/contracts/NotcoinWallet.tolk"
+src = "jetton-v1.3/contracts/NotcoinWallet.tolk"
 depends = []
 
 [contracts.Order]
-src = "multisig-v2/contracts/Order.tolk"
+src = "multisig-v2.1/contracts/Order.tolk"
 depends = []
 
 [contracts.RootDns]
@@ -72,7 +72,7 @@ src = "dns/contracts/RootDns.tolk"
 depends = []
 
 [contracts.WalletV5]
-src = "w5/contracts/WalletV5.tolk"
+src = "w5.1/contracts/WalletV5.tolk"
 depends = []
 
 [test.mutation]
@@ -96,11 +96,11 @@ output-fift = "build/fift"
 test-counter = "acton test counter/tests"
 test-dns = "acton test dns/tests"
 test-elector = "acton test elector/tests"
-test-highload = "acton test highload-v3/tests"
-test-jetton-v2 = "acton test jetton-v2/tests"
-test-nft = "acton test nft/tests"
-test-notcoin = "acton test notcoin/tests"
-test-w5 = "acton test w5/tests"
+test-highload = "acton test highload-v3.1/tests"
+test-jetton-v2 = "acton test jetton-v2.1/tests"
+test-nft = "acton test nft-v1.1/tests"
+test-jetton = "acton test jetton-v1.3/tests"
+test-w5 = "acton test w5.1/tests"
 
 [import-mappings]
 acton = ".acton"

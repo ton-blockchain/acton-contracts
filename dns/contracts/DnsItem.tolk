@@ -10,6 +10,7 @@ contract DnsItem {
     description: "DNS NFT Item. Domain name with auction support"
     incomingMessages: AllowedItemMessage
     storage: ItemStorageInitialized
+    storageAtDeployment: ItemStorageNotInitialized
 }
 
 type AllowedItemMessage =
