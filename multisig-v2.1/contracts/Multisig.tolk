@@ -8,8 +8,8 @@ import "types"
 
 contract Multisig {
     author: "The Tolk Team"
-    version: "1.0.0"
-    description: "Multisig V2. Multi-signature wallet with order-based approval"
+    version: "2.1"
+    description: "Multisig V2.1. Multi-signature wallet with order-based approval"
     incomingMessages: AllowedMessageToMultisig
     storage: MultisigStorage
 }

@@ -14,7 +14,7 @@ const SNAKE_PREFIX = 0x00
 
 const NFT_DEFAULT_COLLECTION_NAME = "SomeNFT"
 const NFT_DEFAULT_COLLECTION_DESCRIPTION = "Some NFT collection"
-const NFT_DEFAULT_COLLECTION_IMAGE = "https://ton-blockchain.github.io/acton/logo.png"
+const NFT_DEFAULT_COLLECTION_IMAGE = "https://aton-blockchain.github.io/acton/logo.png"
 const NFT_DEFAULT_COMMON_CONTENT = "https://example.com/nft/"
 const NFT_DEFAULT_ITEM_CONTENT = "item-0.json"
 const NFT_DEFAULT_BATCH_CONTENT_PREFIX = "batch-"

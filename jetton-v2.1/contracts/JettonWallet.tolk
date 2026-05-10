@@ -3,12 +3,13 @@ import "errors"
 import "fees-management"
 import "jetton-utils"
 import "messages"
+import "sharding"
 import "storage"
 
-contract NotcoinWallet {
+contract JettonWallet {
     author: "The Tolk Team"
-    version: "1.0.0"
-    description: "Notcoin Jetton Wallet. Modern TEP-74 & TEP-89 compliant implementation. Contract is similar to USDT but doesn't have governance logic"
+    version: "2.1"
+    description: "Standard Jetton Wallet. TEP-74 and TEP-89 compliant"
     incomingMessages: AllowedMessageToWallet
     storage: WalletStorage
 }
@@ -167,9 +168,4 @@ get fun get_wallet_data(): JettonWalletDataReply {
         minterAddress: storage.minterAddress,
         jettonWalletCode: contract.getCode(),
     };
-}
-
-get fun get_status(): int {
-    val storage = lazy WalletStorage.load();
-    return storage.status;
 }

@@ -5,7 +5,7 @@ import "types"
 
 contract NftItem {
     author: "The Tolk Team"
-    version: "1.0.0"
+    version: "1.1"
     description: "Standard NFT Item. TEP-62 and TEP-64 compliant"
     incomingMessages: AllowedMessageToNftItem
     storage: NftItemStorage
@@ -64,7 +64,7 @@ fun onInternalMessage(in: InMessage) {
                 restAmount -= fwdFee;
             }
 
-            // base nft spends fixed amount of gas, will not check for response
+            // base nft-v1.1 spends fixed amount of gas, will not check for response
             assert (restAmount >= 0) throw Errors.TooSmallRestAmount;
 
             if (msg.forwardTonAmount != 0) {

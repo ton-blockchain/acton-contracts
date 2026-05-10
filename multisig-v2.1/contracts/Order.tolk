@@ -6,7 +6,7 @@ import "types"
 
 contract Order {
     author: "The Tolk Team"
-    version: "1.0.0"
+    version: "2.1"
     description: "Multisig V2 Order. Collects approvals and executes actions"
     incomingMessages: AllowedMessageToOrder
     storage: OrderStorageInitialized

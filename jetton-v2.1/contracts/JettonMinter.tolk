@@ -1,13 +1,15 @@
+import "@gen/JettonWallet.code"
 import "errors"
 import "fees-management"
 import "jetton-utils"
 import "messages"
+import "sharding"
 import "storage"
 
-contract NotcoinMinter {
+contract JettonMinter {
     author: "The Tolk Team"
-    version: "1.0.0"
-    description: "Notcoin Jetton Minter. Modern TEP-74 & TEP-89 compliant implementation. Contract is similar to USDT but doesn't have governance logic"
+    version: "2.1"
+    description: "Standard Jetton Minter. TEP-74 and TEP-89 compliant"
     incomingMessages: AllowedMessageToMinter
     storage: MinterStorage
 }
@@ -19,7 +21,7 @@ type AllowedMessageToMinter =
     | ChangeMinterAdmin
     | ClaimMinterAdmin
     | DropMinterAdmin
-    | ChangeMinterMetadataUri
+    | ChangeMinterMetadata
     | UpgradeMinterCode
     | TopUpTons
 
@@ -39,9 +41,9 @@ fun assertSenderIsAdmin(senderAddress: address, adminAddress: address?) {
     // assert (adminAddress != null) throw ERROR_NOT_OWNER;
     // ```
     // but in practice, the above assertion is redundant, we just bypass the nullability check:
-    assert (senderAddress == adminAddress!) throw ERROR_NOT_OWNER;
-    // then, if admin is `null`, error code 7 will be thrown (while executing operator `==`),
-    // it's suitable for current implementation
+    assert (
+        senderAddress == adminAddress!
+    ) throw ERROR_NOT_OWNER;                                       // then, if admin is `null`, error code 7 will be thrown (while executing operator `==`),// it's suitable for current implementation
 }
 
 fun onInternalMessage(in: InMessage) {
@@ -50,12 +52,13 @@ fun onInternalMessage(in: InMessage) {
     match (msg) {
         BurnNotificationForMinter => {
             var storage = lazy MinterStorage.load();
+            val jettonWalletCode = jettonWalletCompiledCode();
             assert (
                 in.senderAddress ==
                 calcAddressOfJettonWallet(
                     msg.burnInitiator,
                     contract.getAddress(),
-                    storage.jettonWalletCode,
+                    jettonWalletCode,
                 )
             ) throw ERROR_NOT_VALID_WALLET;
             storage.totalSupply -= msg.jettonAmount;
@@ -81,11 +84,11 @@ fun onInternalMessage(in: InMessage) {
 
             var walletAddress: address? = null;
             if (msg.ownerAddress.getWorkchain() == MY_WORKCHAIN) {
-                val storage = lazy MinterStorage.load();
+                val jettonWalletCode = jettonWalletCompiledCode();
                 walletAddress = calcAddressOfJettonWallet(
                     msg.ownerAddress,
                     contract.getAddress(),
-                    storage.jettonWalletCode,
+                    jettonWalletCode,
                 );
             }
 
@@ -126,12 +129,13 @@ fun onInternalMessage(in: InMessage) {
                 RESERVE_MODE_EXACT_AMOUNT,
             ); // reserve for storage fees
 
+            val jettonWalletCode = jettonWalletCompiledCode();
             val deployMsg = createMessage({
                 bounce: BounceMode.Only256BitsOfBody,
                 dest: calcDeployedJettonWallet(
                     msg.mintRecipient,
                     contract.getAddress(),
-                    storage.jettonWalletCode,
+                    jettonWalletCode,
                 ),
                 value: msg.tonAmount,
                 body: msg.internalTransferMsg,
@@ -162,18 +166,18 @@ fun onInternalMessage(in: InMessage) {
             storage.save();
         }
 
-        ChangeMinterMetadataUri => {
+        ChangeMinterMetadata => {
             var storage = lazy MinterStorage.load();
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
-            storage.metadataUri = msg.newMetadataUri;
+            storage.metadata = msg.newMetadata;
             storage.save();
         }
 
         UpgradeMinterCode => {
             val storage = lazy MinterStorage.load();
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
-            contract.setData(msg.newData);
             contract.setCodePostponed(msg.newCode);
+            contract.setData(msg.newData);
         }
 
         TopUpTons => {
@@ -186,24 +190,20 @@ fun onInternalMessage(in: InMessage) {
 
 get fun get_jetton_data(): JettonDataReply {
     val storage = lazy MinterStorage.load();
-    var metadata: OnchainMetadataReply = { contentDict: [] };
-    metadata
-        .contentDict
-        .set("uri".sha256(), SnakeDataReply { string: storage.metadataUri }.toCell());
-    metadata.contentDict.set("decimals".sha256(), SnakeDataReply { string: "9" }.toCell());
+    val jettonWalletCode = jettonWalletCompiledCode();
 
     return {
         totalSupply: storage.totalSupply,
         mintable: true,
         adminAddress: storage.adminAddress,
-        jettonContent: metadata.toCell(),
-        jettonWalletCode: storage.jettonWalletCode,
+        jettonContent: storage.metadata as Cell<OnchainMetadataReply>,
+        jettonWalletCode,
     };
 }
 
 get fun get_wallet_address(ownerAddress: address): address {
-    val storage = lazy MinterStorage.load();
-    return calcAddressOfJettonWallet(ownerAddress, contract.getAddress(), storage.jettonWalletCode);
+    val jettonWalletCode = jettonWalletCompiledCode();
+    return calcAddressOfJettonWallet(ownerAddress, contract.getAddress(), jettonWalletCode);
 }
 
 get fun get_next_admin_address(): address? {
