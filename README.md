@@ -99,7 +99,7 @@ Run a deployment script:
 
 ```bash
 acton script dns/scripts/deploy.tolk
-acton script w5.1.1/scripts/deploy.tolk
+acton script w5.1/scripts/deploy.tolk
 ```
 
 CI executes the same build, test, lint, and format pipeline on every change.
