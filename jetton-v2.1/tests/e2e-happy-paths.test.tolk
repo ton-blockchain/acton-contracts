@@ -81,6 +81,7 @@ fun mintToAdminStage(ctx: JettonE2eContext) {
 }
 
 type Payload = PayloadInline | PayloadInRef
+
 fun transferToRecipientStage(ctx: JettonE2eContext) {
     val forwardPayload = jettonE2eForwardPayload();
     val transfer = ctx
