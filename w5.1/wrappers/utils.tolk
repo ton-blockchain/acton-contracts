@@ -88,7 +88,7 @@ fun buildOutActionsCell(specs: array<SendAction>): Cell<OutActionWithSendMessage
     if (specs.size() == 0) {
         return null;
     }
-    var prev: cell = (Empty {}).toCell();
+    var prev: cell = createEmptyCell();
     var i = specs.size() - 1;
     while (i > 0) {
         val node = OutActionWithSendMessageOnly {

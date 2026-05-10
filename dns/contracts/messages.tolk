@@ -80,7 +80,7 @@ struct (0x4ed14b65) DnsRecordRelease {
 
 struct ItemInitData {
     fromAddress: address
-    domain: Cell<slice>
+    domain: Cell<RemainingBitsAndRefs>
 }
 
 struct (0x00) GovernanceTransfer {
