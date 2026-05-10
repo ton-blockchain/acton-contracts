@@ -6,7 +6,7 @@ import "storage"
 
 contract WalletV5 {
     author: "The Tolk Team"
-    version: "1.0.0"
+    version: "5.1"
     description: "Wallet V5. Extensible wallet with plugins support"
     storage: Storage
     incomingMessages: AllowedMessageToWalletV5

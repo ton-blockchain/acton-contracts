@@ -234,7 +234,7 @@ get fun `test w5: Should fail SetData action`() {
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     // Pack SetData (opcode 0x1ff8ea0b) as an extra action — unsupported,
-    // rejected by processExtraActions with ERROR_UNSUPPORTED_ACTION (141).
+    // rejected by processExtraActions with Errors.UnsupportedAction (141).
     // Can't use ActionsList wrapper: ExtraAction is a union type, no unsafe cast available.
     val setDataAction = beginCell().storeUint(0x1ff8ea0b, 32).storeRef(createEmptyCell()).endCell();
 
@@ -258,7 +258,7 @@ get fun `test w5: Should fail SetData action`() {
     val receipt = walletV5.sendExternalRaw(body);
 
     expect(receipt != null).toBeTrue();
-    expect(receipt!).toHaveTx({ exitCode: ERROR_UNSUPPORTED_ACTION });
+    expect(receipt!).toHaveTx({ exitCode: Errors.UnsupportedAction });
     expect(walletV5.getSeqno()).toEqual(1);
 }
 
@@ -294,7 +294,7 @@ get fun `test w5: Should fail SetCode action`() {
     val receipt = walletV5.sendExternalRaw(body);
 
     expect(receipt != null).toBeTrue();
-    expect(receipt!).toHaveTx({ exitCode: ERROR_INVALID_C5 });
+    expect(receipt!).toHaveTx({ exitCode: Errors.InvalidC5 });
     expect(walletV5.getSeqno()).toEqual(1);
 }
 
@@ -321,7 +321,7 @@ get fun `test w5: Should fail adding existing extension`() {
     expect(ext1).toHaveLength(1);
     expect(ext1.exists(extHash)).toEqual(true);
 
-    // Try adding same extension again — should fail with ERROR_ADD_EXTENSION (139)
+    // Try adding same extension again — should fail with Errors.AddExtension (139)
     // Error happens after acceptExternalMessage, so tx is included
     var extraActions2: array<ExtraAction> = [];
     extraActions2.push(AddExtensionExtraAction { addr: testExtension });
@@ -334,7 +334,7 @@ get fun `test w5: Should fail adding existing extension`() {
     val receipt = walletV5.sendExternalSigned(body2)!;
 
     expect(receipt.size()).toEqual(1);
-    expect(receipt).toHaveTx({ exitCode: ERROR_ADD_EXTENSION });
+    expect(receipt).toHaveTx({ exitCode: Errors.AddExtension });
 
     // Extension dict should still have 1 entry
     val ext2 = walletV5.getExtensions();
@@ -360,7 +360,7 @@ get fun `test w5: Should fail removing not existing extension`() {
     val receipt = walletV5.sendExternalSigned(body)!;
 
     expect(receipt.size()).toEqual(1);
-    expect(receipt).toHaveTx({ exitCode: ERROR_REMOVE_EXTENSION });
+    expect(receipt).toHaveTx({ exitCode: Errors.RemoveExtension });
 
     val ext = walletV5.getExtensions();
     expect(ext).toBeEmpty();
@@ -591,7 +591,7 @@ get fun `test w5: only_extension_can_change_signature_mode`() {
     val receipt = walletV5.sendExternalSigned(body)!;
 
     expect(receipt.size()).toEqual(1);
-    expect(receipt).toHaveTx({ exitCode: ERROR_ONLY_EXTENSION_CAN_CHANGE_SIGNATURE_MODE });
+    expect(receipt).toHaveTx({ exitCode: Errors.OnlyExtensionCanChangeSignatureMode });
 
     expect(walletV5.isSignatureAllowed()).toEqual(true);
 }

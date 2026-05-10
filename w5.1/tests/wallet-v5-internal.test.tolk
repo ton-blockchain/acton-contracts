@@ -213,7 +213,7 @@ get fun `test w5: Should fail SetData action`() {
 
     val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_UNSUPPORTED_ACTION });
+    expect(receipt).toHaveTx({ exitCode: Errors.UnsupportedAction });
 }
 
 get fun `test w5: Should fail SetCode action`() {
@@ -247,7 +247,7 @@ get fun `test w5: Should fail SetCode action`() {
 
     val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_INVALID_C5 });
+    expect(receipt).toHaveTx({ exitCode: Errors.InvalidC5 });
 }
 
 get fun `test w5: Should fail adding existing extension`() {
@@ -284,7 +284,7 @@ get fun `test w5: Should fail adding existing extension`() {
 
     val receipt = walletV5.sendSignedBody(deployer.address, body2, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_ADD_EXTENSION });
+    expect(receipt).toHaveTx({ exitCode: Errors.AddExtension });
 
     // Extension dict should still have 1 entry
     val ext2 = walletV5.getExtensions();
@@ -308,7 +308,7 @@ get fun `test w5: Should fail removing not existing extension`() {
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_REMOVE_EXTENSION });
+    expect(receipt).toHaveTx({ exitCode: Errors.RemoveExtension });
 
     val ext = walletV5.getExtensions();
     expect(ext).toBeEmpty();
@@ -414,7 +414,7 @@ get fun `test w5: Should fail if seqno is invalid`() {
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_INVALID_SEQNO });
+    expect(receipt).toHaveTx({ exitCode: Errors.InvalidSeqno });
 
     expect(receipt).toNotHaveTx({
         from: walletV5.address,
@@ -449,7 +449,7 @@ get fun `test w5: Should fail if valid_until is expired`() {
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_EXPIRED });
+    expect(receipt).toHaveTx({ exitCode: Errors.Expired });
 
     val receiverBalanceAfter = testing.getAccountBalance(testReceiver);
     expect(receiverBalanceAfter).toEqual(receiverBalanceBefore);
@@ -477,7 +477,7 @@ get fun `test w5: Should fail if valid_until equals now`() {
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_EXPIRED });
+    expect(receipt).toHaveTx({ exitCode: Errors.Expired });
 
     val receiverBalanceAfter = testing.getAccountBalance(testReceiver);
     expect(receiverBalanceAfter).toEqual(receiverBalanceBefore);
@@ -503,7 +503,7 @@ get fun `test w5: Should fail if walletId is wrong`() {
 
     val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_INVALID_WALLET_ID });
+    expect(receipt).toHaveTx({ exitCode: Errors.InvalidWalletId });
 
     val receiverBalanceAfter = testing.getAccountBalance(testReceiver);
     expect(receiverBalanceAfter).toEqual(receiverBalanceBefore);
@@ -661,7 +661,7 @@ get fun `test w5: Should fail disallowing signature auth with no exts`() {
         { value: ton("0.1") },
     );
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_DISABLE_SIGNATURE_WHEN_EXTENSIONS_IS_EMPTY });
+    expect(receipt).toHaveTx({ exitCode: Errors.DisableSignatureWhenExtensionsIsEmpty });
 
     expect(walletV5.isSignatureAllowed()).toEqual(true);
 }
@@ -690,7 +690,7 @@ get fun `test w5: Should fail allowing signature auth when allowed`() {
         { value: ton("0.1") },
     );
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_THIS_SIGNATURE_MODE_ALREADY_SET });
+    expect(receipt).toHaveTx({ exitCode: Errors.ThisSignatureModeAlreadySet });
 
     expect(walletV5.isSignatureAllowed()).toEqual(true);
 }
@@ -894,7 +894,7 @@ get fun `test w5: Should fail removing last extension with signature auth disabl
         { value: ton("0.1") },
     );
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_REMOVE_LAST_EXTENSION_WHEN_SIGNATURE_DISABLED });
+    expect(receipt).toHaveTx({ exitCode: Errors.RemoveLastExtensionWhenSignatureDisabled });
 
     expect(walletV5.isSignatureAllowed()).toEqual(true);
 }
@@ -927,7 +927,7 @@ get fun `test w5: Should fail disallowing signature auth twice in tx`() {
         { value: ton("0.1") },
     );
 
-    expect(receipt).toHaveTx({ exitCode: ERROR_THIS_SIGNATURE_MODE_ALREADY_SET });
+    expect(receipt).toHaveTx({ exitCode: Errors.ThisSignatureModeAlreadySet });
 
     expect(walletV5.isSignatureAllowed()).toEqual(true);
 }
@@ -983,7 +983,7 @@ get fun `test w5: Should add ext disallow sig auth then fail different signed tx
 
     val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: ton("0.1") });
 
-    expect(receipt2).toHaveTx({ exitCode: ERROR_SIGNATURE_DISABLED });
+    expect(receipt2).toHaveTx({ exitCode: Errors.SignatureDisabled });
 
     expect(receipt2).toNotHaveTx({
         from: walletV5.address,
