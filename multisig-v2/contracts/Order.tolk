@@ -10,6 +10,7 @@ contract Order {
     description: "Multisig V2 Order. Collects approvals and executes actions"
     incomingMessages: AllowedMessageToOrder
     storage: OrderStorageInitialized
+    storageAtDeployment: OrderStorageHeader
 }
 
 type AllowedMessageToOrder = InitOrderRequest | ApproveRequest | TextComment

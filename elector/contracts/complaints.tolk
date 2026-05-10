@@ -6,18 +6,18 @@ import "utils"
 fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     val (srcWc, srcAddr) = InMessage.source().getWorkchainAndHash();
     if (srcWc != -1) {
-        return ComplaintError.NotMasterchain as int;
+        return ComplaintError.NotMasterchain;
     }
 
     var storage = lazy Storage.load();
     val electionLookup = storage.pastElections.get(msg.electionId);
     if (!electionLookup.isFound) {
-        return ComplaintError.ElectionNotFound as int;
+        return ComplaintError.ElectionNotFound;
     }
     var pastElection = electionLookup.loadValue();
     val expireIn = pastElection.unfreezeAt - blockchain.now();
     if (expireIn <= 0) {
-        return ComplaintError.AlreadyExpired as int;
+        return ComplaintError.AlreadyExpired;
     }
 
     var complaint = Complaint.fromSlice(msg.rawComplaint);
@@ -32,7 +32,7 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     complaint.paid = pps * expireIn + prices.deposit;
 
     if (msgValue < complaint.paid + (1 << 30)) {
-        return ComplaintError.NotEnoughMoney as int;
+        return ComplaintError.NotEnoughMoney;
     }
 
     // re-pack modified complaint
@@ -41,16 +41,16 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     // check validator exists in frozen dict
     val frozenLookup = pastElection.frozenDict.get(complaint.validatorPubkey);
     if (!frozenLookup.isFound) {
-        return ComplaintError.ValidatorNotFound as int;
+        return ComplaintError.ValidatorNotFound;
     }
     val validator = frozenLookup.loadValue();
     val fine = complaint.suggestedFine +
     mulDivFloor(validator.stake, complaint.suggestedFinePart, 1 << 32);
     if (fine > validator.stake) {
-        return ComplaintError.FineTooLarge as int;
+        return ComplaintError.FineTooLarge;
     }
     if (fine <= complaint.paid) {
-        return ComplaintError.PaidMoreThanFine as int;
+        return ComplaintError.PaidMoreThanFine;
     }
     val cstatus = ComplaintStatus {
         complaint: complaintCell,
@@ -62,7 +62,7 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     val cplId = complaintCell.hash();
     val wasThere = pastElection.complaints.addOrGetExisting(cplId, cstatus);
     if (wasThere.isFound) {
-        return ComplaintError.DuplicateComplaint as int;
+        return ComplaintError.DuplicateComplaint;
     }
     storage.pastElections.set(msg.electionId, pastElection);
     storage.save();

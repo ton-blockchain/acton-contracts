@@ -72,7 +72,7 @@ src = "dns/contracts/RootDns.tolk"
 depends = []
 
 [contracts.WalletV5]
-src = "w5/contracts/WalletV5.tolk"
+src = "w5/contracts/walletv5/WalletV5.tolk"
 depends = []
 
 [test.mutation]
