@@ -1,4 +1,3 @@
-import "@stdlib/exotic-cells"
 import "@gen/Order.code"
 
 struct OrderInitData {
@@ -7,7 +6,7 @@ struct OrderInitData {
 }
 
 fun getOrderCodeAsLibraryReference(): cell {
-    return orderCompiledCode().toLibraryReference();
+    return orderCompiledCodeLibraryRef();
 }
 
 fun calculateOrderStateInit(multisigAddress: address, orderSeqno: uint256): AutoDeployAddress {
