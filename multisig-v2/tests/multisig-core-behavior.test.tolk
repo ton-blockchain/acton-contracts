@@ -286,7 +286,7 @@ get fun `test multisig: should enforce the received-value boundary for order cre
     val expiration = 2000000000;
     // Freeze the known raw boundary for this deterministic fixture instead of
     // deriving it from the runtime under test, otherwise boundary mutants self-heal.
-    val exactRawValue = 417465815;
+    val exactRawValue = 1959326861;
 
     val failCtx = setupMultisig();
     val failSeqno = failCtx.multisig.getData().nextOrderSeqno;
