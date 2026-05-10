@@ -39,6 +39,14 @@ function = "jettonWalletCompiledCode"
 src = "jetton-v2/contracts/JettonWallet.tolk"
 depends = []
 
+[contracts.ForwardFeeReproReceiver]
+src = "jetton-v2/contracts/ForwardFeeReproReceiver.tolk"
+depends = []
+
+[contracts.ForwardFeeReproSender]
+src = "jetton-v2/contracts/ForwardFeeReproSender.tolk"
+depends = []
+
 [contracts.Multisig]
 src = "multisig-v2/contracts/Multisig.tolk"
 
@@ -84,9 +92,6 @@ max-warnings = 0
 [lint.rules]
 dict-type-use = "allow"
 throw-requires-errors-enum = "allow"
-
-[lint.JettonMinter]
-asm-function-missing-safety-comment = "allow"
 
 [fmt]
 width = 100
