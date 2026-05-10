@@ -387,27 +387,54 @@ get fun `test multisig: expired order execution should be denied`() {
     val target = randomAddress("expired_exec_target");
     val action = makeTransferAction(target, DEFAULT_TRANSFER_VALUE, 100500);
     val orderBody = singleActionOrder(action);
+    val expiration = nowPlus(1);
 
     val seqno = ctx.multisig.getData().nextOrderSeqno;
     val orderAddress = ctx.multisig.getOrderAddress(seqno);
 
-    val deploy = sendOrderByProposer(ctx, orderBody, nowPlus(1));
+    val deploy = sendOrderByProposer(ctx, orderBody, expiration);
     expect(deploy).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: orderAddress });
 
-    testing.setNow(testing.getNow() + 2);
     val order = Order.fromAddress(orderAddress);
-    val approve = order.sendApprove(ctx.signers.get(0), 0, 1, { value: ton("1"), bounce: true });
+    val approveIter = sendIter(
+        ctx.signers.get(0),
+        createMessage({
+            bounce: true,
+            value: ton("1"),
+            dest: order.address,
+            body: ApproveRequest {
+                queryId: 1,
+                signerIndex: 0,
+            },
+        }),
+    );
 
-    expect(approve).toHaveFailedTx<ExecuteOrderRequest>({
+    val approve = approveIter.executeN(1);
+    expect(approve).toHaveSuccessfulTx<ApproveRequest>({
+        from: ctx.signers.get(0),
+        to: orderAddress,
+    });
+    expect(approve).toNotHaveTx<ExecuteOrderRequest>({
         from: orderAddress,
         to: ctx.multisig.address,
-        exitCode: ERROR_EXPIRED,
     });
 
     val orderData = order.getData();
     expect(orderData.sentForExecution).toEqual(true);
 
-    assertOrderNotExecuted(approve, ctx.multisig.address, target);
+    testing.setNow(expiration + 1);
+    val execute = approveIter.executeTill<ExecuteOrderRequest>({
+        from: orderAddress,
+        to: ctx.multisig.address,
+    });
+    approveIter.close();
+
+    expect(execute).toHaveFailedTx<ExecuteOrderRequest>({
+        from: orderAddress,
+        to: ctx.multisig.address,
+        exitCode: ERROR_EXPIRED,
+    });
+    assertOrderNotExecuted(execute, ctx.multisig.address, target);
 }
 
 get fun `test multisig: order execution at exact expiration should succeed`() {
