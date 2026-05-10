@@ -119,6 +119,7 @@ test-jetton-v2 = "acton test jetton-v2.1/tests"
 test-nft = "acton test nft-v1.1/tests"
 test-jetton = "acton test jetton-v1.3/tests"
 test-w5 = "acton test w5.1/tests"
+test-multisig = "acton test multisig-v2.1"
 
 [import-mappings]
 acton = ".acton"
