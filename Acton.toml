@@ -103,7 +103,7 @@ test-highload = "acton test highload-v3/tests"
 test-jetton-v2 = "acton test jetton-v2/tests"
 test-nft = "acton test nft/tests"
 test-notcoin = "acton test notcoin/tests"
-test-w5 = "acton test w5/tests"
+test-w5 = "acton test w5.1/tests"
 
 [import-mappings]
 acton = ".acton"

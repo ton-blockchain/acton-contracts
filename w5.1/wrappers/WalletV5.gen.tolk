@@ -47,7 +47,7 @@ fun WalletV5.sendExtensionActionRequest(
     self,
     from: address,
     queryId: uint64,
-    outActions: OutActionsCell?,
+    outActions: Cell<OutActionWithSendMessageOnly>?,
     hasExtraActions: bool,
     extraActions: SnakedExtraActions,
     config: SendParams = {},
@@ -74,7 +74,7 @@ fun WalletV5.sendInternalSignedRequest(
     walletId: uint32,
     validUntil: uint32,
     seqno: uint32,
-    outActions: OutActionsCell?,
+    outActions: Cell<OutActionWithSendMessageOnly>?,
     hasExtraActions: bool,
     extraActions: SnakedExtraActions,
     config: SendParams = {},
@@ -106,6 +106,22 @@ fun WalletV5.sendAny(self, from: address, body: cell, config: SendParams = {}): 
         body,
     });
     return net.send(from, genericMsg);
+}
+
+fun WalletV5.sendExternalExternalMsgSchema(
+    self,
+    signedData: ExternalSignedRequest,
+    signature: bits512,
+): SendResultList? {
+    val body = ExternalMsgSchema { signedData, signature };
+    val msg = net.createExternalMessage(self.address, body);
+    return net.sendExternal(msg);
+}
+
+/// Send an external-in message to the contract with a custom body cell
+fun WalletV5.sendAnyExternal(self, body: cell): SendResultList? {
+    val msg = net.createExternalMessage(self.address, body);
+    return net.sendExternal(msg);
 }
 
 fun WalletV5.isSignatureAllowed(self): bool {

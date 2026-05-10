@@ -81,25 +81,30 @@ struct ActionsList {
     extraActions: array<ExtraAction>
 }
 
-/// Build the OutActionList chain that matches the contract's `OutActionsCell?` ABI.
+/// Build a typed OutActionList chain that matches the contract's `Cell<OutActionWithSendMessageOnly>?` ABI.
 /// Returns null when there are no actions; otherwise a cell whose contents are the head OutAction
 /// with `prev` linking back through the chain to a terminating empty cell.
-fun buildOutActionsCell(specs: array<SendAction>): OutActionsCell? {
+fun buildOutActionsCell(specs: array<SendAction>): Cell<OutActionWithSendMessageOnly>? {
     if (specs.size() == 0) {
         return null;
     }
-    var prev: cell = createEmptyCell();
+    var prev: cell = (Empty {}).toCell();
     var i = specs.size() - 1;
-    while (i >= 0) {
-        prev = beginCell()
-            .storeRef(prev)
-            .storeUint(0x0ec3c86d, 32)
-            .storeUint(specs.get(i).mode, 8)
-            .storeRef(specs.get(i).messageCell)
-            .endCell();
+    while (i > 0) {
+        val node = OutActionWithSendMessageOnly {
+            prev: prev as Cell<OutActionWithSendMessageOnlyOrEmpty>,
+            sendMode: specs.get(i).mode as uint8,
+            outMsg: specs.get(i).messageCell,
+        };
+        prev = node.toCell();
         i -= 1;
     }
-    return prev;
+    val head = OutActionWithSendMessageOnly {
+        prev: prev as Cell<OutActionWithSendMessageOnlyOrEmpty>,
+        sendMode: specs.get(0).mode as uint8,
+        outMsg: specs.get(0).messageCell,
+    };
+    return head.toCell();
 }
 
 /// Build the snake-format slice that the contract reads from the `extraActions: SnakedExtraActions` field.
@@ -186,7 +191,7 @@ fun buildSignedPayload(
         walletId,
         validUntil,
         seqno,
-        outActions: buildOutActionsCell(actions.outActions),
+        outActions: buildOutActionsCell(actions.outActions) as unknown as cell?,
         hasExtraActions: actions.extraActions.size() != 0,
         extraActions: buildExtraActionsSlice(actions.extraActions),
     };
@@ -244,7 +249,7 @@ fun buildExternalSignedPayload(
         walletId,
         validUntil,
         seqno,
-        outActions: buildOutActionsCell(actions.outActions),
+        outActions: buildOutActionsCell(actions.outActions) as unknown as cell?,
         hasExtraActions: actions.extraActions.size() != 0,
         extraActions: buildExtraActionsSlice(actions.extraActions),
     };
