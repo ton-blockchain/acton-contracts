@@ -85,6 +85,7 @@ fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: co
     val firstPart = (totalForwardFee * prices.firstFrac) / 65536;
     val remainingForwardFee = totalForwardFee - firstPart;
 
+    // check-disable-next-line deprecated-symbol-use
     return calculateOriginalForwardFee(BASECHAIN, remainingForwardFee);
 }
 
