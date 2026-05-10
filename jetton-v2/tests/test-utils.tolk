@@ -1,4 +1,6 @@
+import "@stdlib/gas-payments"
 import "@acton/build"
+import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/assert"
@@ -70,8 +72,12 @@ fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: co
         bounce,
         value,
     });
+    val totalForwardFee = estMsg.estimateFeeWithoutSending(SEND_MODE_REGULAR);
+    val prices = testing.getConfig().getMsgForwardPrices(BASECHAIN);
+    val firstPart = (totalForwardFee * prices.firstFrac) / 65536;
+    val remainingForwardFee = totalForwardFee - firstPart;
 
-    return estMsg.estimateFeeWithoutSending(SEND_MODE_REGULAR);
+    return calculateOriginalForwardFee(BASECHAIN, remainingForwardFee);
 }
 
 fun estimateBodyForwardFee<T>(body: T): coins {

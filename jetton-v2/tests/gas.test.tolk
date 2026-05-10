@@ -199,7 +199,7 @@ get fun `test gas: transfer forward fees should follow config`() {
         body,
         bounce: false,
         dest: wallet.address,
-        value: minimalAfter - MIN_EDGE_DELTA,
+        value: minimalBefore,
     });
     val failRes = net.send(deployer.address, failMsg);
     expect(failRes).toHaveFailedTx<AskToTransfer>({
@@ -254,7 +254,7 @@ get fun `test gas: transfer gas fee should follow config`() {
         body,
         bounce: false,
         dest: wallet.address,
-        value: minimalAfter - MIN_EDGE_DELTA,
+        value: minimalBefore,
     });
     val failRes = net.send(deployer.address, fail);
     expect(failRes).toHaveFailedTx<AskToTransfer>({
@@ -310,7 +310,7 @@ get fun `test gas: transfer storage fee should follow config`() {
         body,
         bounce: false,
         dest: wallet.address,
-        value: minimalAfter - MIN_EDGE_DELTA,
+        value: minimalBefore - MIN_EDGE_DELTA,
     });
     val failRes = net.send(deployer.address, fail);
     expect(failRes).toHaveFailedTx<AskToTransfer>({
