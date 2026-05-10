@@ -99,6 +99,10 @@ fun setupElector(): ElectorSetup {
     // Param 34: current validator set (expired)
     config.setParamRaw(34, defaultValidators().toCell());
 
+    // Clear param 36 (next validator set) — the default emulator config seeds
+    // it, which would short-circuit announceNewElections.
+    config.delete(36);
+
     testing.setConfig(config);
 
     return ElectorSetup { elector, configAddr };

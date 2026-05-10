@@ -18,7 +18,7 @@ struct OrderFixture {
 }
 
 fun setupOrderFixture(threshold: int = 5, signerCount: int = 10): OrderFixture {
-    testing.setNow(1000);
+    testing.setNow(TEST_NOW_BASELINE);
 
     val multisig = testing.treasury("order-multisig");
     val notSigner = testing.treasury("order-not-signer");
@@ -701,7 +701,7 @@ get fun `test order: should reject execution when executed once`() {
 }
 
 get fun `test order: should handle 255 signers`() {
-    testing.setNow(1000);
+    testing.setNow(TEST_NOW_BASELINE);
 
     val multisig = testing.treasury("order-255-multisig");
     var signers = array<address> [];

@@ -221,6 +221,10 @@ fun setupConfigTest(): ConfigTestContext {
     config.setParamRaw(CONFIG_PARAM_VOTING_SETUP, buildVotingSetup());
     config.setParamRaw(CONFIG_PARAM_CRITICAL_PARAMS, buildCriticalParamsCell());
     config.setParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET, buildValidatorSetCell(validators, 0));
+    // Clear param 36 (next validator set) — the default emulator config seeds
+    // it, which would leak into the Config contract's internal storage and
+    // break tests that expect it to start empty.
+    config.delete(CONFIG_PARAM_NEXT_VALIDATOR_SET as uint32);
     expect(testing.setConfig(config)).toEqual(true);
 
     val electorAddress = getElectorAddress(config);
@@ -230,7 +234,17 @@ fun setupConfigTest(): ConfigTestContext {
     testing.topUp(proposer, ton("1000"));
     testing.topUp(validatorSender, ton("1000"));
 
-    val storageConfig = createMapFromLowLevelDict<int32, cell>(config.toLowLevelDict());
+    var storageConfig = createMapFromLowLevelDict<int32, cell>(config.toLowLevelDict());
+    // The default emulator config seeds entries at high uint32 indices that,
+    // when reinterpreted as int32 keys here, collide with the contract's
+    // magic param IDs (-999 = dictator pubkey, -1000 = code upgrade,
+    // -1001 = elector code change, -1024/-1025 = custom params). Strip them
+    // so the contract starts with a clean slate.
+    storageConfig.delete(-999);
+    storageConfig.delete(-1000);
+    storageConfig.delete(-1001);
+    storageConfig.delete(CUSTOM_PARAM_1);
+    storageConfig.delete(CUSTOM_PARAM_2);
     val contract = Config.fromStorage(Storage {
         config: storageConfig,
         storedSeqno: 0,
