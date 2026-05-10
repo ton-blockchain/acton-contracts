@@ -12,7 +12,9 @@ import "../contracts/types"
 import "../wrappers/Multisig.gen"
 import "../wrappers/utils"
 
-const PROBE_NOW = 1000
+// Past the storage-prices segment split — keeps last_paid and now in the same
+// segment, so GETSTORAGEFEE matches the chain's segmented storage-fee charge.
+const PROBE_NOW = 1800000000
 
 struct RuntimeFeeProbe {
     signersMap: DirectIndexedAddressMap

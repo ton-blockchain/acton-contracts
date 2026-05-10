@@ -17,6 +17,11 @@ const DEFAULT_TRANSFER_VALUE = ton("0.015")
 const DEFAULT_ORDER_TTL = 1000
 const LARGE_ORDER_CHAIN_HEAD_SIZE = 253
 const LARGE_ORDER_MAX_INLINE = 254
+// Sit past the storage-prices segment split (config 18 has entries at
+// utime_since=0 and utime_since=1777500000). With both last_paid and now
+// inside the latest segment, GETSTORAGEFEE — which uses a single active
+// segment — agrees with the chain's segmented storage-fee charge.
+const TEST_NOW_BASELINE = 1800000000
 
 struct MultisigTestContext {
     multisig: Multisig
@@ -70,7 +75,7 @@ fun setupMultisig(
     proposerCount: int = 1,
     allowArbitraryOrderSeqno: bool = false,
 ): MultisigTestContext {
-    testing.setNow(1000);
+    testing.setNow(TEST_NOW_BASELINE);
     testing.registerLibrary(build("Order"));
 
     val deployer = testing.treasury("msig-deployer");
