@@ -74,7 +74,7 @@ Run a single suite:
 ```bash
 acton test dns/tests
 acton test elector/tests
-acton test multisig-v2.1.1/tests
+acton test multisig-v2.1/tests
 ```
 
 ### Benchmarks
