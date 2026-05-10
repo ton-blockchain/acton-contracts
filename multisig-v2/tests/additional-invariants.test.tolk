@@ -37,7 +37,7 @@ get fun `test invariants: multisig unknown opcode should keep state unchanged`()
 }
 
 get fun `test invariants: order unknown opcode should fail with ERROR_UNKNOWN_OP`() {
-    testing.setNow(1000);
+    testing.setNow(TEST_NOW_BASELINE);
     val multisig = testing.treasury("inv-order-multisig");
 
     var signers = array<address> [];

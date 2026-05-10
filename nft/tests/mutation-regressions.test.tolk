@@ -1,3 +1,5 @@
+import "@stdlib/gas-payments"
+import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/assert"
@@ -78,7 +80,13 @@ fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: co
         bounce,
         value,
     });
-    return outgoingMessage.estimateFeeWithoutSending(SEND_MODE_REGULAR);
+    val totalForwardFee = outgoingMessage.estimateFeeWithoutSending(SEND_MODE_REGULAR);
+    val prices = testing.getConfig().getMsgForwardPrices(BASECHAIN);
+    val firstPart = (totalForwardFee * prices.firstFrac) / 65536;
+    val remainingForwardFee = totalForwardFee - firstPart;
+
+    // check-disable-next-line deprecated-symbol-use
+    return calculateOriginalForwardFee(BASECHAIN, remainingForwardFee);
 }
 
 struct OwnershipTransferBody {

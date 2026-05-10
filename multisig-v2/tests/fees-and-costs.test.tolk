@@ -14,7 +14,9 @@ import "../wrappers/Order.gen"
 import "../wrappers/utils"
 
 const FEE_BASE_EXPIRATION = 2000000000
-const FEE_TEST_NOW = 1760000000
+// Past the storage-prices segment split (config 18 splits at 1777500000) so
+// last_paid and now stay inside the latest segment.
+const FEE_TEST_NOW = 1800000000
 const FEE_DEFAULT_CREATE_VALUE = ton("10")
 
 struct FeeContext {
@@ -293,10 +295,16 @@ get fun `test fee: should estimate correctly on storage fees change`() {
     var newConfig = oldConfig;
 
     var storagePrices = newConfig.getStoragePrices();
-    var initial = storagePrices.getInitial();
-    initial.bitPrice *= 10;
-    initial.cellPrice *= 10;
-    storagePrices.setInitial(initial);
+    // Mutate the segment active at FEE_TEST_NOW (the most recent one) — that
+    // is what GETSTORAGEFEE actually uses. Mutating only the initial (key=0)
+    // entry no longer affects the estimate when FEE_TEST_NOW is past the
+    // segment split.
+    val latest = storagePrices.findLast();
+    val latestKey = latest.getKey();
+    var latestPrices = latest.loadValue();
+    latestPrices.bitPrice *= 10;
+    latestPrices.cellPrice *= 10;
+    storagePrices.set(latestKey, latestPrices);
     newConfig.setStoragePrices(storagePrices);
 
     val estBefore = ctx.jumboWallet.getOrderEstimateForOrder(order, FEE_BASE_EXPIRATION);

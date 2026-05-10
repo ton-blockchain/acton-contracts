@@ -703,7 +703,7 @@ get fun `test mutation: direct wallet transfer gas and storage fees should follo
             body,
             bounce: false,
             dest: wallet.address,
-            value: minimalAfter - MIN_EDGE_DELTA,
+            value: minimalBefore,
         }),
     );
     expect(fail).toHaveFailedTx<AskToTransfer>({
