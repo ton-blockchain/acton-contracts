@@ -8,8 +8,6 @@ struct (0b1) PayloadInRef {
     value: Cell<RemainingBitsAndRefs>
 }
 
-type Payload = PayloadInline | PayloadInRef
-
 struct (0x0f8a7ea5) AskToTransfer {
     queryId: uint64
     jettonAmount: coins
@@ -17,7 +15,7 @@ struct (0x0f8a7ea5) AskToTransfer {
     sendExcessesTo: address?
     customPayload: cell?
     forwardTonAmount: coins
-    @abi.clientType(Payload)
+    @abi.clientType(PayloadInline | PayloadInRef)
     forwardPayload: ForwardPayloadRemainder
 }
 
@@ -25,7 +23,7 @@ struct (0x7362d09c) TransferNotificationForRecipient {
     queryId: uint64
     jettonAmount: coins
     transferInitiator: address?
-    @abi.clientType(Payload)
+    @abi.clientType(PayloadInline | PayloadInRef)
     forwardPayload: ForwardPayloadRemainder
 }
 
@@ -35,7 +33,7 @@ struct (0x178d4519) InternalTransferStep {
     transferInitiator: address? // is null when minting (not initiated by another wallet)
     sendExcessesTo: address?
     forwardTonAmount: coins
-    @abi.clientType(Payload)
+    @abi.clientType(PayloadInline | PayloadInRef)
     forwardPayload: ForwardPayloadRemainder
 }
 

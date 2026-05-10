@@ -95,7 +95,7 @@ struct OwnershipTransferBody {
     sendExcessesTo: address?
     customPayload: cell?
     forwardTonAmount: coins
-    forwardPayload: Payload
+    forwardPayload: PayloadInline | PayloadInRef
 }
 
 fun OwnershipTransferBody.toCell(self): cell {
@@ -127,7 +127,7 @@ fun makeOwnershipTransferBody(
         .beginParse()
         .remainingBitsAndRefsCount();
 
-    val payload: Payload = (1023 - bodyBits) > forwardPayload.remainingBitsCount() &&
+    val payload: PayloadInline | PayloadInRef = (1023 - bodyBits) > forwardPayload.remainingBitsCount() &&
     (4 - bodyRefs) > forwardPayload.remainingRefsCount()
         ? PayloadInline { value: forwardPayload }
         : PayloadInRef { value: forwardPayload.toCell() };

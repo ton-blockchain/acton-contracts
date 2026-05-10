@@ -80,6 +80,7 @@ fun mintToAdminStage(ctx: JettonE2eContext) {
     expect(ctx.minter.getTotalSupply()).toEqual(supplyBefore + JETTON_E2E_MINT_AMOUNT);
 }
 
+type Payload = PayloadInline | PayloadInRef
 fun transferToRecipientStage(ctx: JettonE2eContext) {
     val forwardPayload = jettonE2eForwardPayload();
     val transfer = ctx

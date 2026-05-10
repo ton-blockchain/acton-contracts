@@ -9,7 +9,7 @@ import "@acton/testing/assert"
 import "../contracts/messages"
 import "../contracts/storage"
 
-/// Storage `ItemStorageInitialized` is defined in `../contracts/storage`
+/// Storage `ItemStorageNotInitialized` is defined in `../contracts/storage`
 struct DnsItem {
     address: address
     stateInit: ContractState? = null
@@ -17,7 +17,7 @@ struct DnsItem {
 
 /// Creates a contract wrapper instance from the storage data
 fun DnsItem.fromStorage(
-    storage: ItemStorageInitialized,
+    storage: ItemStorageNotInitialized,
     toShard: AddressShardingOptions? = null,
 ): DnsItem {
     val stateInit = ContractState {

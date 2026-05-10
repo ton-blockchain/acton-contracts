@@ -93,6 +93,24 @@ ignore = []
 output-fift = "build/fift"
 
 [scripts]
+update-wrapper = """
+acton wrapper Config -o config/wrappers/Config.gen.tolk &&
+acton wrapper Counter -o counter/wrappers/Counter.gen.tolk &&
+acton wrapper DnsCollection -o dns/wrappers/DnsCollection.gen.tolk &&
+acton wrapper DnsItem -o dns/wrappers/DnsItem.gen.tolk &&
+acton wrapper Elector -o elector/wrappers/Elector.gen.tolk &&
+acton wrapper HighloadWalletV3 -o highload-v3.1/wrappers/HighloadWalletV3.gen.tolk &&
+acton wrapper JettonMinter -o jetton-v2.1/wrappers/JettonMinter.gen.tolk &&
+acton wrapper JettonWallet -o jetton-v2.1/wrappers/JettonWallet.gen.tolk &&
+acton wrapper Multisig -o multisig-v2.1/wrappers/Multisig.gen.tolk &&
+acton wrapper NftCollection -o nft-v1.1/wrappers/NftCollection.gen.tolk &&
+acton wrapper NftItem -o nft-v1.1/wrappers/NftItem.gen.tolk &&
+acton wrapper NotcoinMinter -o jetton-v1.3/wrappers/NotcoinMinter.gen.tolk &&
+acton wrapper NotcoinWallet -o jetton-v1.3/wrappers/NotcoinWallet.gen.tolk &&
+acton wrapper Order -o multisig-v2.1/wrappers/Order.gen.tolk &&
+acton wrapper RootDns -o dns/wrappers/RootDns.gen.tolk &&
+acton wrapper WalletV5 -o w5.1/wrappers/WalletV5.gen.tolk
+"""
 test-counter = "acton test counter/tests"
 test-dns = "acton test dns/tests"
 test-elector = "acton test elector/tests"
