@@ -1,73 +1,6 @@
 {
-  "timestamp": 1777895742,
+  "timestamp": 1778484121,
   "opcodes": {
-    "AskToTransfer": {
-      "min_gas": 6327,
-      "max_gas": 6327,
-      "avg_gas": 6327,
-      "samples": 3,
-      "all_values": [
-        6327,
-        6327,
-        6327
-      ]
-    },
-    "ResponseWalletAddress": {
-      "min_gas": 309,
-      "max_gas": 309,
-      "avg_gas": 309,
-      "samples": 1,
-      "all_values": [
-        309
-      ]
-    },
-    "TransferNotificationForRecipient": {
-      "min_gas": 309,
-      "max_gas": 309,
-      "avg_gas": 309,
-      "samples": 7,
-      "all_values": [
-        309,
-        309,
-        309,
-        309,
-        309,
-        309,
-        309
-      ]
-    },
-    "TopUpTons": {
-      "min_gas": 1189,
-      "max_gas": 1189,
-      "avg_gas": 1189,
-      "samples": 5,
-      "all_values": [
-        1189,
-        1189,
-        1189,
-        1189,
-        1189
-      ]
-    },
-    "ChangeMinterAdmin": {
-      "min_gas": 1741,
-      "max_gas": 1741,
-      "avg_gas": 1741,
-      "samples": 1,
-      "all_values": [
-        1741
-      ]
-    },
-    "BurnNotificationForMinter": {
-      "min_gas": 4063,
-      "max_gas": 4063,
-      "avg_gas": 4063,
-      "samples": 2,
-      "all_values": [
-        4063,
-        4063
-      ]
-    },
     "ChangeMinterMetadata": {
       "min_gas": 2142,
       "max_gas": 2142,
@@ -94,6 +27,16 @@
         1291
       ]
     },
+    "BurnNotificationForMinter": {
+      "min_gas": 4063,
+      "max_gas": 4063,
+      "avg_gas": 4063,
+      "samples": 2,
+      "all_values": [
+        4063,
+        4063
+      ]
+    },
     "InternalTransferStep": {
       "min_gas": 6207,
       "max_gas": 7443,
@@ -109,23 +52,13 @@
         6207
       ]
     },
-    "AskToBurn": {
-      "min_gas": 4254,
-      "max_gas": 4254,
-      "avg_gas": 4254,
-      "samples": 2,
-      "all_values": [
-        4254,
-        4254
-      ]
-    },
-    "RequestWalletAddress": {
-      "min_gas": 3968,
-      "max_gas": 3968,
-      "avg_gas": 3968,
+    "ChangeMinterAdmin": {
+      "min_gas": 1741,
+      "max_gas": 1741,
+      "avg_gas": 1741,
       "samples": 1,
       "all_values": [
-        3968
+        1741
       ]
     },
     "MintNewJettons": {
@@ -140,6 +73,17 @@
         6472
       ]
     },
+    "0x0f8a7ea5": {
+      "min_gas": 6327,
+      "max_gas": 6327,
+      "avg_gas": 6327,
+      "samples": 3,
+      "all_values": [
+        6327,
+        6327,
+        6327
+      ]
+    },
     "ClaimMinterAdmin": {
       "min_gas": 1892,
       "max_gas": 1892,
@@ -148,350 +92,406 @@
       "all_values": [
         1892
       ]
+    },
+    "RequestWalletAddress": {
+      "min_gas": 3942,
+      "max_gas": 3942,
+      "avg_gas": 3942,
+      "samples": 1,
+      "all_values": [
+        3942
+      ]
+    },
+    "0x595f07bc": {
+      "min_gas": 4254,
+      "max_gas": 4254,
+      "avg_gas": 4254,
+      "samples": 2,
+      "all_values": [
+        4254,
+        4254
+      ]
+    },
+    "TopUpTons": {
+      "min_gas": 1189,
+      "max_gas": 1189,
+      "avg_gas": 1189,
+      "samples": 5,
+      "all_values": [
+        1189,
+        1189,
+        1189,
+        1189,
+        1189
+      ]
+    },
+    "0x7362d09c": {
+      "min_gas": 309,
+      "max_gas": 309,
+      "avg_gas": 309,
+      "samples": 7,
+      "all_values": [
+        309,
+        309,
+        309,
+        309,
+        309,
+        309,
+        309
+      ]
+    },
+    "ResponseWalletAddress": {
+      "min_gas": 309,
+      "max_gas": 309,
+      "avg_gas": 309,
+      "samples": 1,
+      "all_values": [
+        309
+      ]
     }
   },
   "trace_chains": {
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#4": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 4",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 566938,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#11": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 11",
-      "tx_count": 1,
-      "total_gas_used": 1741,
-      "total_gas_fees": 696400,
-      "total_forward_fees": 390137,
-      "total_fees": 696400
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#7": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 7",
-      "tx_count": 4,
-      "total_gas_used": 14388,
-      "total_gas_fees": 5755200,
-      "total_forward_fees": 3659496,
-      "total_fees": 7315709
-    },
-    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#6": {
-      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
-      "trace_name": "Trace 6",
-      "tx_count": 4,
-      "total_gas_used": 14279,
-      "total_gas_fees": 5711600,
-      "total_forward_fees": 3414695,
-      "total_fees": 7146243
-    },
-    "test jetton e2e bench: stage 2 mint to admin wallet::trace#3": {
-      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
-      "trace_name": "Trace 3",
-      "tx_count": 1,
-      "total_gas_used": 1189,
-      "total_gas_fees": 475600,
-      "total_forward_fees": 4400301,
-      "total_fees": 475600
-    },
-    "test jetton e2e bench: stage 2 mint to admin wallet::trace#6": {
-      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
-      "trace_name": "Trace 6",
-      "tx_count": 4,
-      "total_gas_used": 14279,
-      "total_gas_fees": 5711600,
-      "total_forward_fees": 3414695,
-      "total_fees": 7146243
-    },
-    "test jetton e2e bench: stage 1 deploy minter::trace#3": {
-      "test_name": "test jetton e2e bench: stage 1 deploy minter",
-      "trace_name": "Trace 3",
-      "tx_count": 1,
-      "total_gas_used": 1189,
-      "total_gas_fees": 475600,
-      "total_forward_fees": 4400301,
-      "total_fees": 475600
-    },
-    "test jetton e2e bench: stage 1 deploy minter::trace#5": {
-      "test_name": "test jetton e2e bench: stage 1 deploy minter",
-      "trace_name": "Trace 5",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 564805,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#2": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 547738,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#5": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 5",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 564805,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 2 mint to admin wallet::trace#1": {
-      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#7": {
-      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
-      "trace_name": "Trace 7",
-      "tx_count": 4,
-      "total_gas_used": 14388,
-      "total_gas_fees": 5755200,
-      "total_forward_fees": 3659496,
-      "total_fees": 7315709
-    },
-    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#1": {
-      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#1": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 4 burn recipient jettons::trace#1": {
-      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 4 burn recipient jettons::trace#3": {
-      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
-      "trace_name": "Trace 3",
-      "tx_count": 1,
-      "total_gas_used": 1189,
-      "total_gas_fees": 475600,
-      "total_forward_fees": 4400301,
-      "total_fees": 475600
-    },
-    "test jetton e2e bench: stage 4 burn recipient jettons::trace#6": {
-      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
-      "trace_name": "Trace 6",
-      "tx_count": 4,
-      "total_gas_used": 14279,
-      "total_gas_fees": 5711600,
-      "total_forward_fees": 3414695,
-      "total_fees": 7146243
-    },
-    "test jetton e2e bench: stage 4 burn recipient jettons::trace#4": {
-      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
-      "trace_name": "Trace 4",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 566938,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#3": {
-      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
-      "trace_name": "Trace 3",
-      "tx_count": 1,
-      "total_gas_used": 1189,
-      "total_gas_fees": 475600,
-      "total_forward_fees": 4400301,
-      "total_fees": 475600
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#8": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 8",
-      "tx_count": 3,
-      "total_gas_used": 8626,
-      "total_gas_fees": 3450400,
-      "total_forward_fees": 1137610,
-      "total_fees": 3819194
-    },
-    "test jetton e2e bench: stage 2 mint to admin wallet::trace#2": {
-      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 547738,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#10": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 10",
-      "tx_count": 2,
-      "total_gas_used": 4277,
-      "total_gas_fees": 1710800,
-      "total_forward_fees": 878674,
-      "total_fees": 1954929
-    },
     "test jetton e2e bench: stage 1 deploy minter::trace#4": {
       "test_name": "test jetton e2e bench: stage 1 deploy minter",
       "trace_name": "Trace 4",
       "tx_count": 1,
       "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 566938,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#5": {
-      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
-      "trace_name": "Trace 5",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 564805,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#9": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 9",
-      "tx_count": 1,
-      "total_gas_used": 2142,
-      "total_gas_fees": 856800,
-      "total_forward_fees": 521604,
-      "total_fees": 856800
-    },
-    "test jetton e2e bench: stage 2 mint to admin wallet::trace#5": {
-      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
-      "trace_name": "Trace 5",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 564805,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#12": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 12",
-      "tx_count": 1,
-      "total_gas_used": 1892,
-      "total_gas_fees": 756800,
-      "total_forward_fees": 266669,
-      "total_fees": 756800
-    },
-    "test jetton e2e bench: stage 4 burn recipient jettons::trace#7": {
-      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
-      "trace_name": "Trace 7",
-      "tx_count": 4,
-      "total_gas_used": 14388,
-      "total_gas_fees": 5755200,
-      "total_forward_fees": 3659496,
-      "total_fees": 7315709
-    },
-    "test jetton e2e bench: stage 4 burn recipient jettons::trace#2": {
-      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 547738,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#6": {
-      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
-      "trace_name": "Trace 6",
-      "tx_count": 4,
-      "total_gas_used": 14279,
-      "total_gas_fees": 5711600,
-      "total_forward_fees": 3414695,
-      "total_fees": 7146243
-    },
-    "test jetton e2e bench: stage 4 burn recipient jettons::trace#8": {
-      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
-      "trace_name": "Trace 8",
-      "tx_count": 3,
-      "total_gas_used": 8626,
-      "total_gas_fees": 3450400,
-      "total_forward_fees": 1137610,
-      "total_fees": 3819194
-    },
-    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#4": {
-      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
-      "trace_name": "Trace 4",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 566938,
-      "total_fees": 123600
-    },
-    "test jetton e2e bench: stage 4 burn recipient jettons::trace#5": {
-      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
-      "trace_name": "Trace 5",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 564805,
-      "total_fees": 123600
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94491,
+      "total_fees": 20601
     },
     "test jetton e2e bench: stage 1 deploy minter::trace#2": {
       "test_name": "test jetton e2e bench: stage 1 deploy minter",
       "trace_name": "Trace 2",
       "tx_count": 1,
       "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 547738,
-      "total_fees": 123600
+      "total_gas_fees": 20601,
+      "total_forward_fees": 91291,
+      "total_fees": 20601
     },
-    "test jetton e2e bench: stage 2 mint to admin wallet::trace#4": {
-      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
-      "trace_name": "Trace 4",
+    "test jetton e2e bench: stage 1 deploy minter::trace#5": {
+      "test_name": "test jetton e2e bench: stage 1 deploy minter",
+      "trace_name": "Trace 5",
       "tx_count": 1,
       "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 566938,
-      "total_fees": 123600
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94135,
+      "total_fees": 20601
     },
-    "test jetton e2e bench: stage 1 deploy minter::trace#1": {
-      "test_name": "test jetton e2e bench: stage 1 deploy minter",
+    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#5": {
+      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94135,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 2 mint to admin wallet::trace#1": {
+      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
       "trace_name": "Trace 1",
       "tx_count": 1,
       "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#1": {
+      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 2 mint to admin wallet::trace#2": {
+      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 91291,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 4 burn recipient jettons::trace#5": {
+      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94135,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#2": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 91291,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#6": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 6",
+      "tx_count": 4,
+      "total_gas_used": 14279,
+      "total_gas_fees": 951938,
+      "total_forward_fees": 569120,
+      "total_fees": 1191045
+    },
+    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#4": {
+      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94491,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 4 burn recipient jettons::trace#7": {
+      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
+      "trace_name": "Trace 7",
+      "tx_count": 4,
+      "total_gas_used": 14388,
+      "total_gas_fees": 959204,
+      "total_forward_fees": 609921,
+      "total_fees": 1219287
+    },
+    "test jetton e2e bench: stage 1 deploy minter::trace#3": {
+      "test_name": "test jetton e2e bench: stage 1 deploy minter",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 1189,
+      "total_gas_fees": 79268,
+      "total_forward_fees": 732673,
+      "total_fees": 79268
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#7": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 7",
+      "tx_count": 4,
+      "total_gas_used": 14388,
+      "total_gas_fees": 959204,
+      "total_forward_fees": 609921,
+      "total_fees": 1219287
+    },
+    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#7": {
+      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
+      "trace_name": "Trace 7",
+      "tx_count": 4,
+      "total_gas_used": 14388,
+      "total_gas_fees": 959204,
+      "total_forward_fees": 609921,
+      "total_fees": 1219287
+    },
+    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#6": {
+      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
+      "trace_name": "Trace 6",
+      "tx_count": 4,
+      "total_gas_used": 14279,
+      "total_gas_fees": 951938,
+      "total_forward_fees": 569120,
+      "total_fees": 1191045
+    },
+    "test jetton e2e bench: stage 4 burn recipient jettons::trace#6": {
+      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
+      "trace_name": "Trace 6",
+      "tx_count": 4,
+      "total_gas_used": 14279,
+      "total_gas_fees": 951938,
+      "total_forward_fees": 569120,
+      "total_fees": 1191045
+    },
+    "test jetton e2e bench: stage 4 burn recipient jettons::trace#1": {
+      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 2 mint to admin wallet::trace#5": {
+      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94135,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 2 mint to admin wallet::trace#6": {
+      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
+      "trace_name": "Trace 6",
+      "tx_count": 4,
+      "total_gas_used": 14279,
+      "total_gas_fees": 951938,
+      "total_forward_fees": 569120,
+      "total_fees": 1191045
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#1": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#9": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 2142,
+      "total_gas_fees": 142801,
+      "total_forward_fees": 86935,
+      "total_fees": 142801
+    },
+    "test jetton e2e bench: stage 4 burn recipient jettons::trace#2": {
+      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 91291,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#5": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94135,
+      "total_fees": 20601
     },
     "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#2": {
       "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
       "trace_name": "Trace 2",
       "tx_count": 1,
       "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 547738,
-      "total_fees": 123600
+      "total_gas_fees": 20601,
+      "total_forward_fees": 91291,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#8": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 8",
+      "tx_count": 3,
+      "total_gas_used": 8626,
+      "total_gas_fees": 575070,
+      "total_forward_fees": 189604,
+      "total_fees": 636535
+    },
+    "test jetton e2e bench: stage 2 mint to admin wallet::trace#4": {
+      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94491,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#4": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94491,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#10": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 10",
+      "tx_count": 2,
+      "total_gas_used": 4251,
+      "total_gas_fees": 283402,
+      "total_forward_fees": 146448,
+      "total_fees": 324090
     },
     "test jetton e2e bench: stage 5 full minter and wallet flow::trace#3": {
       "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
       "trace_name": "Trace 3",
       "tx_count": 1,
       "total_gas_used": 1189,
-      "total_gas_fees": 475600,
-      "total_forward_fees": 4400301,
-      "total_fees": 475600
+      "total_gas_fees": 79268,
+      "total_forward_fees": 732673,
+      "total_fees": 79268
+    },
+    "test jetton e2e bench: stage 2 mint to admin wallet::trace#3": {
+      "test_name": "test jetton e2e bench: stage 2 mint to admin wallet",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 1189,
+      "total_gas_fees": 79268,
+      "total_forward_fees": 732673,
+      "total_fees": 79268
+    },
+    "test jetton e2e bench: stage 1 deploy minter::trace#1": {
+      "test_name": "test jetton e2e bench: stage 1 deploy minter",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 4 burn recipient jettons::trace#3": {
+      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 1189,
+      "total_gas_fees": 79268,
+      "total_forward_fees": 732673,
+      "total_fees": 79268
+    },
+    "test jetton e2e bench: stage 3 transfer to recipient wallet::trace#3": {
+      "test_name": "test jetton e2e bench: stage 3 transfer to recipient wallet",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 1189,
+      "total_gas_fees": 79268,
+      "total_forward_fees": 732673,
+      "total_fees": 79268
+    },
+    "test jetton e2e bench: stage 4 burn recipient jettons::trace#4": {
+      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 94491,
+      "total_fees": 20601
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#11": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 11",
+      "tx_count": 1,
+      "total_gas_used": 1741,
+      "total_gas_fees": 116068,
+      "total_forward_fees": 65024,
+      "total_fees": 116068
+    },
+    "test jetton e2e bench: stage 5 full minter and wallet flow::trace#12": {
+      "test_name": "test jetton e2e bench: stage 5 full minter and wallet flow",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 1892,
+      "total_gas_fees": 126134,
+      "total_forward_fees": 44446,
+      "total_fees": 126134
+    },
+    "test jetton e2e bench: stage 4 burn recipient jettons::trace#8": {
+      "test_name": "test jetton e2e bench: stage 4 burn recipient jettons",
+      "trace_name": "Trace 8",
+      "tx_count": 3,
+      "total_gas_used": 8626,
+      "total_gas_fees": 575070,
+      "total_forward_fees": 189604,
+      "total_fees": 636535
     }
   }
 }
