@@ -7,7 +7,7 @@ This monorepo collects reference implementations for core TON ecosystem contract
 ## Included
 
 - Protocol contracts: [`config`](./config/), [`elector`](./elector/), [`dns`](./dns/)
-- Wallets: [`w5.1`](./w5.1/), [`highload-v3.1`](./highload-v3.1/), [`multisig-v2.1`](./multisig-v2.1/)
+- Wallets: [`w5.2`](./w5.2/), [`highload-v3.1`](./highload-v3.1/), [`multisig-v2.1`](./multisig-v2.1/)
 - Tokens and assets: [`nft-v1.1`](./nft-v1.1/), [`jetton-v2.1`](./jetton-v2.1/), [`jetton-v1.3`](./jetton-v1.3/)
 - Minimal example: [`counter`](./counter/)
 
@@ -22,7 +22,7 @@ Included protocol contracts act as an example, how even the most complex contrac
 Install Acton:
 
 ```bash
-curl -LsSf https://ton.org/acton/install.sh | sh
+curl -LsSf https://github.com/ton-blockchain/acton/releases/latest/download/acton-installer.sh | sh
 ```
 
 Learn more in the [Acton documentation](https://ton-blockchain.github.io/acton/docs/welcome).
@@ -40,9 +40,13 @@ This command will prompt interactively.
 Acton and this monorepo are designed to work well with AI coding agents. Install the TON development skills:
 
 ```bash
-npx skills add https://github.com/ton-blockchain/acton-contracts/tree/skills/skills
+npx skills add -g https://github.com/ton-blockchain/skills
 # Or for a specific agent
-npx skills add https://github.com/ton-blockchain/acton-contracts/tree/skills/skills/acton -g -a claude-code -y
+# Codex
+npx skills add -a codex https://github.com/ton-blockchain/skills
+
+# Claude Code
+npx skills add -a claude-code https://github.com/ton-blockchain/skills
 ```
 
 Then ask your agent to complete an engineering task in this project:

@@ -297,6 +297,10 @@ fun sendOrderByProposer(
         );
 }
 
+fun sendIter(from: address, message: OutMessage): TxCursor {
+    return testing.createTraceIterationCursor(from, message);
+}
+
 fun buildLargeOrder(
     multisigAddress: address,
     actions: array<SendMessageAction>,
