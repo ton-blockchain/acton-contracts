@@ -1,14 +1,13 @@
 {
-  "timestamp": 1771497775,
+  "timestamp": 1778484121,
   "opcodes": {
-    "GetStaticData": {
-      "min_gas": 7367,
-      "max_gas": 7367,
-      "avg_gas": 7367,
-      "samples": 2,
+    "ProcessGovernanceDecision": {
+      "min_gas": 5730,
+      "max_gas": 5730,
+      "avg_gas": 5730,
+      "samples": 1,
       "all_values": [
-        7367,
-        7367
+        5730
       ]
     },
     "0x801a0577": {
@@ -23,24 +22,33 @@
         3407
       ]
     },
-    "DeployDnsDomain": {
-      "min_gas": 12906,
-      "max_gas": 12906,
-      "avg_gas": 12906,
-      "samples": 4,
-      "all_values": [
-        12906,
-        12906,
-        12906,
-        12906
-      ]
-    },
     "ReportStaticData": {
       "min_gas": 309,
       "max_gas": 309,
       "avg_gas": 309,
       "samples": 2,
       "all_values": [
+        309,
+        309
+      ]
+    },
+    "GetStaticData": {
+      "min_gas": 7367,
+      "max_gas": 7367,
+      "avg_gas": 7367,
+      "samples": 2,
+      "all_values": [
+        7367,
+        7367
+      ]
+    },
+    "OutbidNotification": {
+      "min_gas": 309,
+      "max_gas": 309,
+      "avg_gas": 309,
+      "samples": 3,
+      "all_values": [
+        309,
         309,
         309
       ]
@@ -59,504 +67,496 @@
         462
       ]
     },
-    "OutbidNotification": {
-      "min_gas": 309,
-      "max_gas": 309,
-      "avg_gas": 309,
-      "samples": 3,
+    "DeployDnsDomain": {
+      "min_gas": 12906,
+      "max_gas": 12906,
+      "avg_gas": 12906,
+      "samples": 4,
       "all_values": [
-        309,
-        309,
-        309
-      ]
-    },
-    "ProcessGovernanceDecision": {
-      "min_gas": 5730,
-      "max_gas": 5730,
-      "avg_gas": 5730,
-      "samples": 1,
-      "all_values": [
-        5730
+        12906,
+        12906,
+        12906,
+        12906
       ]
     }
   },
   "trace_chains": {
-    "test dns e2e bench: stage 3 apply ownership::trace#4": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 4",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 562671,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#4": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 4",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 562671,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#7": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 7",
-      "tx_count": 1,
-      "total_gas_used": 462,
-      "total_gas_fees": 184800,
-      "total_forward_fees": 6491783,
-      "total_fees": 184800
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#5": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 5",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#1": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 571205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#5": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 5",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#2": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#8": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 8",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 575472,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#4": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 4",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 562671,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#11": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 11",
-      "tx_count": 2,
-      "total_gas_used": 16313,
-      "total_gas_fees": 6525200,
-      "total_forward_fees": 5184840,
-      "total_fees": 8984876
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#3": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 3",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#4": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 4",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 562671,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#5": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 5",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#7": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 7",
-      "tx_count": 1,
-      "total_gas_used": 462,
-      "total_gas_fees": 184800,
-      "total_forward_fees": 6491783,
-      "total_fees": 184800
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#9": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 9",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#13": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 13",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123656
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#7": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 7",
-      "tx_count": 1,
-      "total_gas_used": 462,
-      "total_gas_fees": 184800,
-      "total_forward_fees": 6491783,
-      "total_fees": 184800
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#16": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 16",
-      "tx_count": 3,
-      "total_gas_used": 8138,
-      "total_gas_fees": 3255200,
-      "total_forward_fees": 991742,
-      "total_fees": 4337621
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#17": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 17",
-      "tx_count": 1,
-      "total_gas_used": 5730,
-      "total_gas_fees": 2292000,
-      "total_forward_fees": 266669,
-      "total_fees": 2292000
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#9": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 9",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#8": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 8",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 575472,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#1": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 571205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#2": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#10": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 10",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
     "test dns e2e bench: stage 3 apply ownership::trace#12": {
       "test_name": "test dns e2e bench: stage 3 apply ownership",
       "trace_name": "Trace 12",
       "tx_count": 2,
       "total_gas_used": 6244,
-      "total_gas_fees": 2497600,
-      "total_forward_fees": 533338,
-      "total_fees": 2630989
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#5": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 5",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#10": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 10",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#12": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 12",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 573338,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#14": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 14",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
+      "total_gas_fees": 416269,
+      "total_forward_fees": 88892,
+      "total_fees": 438548
     },
     "test dns e2e bench: stage 3 apply ownership::trace#6": {
       "test_name": "test dns e2e bench: stage 3 apply ownership",
       "trace_name": "Trace 6",
       "tx_count": 1,
       "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#6": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 6",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#8": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 8",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 575472,
-      "total_fees": 123600
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
     },
     "test dns e2e bench: stage 2 process new bid on dns item::trace#6": {
       "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
       "trace_name": "Trace 6",
       "tx_count": 1,
       "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#10": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 10",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#7": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 7",
-      "tx_count": 1,
-      "total_gas_used": 462,
-      "total_gas_fees": 184800,
-      "total_forward_fees": 6491783,
-      "total_fees": 184800
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#11": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 11",
-      "tx_count": 2,
-      "total_gas_used": 16313,
-      "total_gas_fees": 6525200,
-      "total_forward_fees": 5184840,
-      "total_fees": 8984876
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#11": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 11",
-      "tx_count": 2,
-      "total_gas_used": 16313,
-      "total_gas_fees": 6525200,
-      "total_forward_fees": 5184840,
-      "total_fees": 8984876
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#2": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#2": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 2",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 1 deploy dns domain::trace#10": {
-      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
-      "trace_name": "Trace 10",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#3": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 3",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#12": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 12",
-      "tx_count": 2,
-      "total_gas_used": 6244,
-      "total_gas_fees": 2497600,
-      "total_forward_fees": 533338,
-      "total_fees": 2630989
-    },
-    "test dns e2e bench: stage 2 process new bid on dns item::trace#3": {
-      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
-      "trace_name": "Trace 3",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#1": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 571205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#9": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 9",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#8": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 8",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 575472,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#1": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 1",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 571205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#3": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 3",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#9": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 9",
-      "tx_count": 1,
-      "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 539205,
-      "total_fees": 123600
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#13": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 13",
-      "tx_count": 3,
-      "total_gas_used": 8138,
-      "total_gas_fees": 3255200,
-      "total_forward_fees": 991742,
-      "total_fees": 4337621
-    },
-    "test dns e2e bench: stage 4 full flow with governance decision::trace#15": {
-      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
-      "trace_name": "Trace 15",
-      "tx_count": 2,
-      "total_gas_used": 6244,
-      "total_gas_fees": 2497600,
-      "total_forward_fees": 533338,
-      "total_fees": 2630989
-    },
-    "test dns e2e bench: stage 3 apply ownership::trace#11": {
-      "test_name": "test dns e2e bench: stage 3 apply ownership",
-      "trace_name": "Trace 11",
-      "tx_count": 2,
-      "total_gas_used": 16313,
-      "total_gas_fees": 6525200,
-      "total_forward_fees": 5184840,
-      "total_fees": 8984876
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
     },
     "test dns e2e bench: stage 4 full flow with governance decision::trace#6": {
       "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
       "trace_name": "Trace 6",
       "tx_count": 1,
       "total_gas_used": 309,
-      "total_gas_fees": 123600,
-      "total_forward_fees": 266669,
-      "total_fees": 123600
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#13": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 13",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20657
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#14": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 14",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#5": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#6": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 6",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#5": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#1": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 95202,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#7": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 462,
+      "total_gas_fees": 30801,
+      "total_forward_fees": 1080898,
+      "total_fees": 30801
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#3": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#12": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 12",
+      "tx_count": 2,
+      "total_gas_used": 6244,
+      "total_gas_fees": 416269,
+      "total_forward_fees": 88892,
+      "total_fees": 438548
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#10": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#1": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 95202,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#4": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 93780,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#10": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#3": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#11": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 11",
+      "tx_count": 2,
+      "total_gas_used": 16313,
+      "total_gas_fees": 1087535,
+      "total_forward_fees": 863431,
+      "total_fees": 1497665
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#4": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 93780,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#11": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 11",
+      "tx_count": 2,
+      "total_gas_used": 16313,
+      "total_gas_fees": 1087535,
+      "total_forward_fees": 863431,
+      "total_fees": 1497665
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#15": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 15",
+      "tx_count": 2,
+      "total_gas_used": 6244,
+      "total_gas_fees": 416269,
+      "total_forward_fees": 88892,
+      "total_fees": 438548
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#13": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 13",
+      "tx_count": 3,
+      "total_gas_used": 8138,
+      "total_gas_fees": 542536,
+      "total_forward_fees": 165294,
+      "total_fees": 1322480
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#16": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 16",
+      "tx_count": 3,
+      "total_gas_used": 8138,
+      "total_gas_fees": 542536,
+      "total_forward_fees": 165294,
+      "total_fees": 1322480
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#2": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#10": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#9": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#11": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 11",
+      "tx_count": 2,
+      "total_gas_used": 16313,
+      "total_gas_fees": 1087535,
+      "total_forward_fees": 863431,
+      "total_fees": 1497665
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#17": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 17",
+      "tx_count": 1,
+      "total_gas_used": 5730,
+      "total_gas_fees": 382001,
+      "total_forward_fees": 44446,
+      "total_fees": 382001
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#7": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 462,
+      "total_gas_fees": 30801,
+      "total_forward_fees": 1080898,
+      "total_fees": 30801
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#9": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#8": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 95913,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#7": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 462,
+      "total_gas_fees": 30801,
+      "total_forward_fees": 1080898,
+      "total_fees": 30801
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#10": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 10",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#12": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 12",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 95557,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#8": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 95913,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#1": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 95202,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#8": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 95913,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#5": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#7": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 7",
+      "tx_count": 1,
+      "total_gas_used": 462,
+      "total_gas_fees": 30801,
+      "total_forward_fees": 1080898,
+      "total_fees": 30801
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#11": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 11",
+      "tx_count": 2,
+      "total_gas_used": 16313,
+      "total_gas_fees": 1087535,
+      "total_forward_fees": 863431,
+      "total_fees": 1497665
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#9": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#5": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 5",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#3": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#4": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 93780,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#2": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 4 full flow with governance decision::trace#2": {
+      "test_name": "test dns e2e bench: stage 4 full flow with governance decision",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 1 deploy dns domain::trace#9": {
+      "test_name": "test dns e2e bench: stage 1 deploy dns domain",
+      "trace_name": "Trace 9",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#2": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 2",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 89869,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#4": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 4",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 93780,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 2 process new bid on dns item::trace#1": {
+      "test_name": "test dns e2e bench: stage 2 process new bid on dns item",
+      "trace_name": "Trace 1",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 95202,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#8": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 8",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 95913,
+      "total_fees": 20601
+    },
+    "test dns e2e bench: stage 3 apply ownership::trace#3": {
+      "test_name": "test dns e2e bench: stage 3 apply ownership",
+      "trace_name": "Trace 3",
+      "tx_count": 1,
+      "total_gas_used": 309,
+      "total_gas_fees": 20601,
+      "total_forward_fees": 44446,
+      "total_fees": 20601
     }
   }
 }
