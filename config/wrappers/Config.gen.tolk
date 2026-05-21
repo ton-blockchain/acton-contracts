@@ -129,7 +129,7 @@ fun Config.sendAny(self, from: address, body: cell, config: SendParams = {}): Se
 }
 
 /// Send an external-in message to the contract with a custom body cell
-fun Config.sendAnyExternal(self, body: cell): SendResultList? {
+fun Config.sendAnyExternal(self, body: cell): ExternalSendResult {
     val msg = net.createExternalMessage(self.address, body);
     return net.sendExternal(msg);
 }

@@ -269,12 +269,12 @@ fun createExternalSignedBody(
 
 fun WalletV5.sendExternalSigned(self, body: ExternalSignedBody): SendResultList? {
     val msg = net.createExternalMessage(self.address, body);
-    return net.sendExternal(msg);
+    return net.sendExternal(msg).transactions;
 }
 
 fun WalletV5.sendExternalRaw(self, body: cell): SendResultList? {
     val msg = net.createExternalMessage(self.address, body);
-    return net.sendExternal(msg);
+    return net.sendExternal(msg).transactions;
 }
 
 fun addExtensionSigned(

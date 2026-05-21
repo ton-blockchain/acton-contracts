@@ -573,7 +573,7 @@ fun sendExternalRaw(contract: Config, body: cell): SendResultList {
 
 fun trySendExternalRaw(contract: Config, body: cell): SendResultList? {
     val msg = net.createExternalMessage(contract.address, body.beginParse());
-    return net.sendExternal(msg);
+    return net.sendExternal(msg).transactions;
 }
 
 fun sendExternalVote(

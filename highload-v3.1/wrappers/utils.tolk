@@ -215,11 +215,7 @@ fun HighloadWalletV3.sendExternalRequest(
 }
 
 fun HighloadWalletV3.sendRawExternalBody(self, body: cell): SendResultList {
-    val res = net.sendExternal(net.createExternalMessage(self.address, body.beginParse()));
-    if (res == null) {
-        Assert.fail("External was not accepted");
-    }
-    return res;
+    return net.sendExternal(net.createExternalMessage(self.address, body.beginParse())).unwrap();
 }
 
 fun HighloadWalletV3.trySendRawExternalBody(self, body: cell): SendResultList? {

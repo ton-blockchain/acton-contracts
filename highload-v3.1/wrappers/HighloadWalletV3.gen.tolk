@@ -79,7 +79,7 @@ fun HighloadWalletV3.sendAny(
 }
 
 /// Send an external-in message to the contract with a custom body cell
-fun HighloadWalletV3.sendAnyExternal(self, body: cell): SendResultList? {
+fun HighloadWalletV3.sendAnyExternal(self, body: cell): ExternalSendResult {
     val msg = net.createExternalMessage(self.address, body);
     return net.sendExternal(msg);
 }
