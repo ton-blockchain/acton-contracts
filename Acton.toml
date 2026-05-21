@@ -1,5 +1,5 @@
 [toolchain]
-acton = "1.0.0"
+acton = "trunk"
 
 [package]
 name = "acton-contracts"
