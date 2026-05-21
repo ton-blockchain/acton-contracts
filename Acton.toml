@@ -1,11 +1,12 @@
-[toolchain]
-acton = "trunk"
-
 [package]
 name = "acton-contracts"
 description = "Rewritten Acton contracts monorepo"
 version = "0.1.0"
 license = "MIT"
+
+[toolchain]
+acton = "trunk"
+
 
 [contracts.Config]
 src = "config/contracts/Config.tolk"
