@@ -5,8 +5,7 @@ version = "0.1.0"
 license = "MIT"
 
 [toolchain]
-acton = "trunk"
-
+acton = "1.0.0-trunk"
 
 [contracts.Config]
 src = "config/contracts/Config.tolk"
