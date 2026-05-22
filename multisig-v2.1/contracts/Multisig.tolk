@@ -84,7 +84,9 @@ fun onInternalMessage(in: InMessage) {
                 storage.nextOrderSeqno += 1;
             }
 
-            val signerOrProposer = msg.isAutoApprove ? storage.signers : storage.proposers;
+            val signerOrProposer: map<uint8, address> = msg.isAutoApprove
+                ? storage.signers
+                : storage.proposers;
             val expectedSender = signerOrProposer.get(msg.index);
 
             assert (expectedSender.isFound) throw ERROR_UNAUTHORIZED_NEW_ORDER;
