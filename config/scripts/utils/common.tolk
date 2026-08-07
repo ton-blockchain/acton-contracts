@@ -195,7 +195,7 @@ fun printProposalTuple(label: string, hash: int, raw: tuple) {
     if (paramValue == null) {
         println("{} PROPOSAL_PARAM_VALUE=<null>", label);
     } else {
-        println("{} PROPOSAL_PARAM_VALUE_HASH={}", label, paramValue!.hash());
+        println("{} PROPOSAL_PARAM_VALUE_HASH={}", label, paramValue.hash());
     }
     println("{} PROPOSAL_EXPECTED_HASH={}", label, paramTuple.get(2) as int);
     println("{} PROPOSAL_VALIDATOR_SET_ID={}", label, raw.get(3) as int);

@@ -239,7 +239,7 @@ fun acceptProposal(
     if (proposal.paramValue == null) {
         configDict.delete(paramId);
     } else {
-        configDict.set(paramId, proposal.paramValue!);
+        configDict.set(paramId, proposal.paramValue);
     }
 
     return { paramId, paramVal: proposal.paramValue };
@@ -427,7 +427,7 @@ fun proceedRegisterVote(
         var paramId = 0;
         var paramVal: cell? = null;
 
-        val proposalAcceptance = acceptProposal(mutate configDict, acceptedProposal!, isCritical);
+        val proposalAcceptance = acceptProposal(mutate configDict, acceptedProposal, isCritical);
 
         paramId = proposalAcceptance.paramId;
         paramVal = proposalAcceptance.paramVal;
@@ -477,7 +477,7 @@ fun scanProposal(statusSlice: slice): ProposalScanResult {
         return { proposalStatusSlice: null, changed: true };
     }
 
-    status = updated!;
+    status = updated;
     status.validatorSetId = curVsetId;
     status.voters = [];
 
@@ -515,7 +515,7 @@ fun scanRandomProposal(mutate voteDict: VoteDict) {
         if (proposalStatusSlice == null) {
             voteDict.delete(proposalHash);
         } else {
-            voteDict.set(proposalHash, proposalStatusSlice!);
+            voteDict.set(proposalHash, proposalStatusSlice);
         }
     }
 }
@@ -592,7 +592,7 @@ fun registerVotingProposal(msg: NewVotingProposalRequest, msgValue: coins): int 
     var refs = 0;
 
     if (proposal.paramValue != null) {
-        (_, bits, refs) = proposal.paramValue!.calculateSizeStrict(PROPOSAL_BITS_OVERHEAD);
+        (_, bits, refs) = proposal.paramValue.calculateSizeStrict(PROPOSAL_BITS_OVERHEAD);
     }
 
     val pricePerSecond = voteCfg.calculateStoragePrice(1, bits, refs);

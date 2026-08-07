@@ -57,7 +57,7 @@ fun Multisig.deployWithInitBody(self, from: address, config: SendParams = {}): S
     val deployMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
-        dest: { stateInit: self.stateInit! },
+        dest: { stateInit: self.stateInit },
         body: beginCell().storeUint(0, 32).storeUint(0, 64).endCell(),
     });
     return net.send(from, deployMessage);
@@ -116,7 +116,7 @@ fun MultisigDataReply.proposersMap(self): IndexedAddressMap {
     if (self.proposers == null) {
         return [];
     }
-    return createMapFromLowLevelDict<uint8, address>(self.proposers!);
+    return createMapFromLowLevelDict<uint8, address>(self.proposers);
 }
 
 struct OrderInitData {
@@ -157,7 +157,7 @@ fun Order.deployWithInit(
     val initOrderDeployMessage = createMessage({
         bounce: config.bounce,
         value: config.value,
-        dest: { stateInit: self.stateInit! },
+        dest: { stateInit: self.stateInit },
         body: InitOrderRequest {
             queryId,
             threshold: threshold as uint8,
@@ -224,12 +224,12 @@ fun OrderDataReply.signersMap(self): DirectIndexedAddressMap {
     if (self.signers == null) {
         return [];
     }
-    return createMapFromLowLevelDict<uint8, address>(self.signers!);
+    return createMapFromLowLevelDict<uint8, address>(self.signers);
 }
 
 fun OrderDataReply.orderMap(self): DirectOrderActionsMap {
     if (self.order == null) {
         return [];
     }
-    return createMapFromLowLevelDict<uint8, cell>(self.order!);
+    return createMapFromLowLevelDict<uint8, cell>(self.order);
 }

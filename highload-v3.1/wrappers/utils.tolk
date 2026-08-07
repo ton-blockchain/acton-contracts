@@ -44,14 +44,14 @@ fun HighloadWalletV3.code(self): cell {
     if (self.stateInit == null) {
         Assert.fail("Wrapper has no stateInit code (created via fromAddress)");
     }
-    return self.stateInit!.code;
+    return self.stateInit.code;
 }
 
 fun HighloadWalletV3.initialData(self): cell {
     if (self.stateInit == null) {
         Assert.fail("Wrapper has no stateInit data (created via fromAddress)");
     }
-    return self.stateInit!.data;
+    return self.stateInit.data;
 }
 
 fun HighloadWalletV3.isProcessed(self, queryId: int, needClean: bool = true): bool {

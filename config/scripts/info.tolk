@@ -19,7 +19,7 @@ fun main() {
         if (raw == null) {
             println("CONFIG PROPOSAL_HASH={} -> <not found>", proposalHashEnv);
         } else {
-            printProposalTuple("CONFIG", proposalHashEnv, raw!);
+            printProposalTuple("CONFIG", proposalHashEnv, raw);
         }
         return;
     }

@@ -20,7 +20,7 @@ fun main() {
         return;
     }
 
-    val item = DnsItem.fromAddress(itemAddress!);
+    val item = DnsItem.fromAddress(itemAddress);
     if (!scripts.isContractDeployed(item.address)) {
         println("Item is not deployed in the current execution context: {}", item.address);
         return;
@@ -35,7 +35,7 @@ fun main() {
         if (dnsNameValue != null) {
             var records: DnsRecords = [];
 
-            records.set("dns_name".toBase256(), dnsNameValue!.prefixWith00().toCell());
+            records.set("dns_name".toBase256(), dnsNameValue.prefixWith00().toCell());
 
             val editResult = item.sendEditContent(
                 deployer.address,
@@ -48,7 +48,7 @@ fun main() {
                 println("Name record update was not confirmed");
                 return;
             }
-            println("Updated dns_name record to {}", dnsNameValue!);
+            println("Updated dns_name record to {}", dnsNameValue);
         }
 
         if (walletRecordAddress != null) {
@@ -56,7 +56,7 @@ fun main() {
                 deployer.address,
                 2,
                 "wallet".toBase256(),
-                beginCell().storeRef(makeWalletRecord(walletRecordAddress!)).endCell().beginParse(),
+                beginCell().storeRef(makeWalletRecord(walletRecordAddress)).endCell().beginParse(),
                 { value: ton("0.1"), bounce: true },
             );
 
@@ -64,7 +64,7 @@ fun main() {
                 println("Wallet record update was not confirmed");
                 return;
             }
-            println("Updated wallet record to {}", walletRecordAddress!);
+            println("Updated wallet record to {}", walletRecordAddress);
         }
 
         if (newOwner != null) {
@@ -72,7 +72,7 @@ fun main() {
                 deployer.address,
                 3,
                 {
-                    newOwnerAddress: newOwner!,
+                    newOwnerAddress: newOwner,
                     responseDestination: null,
                     customPayload: null,
                     forwardAmount: 0,
@@ -84,7 +84,7 @@ fun main() {
                 println("Ownership transfer was not confirmed");
                 return;
             }
-            println("Transferred ownership to {}", newOwner!);
+            println("Transferred ownership to {}", newOwner);
         }
     }
 

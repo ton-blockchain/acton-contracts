@@ -24,7 +24,7 @@ fun targetCounter(): Counter {
         return expected;
     }
     return Counter {
-        address: counterAddress!,
+        address: counterAddress,
         stateInit: expected.stateInit,
     };
 }

@@ -32,14 +32,14 @@ fun main() {
 
     println(
         ".ton resolver: {}",
-        ton.resolvedRecord == null ? null : parseNextResolverCell(ton.resolvedRecord!),
+        ton.resolvedRecord == null ? null : parseNextResolverCell(ton.resolvedRecord),
     );
     println(
         ".ton.www resolver: {}",
-        tonWww.resolvedRecord == null ? null : parseNextResolverCell(tonWww.resolvedRecord!),
+        tonWww.resolvedRecord == null ? null : parseNextResolverCell(tonWww.resolvedRecord),
     );
     println(
         ".t.me resolver: {}",
-        tMe.resolvedRecord == null ? null : parseNextResolverCell(tMe.resolvedRecord!),
+        tMe.resolvedRecord == null ? null : parseNextResolverCell(tMe.resolvedRecord),
     );
 }

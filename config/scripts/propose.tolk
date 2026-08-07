@@ -41,7 +41,7 @@ fun main() {
     );
 
     val expectedHashEnv = env<int>("CONFIG_PARAM_EXPECTED_HASH");
-    val expectedHash: uint256? = expectedHashEnv == null ? null : (expectedHashEnv! as uint256);
+    val expectedHash: uint256? = expectedHashEnv == null ? null : (expectedHashEnv as uint256);
 
     val proposal = ConfigProposal {
         paramId,
@@ -81,6 +81,6 @@ fun main() {
         println("CONFIG PROPOSAL_REGISTERED=false");
     } else {
         println("CONFIG PROPOSAL_REGISTERED=true");
-        printProposalTuple("CONFIG", hash, refreshed!);
+        printProposalTuple("CONFIG", hash, refreshed);
     }
 }

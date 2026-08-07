@@ -18,7 +18,7 @@ const MIN_EDGE_DELTA = 1
 fun activeShardAccount(addr: address): TlbShardAccount {
     val shard = testing.getShardAccount(addr);
     if (shard != null) {
-        return shard!;
+        return shard;
     }
     Assert.fail("Expected TlbShardAccount when setting data");
 }

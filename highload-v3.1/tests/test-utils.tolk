@@ -140,7 +140,7 @@ fun countTxsOnWithOutmsgCount(res: SendResultList, account: address, outmsgCount
 fun activeAccountInfo(addr: address): TlbAccountInfo {
     val shard = testing.getShardAccount(addr);
     if (shard != null) {
-        val acc = shard!.account.load();
+        val acc = shard.account.load();
         if (acc is TlbAccountInfo) {
             return acc;
         }
@@ -157,7 +157,7 @@ fun activeCode(addr: address): cell {
     if (code == null) {
         Assert.fail("Expected deployed code");
     }
-    return code!;
+    return code;
 }
 
 fun activeDataCell(addr: address): cell {
@@ -167,7 +167,7 @@ fun activeDataCell(addr: address): cell {
         if (active.stateInit.data == null) {
             Assert.fail("Expected active account data");
         }
-        return active.stateInit.data!;
+        return active.stateInit.data;
     }
     Assert.fail("Expected active account state");
 }
@@ -202,7 +202,7 @@ fun setActiveDataCell(addr: address, newData: cell) {
         Assert.fail("Expected shard account when setting data");
     }
 
-    var updatedShard = shard!;
+    var updatedShard = shard;
     val account = updatedShard.account.load();
     if (account !is TlbAccountInfo) {
         Assert.fail("Expected TlbAccountInfo when setting data");
@@ -308,7 +308,7 @@ fun sendAction(
             bounce,
             value,
             dest: to,
-            body: body!,
+            body,
         }).messageCell,
     };
 }

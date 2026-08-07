@@ -121,7 +121,7 @@ fun onInternalMessage(in: InMessage) {
             storage.totalSupply += internalTransferMsg.jettonAmount;
             storage.save();
 
-            reserveToncoinsOnBalance(
+            reserveGramsOnBalance(
                 ton("0.01"),
                 RESERVE_MODE_EXACT_AMOUNT,
             ); // reserve for storage fees
