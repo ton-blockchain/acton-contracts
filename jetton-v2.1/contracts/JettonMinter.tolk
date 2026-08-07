@@ -194,7 +194,7 @@ get fun get_jetton_data(): JettonDataReply {
 
     return {
         totalSupply: storage.totalSupply,
-        mintable: true,
+        mintable: storage.adminAddress != null,
         adminAddress: storage.adminAddress,
         jettonContent: storage.metadata as Cell<OnchainMetadataReply>,
         jettonWalletCode,
