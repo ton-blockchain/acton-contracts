@@ -42,10 +42,6 @@ function = "jettonWalletCompiledCode"
 src = "jetton-v2.1/contracts/JettonWallet.tolk"
 depends = []
 
-[contracts.MapLimitProbe]
-src = "map-limit/contracts/MapLimitProbe.tolk"
-depends = []
-
 [contracts.Multisig]
 src = "multisig-v2.1/contracts/Multisig.tolk"
 
