@@ -79,7 +79,7 @@ fun onInternalMessage(in: InMessage) {
             var ansTag = -price;
             if (price >= 0) {
                 // ok, debit price
-                reserveToncoinsOnBalance(price, RESERVE_MODE_INCREASE_BY_ORIGINAL_BALANCE);
+                reserveGramsOnBalance(price, RESERVE_MODE_INCREASE_BY_ORIGINAL_BALANCE);
                 ansTag = 0;
                 mode = SEND_MODE_CARRY_ALL_BALANCE;
             }

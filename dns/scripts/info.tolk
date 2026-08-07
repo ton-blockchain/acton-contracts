@@ -18,7 +18,7 @@ fun main() {
     }
 
     if (rootAddress != null) {
-        val root = RootDns.fromAddress(rootAddress!);
+        val root = RootDns.fromAddress(rootAddress);
         if (!scripts.isContractDeployed(root.address)) {
             println("Root is not deployed in the current execution context: {}", root.address);
         } else {
@@ -29,23 +29,21 @@ fun main() {
             println("Root address: {}", root.address);
             println(
                 ".ton resolver: {}",
-                ton.resolvedRecord == null ? null : parseNextResolverCell(ton.resolvedRecord!),
+                ton.resolvedRecord == null ? null : parseNextResolverCell(ton.resolvedRecord),
             );
             println(
                 ".ton.www resolver: {}",
-                tonWww.resolvedRecord == null
-                    ? null
-                    : parseNextResolverCell(tonWww.resolvedRecord!),
+                tonWww.resolvedRecord == null ? null : parseNextResolverCell(tonWww.resolvedRecord),
             );
             println(
                 ".t.me resolver: {}",
-                tMe.resolvedRecord == null ? null : parseNextResolverCell(tMe.resolvedRecord!),
+                tMe.resolvedRecord == null ? null : parseNextResolverCell(tMe.resolvedRecord),
             );
         }
     }
 
     if (collectionAddress != null) {
-        val collection = DnsCollection.fromAddress(collectionAddress!);
+        val collection = DnsCollection.fromAddress(collectionAddress);
 
         if (!scripts.isContractDeployed(collection.address)) {
             println(
@@ -62,14 +60,14 @@ fun main() {
             if (domain != null) {
                 println(
                     "Predicted item address: {}",
-                    collection.getNftAddressByIndex(domain!.beginParse().hash()),
+                    collection.getNftAddressByIndex(domain.beginParse().hash()),
                 );
             }
         }
     }
 
     if (itemAddress != null) {
-        val item = DnsItem.fromAddress(itemAddress!);
+        val item = DnsItem.fromAddress(itemAddress);
 
         if (!scripts.isContractDeployed(item.address)) {
             println("Item is not deployed in the current execution context: {}", item.address);

@@ -150,7 +150,7 @@ fun buildSendAction(
             bounce: false,
             value,
             dest,
-            body: actionBody!,
+            body: actionBody,
         }).messageCell,
     };
 }

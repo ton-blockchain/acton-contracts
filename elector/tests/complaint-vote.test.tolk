@@ -1,8 +1,10 @@
+import "@stdlib/lisp-lists"
 import "@acton/crypto"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
+import "@acton/types/transaction"
 import "test-utils"
 import "../contracts/messages"
 import "../contracts/types"
@@ -392,6 +394,188 @@ get fun `test vote old vset finished`() {
         chash,
     );
     expect(lateres).toHaveTx({ from: elector.address, opcode: 0xd674523d });
+}
+
+/// Find a past election entry by id from the past_elections getter list
+fun findPastElection(elector: Elector, id: int): PastElectionFullEntry? {
+    var l = elector.pastElections();
+    var result: PastElectionFullEntry? = null;
+    while (!l.isEmpty()) {
+        val entry = l.popHead();
+        if (entry.id == id) {
+            result = entry;
+        }
+    }
+    return result;
+}
+
+/// Recompute the canonical total stake directly from the frozen dict.
+/// This is what `throw_unless(59, total == tot_stakes)` checks against pastElection.totalStake.
+fun sumFrozenStakes(fd: FrozenDict): int {
+    var total = 0;
+    var pubkey = -1;
+    var found = true;
+    do {
+        val lookup = fd.findKeyGreater(pubkey);
+        found = lookup.isFound;
+        if (found) {
+            pubkey = lookup.getKey();
+            total += lookup.loadValue().stake;
+        }
+    } while (found);
+    return total;
+}
+
+struct SlashSetup {
+    stakeAt: int
+    vsetCell: cell
+    knownPubkey: uint256
+    knownStakerHash: uint256
+}
+
+/// Conduct elections with one known validator AND capture the elected vset cell
+/// (needed to later install + promote + unfreeze).
+fun conductWithKnownValidatorAndVset(elector: Elector, configAddr: address): SlashSetup {
+    val kp = crypto.generateKeyPair();
+    val stakeAt = elector.activeElectionId();
+    val stakeLimits = defaultStakeLimits();
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+
+    val (knownSrc, knownPubkey, knownStake) = submitKnownValidatorStake(elector, 0, kp);
+    val (_, knownStakerHash) = knownSrc.getWorkchainAndHash();
+
+    var totalStake = knownStake;
+    var i = 0;
+    while (i < 4) {
+        val (_, _, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
+        totalStake += stake;
+        i += 1;
+    }
+
+    val (
+        _,
+        closeAt,
+        _,
+        _,
+        _,
+        _,
+        _,
+    ) = elector.participantListExtended();
+    testing.setNow(closeAt + 1);
+    val tick = testing.runTickTock(elector.address, true);
+
+    val tx = tick.findTransaction<ElectedVSetMsg>({ from: elector.address, to: configAddr });
+    val body = tx!.loadBody<ElectedVSetMsg>();
+
+    return SlashSetup {
+        stakeAt,
+        vsetCell: body.vset,
+        knownPubkey,
+        knownStakerHash,
+    };
+}
+
+/// Full slash -> unfreeze flow.
+/// Proves that after punish() the invariant totalStake == Σ frozen.stake still holds,
+/// unfreeze does NOT throw 59, and the slashed validator receives the REDUCED stake back.
+get fun `test slash then unfreeze`() {
+    val setup = setupElector();
+    val elector = setup.elector;
+
+    announceElections(elector);
+    val sl = conductWithKnownValidatorAndVset(elector, setup.configAddr);
+    val stakeAt = sl.stakeAt;
+    val victimPubkey = sl.knownPubkey;
+
+    // ---- pre-slash invariant: pastElection.totalStake == Σ frozen.stake ----
+    val pe0 = findPastElection(elector, stakeAt)!;
+    expect(pe0.totalStake).toEqual(sumFrozenStakes(pe0.frozenDict));
+    val victim0Lookup = pe0.frozenDict.get(victimPubkey);
+    assert (victim0Lookup.isFound) throw 700;
+    val victim0 = victim0Lookup.loadValue();
+    val victimStake0 = victim0.stake;
+    val victimAddr = victim0.addr;
+    expect(victimAddr).toEqual(sl.knownStakerHash);
+
+    // ---- slash via 2/3 vote (idx 1..4, weight 100 each, threshold = muldiv(500,2,3)=333) ----
+    val kps = setupVsetWithKnownValidators(5);
+    val fine: coins = ton("100");
+    val finePart: uint32 = 1 << 30; // + 1/4 of the stake
+    val reg = registerTestComplaintFull(elector, stakeAt, victimPubkey, fine, finePart);
+    val chash = reg.chash;
+
+    var i = 1;
+    while (i <= 4) {
+        val res = sendVote(
+            elector,
+            i,
+            kps.get(i).privateKey,
+            i,
+            stakeAt,
+            chash,
+        );
+        if (i < 4) {
+            expect(res).toHaveTx({ from: elector.address, opcode: 0xd6745241 }); // Accepted
+        } else {
+            expect(
+                res,
+            ).toHaveTx({ from: elector.address, opcode: 0xd6745242 });           // Finished -> punish
+        }
+        i += 1;
+    }
+
+    // ---- post-slash: BOTH stake and totalStake drop by the SAME fine; invariant holds ----
+    val trueFine = min(victimStake0, fine + mulDivFloor(victimStake0, finePart, 1 << 32));
+    val pe1 = findPastElection(elector, stakeAt)!;
+    val victimStake1 = pe1.frozenDict.get(victimPubkey).loadValue().stake;
+    expect(victimStake1).toEqual(victimStake0 - trueFine);           // frozen stake reduced
+    expect(pe1.totalStake).toEqual(
+        pe0.totalStake - trueFine,
+    );                                                               // totalStake reduced by same fine
+    expect(pe1.totalStake).toEqual(sumFrozenStakes(pe1.frozenDict)); // <-- the assert-59 invariant
+
+    // ---- install elected vset → activeId set, bonuses funded from slashed grams ----
+    var config = testing.getConfig();
+    config.setParamRaw(34, sl.vsetCell);
+    testing.setConfig(config);
+    testing.runTickTock(elector.address, true);
+    expect(elector.activeElectionId()).toEqual(0); // currectElections cleared = vset installed
+
+    // ---- promote to a new vset so this election becomes inactive & unfreezeAt is recomputed ----
+    val stakeHeld = defaultValidationTimes().stakeHeldFor;
+    val newVset = buildVSet(blockchain.now(), blockchain.now() + 10000, 1, 1, 0);
+    config = testing.getConfig();
+    config.setParamRaw(34, newVset.toCell());
+    config.setParamRaw(36, newVset.toCell());
+    testing.setConfig(config);
+    val promoteTime = blockchain.now() + 100;
+    testing.setNow(promoteTime);
+    testing.runTickTock(elector.address, true);
+
+    // ---- state right before unfreeze: bonuses now present → unfreezeWithBonuses path ----
+    val pe2 = findPastElection(elector, stakeAt)!;
+    val victimStake2 = pe2.frozenDict.get(victimPubkey).loadValue().stake;
+    expect(victimStake2).toEqual(victimStake1);                      // unchanged since slash
+    expect(pe2.totalStake).toEqual(
+        sumFrozenStakes(pe2.frozenDict),
+    );                                                               // invariant holds with bonuses set
+    assert (
+        pe2.bonuses > 0
+    ) throw 702;                                                     // bonus path actually exercised
+    val victimCreditBefore = elector.computeReturnedStake(victimAddr);
+
+    // ---- UNFREEZE: the tick that would throw 59 if the "desync" claim were true ----
+    testing.setNow(promoteTime + stakeHeld + 1);
+    testing.runTickTock(elector.address, true);
+
+    // past election removed → unfreeze succeeded (no exit 59, no locked funds)
+    val gone = findPastElection(elector, stakeAt);
+    assert (gone == null) throw 703;
+
+    // victim got back the REDUCED stake (+ proportional bonus), NOT the original
+    val expectedBonus = mulDivFloor(pe2.bonuses, victimStake2, pe2.totalStake);
+    val victimCreditAfter = elector.computeReturnedStake(victimAddr);
+    expect(victimCreditAfter - victimCreditBefore).toEqual(victimStake2 + expectedBonus);
 }
 
 /// Test that vote resets when vset changes before 2/3 collected

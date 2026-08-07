@@ -698,7 +698,7 @@ get fun `test w5: action list exceeding 255 elements should be rejected`() {
     if (extReceipt == null) {
         Assert.fail("External message was not accepted");
     }
-    expect(extReceipt!).toHaveTx({ exitCode: Errors.InvalidC5 });
+    expect(extReceipt).toHaveTx({ exitCode: Errors.InvalidC5 });
     seqno += 1;
 
     // Via internal: should bounce
@@ -1133,7 +1133,7 @@ get fun `test w5: should reject action list with extra data or refs`() {
         if (extReceipt == null) {
             Assert.fail("External message was not accepted");
         }
-        expect(extReceipt!).toHaveTx({ exitCode: Errors.InvalidC5 });
+        expect(extReceipt).toHaveTx({ exitCode: Errors.InvalidC5 });
         seqno += 1;
 
         i += 1;

@@ -85,7 +85,7 @@ fun onInternalMessage(in: InMessage) {
 
             assert (msg.signerIndexOnInit != null) throw ERROR_ALREADY_INITED;
 
-            val signerIndex = msg.signerIndexOnInit!;
+            val signerIndex = msg.signerIndexOnInit;
             val signerAddress = storage.remaining.signers.get(signerIndex);
 
             assert (signerAddress.isFound) throw ERROR_UNAUTHORIZED_SIGN;

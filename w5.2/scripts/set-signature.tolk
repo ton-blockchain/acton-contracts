@@ -26,7 +26,7 @@ fun main() {
     println("Current signature_allowed: {}", current);
     val targetFromEnv = env<bool>("W5_SIGNATURE_ALLOWED");
     val target = targetFromEnv != null
-        ? targetFromEnv!
+        ? targetFromEnv
         : confirm(
             "Allow signature?",
             !current,

@@ -18,7 +18,7 @@ fun main() {
     }
 
     val deployer = scripts.wallet("deployer");
-    val multisig = Multisig.fromAddress(multisigAddress!);
+    val multisig = Multisig.fromAddress(multisigAddress);
     if (!scripts.isContractDeployed(multisig.address)) {
         println("Multisig is not deployed in the current execution context: {}", multisig.address);
         return;
@@ -43,7 +43,7 @@ fun main() {
 
     var signerItems = signers.findFirst();
     while (signerItems.isFound) {
-        if (newSigner != null && signerItems.loadValue() == newSigner!) {
+        if (newSigner != null && signerItems.loadValue() == newSigner) {
             signerAlreadyPresent = true;
         }
         signerCount += 1;
@@ -52,7 +52,7 @@ fun main() {
 
     var proposerItems = proposers.findFirst();
     while (proposerItems.isFound) {
-        if (newProposer != null && proposerItems.loadValue() == newProposer!) {
+        if (newProposer != null && proposerItems.loadValue() == newProposer) {
             proposerAlreadyPresent = true;
         }
         proposerCount += 1;
@@ -71,13 +71,13 @@ fun main() {
 
     var hasChange = false;
     if (newSigner != null) {
-        signers.set(signerCount as uint8, newSigner!);
+        signers.set(signerCount as uint8, newSigner);
         signerCount += 1;
         hasChange = true;
     }
 
     if (newProposer != null) {
-        proposers.set(proposerCount as uint8, newProposer!);
+        proposers.set(proposerCount as uint8, newProposer);
         proposerCount += 1;
         hasChange = true;
     }
@@ -105,12 +105,12 @@ fun main() {
 
     if (
         dataBefore.nextOrderSeqno != -1 && orderSeqnoEnv != null &&
-        orderSeqnoEnv! != dataBefore.nextOrderSeqno
+        orderSeqnoEnv != dataBefore.nextOrderSeqno
     ) {
         println(
             "Sequential multisig expects next order seqno {}, not {}",
             dataBefore.nextOrderSeqno,
-            orderSeqnoEnv!,
+            orderSeqnoEnv,
         );
         return;
     }
@@ -121,7 +121,7 @@ fun main() {
     val isAutoApprove: bool = env("MSIG_AUTO_APPROVE") ?? true;
     val requestedOrderSeqno: uint256 = orderSeqnoEnv == null
         ? MAX_ORDER_SEQNO
-        : orderSeqnoEnv! as uint256;
+        : orderSeqnoEnv as uint256;
     val expectedOrderSeqno = dataBefore.nextOrderSeqno == -1
         ? orderSeqnoEnv!
         : dataBefore.nextOrderSeqno;
@@ -150,10 +150,10 @@ fun main() {
     println("Using wallet: deployer");
     println("Target multisig: {}", multisig.address);
     if (newSigner != null) {
-        println("Adding signer: {}", newSigner!);
+        println("Adding signer: {}", newSigner);
     }
     if (newProposer != null) {
-        println("Adding proposer: {}", newProposer!);
+        println("Adding proposer: {}", newProposer);
     }
     println("Threshold after update: {}", threshold);
     println("Expected order seqno: {}", expectedOrderSeqno);

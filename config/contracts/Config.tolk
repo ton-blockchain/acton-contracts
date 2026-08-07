@@ -49,7 +49,7 @@ fun onInternalMessage(in: InMessage) {
 
             if (electorParam != null) {
                 val (_, srcHash) = in.senderAddress.getWorkchainAndHash();
-                val electorHash = electorParam!.beginParse().preloadUint(256);
+                val electorHash = electorParam.beginParse().preloadUint(256);
 
                 if (srcHash == electorHash) {
                     val validatorSetWindow = checkValidatorSet(msg.vset);
@@ -86,7 +86,7 @@ fun onInternalMessage(in: InMessage) {
             var ansTag = -price;
 
             if (price >= 0) {
-                reserveToncoinsOnBalance(price, RESERVE_MODE_INCREASE_BY_ORIGINAL_BALANCE);
+                reserveGramsOnBalance(price, RESERVE_MODE_INCREASE_BY_ORIGINAL_BALANCE);
 
                 ansTag = TAG_NEW_VOTING_CREATED;
                 mode = SEND_MODE_CARRY_ALL_BALANCE;
@@ -173,7 +173,7 @@ fun onRunTickTock() {
 
     val nextVset = configDict.getById(CONFIG_PARAM_NEXT_VALIDATOR_SET);
     if (nextVset != null) {
-        var ds = nextVset!.beginParse();
+        var ds = nextVset.beginParse();
         if (ds.remainingBitsCount() >= 40) {
             val tag = ds.loadUint(8);
             val since = ds.preloadUint(32);
@@ -181,11 +181,11 @@ fun onRunTickTock() {
             if (since <= blockchain.now() && tag == OP_VALIDATOR_SET_EXT) {
                 val oldCurrentVset = configDict.setByIdAndGetPrevious(
                     CONFIG_PARAM_CURRENT_VALIDATOR_SET,
-                    nextVset!,
+                    nextVset,
                 );
 
                 if (oldCurrentVset != null) {
-                    configDict.setById(CONFIG_PARAM_PREVIOUS_VALIDATOR_SET, oldCurrentVset!);
+                    configDict.setById(CONFIG_PARAM_PREVIOUS_VALIDATOR_SET, oldCurrentVset);
                 } else {
                     configDict.deleteById(CONFIG_PARAM_PREVIOUS_VALIDATOR_SET);
                 }
@@ -246,7 +246,7 @@ fun unpackProposal(statusSlice: slice): ProposalView {
         voter = status.voters.iteratePrev(voter);
     }
 
-    val paramHash = proposal.ifHashEqual == null ? -1 : (proposal.ifHashEqual! as int);
+    val paramHash = proposal.ifHashEqual == null ? -1 : (proposal.ifHashEqual as int);
 
     return ProposalView {
         expires: status.expires,
@@ -312,7 +312,7 @@ get fun proposal_storage_price(critical: int, seconds: int, bits: int, refs: int
     val cparam11 = configDict.getById(CONFIG_PARAM_VOTING_SETUP);
     assert (cparam11 != null) throw ERROR_INVALID_PROPOSAL_STATUS;
 
-    val voteCfg = getVoteConfigInternal(critical != 0, cparam11!);
+    val voteCfg = getVoteConfigInternal(critical != 0, cparam11);
     if (seconds < voteCfg.minStoreSec) {
         return -1;
     }

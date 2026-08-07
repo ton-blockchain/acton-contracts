@@ -269,7 +269,7 @@ fun setupConfigTest(): ConfigTestContext {
 fun activeShardAccount(addr: address): TlbShardAccount {
     val shard = testing.getShardAccount(addr);
     if (shard != null) {
-        return shard!;
+        return shard;
     }
     Assert.fail("Expected TlbShardAccount");
 }
@@ -297,7 +297,7 @@ fun activeDataCell(addr: address): cell {
         if (active.stateInit.data == null) {
             Assert.fail("Expected active state data");
         }
-        return active.stateInit.data!;
+        return active.stateInit.data;
     }
     Assert.fail("Expected active account state");
 }
@@ -389,7 +389,7 @@ fun getProposalOrNull(contract: Config, hash: uint256): ProposalTupleView? {
     if (raw == null) {
         return null;
     }
-    return parseProposal(raw!);
+    return parseProposal(raw);
 }
 
 fun getProposalFullOrNull(contract: Config, hash: uint256): ProposalFullView? {
@@ -397,7 +397,7 @@ fun getProposalFullOrNull(contract: Config, hash: uint256): ProposalFullView? {
     if (raw == null) {
         return null;
     }
-    return parseProposalFull(raw!);
+    return parseProposalFull(raw);
 }
 
 fun proposalVotersCount(view: ProposalFullView): int {
@@ -568,7 +568,7 @@ fun sendExternalRaw(contract: Config, body: cell): SendResultList {
     if (res == null) {
         Assert.fail("External message was not accepted for execution");
     }
-    return res!;
+    return res;
 }
 
 fun trySendExternalRaw(contract: Config, body: cell): SendResultList? {
@@ -686,7 +686,7 @@ fun injectProposalStatus(
     roundsRemaining: uint8 = 20,
     losses: uint8 = 0,
 ): uint256 {
-    val hash = fixedHash == null ? proposalHash(proposal) : fixedHash!;
+    val hash = fixedHash == null ? proposalHash(proposal) : fixedHash;
 
     var storage = getStorage(contract);
     val currentVset = testing.getConfig().getParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
@@ -725,7 +725,7 @@ fun setStorageConfigParam(contract: Config, index: int32, value: cell?) {
     if (value == null) {
         storage.config.deleteById(index);
     } else {
-        storage.config.setById(index, value!);
+        storage.config.setById(index, value);
     }
     setStorage(contract, storage);
 }
@@ -766,5 +766,5 @@ fun emptyOrDifferent(slotValue: cell?, expected: cell): bool {
     if (slotValue == null) {
         return true;
     }
-    return slotValue!.hash() != expected.hash();
+    return slotValue.hash() != expected.hash();
 }

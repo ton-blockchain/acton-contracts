@@ -38,7 +38,7 @@ fun main() {
         proposalHash: proposalHash as uint256,
     }.toCell();
 
-    val signature = crypto.rawSign(privateKey!, payload.beginParse().bitsHash()) as bits512;
+    val signature = crypto.rawSign(privateKey, payload.beginParse().bitsHash()) as bits512;
 
     println("CONFIG VOTE_SENDER={}", sender.address);
     println("CONFIG SENDER_WORKCHAIN={}", sender.address.getWorkchain());
@@ -62,6 +62,6 @@ fun main() {
     if (raw == null) {
         println("CONFIG PROPOSAL_AFTER_VOTE=<not found / accepted / expired>");
     } else {
-        printProposalTuple("CONFIG", proposalHash, raw!);
+        printProposalTuple("CONFIG", proposalHash, raw);
     }
 }

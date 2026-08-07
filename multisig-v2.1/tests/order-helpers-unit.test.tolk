@@ -86,8 +86,8 @@ fun containsMessageWithOpcode(actions: OutActionList, opcode: int): bool {
     while (i < actions.size()) {
         val sendAction = actions.getSendMessageAt(i);
         if (sendAction != null) {
-            val op = sendAction!.loadGenericMessage().loadOpcode();
-            if (op != null && op! == opcode) {
+            val op = sendAction.loadGenericMessage().loadOpcode();
+            if (op != null && op == opcode) {
                 return true;
             }
         }

@@ -22,7 +22,7 @@ fun main() {
     }
 
     val deployer = scripts.wallet("deployer");
-    val multisig = Multisig.fromAddress(multisigAddress!);
+    val multisig = Multisig.fromAddress(multisigAddress);
     if (!scripts.isContractDeployed(multisig.address)) {
         println("Multisig is not deployed in the current execution context: {}", multisig.address);
         return;
@@ -44,19 +44,19 @@ fun main() {
 
     if (
         dataBefore.nextOrderSeqno != -1 && orderSeqnoEnv != null &&
-        orderSeqnoEnv! != dataBefore.nextOrderSeqno
+        orderSeqnoEnv != dataBefore.nextOrderSeqno
     ) {
         println(
             "Sequential multisig expects next order seqno {}, not {}",
             dataBefore.nextOrderSeqno,
-            orderSeqnoEnv!,
+            orderSeqnoEnv,
         );
         return;
     }
 
     val requestedOrderSeqno: uint256 = orderSeqnoEnv == null
         ? MAX_ORDER_SEQNO
-        : orderSeqnoEnv! as uint256;
+        : orderSeqnoEnv as uint256;
     val expectedOrderSeqno = dataBefore.nextOrderSeqno == -1
         ? orderSeqnoEnv!
         : dataBefore.nextOrderSeqno;
@@ -66,7 +66,7 @@ fun main() {
         message: createMessage({
             bounce: true,
             value: transferValue,
-            dest: target!,
+            dest: target,
             body: beginCell().storeUint(marker, 32).endCell(),
         }).messageCell,
     };
@@ -88,7 +88,7 @@ fun main() {
 
     println("Using wallet: deployer");
     println("Target multisig: {}", multisig.address);
-    println("Transfer target: {}", target!);
+    println("Transfer target: {}", target);
     println("Expected order seqno: {}", expectedOrderSeqno);
     println("Expected order address: {}", orderContract.address);
     println("Estimated order funding value: {}", estimatedOrderValue);
@@ -112,7 +112,7 @@ fun main() {
     val dataAfter = multisig.getData();
     val orderData = orderContract.getData();
 
-    println("New order submitted for {}", target!);
+    println("New order submitted for {}", target);
     println("Order initialized: {}", orderData.isInitialized());
     println("Order approvals: {}", orderData.approvalsNum);
     println("Order sent for execution: {}", orderData.sentForExecution);

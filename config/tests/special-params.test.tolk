@@ -13,7 +13,7 @@ get fun `test special params int: should apply -999 proposal and update stored p
     val ctx = setupConfigTest();
     val pubCell = beginCell().storeUint(TEST_SPECIAL_PUBKEY_INT, 256).endCell();
     val current = getConfigParam(ctx.contract, -999);
-    val expectedHash: uint256 = current == null ? 0 : current!.hash();
+    val expectedHash: uint256 = current == null ? 0 : current.hash();
 
     val proposal = createProposal(-999, pubCell, expectedHash);
     val hash = injectProposalStatus(
@@ -40,7 +40,7 @@ get fun `test special params ext: should apply -999 proposal and update stored p
     val ctx = setupConfigTest();
     val pubCell = beginCell().storeUint(TEST_SPECIAL_PUBKEY_EXT, 256).endCell();
     val current = getConfigParam(ctx.contract, -999);
-    val expectedHash: uint256 = current == null ? 0 : current!.hash();
+    val expectedHash: uint256 = current == null ? 0 : current.hash();
 
     val proposal = createProposal(-999, pubCell, expectedHash);
     val hash = injectProposalStatus(

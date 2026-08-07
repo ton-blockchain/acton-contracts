@@ -161,7 +161,7 @@ fun updateMetadataAndDiscoverWalletStage(ctx: JettonE2eContext) {
     expect(body.jettonWalletAddress).toEqual(ctx.recipientWallet.address);
     expect(body.ownerAddress).toBeNotNull();
     if (body.ownerAddress != null) {
-        expect(body.ownerAddress!.load()).toEqual(ctx.recipient.address);
+        expect(body.ownerAddress.load()).toEqual(ctx.recipient.address);
     }
 }
 

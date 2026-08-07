@@ -275,7 +275,7 @@ fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = 
 fun activeShardAccount(addr: address): TlbShardAccount {
     val shard = testing.getShardAccount(addr);
     if (shard != null) {
-        return shard!;
+        return shard;
     }
     Assert.fail("Expected TlbShardAccount");
 }
@@ -295,7 +295,7 @@ fun activeDataCell(addr: address): cell {
         if (active.stateInit.data == null) {
             Assert.fail("Expected active state data");
         }
-        return active.stateInit.data!;
+        return active.stateInit.data;
     }
     Assert.fail("Expected active account state");
 }

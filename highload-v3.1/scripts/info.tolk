@@ -13,7 +13,7 @@ fun main() {
     }
 
     val queryId: int = env("HIGHLOAD_QUERY_ID") ?? 0;
-    val wallet = HighloadWalletV3.fromAddress(walletAddress!);
+    val wallet = HighloadWalletV3.fromAddress(walletAddress);
 
     if (!scripts.isContractDeployed(wallet.address)) {
         println("Wallet is not deployed in the current execution context: {}", wallet.address);

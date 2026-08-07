@@ -19,7 +19,7 @@ fun main() {
     val timeout: int = env("HIGHLOAD_TIMEOUT") ?? HIGHLOAD_DEFAULT_TIMEOUT;
     val deployValue: int = env("HIGHLOAD_DEPLOY_VALUE") ?? HIGHLOAD_DEFAULT_DEPLOY_VALUE;
 
-    val keyPair = crypto.seedToKeyPair(seed!);
+    val keyPair = crypto.seedToKeyPair(seed);
     val wallet = HighloadWalletV3.fromConfig(keyPair.publicKey, subwalletId, timeout);
 
     println("Using wallet: deployer");

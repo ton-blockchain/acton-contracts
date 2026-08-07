@@ -21,7 +21,7 @@ fun assertProposalCreateOutcome(
         val currentValue = getConfigParam(ctx.contract, paramId);
         var expectedHash: uint256 = 0;
         if (currentValue != null) {
-            expectedHash = currentValue!.hash();
+            expectedHash = currentValue.hash();
         }
 
         val proposal = createProposal(paramId, value, expectedHash);

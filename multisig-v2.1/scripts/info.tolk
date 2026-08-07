@@ -12,7 +12,7 @@ fun main() {
         return;
     }
 
-    val multisig = Multisig.fromAddress(multisigAddress!);
+    val multisig = Multisig.fromAddress(multisigAddress);
     if (!scripts.isContractDeployed(multisig.address)) {
         println("Multisig is not deployed in the current execution context: {}", multisig.address);
         return;

@@ -204,7 +204,7 @@ fun approvalBit(mask: int?, idx: int): bool {
     if (mask == null) {
         return false;
     }
-    return ((mask! >> idx) & 1) == 1;
+    return ((mask >> idx) & 1) == 1;
 }
 
 fun mapToAddressArray(m: map<uint8, address>): array<address> {
