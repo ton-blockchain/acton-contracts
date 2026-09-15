@@ -35,7 +35,7 @@ enum StakeReason {
 type CreditsMap = map<uint256, coins>
 
 struct Storage {
-    currectElections: Cell<Elections>?
+    currentElections: Cell<Elections>?
     credits: CreditsMap
     pastElections: map<uint32, PastElection>
     grams: coins

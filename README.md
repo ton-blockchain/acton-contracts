@@ -83,7 +83,7 @@ acton test multisig-v2.1/tests
 
 ### Benchmarks
 
-Each `**/tests/benchmarks/*.json` file is a gas snapshot baseline, that can be used to compare different implementations in terms of gas efficency. See `**/tests/e2e-happy-paths.test.tolk` for end-to-end tests, that are used as benchmark for gas measurements.
+Each `**/tests/benchmarks/*.json` file is a gas snapshot baseline, that can be used to compare different implementations in terms of gas efficiency. See `**/tests/e2e-happy-paths.test.tolk` for end-to-end tests, that are used as benchmark for gas measurements.
 
 Using DNS set of contracts as example (replace DNS with desired contract-set folder):
 

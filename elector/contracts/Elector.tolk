@@ -145,7 +145,7 @@ fun onBouncedMessage(_in: InMessageBounced) {
 fun processNewStake(msg: NewStakeMessage): void {
     val srcWcAndHash = InMessage.source().getWorkchainAndHash();
     var storage = Storage.load();
-    if ((storage.currectElections == null) || (srcWcAndHash.0 != -1)) {
+    if ((storage.currentElections == null) || (srcWcAndHash.0 != -1)) {
         return returnStake(InMessage.source(), msg.queryId, StakeReason.Ok);
     }
 
@@ -163,7 +163,7 @@ fun processNewStake(msg: NewStakeMessage): void {
         return returnStake(InMessage.source(), msg.queryId, StakeReason.LowFactor);
     }
 
-    var elect = storage.currectElections.load();
+    var elect = storage.currentElections.load();
     var msgValue = InMessage.value() - ton("1"); // Deduct 1 ton for sending confirmation
     if ((msgValue << 12) < elect.totalStake) {
         return returnStake(InMessage.source(), msg.queryId, StakeReason.StakeTooSmall);
@@ -214,7 +214,7 @@ fun processNewStake(msg: NewStakeMessage): void {
     elect.isFailed = false;
     elect.isFinished = false;
 
-    storage.currectElections = elect.toCell();
+    storage.currentElections = elect.toCell();
     storage.save();
 
     if (msg.queryId != 0) {
@@ -227,14 +227,14 @@ fun configSetConfirmed(queryId: uint64, ok: bool) {
     val configAddr = blockchain.configParam(0)!.beginParse().preloadUint(256);
     var storage = Storage.load();
     if (
-        (storage.currectElections == null) || (srcWcAndHash.0 != -1) ||
+        (storage.currentElections == null) || (srcWcAndHash.0 != -1) ||
         (srcWcAndHash.1 != configAddr)
     ) {
         // not from config smc, somebody's joke?
         // or no elections active (or just completed)
         return;
     }
-    val elect = storage.currectElections.load();
+    val elect = storage.currentElections.load();
     if (elect.electionsAt != queryId || (!elect.isFinished)) {
         // not these elections, or elections not finished yet
         return;
@@ -245,7 +245,7 @@ fun configSetConfirmed(queryId: uint64, ok: bool) {
         val (pastElections, unusedPrizes) = storage
             .credits
             .unfreezeAll(storage.pastElections, elect.electionsAt);
-        storage.currectElections = null;
+        storage.currentElections = null;
         storage.pastElections = pastElections;
         storage.grams += unusedPrizes;
         storage.save();
@@ -570,10 +570,10 @@ fun postponeElections(): bool {
 }
 
 fun conductElections(mutate storage: Storage): bool {
-    if (storage.currectElections == null) {
+    if (storage.currentElections == null) {
         return false;
     }
-    var elect = storage.currectElections.load();
+    var elect = storage.currentElections.load();
     if (blockchain.now() < elect.electionsCloseAt) {
         // elections not finished yet
         return false;
@@ -608,7 +608,7 @@ fun conductElections(mutate storage: Storage): bool {
     // if count==0, set failed=true, finished=false
     elect.isFailed = (res.count == 0);
     elect.isFinished = !elect.isFailed;
-    storage.currectElections = elect.toCell();
+    storage.currentElections = elect.toCell();
 
     if (res.count == 0) {
         // elections failed
@@ -706,7 +706,7 @@ fun cellHashEq(vset: cell?, expectedHash: uint256): bool {
 
 fun validatorSetInstalled(mutate storage: Storage): bool {
     // This is checked in onTickTock
-    val elect = storage.currectElections!.load();
+    val elect = storage.currentElections!.load();
     if (!elect.isFinished) {
         // elections not finished yet
         return false;
@@ -723,7 +723,7 @@ fun validatorSetInstalled(mutate storage: Storage): bool {
         cellHashEq(blockchain.configParam(36), vsetHash)
     ) {
         // this validator set has been installed, forget elections
-        storage.currectElections = null;
+        storage.currentElections = null;
         storage.save();
         updateActiveVsetId(mutate storage);
         return true;
@@ -789,7 +789,7 @@ fun announceNewElections(mutate storage: Storage): bool {
     // announce new elections
     val electAt = t + validatorConf.electionsBeginBefore;
     val electClose = electAt - validatorConf.electionsEndBefore;
-    storage.currectElections = Elections {
+    storage.currentElections = Elections {
         electionsAt: electAt,
         electionsCloseAt: electClose,
         minStake: stakeLimits.minStake,
@@ -805,7 +805,7 @@ fun announceNewElections(mutate storage: Storage): bool {
 fun onRunTickTock(_isTock: bool) {
     setGasLimitToMaximum();
     var storage = Storage.load();
-    if (storage.currectElections != null) {
+    if (storage.currentElections != null) {
         if (conductElections(mutate storage)) {
             return;
         }
@@ -826,10 +826,10 @@ fun onRunTickTock(_isTock: bool) {
 // checks whether a public key participates in current elections
 get fun participates_in(validatorPubkey: uint256): int {
     val storage = Storage.load();
-    if (storage.currectElections == null) {
+    if (storage.currentElections == null) {
         return 0;
     }
-    val elect = storage.currectElections.load();
+    val elect = storage.currentElections.load();
     val memberLookup = elect.members.get(validatorPubkey);
     return memberLookup.isFound ? memberLookup.loadValue().msgValue : 0;
 }
@@ -837,10 +837,10 @@ get fun participates_in(validatorPubkey: uint256): int {
 // returns the list of all participants of current elections with their stakes
 get fun participant_list(): lisp_list<array<int>> {
     val storage = Storage.load();
-    if (storage.currectElections == null) {
+    if (storage.currentElections == null) {
         return [];
     }
-    val elect = storage.currectElections.load();
+    val elect = storage.currentElections.load();
     var l: lisp_list<array<int>> = [];
     var entry = elect.members.findLast();
     while (entry.isFound) {
@@ -854,7 +854,7 @@ get fun participant_list(): lisp_list<array<int>> {
 // fmt-ignore
 get fun participant_list_extended(): (int, int, coins, coins, lisp_list<ParticipantExtEntry>, bool, bool) {
     val storage = Storage.load();
-    if (storage.currectElections == null) {
+    if (storage.currentElections == null) {
         return (
             0,
             0,
@@ -865,7 +865,7 @@ get fun participant_list_extended(): (int, int, coins, coins, lisp_list<Particip
             false,
         );
     }
-    val elect = storage.currectElections.load();
+    val elect = storage.currentElections.load();
     var l: lisp_list<ParticipantExtEntry> = [];
     var entry = elect.members.findLast();
     while (entry.isFound) {

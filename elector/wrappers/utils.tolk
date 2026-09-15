@@ -9,7 +9,7 @@ fun Elector.fromConfig(
     toShard: AddressShardingOptions? = null,
 ): Elector {
     val storage = Storage {
-        currectElections: null,
+        currentElections: null,
         credits: [],
         pastElections: [],
         grams: 0,
