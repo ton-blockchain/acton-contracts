@@ -110,20 +110,20 @@ fun manualOrderProcessingCost(
     val sizeCountingGas = getGasConsumedAtTheMoment() - gasBefore;
 
     val gasFees = calculateGasFee(BASECHAIN, MULTISIG_INIT_ORDER_GAS + sizeCountingGas) +
-    calculateGasFee(BASECHAIN, ORDER_INIT_GAS) +
-    calculateGasFee(BASECHAIN, ORDER_EXECUTE_GAS) +
-    calculateGasFee(BASECHAIN, MULTISIG_EXECUTE_GAS);
+        calculateGasFee(BASECHAIN, ORDER_INIT_GAS) +
+        calculateGasFee(BASECHAIN, ORDER_EXECUTE_GAS) +
+        calculateGasFee(BASECHAIN, MULTISIG_EXECUTE_GAS);
 
     val forwardFees = calculateForwardFee(
         BASECHAIN,
         INIT_ORDER_BIT_OVERHEAD + orderBits + signersBits,
         INIT_ORDER_CELL_OVERHEAD + orderCells + signersCells,
     ) +
-    calculateForwardFee(
-        BASECHAIN,
-        EXECUTE_ORDER_BIT_OVERHEAD + orderBits,
-        EXECUTE_ORDER_CELL_OVERHEAD + orderCells,
-    );
+        calculateForwardFee(
+            BASECHAIN,
+            EXECUTE_ORDER_BIT_OVERHEAD + orderBits,
+            EXECUTE_ORDER_CELL_OVERHEAD + orderCells,
+        );
 
     val storageFees = calculateStorageFee(
         BASECHAIN,

@@ -160,8 +160,9 @@ fun validatorsToRawDict(validators: array<ValidatorFixture>): dict {
                 pubkeyTag: OP_ED25519_PUBKEY,
                 publicKey: validator.keyPair.publicKey,
                 weight: validator.weight,
-            }.toCell()
-                .beginParse(),
+            }
+            .toCell()
+            .beginParse(),
         );
         i += 1;
     }
@@ -196,7 +197,7 @@ fun currentThreshold(): int {
     val currentVset = testing.getConfig().getParamRaw(CONFIG_PARAM_CURRENT_VALIDATOR_SET);
     val parsed = ValidatorSetExt.fromCell(currentVset);
     return (parsed.totalWeight * VOTE_WEIGHT_THRESHOLD_NUMERATOR) /
-    VOTE_WEIGHT_THRESHOLD_DENOMINATOR;
+        VOTE_WEIGHT_THRESHOLD_DENOMINATOR;
 }
 
 fun getElectorAddress(config: BlockchainConfigMap): address {
@@ -705,8 +706,9 @@ fun injectProposalStatus(
                 roundsRemaining,
                 wins,
                 losses,
-            }.toCell()
-                .beginParse(),
+            }
+            .toCell()
+            .beginParse(),
         );
 
     setStorage(contract, storage);

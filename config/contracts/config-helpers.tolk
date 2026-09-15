@@ -659,8 +659,9 @@ fun registerVotingProposal(msg: NewVotingProposalRequest, msgValue: coins): int 
             roundsRemaining: voteCfg.maxTotalRounds,
             wins: 0,
             losses: 0,
-        }.toCell()
-            .beginParse(),
+        }
+        .toCell()
+        .beginParse(),
     );
 
     storage.voteDict = voteDict;

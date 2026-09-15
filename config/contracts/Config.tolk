@@ -55,7 +55,7 @@ fun onInternalMessage(in: InMessage) {
                     val validatorSetWindow = checkValidatorSet(msg.vset);
                     val now = blockchain.now();
                     ok = (validatorSetWindow.utimeSince > now) &&
-                    (validatorSetWindow.utimeUntil > validatorSetWindow.utimeSince);
+                        (validatorSetWindow.utimeUntil > validatorSetWindow.utimeSince);
                 }
             }
 

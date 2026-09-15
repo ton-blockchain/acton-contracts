@@ -123,7 +123,7 @@ fun CreditsMap.punish(mutate self, frozen: FrozenDict, complaint: Complaint): Pu
     val fine = min(
         frozenValue.stake,
         complaint.suggestedFine +
-        mulDivFloor(frozenValue.stake, complaint.suggestedFinePart, 1 << 32),
+            mulDivFloor(frozenValue.stake, complaint.suggestedFinePart, 1 << 32),
     );
     frozenValue.stake -= fine;
     frozen.set(complaint.validatorPubkey, frozenValue);

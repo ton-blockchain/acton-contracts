@@ -207,9 +207,9 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
     val actualStorage = getStorageCollected(orderExecute);
 
     val actualGasFee = calculateGasFee(BASECHAIN, measuredMultisigInit) +
-    calculateGasFee(BASECHAIN, measuredOrderInit) +
-    calculateGasFee(BASECHAIN, measuredOrderExecute) +
-    calculateGasFee(BASECHAIN, measuredMultisigExecute);
+        calculateGasFee(BASECHAIN, measuredOrderInit) +
+        calculateGasFee(BASECHAIN, measuredOrderExecute) +
+        calculateGasFee(BASECHAIN, measuredMultisigExecute);
 
     val actualTotal = actualGasFee + actualInitFwd + actualExecFwd + actualStorage;
     val estimatedTotal = calculateOrderProcessingCost(order, signersMap, duration);

@@ -12,7 +12,7 @@ fun main() {
     val deployer = scripts.wallet("deployer-2");
 
     val collectionUri: string = env("DNS_COLLECTION_CONTENT_URI") ??
-    "https://example.com/dns/collection.json";
+        "https://example.com/dns/collection.json";
 
     val collection = DnsCollection.fromStorage(CollectionStorage {
         content: collectionUri.prefixWith01().toCell(),

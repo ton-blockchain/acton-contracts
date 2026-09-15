@@ -45,7 +45,7 @@ fun registerComplaint(msg: NewComplaint, msgValue: coins): int {
     }
     val validator = frozenLookup.loadValue();
     val fine = complaint.suggestedFine +
-    mulDivFloor(validator.stake, complaint.suggestedFinePart, 1 << 32);
+        mulDivFloor(validator.stake, complaint.suggestedFinePart, 1 << 32);
     if (fine > validator.stake) {
         return ComplaintError.FineTooLarge;
     }

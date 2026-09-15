@@ -621,7 +621,7 @@ get fun `test mutation: direct wallet transfer with forward amount requires seco
     val minWithoutForward = calcMinimalTransferAmount(0, fwdFee) + MIN_EDGE_DELTA;
     val minMissingSecondFee = minWithoutForward + DEFAULT_FORWARD_TON_AMOUNT;
     val minWithForward = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFee) +
-    MIN_EDGE_DELTA;
+        MIN_EDGE_DELTA;
 
     expect(minWithForward).toEqual(minWithoutForward + DEFAULT_FORWARD_TON_AMOUNT + fwdFee);
 
@@ -665,7 +665,7 @@ get fun `test mutation: direct wallet transfer gas and storage fees should follo
 
     val fwdFee = estimateBodyForwardFee(body);
     val minimalBefore = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFee) +
-    MIN_EDGE_DELTA;
+        MIN_EDGE_DELTA;
 
     var config = testing.getConfig();
     var gasPrices = config.getGasPrices(BASECHAIN);
@@ -683,7 +683,7 @@ get fun `test mutation: direct wallet transfer gas and storage fees should follo
     expect(testing.setConfig(config)).toEqual(true);
 
     val minimalAfter = calcMinimalTransferAmount(DEFAULT_FORWARD_TON_AMOUNT, fwdFee) +
-    MIN_EDGE_DELTA;
+        MIN_EDGE_DELTA;
     expect(minimalBefore).toBeLess(minimalAfter);
 
     val enough = net.send(

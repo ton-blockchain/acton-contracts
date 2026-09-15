@@ -87,7 +87,7 @@ fun checkDomainString(domain: slice, len: int): bool {
 
         val isDigit = ch >= (DomainChar.DigitZero as int) && ch <= (DomainChar.DigitNine as int);
         val isLowercaseLetter = ch >= (DomainChar.LowercaseA as int) &&
-        ch <= (DomainChar.LowercaseZ as int);
+            ch <= (DomainChar.LowercaseZ as int);
 
         var valid = isDigit || isLowercaseLetter;
         if (!valid) {

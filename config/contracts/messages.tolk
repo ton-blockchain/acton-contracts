@@ -110,8 +110,8 @@ struct (0x36) ConfigProposalRoundRules {
 
 fun ConfigProposalSetup.calculateStoragePrice(self, seconds: int, bits: int, refs: int): int {
     return (self.bitPrice * (bits + PROPOSAL_BITS_OVERHEAD) +
-    self.cellPrice * (refs + PROPOSAL_REFS_OVERHEAD)) *
-    seconds;
+        self.cellPrice * (refs + PROPOSAL_REFS_OVERHEAD)) *
+        seconds;
 }
 
 struct (0x91) ConfigVotingSetup {

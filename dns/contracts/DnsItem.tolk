@@ -43,8 +43,8 @@ fun onInternalMessage(in: InMessage) {
         }
 
         val duration = AUCTION_START_DURATION -
-        // check-disable-next-line divide-before-multiply
-        (AUCTION_START_DURATION - AUCTION_END_DURATION) * months / 12;
+            // check-disable-next-line divide-before-multiply
+            (AUCTION_START_DURATION - AUCTION_END_DURATION) * months / 12;
 
         val auctionEndTime = now + duration;
         val initialContent: DnsRecords = [];
