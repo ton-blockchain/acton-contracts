@@ -20,7 +20,7 @@ fun deepCell(depth: int): cell {
 fun setSingleIndexDictConfig(paramId: int32, idx: int32) {
     var dict: map<int32, slice> = [];
     dict.set(idx, beginCell().toSlice());
-    setGlobalConfigParam(paramId as uint32, dict.toLowLevelDict()!);
+    setGlobalConfigParam(paramId, dict.toLowLevelDict()!);
 }
 
 get fun `test proposals ext: should reject hash mismatch and accept matching hash`() {

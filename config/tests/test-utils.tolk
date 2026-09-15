@@ -225,7 +225,7 @@ fun setupConfigTest(): ConfigTestContext {
     // Clear param 36 (next validator set) — the default emulator config seeds
     // it, which would leak into the Config contract's internal storage and
     // break tests that expect it to start empty.
-    config.delete(CONFIG_PARAM_NEXT_VALIDATOR_SET as uint32);
+    config.delete(CONFIG_PARAM_NEXT_VALIDATOR_SET);
     expect(testing.setConfig(config)).toEqual(true);
 
     val electorAddress = getElectorAddress(config);
@@ -716,7 +716,7 @@ fun injectProposalStatus(
     return hash;
 }
 
-fun setGlobalConfigParam(index: uint32, value: cell) {
+fun setGlobalConfigParam(index: int32, value: cell) {
     var config = testing.getConfig();
     config.setParamRaw(index, value);
     expect(testing.setConfig(config)).toEqual(true);
