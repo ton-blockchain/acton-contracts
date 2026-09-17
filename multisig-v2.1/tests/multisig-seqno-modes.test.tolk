@@ -51,7 +51,7 @@ get fun `test multisig: should not allow to create order with seqno other than n
         nowPlus(100),
         0,
         validSeqno,
-        ton("0.5"),
+        grams("0.5"),
     );
     expect(ok).toHaveSuccessfulTx<NewOrderRequest>({
         from: ctx.deployer.address,
@@ -67,7 +67,7 @@ get fun `test multisig: should not allow to create order with seqno other than n
         nowPlus(100),
         0,
         validSeqno,
-        ton("0.5"),
+        grams("0.5"),
     );
     expect(invalidSame).toHaveFailedTx<NewOrderRequest>({
         from: ctx.deployer.address,
@@ -82,7 +82,7 @@ get fun `test multisig: should not allow to create order with seqno other than n
         nowPlus(100),
         0,
         invalidHigherSeqno,
-        ton("0.5"),
+        grams("0.5"),
     );
     expect(invalidHigher).toHaveFailedTx<NewOrderRequest>({
         from: ctx.deployer.address,
@@ -97,7 +97,7 @@ get fun `test multisig: should not allow to create order with seqno other than n
         nowPlus(100),
         0,
         invalidLowerSeqno,
-        ton("0.5"),
+        grams("0.5"),
     );
     expect(invalidLower).toHaveFailedTx<NewOrderRequest>({
         from: ctx.deployer.address,
@@ -130,7 +130,7 @@ get fun `test multisig: should allow to create orders with arbitrary seqno`() {
             nowPlus(1000),
             signerIndex,
             seqno,
-            ton("0.5"),
+            grams("0.5"),
         );
 
         expect(res).toHaveSuccessfulTx<NewOrderRequest>({
@@ -158,7 +158,7 @@ get fun `test multisig: should allow to create order with maximum possible seqno
         nowPlus(100),
         0,
         MAX_ORDER_SEQNO,
-        ton("0.5"),
+        grams("0.5"),
     );
 
     expect(res).toHaveSuccessfulTx<NewOrderRequest>({
@@ -187,7 +187,7 @@ get fun `test multisig: subsequent order creation with same seqno should result 
             nowPlus(1000),
             signerIndex,
             targetSeqno,
-            ton("0.5"),
+            grams("0.5"),
         );
 
         expect(res).toHaveSuccessfulTx<NewOrderRequest>({

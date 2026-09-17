@@ -60,7 +60,7 @@ fun setupTest(): (Counter, Treasury, Treasury) {
 
     // Initialize and deploy the contract with default values
     val contract = Counter.fromStorage({ id: 0, counter: 0 });
-    val res = contract.deploy(deployer.address, { value: ton("1") });
+    val res = contract.deploy(deployer.address, { value: grams("1") });
     expect(res).toHaveSuccessfulDeploy({ to: contract.address });
 
     return (contract, deployer, notDeployer);

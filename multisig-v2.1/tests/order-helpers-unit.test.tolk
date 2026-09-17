@@ -30,7 +30,7 @@ fun toSignerMap(signers: array<address>): DirectIndexedAddressMap {
 fun makeSingleActionOrder(marker: int = 777): DirectOrderActionsMap {
     val outbound = createMessage({
         bounce: true,
-        value: ton("0.01"),
+        value: grams("0.01"),
         dest: randomAddress("order_unit_dest"),
         body: beginCell().storeUint(marker, 32).endCell(),
     });

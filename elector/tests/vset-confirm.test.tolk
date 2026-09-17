@@ -26,8 +26,8 @@ get fun `test vset rejected not config`() {
 
     // Send ConfigConfirmedAlt (rejection) from wrong address
     val wrongAddr = randomAddress("wrong", MASTERCHAIN);
-    testing.topUp(wrongAddr, ton("10"));
-    elector.sendConfigConfirmedAlt(wrongAddr, electAt, { value: ton("1") });
+    testing.topUp(wrongAddr, grams("10"));
+    elector.sendConfigConfirmedAlt(wrongAddr, electAt, { value: grams("1") });
 
     // Elections should still be active (rejection ignored)
     val (
@@ -42,8 +42,8 @@ get fun `test vset rejected not config`() {
     expect(electAt2).toNotEqual(0);
 
     // Send from correct config address — should cancel elections
-    testing.topUp(setup.configAddr, ton("10"));
-    elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: ton("1") });
+    testing.topUp(setup.configAddr, grams("10"));
+    elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: grams("1") });
 
     // Elections should be cancelled
     val electAt3 = elector.activeElectionId();
@@ -77,15 +77,15 @@ get fun `test vset rejected wrong wc`() {
         .endCell()
         .beginParse()
         .loadAddress();
-    testing.topUp(bcConfigAddr, ton("10"));
+    testing.topUp(bcConfigAddr, grams("10"));
 
     // From basechain — should be ignored
-    elector.sendConfigConfirmedAlt(bcConfigAddr, electAt, { value: ton("1") });
+    elector.sendConfigConfirmedAlt(bcConfigAddr, electAt, { value: grams("1") });
     expect(elector.activeElectionId()).toNotEqual(0);
 
     // From masterchain — should cancel
-    testing.topUp(setup.configAddr, ton("10"));
-    elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: ton("1") });
+    testing.topUp(setup.configAddr, grams("10"));
+    elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: grams("1") });
     expect(elector.activeElectionId()).toEqual(0);
 }
 
@@ -107,14 +107,14 @@ get fun `test vset rejected wrong elections`() {
         _,
     ) = elector.participantListExtended();
 
-    testing.topUp(setup.configAddr, ton("100"));
+    testing.topUp(setup.configAddr, grams("100"));
 
     // Wrong election ID — should be ignored
-    elector.sendConfigConfirmedAlt(setup.configAddr, (electAt + 1), { value: ton("1") });
+    elector.sendConfigConfirmedAlt(setup.configAddr, (electAt + 1), { value: grams("1") });
     expect(elector.activeElectionId()).toNotEqual(0);
 
     // Correct election ID — should cancel
-    elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: ton("1") });
+    elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: grams("1") });
     expect(elector.activeElectionId()).toEqual(0);
 }
 
@@ -138,8 +138,8 @@ get fun `test vset confirmed not config`() {
 
     // Send ConfigConfirmed from wrong address — should be ignored
     val wrongAddr = randomAddress("wrong", MASTERCHAIN);
-    testing.topUp(wrongAddr, ton("10"));
-    elector.sendConfigConfirmed(wrongAddr, electAt, { value: ton("1") });
+    testing.topUp(wrongAddr, grams("10"));
+    elector.sendConfigConfirmed(wrongAddr, electAt, { value: grams("1") });
 
     // Elections should still be present
     expect(elector.activeElectionId()).toNotEqual(0);
@@ -171,9 +171,9 @@ get fun `test vset confirmed wrong wc`() {
         .endCell()
         .beginParse()
         .loadAddress();
-    testing.topUp(bcConfigAddr, ton("10"));
+    testing.topUp(bcConfigAddr, grams("10"));
 
-    elector.sendConfigConfirmed(bcConfigAddr, electAt, { value: ton("1") });
+    elector.sendConfigConfirmed(bcConfigAddr, electAt, { value: grams("1") });
     expect(elector.activeElectionId()).toNotEqual(0);
 }
 
@@ -194,10 +194,10 @@ get fun `test vset confirmed wrong elections`() {
         _,
         _,
     ) = elector.participantListExtended();
-    testing.topUp(setup.configAddr, ton("100"));
+    testing.topUp(setup.configAddr, grams("100"));
 
     // Wrong election ID — should be ignored
-    elector.sendConfigConfirmed(setup.configAddr, (electAt + 1), { value: ton("1") });
+    elector.sendConfigConfirmed(setup.configAddr, (electAt + 1), { value: grams("1") });
     expect(elector.activeElectionId()).toNotEqual(0);
 }
 
@@ -215,7 +215,7 @@ get fun `test vset rejected success`() {
     val validatorLimits = defaultValidatorLimits();
     val stakeLimits = defaultStakeLimits();
     val numValidators = max(validatorLimits.minValidators, 5);
-    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + grams("10000");
 
     // Submit stakes and track all staker address hashes
     var stakerHashes: array<uint256> = [];
@@ -258,8 +258,8 @@ get fun `test vset rejected success`() {
     expect(elector.computeReturnedStake(firstStakerHash)).toEqual(0);
 
     // Send rejection from config
-    testing.topUp(setup.configAddr, ton("10"));
-    elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: ton("1") });
+    testing.topUp(setup.configAddr, grams("10"));
+    elector.sendConfigConfirmedAlt(setup.configAddr, electAt, { value: grams("1") });
 
     // Elections should be cancelled
     expect(elector.activeElectionId()).toEqual(0);

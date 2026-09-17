@@ -23,11 +23,11 @@ get fun `test recover stake not mc`() {
         .beginParse()
         .loadAddress();
 
-    testing.topUp(bcAddr, ton("10"));
-    testing.topUp(mcAddr, ton("10"));
+    testing.topUp(bcAddr, grams("10"));
+    testing.topUp(mcAddr, grams("10"));
 
     // From basechain — should be rejected (response with 0xfffffffe)
-    val res1 = elector.sendRecoverStakeRequest(bcAddr, 1, { value: ton("1") });
+    val res1 = elector.sendRecoverStakeRequest(bcAddr, 1, { value: grams("1") });
     expect(res1).toHaveTx({
         from: elector.address,
         to: bcAddr,
@@ -35,7 +35,7 @@ get fun `test recover stake not mc`() {
     });
 
     // From masterchain — no credits, but should also return error (no credit found)
-    val res2 = elector.sendRecoverStakeRequest(mcAddr, 1, { value: ton("1") });
+    val res2 = elector.sendRecoverStakeRequest(mcAddr, 1, { value: grams("1") });
     expect(res2).toHaveTx({
         from: elector.address,
         to: mcAddr,
@@ -64,7 +64,7 @@ get fun `test recover stake credits`() {
 
     // Submit 6 validators — maxValidators=5 so the 6th gets credited back
     val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + grams("10000");
     var totalStake: coins = 0;
     var i = 0;
     var extraSrcAddr = randomAddress("placeholder", MASTERCHAIN);
@@ -96,7 +96,7 @@ get fun `test recover stake credits`() {
     assert (credited > 0) throw 100;
 
     // Recover the stake
-    val res = elector.sendRecoverStakeRequest(extraSrcAddr, 42, { value: ton("1") });
+    val res = elector.sendRecoverStakeRequest(extraSrcAddr, 42, { value: grams("1") });
     expect(res).toHaveTx<PayStake>({ from: elector.address, to: extraSrcAddr });
 
     // After recovery, credits should be zero

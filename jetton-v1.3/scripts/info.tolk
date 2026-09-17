@@ -52,7 +52,7 @@ fun main() {
 
     println("Expected minter address: {}", minter.address);
     if (minterAddress == null && !scripts.isContractDeployed(minter.address)) {
-        val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
+        val deployValue = envOr("JETTON_DEPLOY_VALUE", grams("0.05"));
         println("Deploying local minter for inspection with value {}", deployValue);
         val deployRes = minter.sendDeploy(deployer.address, { value: deployValue });
         if (deployRes.waitForFirstTransaction() == null) {

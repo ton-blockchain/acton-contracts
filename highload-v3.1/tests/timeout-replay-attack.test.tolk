@@ -11,13 +11,13 @@ get fun `test timeout replay attack`() {
     val attacker = testing.treasury("attacker");
 
     val newWallet = HighloadWalletV3.fromConfig(ctx.keyPair.publicKey, SUBWALLET_ID, 1234);
-    val deployRes = newWallet.deploy(newDeployer.address, { value: ton("1000"), bounce: false });
+    val deployRes = newWallet.deploy(newDeployer.address, { value: grams("1000"), bounce: false });
     expect(deployRes).toHaveSuccessfulDeploy({ to: newWallet.address });
 
     val queryId = queryIdZero().toInt();
     val legitOut = createMessage({
         bounce: false,
-        value: ton("10"),
+        value: grams("10"),
         dest: attacker.address,
     }).messageCell;
 
@@ -36,7 +36,7 @@ get fun `test timeout replay attack`() {
     expect(legitRes).toHaveSuccessfulTx({
         from: ctx.wallet.address,
         to: attacker.address,
-        value: ton("10"),
+        value: grams("10"),
     });
 
     val replay = newWallet.trySendRawExternalBodySingle(extBody);

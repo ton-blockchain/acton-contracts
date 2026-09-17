@@ -15,7 +15,7 @@ get fun `test elections ongoing`() {
 
     // Submit enough stakes for a valid election
     val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + grams("10000");
     var totalStake: coins = 0;
     var i = 0;
     while (i < 5) {
@@ -80,7 +80,7 @@ get fun `test election less min participants`() {
     // Submit only 2 validators (minValidators is 5)
     // Each needs to stake enough that total >= minTotalStake so we get to tryElect
     var totalStake: coins = 0;
-    val bigStake: coins = ton("1000000"); // 1M TON each, total 2M
+    val bigStake: coins = grams("1000000"); // 1M TON each, total 2M
     var i = 0;
     while (i < 2) {
         val (_, _, _, _, stake) = submitValidStake(elector, totalStake, bigStake);
@@ -146,7 +146,7 @@ get fun `test election less min total stake`() {
     // Submit 5 validators with small stakes (below minTotalStake of 2M TON)
     // conductElections checks totalStake < minTotalStake BEFORE calling tryElect
     // and returns postponeElections() — no state change (not failed, not finished)
-    val smallStake: coins = ton("50000"); // 50K each = 250K total, well below 2M
+    val smallStake: coins = grams("50000"); // 50K each = 250K total, well below 2M
     var totalStake: coins = 0;
     var i = 0;
     while (i < 5) {
@@ -209,10 +209,10 @@ get fun `test true stake less min total stake`() {
     // total true = 16.5K + 4*11K = 60.5K < 2M → FAIL ✓
     val stakeLimits = defaultStakeLimits();
 
-    val fatStake: coins = ton("1960000");
+    val fatStake: coins = grams("1960000");
     val (_, _, _, _, _) = submitValidStake(elector, 0, fatStake);
 
-    val smallStake: coins = stakeLimits.minStake + ton("1000");
+    val smallStake: coins = stakeLimits.minStake + grams("1000");
     var totalNominal: coins = fatStake;
     var i = 0;
     while (i < 4) {

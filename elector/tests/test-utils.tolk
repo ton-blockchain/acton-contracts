@@ -70,7 +70,7 @@ fun setupElector(): ElectorSetup {
     val elector = Elector.fromConfig();
     val deployer = testing.treasury("deployer");
 
-    val res = elector.deployToWorkchain(deployer.address, MASTERCHAIN, { value: ton("1000") });
+    val res = elector.deployToWorkchain(deployer.address, MASTERCHAIN, { value: grams("1000") });
     expect(res).toHaveSuccessfulDeploy({ to: elector.address });
 
     // Generate a config contract address on masterchain
@@ -152,13 +152,13 @@ fun submitValidStake(elector: Elector, totalStake: coins, customStake: coins = 0
 
     val stakeLimits = defaultStakeLimits();
     val minStake = max(stakeLimits.minStake, totalStake >> 12);
-    val stake: coins = customStake > 0 ? customStake : minStake + ton("1000");
+    val stake: coins = customStake > 0 ? customStake : minStake + grams("1000");
 
     val stakeAt = elector.activeElectionId();
     assert (stakeAt != 0) throw 999;
 
     val srcAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(srcAddr, stake + ton("100"));
+    testing.topUp(srcAddr, stake + grams("100"));
 
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -198,7 +198,7 @@ fun conductValidElections(elector: Elector): int {
     // Each validator stakes enough so that minValidators * stakePerValidator >= minTotalStake.
     var totalStake: coins = 0;
     val numValidators = max(validatorLimits.minValidators, 5);
-    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + grams("10000");
     var i = 0;
     while (i < numValidators) {
         val (_, _, _, _, stake) = submitValidStake(elector, totalStake, stakePerValidator);
@@ -246,13 +246,13 @@ fun createComplaint(
 // fmt-ignore
 fun submitKnownValidatorStake(elector: Elector, _totalStake: coins, kp: KeyPair): (address, uint256, coins) {
     val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + grams("10000");
 
     val stakeAt = elector.activeElectionId();
     assert (stakeAt != 0) throw 999;
 
     val srcAddr = randomAddress("known-staker", MASTERCHAIN);
-    testing.topUp(srcAddr, stakePerValidator + ton("100"));
+    testing.topUp(srcAddr, stakePerValidator + grams("100"));
 
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
     val adnlAddr: uint256 = 12345;
@@ -287,7 +287,7 @@ fun conductElectionsWithKnownValidator(elector: Elector): (int, uint256) {
     val stakeAt = elector.activeElectionId();
 
     val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + grams("10000");
 
     val (_, knownPubkey, knownStake) = submitKnownValidatorStake(elector, 0, kp);
     var totalStake = knownStake;
@@ -336,7 +336,7 @@ fun conductElectionsAndGetVset(elector: Elector, configAddr: address): (int, cel
 
     var totalStake: coins = 0;
     val numValidators = max(validatorLimits.minValidators, 5);
-    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + grams("10000");
     var firstStakerHash: uint256 = 0;
     var i = 0;
     while (i < numValidators) {

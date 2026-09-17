@@ -26,7 +26,7 @@ fun main() {
         deployer.address,
         createMessage({
             bounce: false,
-            value: ton("0.05"),
+            value: grams("0.05"),
             dest: { stateInit: collection.stateInit! },
             body: FillUp { queryId: 0 },
         }),

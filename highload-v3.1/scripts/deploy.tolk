@@ -8,7 +8,7 @@ import "../wrappers/utils"
 
 const HIGHLOAD_DEFAULT_SUBWALLET_ID = 239
 const HIGHLOAD_DEFAULT_TIMEOUT = 128
-const HIGHLOAD_DEFAULT_DEPLOY_VALUE = ton("0.05")
+const HIGHLOAD_DEFAULT_DEPLOY_VALUE = grams("0.05")
 
 fun main() {
     val seed: int = env("HIGHLOAD_SEED") ?? random.range(100000);

@@ -103,7 +103,7 @@ get fun `test voting: custom-slot proposals should not change slots even if prop
                 slot,
                 ctx.deployer.address,
                 originalSlotValue,
-                { value: ton("10"), bounce: true },
+                { value: grams("10"), bounce: true },
             );
 
         expect(setSlotRes).toHaveTx({
@@ -169,7 +169,7 @@ get fun `test voting unit: set_next_validators should accept elector and reject 
     val newVset = buildValidatorSetCell(ctx.validators, 20);
 
     val fakeElector = differentAddress(ctx.electorAddress);
-    testing.topUp(fakeElector, ton("100"));
+    testing.topUp(fakeElector, grams("100"));
 
     val reject = ctx
         .contract
@@ -177,7 +177,7 @@ get fun `test voting unit: set_next_validators should accept elector and reject 
             fakeElector,
             1,
             newVset,
-            { value: ton("10"), bounce: true },
+            { value: grams("10"), bounce: true },
         );
     expect(reject).toHaveTx({
         from: ctx.contract.address,
@@ -191,7 +191,7 @@ get fun `test voting unit: set_next_validators should accept elector and reject 
             ctx.electorAddress,
             2,
             newVset,
-            { value: ton("10"), bounce: true },
+            { value: grams("10"), bounce: true },
         );
 
     expect(accepted).toHaveTx({

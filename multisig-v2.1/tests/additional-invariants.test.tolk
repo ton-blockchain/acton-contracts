@@ -15,7 +15,7 @@ get fun `test invariants: multisig unknown opcode should keep state unchanged`()
     val unknownBody = beginCell().storeUint(0xdeadbeef, 32).storeUint(123, 64).endCell();
     val res = ctx
         .multisig
-        .sendAny(ctx.outsider.address, unknownBody, { value: ton("1"), bounce: true });
+        .sendAny(ctx.outsider.address, unknownBody, { value: grams("1"), bounce: true });
 
     expect(res).toHaveSuccessfulTx({ from: ctx.outsider.address, to: ctx.multisig.address });
 
@@ -57,12 +57,12 @@ get fun `test invariants: order unknown opcode should fail with ERROR_UNKNOWN_OP
         orderBody,
         null,
         0,
-        { value: ton("2"), bounce: true },
+        { value: grams("2"), bounce: true },
     );
     expect(deploy).toHaveSuccessfulDeploy({ to: order.address });
 
     val unknownBody = beginCell().storeUint(0xdeadbeef, 32).storeUint(0, 64).endCell();
-    val res = order.sendAny(signers.get(0), unknownBody, { value: ton("1"), bounce: true });
+    val res = order.sendAny(signers.get(0), unknownBody, { value: grams("1"), bounce: true });
 
     expect(res).toHaveFailedTx({
         from: signers.get(0),
@@ -89,7 +89,7 @@ get fun `test invariants: proposer compromise does not allow approvals`() {
         ctx.proposer.address,
         0,
         10,
-        { value: ton("0.2"), bounce: true },
+        { value: grams("0.2"), bounce: true },
     );
     expect(proposerApprove).toHaveFailedTx<ApproveRequest>({
         from: ctx.proposer.address,
@@ -101,7 +101,7 @@ get fun `test invariants: proposer compromise does not allow approvals`() {
         ctx.signers.get(0),
         0,
         11,
-        { value: ton("0.2"), bounce: true },
+        { value: grams("0.2"), bounce: true },
     );
     expect(approve0).toHaveTx<ApproveAccepted>({
         from: orderAddress,
@@ -112,7 +112,7 @@ get fun `test invariants: proposer compromise does not allow approvals`() {
         ctx.signers.get(1),
         1,
         12,
-        { value: ton("0.2"), bounce: true },
+        { value: grams("0.2"), bounce: true },
     );
     expect(approve1).toHaveSuccessfulTx<ExecuteOrderRequest>({
         from: orderAddress,
@@ -141,7 +141,7 @@ get fun `test invariants: less than threshold compromised signers can be removed
     val seqno = ctx.multisig.getData().nextOrderSeqno - 1;
     val order = Order.fromAddress(ctx.multisig.getOrderAddress(seqno));
 
-    val approve = order.sendApprove(ctx.signers.get(2), 2, 77, { value: ton("0.2"), bounce: true });
+    val approve = order.sendApprove(ctx.signers.get(2), 2, 77, { value: grams("0.2"), bounce: true });
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({
         from: order.address,
         to: ctx.multisig.address,

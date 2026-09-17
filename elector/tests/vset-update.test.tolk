@@ -49,7 +49,7 @@ get fun `test vset bonus distribution`() {
     val elector = setup.elector;
 
     // Send initial balance (simulating accumulated fees / nobody's balance)
-    val bonusAmount: coins = ton("1000");
+    val bonusAmount: coins = grams("1000");
     val deployer = testing.treasury("extra-funder");
     elector.sendSimpleTransfer(deployer.address, { value: bonusAmount });
 
@@ -69,7 +69,7 @@ get fun `test vset bonus distribution`() {
     expect(elector.computeReturnedStake(stakerHash)).toEqual(0);
 
     // Send additional funds (simulating validator fees after install)
-    val additionalFees: coins = ton("500");
+    val additionalFees: coins = grams("500");
     elector.sendSimpleTransfer(deployer.address, { value: additionalFees });
     // Tick-tock to process the fees into bonuses
     testing.runTickTock(elector.address, true);
@@ -97,7 +97,7 @@ get fun `test vset bonus distribution`() {
     expect(credit).toNotEqual(0);
     // Credit should be > stake (has bonus component)
     val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + grams("10000");
     expect(credit > stakePerValidator).toEqual(true);
 }
 

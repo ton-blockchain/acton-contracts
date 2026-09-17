@@ -237,7 +237,7 @@ get fun `test multisig: should allow order creation when expiration equals curre
         expiration,
         0,
         MAX_ORDER_SEQNO,
-        ton("3"),
+        grams("3"),
     );
 
     expect(res).toHaveSuccessfulDeploy({ from: ctx.multisig.address, to: orderAddress });
@@ -400,7 +400,7 @@ get fun `test multisig: expired order execution should be denied`() {
         ctx.signers.get(0),
         createMessage({
             bounce: true,
-            value: ton("1"),
+            value: grams("1"),
             dest: order.address,
             body: ApproveRequest {
                 queryId: 1,
@@ -451,7 +451,7 @@ get fun `test multisig: order execution at exact expiration should succeed`() {
 
     testing.setNow(expiration);
     val order = Order.fromAddress(orderAddress);
-    val approve = order.sendApprove(ctx.signers.get(0), 0, 77, { value: ton("1"), bounce: true });
+    val approve = order.sendApprove(ctx.signers.get(0), 0, 77, { value: grams("1"), bounce: true });
 
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({
         from: orderAddress,
@@ -481,7 +481,7 @@ get fun `test multisig: should be possible to execute order by post init approva
     expect(before.approvalsNum).toEqual(0);
     expect(before.sentForExecution).toEqual(false);
 
-    val approve = order.sendApprove(ctx.signers.get(0), 0, 0, { value: ton("1"), bounce: true });
+    val approve = order.sendApprove(ctx.signers.get(0), 0, 0, { value: grams("1"), bounce: true });
 
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({
         from: orderAddress,
@@ -508,7 +508,7 @@ get fun `test multisig: multisig-created order should persist approvals and reje
     val order = Order.fromAddress(orderAddress);
     val signer = ctx.signers.get(1);
 
-    val first = order.sendApprove(signer, 1, 11, { value: ton("1"), bounce: true });
+    val first = order.sendApprove(signer, 1, 11, { value: grams("1"), bounce: true });
     expect(first).toHaveTx<ApproveAccepted>({ from: orderAddress, to: signer });
     expect(first).toNotHaveTx<ExecuteOrderRequest>({
         from: orderAddress,
@@ -520,7 +520,7 @@ get fun `test multisig: multisig-created order should persist approvals and reje
     expect(approvalBit(afterFirst.approvalsMask, 1)).toEqual(true);
     expect(afterFirst.sentForExecution).toEqual(false);
 
-    val duplicate = order.sendApprove(signer, 1, 12, { value: ton("1"), bounce: true });
+    val duplicate = order.sendApprove(signer, 1, 12, { value: grams("1"), bounce: true });
     expect(duplicate).toHaveTx<ApproveRejected>({ from: orderAddress, to: signer });
     val duplicateTx = duplicate.findTransaction<ApproveRejected>({
         from: orderAddress,
@@ -553,7 +553,7 @@ get fun `test multisig: multisig-created order should resolve comment approvals 
     val outsider = order.sendAny(
         ctx.outsider.address,
         makeApproveCommentBody("approve"),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(outsider).toHaveFailedTx<TextComment>({
         from: ctx.outsider.address,
@@ -568,7 +568,7 @@ get fun `test multisig: multisig-created order should resolve comment approvals 
     val first = order.sendAny(
         ctx.signers.get(0),
         makeApproveCommentBody("approve"),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(first).toHaveTx<ApproveAccepted>({
         from: order.address,
@@ -584,7 +584,7 @@ get fun `test multisig: multisig-created order should resolve comment approvals 
     expect(approvalBit(afterFirst.approvalsMask, 0)).toEqual(true);
     expect(afterFirst.sentForExecution).toEqual(false);
 
-    val second = order.sendApprove(ctx.signers.get(1), 1, 21, { value: ton("1"), bounce: true });
+    val second = order.sendApprove(ctx.signers.get(1), 1, 21, { value: grams("1"), bounce: true });
     expect(second).toHaveSuccessfulTx<ExecuteOrderRequest>({
         from: order.address,
         to: ctx.multisig.address,
@@ -600,7 +600,7 @@ get fun `test multisig: multisig-created order should resolve comment approvals 
     expect(approvalBit(afterSecond.approvalsMask, 1)).toEqual(true);
     expect(afterSecond.sentForExecution).toEqual(true);
 
-    val late = order.sendApprove(ctx.signers.get(2), 2, 22, { value: ton("1"), bounce: true });
+    val late = order.sendApprove(ctx.signers.get(2), 2, 22, { value: grams("1"), bounce: true });
     expect(late).toHaveTx<ApproveRejected>({
         from: order.address,
         to: ctx.signers.get(2),
@@ -635,8 +635,8 @@ get fun `test multisig: should send new order with many actions in specified ord
     val target1 = randomAddress("ordered_target_1");
     val target2 = randomAddress("ordered_target_2");
 
-    val action1 = makeTransferAction(target1, ton("0.015"), 12345);
-    val action2 = makeTransferAction(target2, ton("0.016"), 12346);
+    val action1 = makeTransferAction(target1, grams("0.015"), 12345);
+    val action2 = makeTransferAction(target2, grams("0.016"), 12346);
 
     val order12 = pairActionsOrder(action1, action2);
     val res12 = sendOrderBySigner(ctx, order12, nowPlus(1000));
@@ -826,7 +826,7 @@ get fun `test multisig: should accept execute internal only from self address`()
     val ctx = setupMultisig();
 
     val recipient = randomAddress("execute_internal_recipient");
-    val innerOrder = singleActionOrder(makeTransferAction(recipient, ton("0.01"), 0x12345));
+    val innerOrder = singleActionOrder(makeTransferAction(recipient, grams("0.01"), 0x12345));
 
     val resSigner = ctx
         .multisig
@@ -834,7 +834,7 @@ get fun `test multisig: should accept execute internal only from self address`()
             ctx.deployer.address,
             innerOrder,
             0,
-            { value: ton("1"), bounce: true },
+            { value: grams("1"), bounce: true },
         );
     expect(resSigner).toHaveFailedTx<ExecuteInternalRequest>({
         from: ctx.deployer.address,
@@ -848,7 +848,7 @@ get fun `test multisig: should accept execute internal only from self address`()
             ctx.proposer.address,
             innerOrder,
             0,
-            { value: ton("1"), bounce: true },
+            { value: grams("1"), bounce: true },
         );
     expect(resProposer).toHaveFailedTx<ExecuteInternalRequest>({
         from: ctx.proposer.address,
@@ -862,7 +862,7 @@ get fun `test multisig: should accept execute internal only from self address`()
             ctx.outsider.address,
             innerOrder,
             0,
-            { value: ton("1"), bounce: true },
+            { value: grams("1"), bounce: true },
         );
     expect(resOutsider).toHaveFailedTx<ExecuteInternalRequest>({
         from: ctx.outsider.address,
@@ -879,7 +879,7 @@ get fun `test multisig: chained execution should work`() {
     val ctx = setupMultisig();
 
     val chainedRecipient = randomAddress("chained_recipient");
-    val innerOrder = singleActionOrder(makeTransferAction(chainedRecipient, ton("0.01"), 0x22222));
+    val innerOrder = singleActionOrder(makeTransferAction(chainedRecipient, grams("0.01"), 0x22222));
 
     val triggerBody = ExecuteInternalRequest {
         queryId: 0,
@@ -887,7 +887,7 @@ get fun `test multisig: chained execution should work`() {
     }.toCell();
     val trigger = makeTransferActionWithBody(
         ctx.multisig.address,
-        ton("0.01"),
+        grams("0.01"),
         triggerBody,
         SEND_MODE_PAY_FEES_SEPARATELY,
         true,
@@ -901,7 +901,7 @@ get fun `test multisig: chained execution should work`() {
         nowPlus(1000),
         0,
         MAX_ORDER_SEQNO,
-        ton("3"),
+        grams("3"),
     );
 
     expect(res).toHaveSuccessfulTx<ExecuteInternalRequest>({
@@ -928,7 +928,7 @@ get fun `test multisig: chained execution should persist storage updates`() {
     }.toCell();
     val trigger = makeTransferActionWithBody(
         ctx.multisig.address,
-        ton("0.01"),
+        grams("0.01"),
         triggerBody,
         SEND_MODE_PAY_FEES_SEPARATELY,
         true,
@@ -941,7 +941,7 @@ get fun `test multisig: chained execution should persist storage updates`() {
         nowPlus(1000),
         0,
         MAX_ORDER_SEQNO,
-        ton("3"),
+        grams("3"),
     );
 
     expect(res).toHaveSuccessfulTx<ExecuteInternalRequest>({
@@ -986,7 +986,7 @@ get fun `test multisig: multisig should invalidate previous orders if signers ch
     expect(updateRes).toHaveSuccessfulTx<ExecuteOrderRequest>({ to: ctx.multisig.address });
 
     val order = Order.fromAddress(pendingOrderAddress);
-    val approveOld = order.sendApprove(ctx.signers.get(0), 0, 9, { value: ton("1"), bounce: true });
+    val approveOld = order.sendApprove(ctx.signers.get(0), 0, 9, { value: grams("1"), bounce: true });
 
     expect(approveOld).toHaveFailedTx<ExecuteOrderRequest>({
         from: pendingOrderAddress,
@@ -1021,7 +1021,7 @@ get fun `test multisig: multisig should invalidate previous orders if threshold 
         ctx.signers.get(0),
         0,
         10,
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
 
     expect(approveOld).toHaveFailedTx<ExecuteOrderRequest>({
@@ -1041,7 +1041,7 @@ get fun `test multisig: multisig should not execute orders deployed by other mul
 
     val hackerDeploy = hackerMultisig.deployWithInitBody(
         hackerDeployer.address,
-        { value: ton("10"), bounce: false },
+        { value: grams("10"), bounce: false },
     );
     expect(hackerDeploy).toHaveSuccessfulDeploy({ to: hackerMultisig.address });
 
@@ -1051,7 +1051,7 @@ get fun `test multisig: multisig should not execute orders deployed by other mul
     val legitSignersHash = legitData.signersMap().hashCell();
 
     val evilPayload = singleActionOrder(
-        makeTransferAction(hackerWallet.address, ton("100000"), 1337),
+        makeTransferAction(hackerWallet.address, grams("100000"), 1337),
     );
 
     val execBody = ExecuteOrderRequest {
@@ -1065,7 +1065,7 @@ get fun `test multisig: multisig should not execute orders deployed by other mul
 
     val trigger = makeTransferActionWithBody(
         legit.multisig.address,
-        ton("0.01"),
+        grams("0.01"),
         execBody,
         SEND_MODE_PAY_FEES_SEPARATELY,
         true,
@@ -1082,7 +1082,7 @@ get fun `test multisig: multisig should not execute orders deployed by other mul
         0,
         MAX_ORDER_SEQNO,
         0,
-        { value: ton("3"), bounce: true },
+        { value: grams("3"), bounce: true },
     );
 
     expect(res).toHaveFailedTx<ExecuteOrderRequest>({
@@ -1106,7 +1106,7 @@ get fun `test multisig: should handle more than 255 orders`() {
             i,
             makeTransferAction(
                 ctx.deployer.address,
-                ton("0.01"),
+                grams("0.01"),
                 i,
                 SEND_MODE_PAY_FEES_SEPARATELY,
                 true,
@@ -1122,7 +1122,7 @@ get fun `test multisig: should handle more than 255 orders`() {
             tailIdx,
             makeTransferAction(
                 ctx.deployer.address,
-                ton("0.01"),
+                grams("0.01"),
                 marker,
                 SEND_MODE_PAY_FEES_SEPARATELY,
                 true,
@@ -1140,7 +1140,7 @@ get fun `test multisig: should handle more than 255 orders`() {
         253,
         makeTransferActionWithBody(
             ctx.multisig.address,
-            ton("0.01"),
+            grams("0.01"),
             chainBody,
             SEND_MODE_PAY_FEES_SEPARATELY,
             true,
@@ -1153,7 +1153,7 @@ get fun `test multisig: should handle more than 255 orders`() {
         nowPlus(1000),
         0,
         MAX_ORDER_SEQNO,
-        ton("500"),
+        grams("500"),
     );
 
     expect(res).toHaveTx<ExecuteOrderRequest>({ to: ctx.multisig.address, success: true });

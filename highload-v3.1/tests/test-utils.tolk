@@ -100,7 +100,7 @@ fun setupHighloadTestWithKeyPair(
 ): (HighloadWalletV3, Treasury) {
     val deployer = testing.treasury(deployerName);
     val wallet = HighloadWalletV3.fromConfig(keyPair.publicKey, SUBWALLET_ID, timeout);
-    val deployRes = wallet.deploy(deployer.address, { value: ton("1000"), bounce: false });
+    val deployRes = wallet.deploy(deployer.address, { value: grams("1000"), bounce: false });
     expect(deployRes).toHaveSuccessfulDeploy({ to: wallet.address });
     return (wallet, deployer);
 }

@@ -21,7 +21,7 @@ fun main() {
     val senderWallet = JettonWallet { address: minter.getWalletAddress(sender.address) };
     val res = senderWallet.sendTransferPayloadInline(
         sender.address,
-        ton("0.08"),
+        grams("0.08"),
         transferAmount,
         recipient,
         sender.address,

@@ -13,7 +13,7 @@ get fun `test w5: Send a simple transfer`() {
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -74,7 +74,7 @@ get fun `test w5: Send single transfer to a deployed wallet`() {
 
     // Use a treasury as receiver (framework can't read V5 wallet account state)
     val receiver = testing.treasury("receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(receiver.address);
 
     var outActions: array<SendAction> = [];
@@ -106,10 +106,10 @@ get fun `test w5: Send two transfers`() {
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     val testReceiver1 = randomAddress("test-receiver-1");
-    val forwardValue1 = ton("0.001");
+    val forwardValue1 = grams("0.001");
 
     val testReceiver2 = testing.treasury("receiver-2");
-    val forwardValue2 = ton("0.002");
+    val forwardValue2 = grams("0.002");
 
     val receiver1BalanceBefore = testing.getAccountBalance(testReceiver1);
     val receiver2BalanceBefore = testing.getAccountBalance(testReceiver2.address);
@@ -157,7 +157,7 @@ get fun `test w5: Add two extensions and do a transfer`() {
     val testExtension1 = randomAddress("test-extension-1");
     val testExtension2 = randomAddress("test-extension-2");
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -371,7 +371,7 @@ get fun `test w5: Should fail if signature is invalid wrong payload signed`() {
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -411,7 +411,7 @@ get fun `test w5: Should fail if signature is invalid wrong private key used`() 
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -434,7 +434,7 @@ get fun `test w5: Should fail if seqno is invalid`() {
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -456,7 +456,7 @@ get fun `test w5: Should fail if valid_until is expired`() {
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -478,7 +478,7 @@ get fun `test w5: Should fail if valid_until equals now`() {
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -508,7 +508,7 @@ get fun `test w5: Should fail if walletId is wrong`() {
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -530,7 +530,7 @@ get fun `test w5: Should skip message if auth kind is wrong`() {
     val (walletV5, _) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));

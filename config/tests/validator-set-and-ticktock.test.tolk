@@ -25,7 +25,7 @@ get fun `test vset: should reject already-current set and accept future set`() {
             ctx.electorAddress,
             1,
             currentLike,
-            { value: ton("10"), bounce: true },
+            { value: grams("10"), bounce: true },
         );
 
     expect(reject).toHaveTx({
@@ -50,7 +50,7 @@ get fun `test vset: should reject already-current set and accept future set`() {
             ctx.electorAddress,
             2,
             future,
-            { value: ton("10"), bounce: true },
+            { value: grams("10"), bounce: true },
         );
 
     expect(accept).toHaveTx({
@@ -81,7 +81,7 @@ get fun `test vset: should reject expired window and accept valid window`() {
             ctx.electorAddress,
             3,
             badWindow,
-            { value: ton("10"), bounce: true },
+            { value: grams("10"), bounce: true },
         );
 
     expect(reject).toHaveTx({
@@ -106,7 +106,7 @@ get fun `test vset: should reject expired window and accept valid window`() {
             ctx.electorAddress,
             4,
             validWindow,
-            { value: ton("10"), bounce: true },
+            { value: grams("10"), bounce: true },
         );
 
     expect(accept).toHaveTx({

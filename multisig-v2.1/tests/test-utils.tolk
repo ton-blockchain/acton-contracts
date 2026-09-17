@@ -11,9 +11,9 @@ import "../wrappers/Multisig.gen"
 import "../wrappers/Order.gen"
 import "../wrappers/utils"
 
-const DEFAULT_ORDER_CREATE_VALUE = ton("2")
-const DEFAULT_APPROVE_VALUE = ton("0.1")
-const DEFAULT_TRANSFER_VALUE = ton("0.015")
+const DEFAULT_ORDER_CREATE_VALUE = grams("2")
+const DEFAULT_APPROVE_VALUE = grams("0.1")
+const DEFAULT_TRANSFER_VALUE = grams("0.015")
 const DEFAULT_ORDER_TTL = 1000
 const LARGE_ORDER_CHAIN_HEAD_SIZE = 253
 const LARGE_ORDER_MAX_INLINE = 254
@@ -37,7 +37,7 @@ type GenericOrderAction = SendMessageAction | UpdateMultisigParamsAction
 
 fun createFundedAddress(): address {
     val addr = randomAddress(null);
-    testing.topUp(addr, ton("100"));
+    testing.topUp(addr, grams("100"));
     return addr;
 }
 
@@ -87,7 +87,7 @@ fun setupMultisig(
 
     val multisig = Multisig.fromConfig(threshold, signers, proposers, allowArbitraryOrderSeqno);
 
-    val deploy = multisig.deployWithInitBody(deployer.address, { value: ton("10"), bounce: false });
+    val deploy = multisig.deployWithInitBody(deployer.address, { value: grams("10"), bounce: false });
     expect(deploy).toHaveSuccessfulDeploy({ to: multisig.address });
 
     return {
@@ -341,7 +341,7 @@ fun buildLargeOrderRange(
 
     val chainMsg = createMessage({
         bounce: true,
-        value: ton("0.01"),
+        value: grams("0.01"),
         dest: multisigAddress,
         body: chainBody,
     });

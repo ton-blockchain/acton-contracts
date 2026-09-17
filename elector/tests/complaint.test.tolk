@@ -14,29 +14,29 @@ get fun `test new complaint not mc`() {
     announceElections(elector);
     val stakeAt = conductValidElections(elector);
 
-    val complaint = createComplaint(0, ton("1"), 0);
+    val complaint = createComplaint(0, grams("1"), 0);
 
     // From basechain — should be rejected (reason -1)
     val bcAddr = randomAddress("bc-sender", BASECHAIN);
-    testing.topUp(bcAddr, ton("100"));
+    testing.topUp(bcAddr, grams("100"));
     val res1 = elector.sendNewComplaint(
         bcAddr,
         1,
         stakeAt,
         complaint,
-        { value: ton("50") },
+        { value: grams("50") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: bcAddr });
 
     // From masterchain — should process (may fail for other reasons but not -1)
     val mcAddr = randomAddress("mc-sender", MASTERCHAIN);
-    testing.topUp(mcAddr, ton("100"));
+    testing.topUp(mcAddr, grams("100"));
     val res2 = elector.sendNewComplaint(
         mcAddr,
         2,
         stakeAt,
         complaint,
-        { value: ton("50") },
+        { value: grams("50") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: mcAddr });
 }
@@ -49,17 +49,17 @@ get fun `test new complaint wrong elections`() {
     announceElections(elector);
     val stakeAt = conductValidElections(elector);
 
-    val complaint = createComplaint(0, ton("1"), 0);
+    val complaint = createComplaint(0, grams("1"), 0);
 
     // Wrong election ID
     val sender = randomAddress("sender", MASTERCHAIN);
-    testing.topUp(sender, ton("100"));
+    testing.topUp(sender, grams("100"));
     val res1 = elector.sendNewComplaint(
         sender,
         1,
         (stakeAt + 1),
         complaint,
-        { value: ton("50") },
+        { value: grams("50") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: sender });
 
@@ -69,7 +69,7 @@ get fun `test new complaint wrong elections`() {
         2,
         stakeAt,
         complaint,
-        { value: ton("50") },
+        { value: grams("50") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
 }
@@ -83,23 +83,23 @@ get fun `test new complaint fine too large`() {
     val (stakeAt, knownPubkey) = conductElectionsWithKnownValidator(elector);
 
     val sender = randomAddress("sender", MASTERCHAIN);
-    testing.topUp(sender, ton("5000"));
+    testing.topUp(sender, grams("5000"));
 
     // Sub-case 1: fine alone > stake (trivially too large)
-    val complaint1 = createComplaint(knownPubkey, ton("999999999"), 0);
+    val complaint1 = createComplaint(knownPubkey, grams("999999999"), 0);
     val res1 = elector.sendNewComplaint(
         sender,
         1,
         stakeAt,
         complaint1,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: sender });
 
     // Sub-case 2: fine < stake, but fine + fine_part > stake
     // fine = stake/2 + 2, fine_part = 1 << 31 (which adds stake/2) → total > stake
     val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + grams("10000");
     val complaint2 = Complaint {
         validatorPubkey: knownPubkey,
         description: beginCell().storeUint(0xDEAD, 32).endCell(),
@@ -115,7 +115,7 @@ get fun `test new complaint fine too large`() {
         2,
         stakeAt,
         complaint2,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
 
@@ -126,7 +126,7 @@ get fun `test new complaint fine too large`() {
         3,
         stakeAt,
         complaint3,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res3).toHaveTx({ from: elector.address, to: sender });
 }
@@ -144,16 +144,16 @@ get fun `test new complaint already expired`() {
     val unfreezeAt = stakeAt + validatorConf.electedFor + validatorConf.stakeHeldFor;
     testing.setNow(unfreezeAt + 1);
 
-    val complaint = createComplaint(0, ton("1"), 0);
+    val complaint = createComplaint(0, grams("1"), 0);
 
     val sender = randomAddress("sender", MASTERCHAIN);
-    testing.topUp(sender, ton("100"));
+    testing.topUp(sender, grams("100"));
     val res = elector.sendNewComplaint(
         sender,
         1,
         stakeAt,
         complaint,
-        { value: ton("50") },
+        { value: grams("50") },
     );
     expect(res).toHaveTx({ from: elector.address, to: sender });
 }
@@ -166,16 +166,16 @@ get fun `test new complaint no money`() {
     announceElections(elector);
     val stakeAt = conductValidElections(elector);
 
-    val complaint = createComplaint(0, ton("1"), 0);
+    val complaint = createComplaint(0, grams("1"), 0);
 
     val sender = randomAddress("sender", MASTERCHAIN);
-    testing.topUp(sender, ton("10"));
+    testing.topUp(sender, grams("10"));
     val res = elector.sendNewComplaint(
         sender,
         1,
         stakeAt,
         complaint,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
     expect(res).toHaveTx({ from: elector.address, to: sender });
 }
@@ -192,24 +192,24 @@ get fun `test new complaint paid more than fine`() {
     val zeroFineComplaint = createComplaint(knownPubkey, 0, 0);
 
     val sender = randomAddress("sender", MASTERCHAIN);
-    testing.topUp(sender, ton("1000"));
+    testing.topUp(sender, grams("1000"));
     val res1 = elector.sendNewComplaint(
         sender,
         1,
         stakeAt,
         zeroFineComplaint,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: sender });
 
     // Complaint with larger fine (1/4 of stake via finePart) → should succeed
-    val goodComplaint = createComplaint(knownPubkey, ton("100"), 1 << 30);
+    val goodComplaint = createComplaint(knownPubkey, grams("100"), 1 << 30);
     val res2 = elector.sendNewComplaint(
         sender,
         2,
         stakeAt,
         goodComplaint,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
 }
@@ -222,9 +222,9 @@ get fun `test new complaint duplicate`() {
     announceElections(elector);
     val (stakeAt, knownPubkey) = conductElectionsWithKnownValidator(elector);
 
-    val complaint = createComplaint(knownPubkey, ton("100"), 1 << 30);
+    val complaint = createComplaint(knownPubkey, grams("100"), 1 << 30);
     val sender = randomAddress("sender", MASTERCHAIN);
-    testing.topUp(sender, ton("10000"));
+    testing.topUp(sender, grams("10000"));
 
     // First submission — should succeed
     val res1 = elector.sendNewComplaint(
@@ -232,7 +232,7 @@ get fun `test new complaint duplicate`() {
         1,
         stakeAt,
         complaint,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res1).toHaveTx({ from: elector.address, to: sender });
 
@@ -242,7 +242,7 @@ get fun `test new complaint duplicate`() {
         2,
         stakeAt,
         complaint,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
 
@@ -254,7 +254,7 @@ get fun `test new complaint duplicate`() {
         severity: 0,
         rewardAddr: 0,
         paid: 0,
-        suggestedFine: ton("100"),
+        suggestedFine: grams("100"),
         suggestedFinePart: 1 << 30,
     };
     val res3 = elector.sendNewComplaint(
@@ -262,7 +262,7 @@ get fun `test new complaint duplicate`() {
         3,
         stakeAt,
         diffDescr,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res3).toHaveTx({ from: elector.address, to: sender });
 
@@ -274,7 +274,7 @@ get fun `test new complaint duplicate`() {
         severity: 5,
         rewardAddr: 0,
         paid: 0,
-        suggestedFine: ton("100"),
+        suggestedFine: grams("100"),
         suggestedFinePart: 1 << 30,
     };
     val res4 = elector.sendNewComplaint(
@@ -282,29 +282,29 @@ get fun `test new complaint duplicate`() {
         4,
         stakeAt,
         diffSeverity,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res4).toHaveTx({ from: elector.address, to: sender });
 
     // Permutation 3: different fine → new complaint hash → should succeed
-    val diffFine = createComplaint(knownPubkey, ton("101"), 1 << 30);
+    val diffFine = createComplaint(knownPubkey, grams("101"), 1 << 30);
     val res5 = elector.sendNewComplaint(
         sender,
         5,
         stakeAt,
         diffFine,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res5).toHaveTx({ from: elector.address, to: sender });
 
     // Permutation 4: different fine_part → new complaint hash → should succeed
-    val diffFinePart = createComplaint(knownPubkey, ton("100"), 1 << 29);
+    val diffFinePart = createComplaint(knownPubkey, grams("100"), 1 << 29);
     val res6 = elector.sendNewComplaint(
         sender,
         6,
         stakeAt,
         diffFinePart,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res6).toHaveTx({ from: elector.address, to: sender });
 }
@@ -317,18 +317,18 @@ get fun `test new complaint success`() {
     announceElections(elector);
     val (stakeAt, knownPubkey) = conductElectionsWithKnownValidator(elector);
 
-    val fine: coins = ton("100");
+    val fine: coins = grams("100");
     val finePart: uint32 = 1 << 30;
     val complaint = createComplaint(knownPubkey, fine, finePart);
 
     val sender = randomAddress("sender", MASTERCHAIN);
-    testing.topUp(sender, ton("1000"));
+    testing.topUp(sender, grams("1000"));
     val res = elector.sendNewComplaint(
         sender,
         1,
         stakeAt,
         complaint,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res).toHaveTx({ from: elector.address, to: sender });
 
@@ -386,12 +386,12 @@ get fun `test new complaint cell too deep`() {
         severity: 0,
         rewardAddr: 0,
         paid: 0,
-        suggestedFine: ton("100"),
+        suggestedFine: grams("100"),
         suggestedFinePart: 0,
     };
 
     val sender = randomAddress("sender", MASTERCHAIN);
-    testing.topUp(sender, ton("2000"));
+    testing.topUp(sender, grams("2000"));
 
     // Deep cell complaint — should be rejected (reason 3)
     // ansTag = 3, opcode = 3 + 0xf2676350 = 0xf2676353
@@ -400,7 +400,7 @@ get fun `test new complaint cell too deep`() {
         1,
         stakeAt,
         deepComplaint,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res1).toHaveTx({
         from: elector.address,
@@ -409,13 +409,13 @@ get fun `test new complaint cell too deep`() {
     });
 
     // Normal depth complaint — should succeed
-    val normalComplaint = createComplaint(knownPubkey, ton("100"), 1 << 30);
+    val normalComplaint = createComplaint(knownPubkey, grams("100"), 1 << 30);
     val res2 = elector.sendNewComplaint(
         sender,
         2,
         stakeAt,
         normalComplaint,
-        { value: ton("500") },
+        { value: grams("500") },
     );
     expect(res2).toHaveTx({ from: elector.address, to: sender });
 }
@@ -429,16 +429,16 @@ get fun `test new complaint wrong validator`() {
     val stakeAt = conductValidElections(elector);
 
     val fakePubkey: uint256 = 12345;
-    val complaint = createComplaint(fakePubkey, ton("1"), 0);
+    val complaint = createComplaint(fakePubkey, grams("1"), 0);
 
     val sender = randomAddress("sender", MASTERCHAIN);
-    testing.topUp(sender, ton("100"));
+    testing.topUp(sender, grams("100"));
     val res = elector.sendNewComplaint(
         sender,
         1,
         stakeAt,
         complaint,
-        { value: ton("50") },
+        { value: grams("50") },
     );
     expect(res).toHaveTx({ from: elector.address, to: sender });
 }

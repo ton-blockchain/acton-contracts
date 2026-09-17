@@ -64,7 +64,7 @@ fun setCustomSlotStage(ctx: ConfigTestContext): cell {
             CUSTOM_SLOT_1,
             ctx.deployer.address,
             customValue,
-            { value: ton("10"), bounce: true },
+            { value: grams("10"), bounce: true },
         );
 
     expect(res).toHaveSuccessfulTx<SetCustomParamRequest>({
@@ -190,7 +190,7 @@ fun rotateValidatorSetStage(ctx: ConfigTestContext, round: int, queryId: uint64)
             ctx.electorAddress,
             queryId,
             nextVset,
-            { value: ton("10"), bounce: true },
+            { value: grams("10"), bounce: true },
         );
 
     expect(setNext).toHaveSuccessfulTx<SetNextValidatorSetRequest>({

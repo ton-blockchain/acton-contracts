@@ -15,7 +15,7 @@ fun main() {
         "JETTON_METADATA_URI",
         "https://ton-blockchain.github.io/acton/logo.png",
     );
-    val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
+    val deployValue = envOr("JETTON_DEPLOY_VALUE", grams("0.05"));
 
     val expectedMinter = NotcoinMinter.fromStorage({
         totalSupply: initialSupply,

@@ -10,7 +10,7 @@ fun NotcoinMinter.sendDiscovery(
     from: address,
     ownerAddress: address,
     includeOwnerAddress: bool,
-    value: coins = ton("0.1"),
+    value: coins = grams("0.1"),
 ): SendResultList {
     val outMessage = createMessage({
         bounce: false,
@@ -48,7 +48,7 @@ fun NotcoinMinter.sendMint(
     val forwardPayload = beginCell().storeMaybeRef(customPayload).endCell().beginParse();
     val outMessage = createMessage({
         bounce: false,
-        value: totalTonAmount + ton("0.015"),
+        value: totalTonAmount + grams("0.015"),
         dest: self.address,
         body: MintNewJettons {
             queryId: 0,
@@ -74,7 +74,7 @@ fun NotcoinMinter.sendChangeAdmin(
 ): SendResultList {
     val outMessage = createMessage({
         bounce: false,
-        value: ton("0.05"),
+        value: grams("0.05"),
         dest: self.address,
         body: ChangeMinterAdmin {
             queryId: 0,
@@ -87,7 +87,7 @@ fun NotcoinMinter.sendChangeAdmin(
 fun NotcoinMinter.sendClaimAdmin(self, from: address): SendResultList {
     val outMessage = createMessage({
         bounce: false,
-        value: ton("0.05"),
+        value: grams("0.05"),
         dest: self.address,
         body: ClaimMinterAdmin { queryId: 0 },
     });
@@ -97,7 +97,7 @@ fun NotcoinMinter.sendClaimAdmin(self, from: address): SendResultList {
 fun NotcoinMinter.sendDropAdmin(self, from: address): SendResultList {
     val outMessage = createMessage({
         bounce: false,
-        value: ton("0.05"),
+        value: grams("0.05"),
         dest: self.address,
         body: DropMinterAdmin { queryId: 0 },
     });
@@ -111,7 +111,7 @@ fun NotcoinMinter.sendChangeMetadata(
 ): SendResultList {
     val outMessage = createMessage({
         bounce: false,
-        value: ton("0.05"),
+        value: grams("0.05"),
         dest: self.address,
         body: ChangeMinterMetadataUri {
             queryId: 0,
@@ -129,7 +129,7 @@ fun NotcoinMinter.sendUpgrade(
 ): SendResultList {
     val outMessage = createMessage({
         bounce: false,
-        value: ton("0.2"),
+        value: grams("0.2"),
         dest: self.address,
         body: UpgradeMinterCode {
             queryId: 0,

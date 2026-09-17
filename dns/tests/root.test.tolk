@@ -9,7 +9,7 @@ get fun `test root: accepts plain top-up messages`() {
     val (root, _) = deployRootContract();
     val user = newActor("root_topup_user");
 
-    val res = root.sendAny(user.address, createEmptyCell(), { value: ton("10"), bounce: true });
+    val res = root.sendAny(user.address, createEmptyCell(), { value: grams("10"), bounce: true });
     expect(res).toHaveSuccessfulTx({ from: user.address, to: root.address });
 }
 

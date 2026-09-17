@@ -15,7 +15,7 @@ get fun `test new stake no elections`() {
 
     val kp = crypto.generateKeyPair();
     val srcAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
@@ -77,7 +77,7 @@ get fun `test new stake not masterchain`() {
     val kp = crypto.generateKeyPair();
     // Source address on basechain (should be rejected)
     val srcAddr = randomAddress("staker", BASECHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
@@ -102,7 +102,7 @@ get fun `test new stake not masterchain`() {
 
     // Now send from masterchain — should succeed
     val mcSrcAddr = randomAddress("mc-staker", MASTERCHAIN);
-    testing.topUp(mcSrcAddr, ton("100000"));
+    testing.topUp(mcSrcAddr, grams("100000"));
     val (_, mcSrcHash) = mcSrcAddr.getWorkchainAndHash();
 
     val signature2 = generateStakeSignature(kp.privateKey, stakeAt, maxFactor, mcSrcHash, adnlInt);
@@ -164,7 +164,7 @@ get fun `test new stake invalid signature`() {
     val kp = crypto.generateKeyPair();
     val wrongKp = crypto.generateKeyPair();
     val srcAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
@@ -214,7 +214,7 @@ get fun `test new stake low factor`() {
 
     val kp = crypto.generateKeyPair();
     val srcAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
@@ -248,7 +248,7 @@ get fun `test new stake wrong elections`() {
 
     val kp = crypto.generateKeyPair();
     val srcAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
@@ -305,8 +305,8 @@ get fun `test new stake pkey addr pair`() {
     val kp = crypto.generateKeyPair();
     val srcAddr1 = randomAddress("staker1", MASTERCHAIN);
     val srcAddr2 = randomAddress("staker2", MASTERCHAIN);
-    testing.topUp(srcAddr1, ton("100000"));
-    testing.topUp(srcAddr2, ton("100000"));
+    testing.topUp(srcAddr1, grams("100000"));
+    testing.topUp(srcAddr2, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash1) = srcAddr1.getWorkchainAndHash();
@@ -378,7 +378,7 @@ get fun `test new stake lower min stake`() {
 
     val kp = crypto.generateKeyPair();
     val srcAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
@@ -458,7 +458,7 @@ get fun `test new stake success query id`() {
 
     val kp = crypto.generateKeyPair();
     val srcAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
@@ -508,7 +508,7 @@ get fun `test new stake low fraction confirmation fee`() {
 
     val kp = crypto.generateKeyPair();
     val srcAddr = randomAddress("low-staker", MASTERCHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
@@ -558,7 +558,7 @@ get fun `test new stake lower min stake confirmation fee`() {
 
     val kp = crypto.generateKeyPair();
     val srcAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
@@ -629,7 +629,7 @@ get fun `test new stake low fraction`() {
     // Now try to submit a stake that is less than 1/4096 of totalStake
     val kp = crypto.generateKeyPair();
     val srcAddr = randomAddress("low-staker", MASTERCHAIN);
-    testing.topUp(srcAddr, ton("100000"));
+    testing.topUp(srcAddr, grams("100000"));
     val adnlAddr = randomAddress("adnl-low", MASTERCHAIN);
     val (_, adnlInt) = adnlAddr.getWorkchainAndHash();
     val (_, srcHash) = srcAddr.getWorkchainAndHash();

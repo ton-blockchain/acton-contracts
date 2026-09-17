@@ -125,7 +125,7 @@ fun onInternalMessage(in: InMessage) {
             storage.save();
 
             reserveGramsOnBalance(
-                ton("0.01"),
+                grams("0.01"),
                 RESERVE_MODE_EXACT_AMOUNT,
             ); // reserve for storage fees
 

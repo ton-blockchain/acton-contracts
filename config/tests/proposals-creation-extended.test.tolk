@@ -150,7 +150,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
             (testing.getNow() + 1200),
             false,
             proposal,
-            { value: ton("100"), bounce: true },
+            { value: grams("100"), bounce: true },
         );
     expect(first).toHaveTx({
         from: ctx.contract.address,
@@ -166,7 +166,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
             (testing.getNow() + 2400),
             true,
             proposal,
-            { value: ton("100"), bounce: true },
+            { value: grams("100"), bounce: true },
         );
     expect(criticalMismatch).toHaveTx({
         from: ctx.contract.address,
@@ -182,7 +182,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
             (testing.getNow() + 1200),
             false,
             proposal,
-            { value: ton("100"), bounce: true },
+            { value: grams("100"), bounce: true },
         );
     expect(alreadyExists).toHaveTx({
         from: ctx.contract.address,
@@ -198,7 +198,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
             (testing.getNow() + 3600),
             false,
             proposal,
-            { value: ton("0.5"), bounce: true },
+            { value: grams("0.5"), bounce: true },
         );
     expect(lowFunds).toHaveTx({
         from: ctx.contract.address,
@@ -214,7 +214,7 @@ get fun `test proposals ext invariant: update requires matching criticality and 
             (testing.getNow() + 3600),
             false,
             proposal,
-            { value: ton("100"), bounce: true },
+            { value: grams("100"), bounce: true },
         );
     expect(extended).toHaveTx({
         from: ctx.contract.address,

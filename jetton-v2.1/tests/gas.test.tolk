@@ -322,16 +322,16 @@ get fun `test gas: transfer storage fee should follow config`() {
 
 get fun `test gas: forward ton transfer should fail when fees are insufficient`() {
     val (minter, deployer, notDeployer) = setupTest();
-    val senderWallet = mintTo(minter, deployer, deployer.address, ton("2"));
+    val senderWallet = mintTo(minter, deployer, deployer.address, grams("2"));
 
     val res = senderWallet.sendTransferPayloadInline(
         deployer.address,
         LOW_TRANSFER_MSG_VALUE,
-        ton("1"),
+        grams("1"),
         notDeployer.address,
         deployer.address,
         null,
-        ton("0.5"),
+        grams("0.5"),
         createEmptySlice(),
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
@@ -514,9 +514,9 @@ get fun `test gas: burn gas fee should follow config`() {
 
 get fun `test gas: burn should fail when sent tons are clearly insufficient`() {
     val (minter, deployer, _) = setupTest();
-    val wallet = mintTo(minter, deployer, deployer.address, ton("1"));
+    val wallet = mintTo(minter, deployer, deployer.address, grams("1"));
 
-    val res = wallet.sendBurn(deployer.address, ton("0.0001"), ton("1"), deployer.address, null);
+    val res = wallet.sendBurn(deployer.address, grams("0.0001"), grams("1"), deployer.address, null);
     expect(res).toHaveFailedTx<AskToBurn>({
         from: deployer.address,
         to: wallet.address,
@@ -526,7 +526,7 @@ get fun `test gas: burn should fail when sent tons are clearly insufficient`() {
 
 get fun `test gas: wallet storage fee should be measurable`() {
     val (minter, deployer, _) = setupTest();
-    val wallet = mintTo(minter, deployer, deployer.address, ton("1"));
+    val wallet = mintTo(minter, deployer, deployer.address, grams("1"));
 
     val state = testing.getAccountState(wallet.address);
     expect(state).toBeNotNull();

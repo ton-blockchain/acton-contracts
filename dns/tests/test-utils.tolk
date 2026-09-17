@@ -213,28 +213,28 @@ fun setDnsBlacklist(index: uint256) {
 }
 
 fun deployRootContract(): (RootDns, Treasury) {
-    val deployer = newActor("dns_root_deployer", ton("100"));
+    val deployer = newActor("dns_root_deployer", grams("100"));
     val root = RootDns.fromStorage({
         tonAddress: rootTonResolverAddress(),
         tMeAddress: rootTMeResolverAddress(),
         tonWwwAddress: rootTonWwwResolverAddress(),
     });
 
-    val res = root.deploy(deployer.address, { value: ton("10"), bounce: true });
+    val res = root.deploy(deployer.address, { value: grams("10"), bounce: true });
     expect(res).toHaveSuccessfulDeploy({ to: root.address });
     return (root, deployer);
 }
 
 fun deployCollectionContract(): (DnsCollection, Treasury, Treasury) {
     testing.setNow((AUCTION_START_TIME - 1000));
-    val deployer = newActor("dns_collection_deployer", ton("100000"));
-    val user = newActor("dns_collection_user", ton("100000"));
+    val deployer = newActor("dns_collection_deployer", grams("100000"));
+    val user = newActor("dns_collection_user", grams("100000"));
 
     val collection = DnsCollection.fromStorage(makeCollectionStorage());
     expect(collection.stateInit).toBeNotNull();
     val deployMsg = createMessage({
         bounce: false,
-        value: ton("10"),
+        value: grams("10"),
         dest: { stateInit: collection.stateInit! },
         body: FillUp { queryId: 0 },
     });
@@ -247,7 +247,7 @@ fun deployCollectionContract(): (DnsCollection, Treasury, Treasury) {
     return (collection, deployer, user);
 }
 
-fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = ton("1000")): (
+fun deployItemThroughCollection(domain: string = DEFAULT_DOMAIN, value: coins = grams("1000")): (
     DnsItem,
     DnsCollection,
     Treasury,
@@ -333,7 +333,7 @@ fun completeAuction(item: DnsItem, sender: address, queryId: int = 1): SendResul
     val auction = item.getAuctionInfo();
     testing.setNow((auction.auctionEndTime + 1));
 
-    return item.sendGetStaticData(sender, queryId, { value: ton("1"), bounce: true });
+    return item.sendGetStaticData(sender, queryId, { value: grams("1"), bounce: true });
 }
 
 fun makeTransferData(

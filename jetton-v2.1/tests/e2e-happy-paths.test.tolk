@@ -9,9 +9,9 @@ import "../wrappers/JettonWallet.gen"
 import "../wrappers/utils"
 
 const JETTON_E2E_NOW = 1000
-const JETTON_E2E_MINT_AMOUNT = ton("25")
-const JETTON_E2E_TRANSFER_AMOUNT = ton("7")
-const JETTON_E2E_BURN_AMOUNT = ton("3")
+const JETTON_E2E_MINT_AMOUNT = grams("25")
+const JETTON_E2E_TRANSFER_AMOUNT = grams("7")
+const JETTON_E2E_BURN_AMOUNT = grams("3")
 const JETTON_E2E_FORWARD_AMOUNT = DEFAULT_FORWARD_TON_AMOUNT
 const JETTON_E2E_TRANSFER_VALUE = DEFAULT_TRANSFER_MSG_VALUE
 const JETTON_E2E_BURN_VALUE = DEFAULT_BURN_MSG_VALUE
@@ -67,8 +67,8 @@ fun mintToAdminStage(ctx: JettonE2eContext) {
             ctx.admin.address,
             ctx.admin.address,
             JETTON_E2E_MINT_AMOUNT,
-            ton("0.05"),
-            ton("0.3"),
+            grams("0.05"),
+            grams("0.3"),
         );
 
     expect(mint).toHaveSuccessfulTx<MintNewJettons>({

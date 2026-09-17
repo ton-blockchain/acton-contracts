@@ -56,7 +56,7 @@ fun makeBatchDeployList(
     indexes: array<int>,
     ownerAddress: address,
     content: string,
-    attachTonAmount: coins = ton("0.02"),
+    attachTonAmount: coins = grams("0.02"),
 ): map<uint64, BatchDeployDictItem> {
     var deployList: map<uint64, BatchDeployDictItem> = [];
     var i = 0;
@@ -207,7 +207,7 @@ get fun `test mutation: batch deploy should reject action-list overflow and pres
         deployer.address,
         0,
         deployList,
-        { value: ton("20"), bounce: true },
+        { value: grams("20"), bounce: true },
     );
 
     expect(result).toHaveFailedTx<BatchDeployNfts>({
@@ -233,7 +233,7 @@ get fun `test mutation: batch deploy should report exact failing counter for ski
         deployer.address,
         0,
         deployList,
-        { value: ton("0.5"), bounce: true },
+        { value: grams("0.5"), bounce: true },
     );
 
     expect(result).toHaveFailedTx<BatchDeployNfts>({
@@ -260,7 +260,7 @@ get fun `test mutation: batch redeploy should not over-increment next item index
         deployer.address,
         0,
         makeBatchDeployList([0, nextItemIndex], owner.address, "redeploy"),
-        { value: ton("0.2"), bounce: true },
+        { value: grams("0.2"), bounce: true },
     );
 
     expect(result).toHaveSuccessfulTx<BatchDeployNfts>({
@@ -303,7 +303,7 @@ get fun `test mutation: uninitialized item should reject initialization from non
             ownerAddress: outsider.address,
             content: "forbidden",
         }.toCell(),
-        { value: ton("0.05"), bounce: true },
+        { value: grams("0.05"), bounce: true },
     );
 
     expect(result).toHaveFailedTx({
@@ -324,7 +324,7 @@ get fun `test mutation: ownership transfer should fail one nanotone below forwar
     val owner = testing.treasury("mutation-threshold-owner");
     val nftItem = nftFixture(nftCollection, owner.address);
     val nextOwner = randomAddress();
-    val transferBody = makeOwnershipTransferBody(nextOwner, null, ton("0.01"), createEmptySlice());
+    val transferBody = makeOwnershipTransferBody(nextOwner, null, grams("0.01"), createEmptySlice());
 
     val balanceBefore = testing.getAccountBalance(nftItem.address);
     val minimalValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
@@ -396,7 +396,7 @@ get fun `test mutation: ownership transfer with forward amount should emit exact
     val nftItem = nftFixture(nftCollection, owner.address);
     val nextOwner = randomAddress();
     val excessesAddress = randomAddress();
-    val forwardAmount = ton("0.01");
+    val forwardAmount = grams("0.01");
     val transferBody = makeOwnershipTransferBody(
         nextOwner,
         excessesAddress,

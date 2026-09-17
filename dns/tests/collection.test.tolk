@@ -14,7 +14,7 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val beforeStart = collection.sendAny(
         user.address,
         makeDeployBody("appl"),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(beforeStart).toHaveFailedTx({
         to: collection.address,
@@ -26,14 +26,14 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val tooShort = collection.sendAny(
         user.address,
         makeDeployBody("bob"),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(tooShort).toHaveFailedTx({ to: collection.address, exitCode: ERROR_DOMAIN_TOO_SHORT });
 
     val tooLong = collection.sendAny(
         user.address,
         makeDeployBodyFromDomain(repeatAsciiChar(97, 127)),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(tooLong).toHaveFailedTx({ to: collection.address, exitCode: ERROR_DOMAIN_TOO_LONG });
 
@@ -45,7 +45,7 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val badBits = collection.sendAny(
         user.address,
         nonByteAligned,
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(badBits).toHaveFailedTx({
         to: collection.address,
@@ -55,7 +55,7 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val invalidChar = collection.sendAny(
         user.address,
         makeDeployBody("aLice"),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(invalidChar).toHaveFailedTx({
         to: collection.address,
@@ -65,14 +65,14 @@ get fun `test collection: validates domain format and minimum bid rules`() {
     val lowBid = collection.sendAny(
         user.address,
         makeDeployBody("appl"),
-        { value: ton("999"), bounce: true },
+        { value: grams("999"), bounce: true },
     );
     expect(lowBid).toHaveFailedTx({ to: collection.address, exitCode: ERROR_BID_BELOW_MIN_PRICE });
 
     val atMinBid = collection.sendAny(
         user.address,
         makeDeployBody("appl"),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(atMinBid).toHaveSuccessfulTx({ to: collection.address });
 
@@ -90,7 +90,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     val exactStart = collection.sendAny(
         user.address,
         makeDeployBody("edge"),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(exactStart).toHaveFailedTx({
         to: collection.address,
@@ -102,7 +102,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     val maxLengthDeploy = collection.sendAny(
         user.address,
         makeDeployBodyFromDomain(repeatAsciiChar(97, 126)),
-        { value: ton("10"), bounce: true },
+        { value: grams("10"), bounce: true },
     );
     expect(maxLengthDeploy).toHaveSuccessfulTx({ from: user.address, to: collection.address });
     expect(
@@ -112,14 +112,14 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     val hyphenValid = collection.sendAny(
         user.address,
         makeDeployBody("ab-c"),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(hyphenValid).toHaveSuccessfulTx({ from: user.address, to: collection.address });
 
     val hyphenAtStart = collection.sendAny(
         user.address,
         makeDeployBody("-abc"),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(hyphenAtStart).toHaveFailedTx({
         from: user.address,
@@ -130,7 +130,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     val hyphenAtEnd = collection.sendAny(
         user.address,
         makeDeployBody("abc-"),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(hyphenAtEnd).toHaveFailedTx({
         from: user.address,
@@ -143,7 +143,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     val monthBoundaryLow = collection.sendAny(
         user.address,
         makeDeployBody("month"),
-        { value: ton("449"), bounce: true },
+        { value: grams("449"), bounce: true },
     );
     expect(monthBoundaryLow).toHaveFailedTx({
         to: collection.address,
@@ -153,7 +153,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     val monthBoundaryExact = collection.sendAny(
         user.address,
         makeDeployBody("month"),
-        { value: ton("450"), bounce: true },
+        { value: grams("450"), bounce: true },
     );
     expect(monthBoundaryExact).toHaveSuccessfulTx({ from: user.address, to: collection.address });
 
@@ -162,7 +162,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     val floorBoundaryLow = collection.sendAny(
         user.address,
         makeDeployBody("floor"),
-        { value: ton("49"), bounce: true },
+        { value: grams("49"), bounce: true },
     );
     expect(floorBoundaryLow).toHaveFailedTx({
         to: collection.address,
@@ -172,7 +172,7 @@ get fun `test collection: covers exact launch, max-length, hyphen, and decay bou
     val floorBoundaryExact = collection.sendAny(
         user.address,
         makeDeployBody("floor"),
-        { value: ton("50"), bounce: true },
+        { value: grams("50"), bounce: true },
     );
     expect(floorBoundaryExact).toHaveSuccessfulTx({ from: user.address, to: collection.address });
 }
@@ -190,7 +190,7 @@ get fun `test collection: rejects malformed snake payloads and unknown opcodes`(
     val malformedSnake = collection.sendAny(
         user.address,
         malformedSnakeBody,
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(malformedSnake).toHaveFailedTx({
         from: user.address,
@@ -201,7 +201,7 @@ get fun `test collection: rejects malformed snake payloads and unknown opcodes`(
     val unknownOp = collection.sendAny(
         user.address,
         beginCell().storeUint(0x7FFFFFFF, 32).storeUint(1, 64).endCell(),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(unknownOp).toHaveFailedTx({
         from: user.address,
@@ -220,7 +220,7 @@ get fun `test collection: denies deployment for blacklisted domains via config p
     val res = collection.sendAny(
         user.address,
         makeDeployBody(blockedDomain),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(res).toHaveFailedTx({ to: collection.address, exitCode: ERROR_DOMAIN_IS_BLACKLISTED });
 }

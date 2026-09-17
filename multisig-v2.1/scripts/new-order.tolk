@@ -9,7 +9,7 @@ import "../wrappers/Order.gen"
 import "../wrappers/utils"
 
 const DEFAULT_ORDER_TTL = 1200
-const DEFAULT_TRANSFER_VALUE = ton("0.01")
+const DEFAULT_TRANSFER_VALUE = grams("0.01")
 const DEFAULT_MARKER = 0x4d534947
 
 fun main() {

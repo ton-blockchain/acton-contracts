@@ -17,7 +17,7 @@ get fun `test w5: do a transfer from extension`() {
     seqno += 1;
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -32,7 +32,7 @@ get fun `test w5: do a transfer from extension`() {
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt.size()).toEqual(2);
@@ -62,8 +62,8 @@ get fun `test w5: do two transfers from extension and add other extension`() {
     val testOtherExtension = randomAddress("other-extension");
     val testReceiver1 = randomAddress("test-receiver-1");
     val testReceiver2 = randomAddress("test-receiver-2");
-    val forwardValue1 = ton("0.001");
-    val forwardValue2 = ton("0.0012");
+    val forwardValue1 = grams("0.001");
+    val forwardValue2 = grams("0.0012");
 
     val receiver1BalanceBefore = testing.getAccountBalance(testReceiver1);
     val receiver2BalanceBefore = testing.getAccountBalance(testReceiver2);
@@ -81,7 +81,7 @@ get fun `test w5: do two transfers from extension and add other extension`() {
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt.size()).toEqual(3);
@@ -140,7 +140,7 @@ get fun `test w5: add and remove other extension from extension`() {
         deployer.address,
         actionsBody1,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt1.size()).toEqual(1);
@@ -167,7 +167,7 @@ get fun `test w5: add and remove other extension from extension`() {
         deployer.address,
         actionsBody2,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt2.size()).toEqual(1);
@@ -201,7 +201,7 @@ get fun `test w5: extension removes itself`() {
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt.size()).toEqual(1);
@@ -222,7 +222,7 @@ get fun `test w5: extension must be in dict to pass authorization`() {
 
     val sender = testing.treasury("sender");
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -236,7 +236,7 @@ get fun `test w5: extension must be in dict to pass authorization`() {
         sender.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt.size()).toEqual(1);
@@ -277,13 +277,13 @@ get fun `test w5: disallow signature auth and do a transfer from extension`() {
         extraActions: extraActions0,
     };
 
-    walletV5.sendExtensionActionBody(deployer.address, actionsBody0, 0, { value: ton("0.1") });
+    walletV5.sendExtensionActionBody(deployer.address, actionsBody0, 0, { value: grams("0.1") });
 
     expect(walletV5.isSignatureAllowed()).toEqual(false);
 
     // Do a transfer from extension
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -297,7 +297,7 @@ get fun `test w5: disallow signature auth and do a transfer from extension`() {
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt.size()).toEqual(2);
@@ -331,7 +331,7 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
         outActions: [],
         extraActions: extraActions0,
     };
-    walletV5.sendExtensionActionBody(deployer.address, actionsBody0, 0, { value: ton("0.1") });
+    walletV5.sendExtensionActionBody(deployer.address, actionsBody0, 0, { value: grams("0.1") });
 
     expect(walletV5.isSignatureAllowed()).toEqual(false);
 
@@ -348,7 +348,7 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
         deployer.address,
         actionsBody1,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt.size()).toEqual(1);
@@ -372,7 +372,7 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
 
     // Do a signed transfer to verify signature auth works after re-enabling
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -384,7 +384,7 @@ get fun `test w5: disallow sig re-allow and self-delete by extension then do sig
 
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actionsBody2);
 
-    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: ton("0.1") });
+    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: grams("0.1") });
 
     expect(receipt2.size()).toEqual(2);
 
@@ -424,7 +424,7 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
         deployer.address,
         actionsBody0,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt0.size()).toEqual(1);
@@ -450,7 +450,7 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
         deployer.address,
         actionsBody1,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt1.size()).toEqual(1);
@@ -468,7 +468,7 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
 
     // Do a signed transfer to verify signature auth works after re-enabling
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -480,7 +480,7 @@ get fun `test w5: add ext disallow sig re-allow and self-delete by extension the
 
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actionsBody2);
 
-    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: ton("0.1") });
+    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: grams("0.1") });
 
     expect(receipt2.size()).toEqual(2);
 

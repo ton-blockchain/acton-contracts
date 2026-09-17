@@ -41,7 +41,7 @@ fun main() {
                 deployer.address,
                 1,
                 records,
-                { value: ton("0.1"), bounce: true },
+                { value: grams("0.1"), bounce: true },
             );
 
             if (editResult.waitForFirstTransaction() == null) {
@@ -57,7 +57,7 @@ fun main() {
                 2,
                 "wallet".sha256(),
                 beginCell().storeRef(makeWalletRecord(walletRecordAddress)).endCell().beginParse(),
-                { value: ton("0.1"), bounce: true },
+                { value: grams("0.1"), bounce: true },
             );
 
             if (changeRecord.waitForFirstTransaction() == null) {
@@ -78,7 +78,7 @@ fun main() {
                     forwardAmount: 0,
                     forwardPayload: createEmptyCell().beginParse(),
                 },
-                { value: ton("0.2"), bounce: true },
+                { value: grams("0.2"), bounce: true },
             );
             if (transferResult.waitForFirstTransaction() == null) {
                 println("Ownership transfer was not confirmed");

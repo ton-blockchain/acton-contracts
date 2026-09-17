@@ -15,7 +15,7 @@ get fun `test send internal message`() {
 
     val outMsg = createMessage({
         bounce: false,
-        value: ton("123"),
+        value: grams("123"),
         dest: testAddr,
         body: testBody,
     }).messageCell;
@@ -32,7 +32,7 @@ get fun `test send internal message`() {
     expect(res).toHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
-        value: ton("123"),
+        value: grams("123"),
         body: testBody,
     });
     expect(ctx.wallet.isProcessed(queryId, false)).toBeTrue();
@@ -61,7 +61,7 @@ get fun `test ignore set_code action`() {
 
     var actions = array<TlbOutAction> [];
     actions.push(setCodeAction(mockCode));
-    actions.push(sendAction(testAddr, ton("0.1"), testBody, SEND_MODE_PAY_FEES_SEPARATELY));
+    actions.push(sendAction(testAddr, grams("0.1"), testBody, SEND_MODE_PAY_FEES_SEPARATELY));
 
     val message = ctx.wallet.createInternalTransferMessage(nestedQueryId, actions, 0).messageCell;
     val res = sendSignedExternal(
@@ -78,7 +78,7 @@ get fun `test ignore set_code action`() {
         from: ctx.wallet.address,
         to: testAddr,
         body: testBody,
-        value: ton("0.1"),
+        value: grams("0.1"),
     });
 }
 
@@ -113,7 +113,7 @@ get fun `test preserve ignore errors flag when outbound action fails`() {
     val target = randomAddress("ignore-errors-failure-target");
     var outMsg = (createMessage({
         bounce: false,
-        value: ton("0.1"),
+        value: grams("0.1"),
         dest: target,
     }).messageCell as Cell<TlbMessageRelaxedGeneric>).load();
     outMsg.info.ihrDisabled = false;
@@ -145,7 +145,7 @@ get fun `test handle 254 actions in one go`() {
     var i = 0;
     while (i < 254) {
         val body = beginCell().storeUint(i, 32).endCell();
-        val action = sendAction(randomAddress(null), ton("0.015"), body, 0);
+        val action = sendAction(randomAddress(null), grams("0.015"), body, 0);
         actionsCell = TlbOutList {
             prev: actionsCell,
             action: action as TlbOutAction,
@@ -193,7 +193,7 @@ get fun `test go beyond 255 messages via chained internal_transfer`() {
         val body = beginCell().storeUint(i, 32).endCell();
         val action = sendAction(
             randomAddress(null),
-            ton("0.015"),
+            grams("0.015"),
             body,
             SEND_MODE_PAY_FEES_SEPARATELY,
         );

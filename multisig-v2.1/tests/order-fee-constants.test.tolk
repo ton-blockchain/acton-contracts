@@ -36,14 +36,14 @@ struct RuntimeFeeProbe {
 
 fun createFundedAddressLocal(): address {
     val addr = randomAddress("fee_probe_signer");
-    testing.topUp(addr, ton("100"));
+    testing.topUp(addr, grams("100"));
     return addr;
 }
 
 fun makeTransferActionLocal(to: address, marker: int): SendMessageAction {
     val transferMessage = createMessage({
         bounce: true,
-        value: ton("0.01"),
+        value: grams("0.01"),
         dest: to,
         body: beginCell().storeUint(marker, 32).endCell(),
     });
@@ -101,7 +101,7 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
     }
 
     val multisig = Multisig.fromConfig(2, signers, array<address> [proposer.address], false);
-    val deployValue = signerCount > 10 ? ton("200") : ton("20");
+    val deployValue = signerCount > 10 ? grams("200") : grams("20");
     val deploy = multisig.deployWithInitBody(
         signer0.address,
         { value: deployValue, bounce: false },
@@ -113,7 +113,7 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
     val expiration = testing.getNow() + duration;
     val orderSeqno = multisig.getData().nextOrderSeqno;
 
-    val createValue = signerCount > 10 ? ton("20") : ton("5");
+    val createValue = signerCount > 10 ? grams("20") : grams("5");
     val create = multisig.sendNewOrder(
         signer0.address,
         order,
@@ -132,7 +132,7 @@ fun buildRuntimeFeeProbe(signerCount: int, duration: int = 1000): RuntimeFeeProb
         signer1.address,
         createMessage({
             bounce: true,
-            value: ton("0.3"),
+            value: grams("0.3"),
             dest: orderAddress,
             body: ApproveRequest {
                 queryId: 1,

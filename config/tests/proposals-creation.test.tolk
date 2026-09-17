@@ -37,7 +37,7 @@ fun assertProposalCreateOutcome(
                 (testing.getNow() + 86400),
                 false,
                 proposal,
-                { value: ton("100"), bounce: true },
+                { value: grams("100"), bounce: true },
             );
 
         expect(res).toHaveTx<NewVotingProposalRequest>({
@@ -95,7 +95,7 @@ get fun `test proposals: should not allow voting creation for -1024 and -1025`()
                 slot,
                 ctx.deployer.address,
                 slotValue,
-                { value: ton("10"), bounce: true },
+                { value: grams("10"), bounce: true },
             );
 
         expect(setRes).toHaveTx({
@@ -158,7 +158,7 @@ get fun `test proposals invariant: duplicate proposal should be rejected when ex
             (testing.getNow() + 2000),
             false,
             proposal,
-            { value: ton("100"), bounce: true },
+            { value: grams("100"), bounce: true },
         );
 
     expect(first).toHaveTx({
@@ -175,7 +175,7 @@ get fun `test proposals invariant: duplicate proposal should be rejected when ex
             (testing.getNow() + 2000),
             false,
             proposal,
-            { value: ton("100"), bounce: true },
+            { value: grams("100"), bounce: true },
         );
 
     expect(second).toHaveTx({

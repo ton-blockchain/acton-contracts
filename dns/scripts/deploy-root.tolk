@@ -17,7 +17,7 @@ fun main() {
     println("Using wallet: deployer-2");
     println("Prepared root address: {}", root.address);
 
-    val res = root.deploy(deployer.address, { value: ton("0.01"), bounce: false });
+    val res = root.deploy(deployer.address, { value: grams("0.01"), bounce: false });
     if (res.waitForFirstTransaction() == null) {
         println("Root deployment was not confirmed");
         return;

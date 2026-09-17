@@ -12,7 +12,7 @@ get fun `test w5: Send a simple transfer`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -24,7 +24,7 @@ get fun `test w5: Send a simple transfer`() {
     };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({
         from: walletV5.address,
@@ -52,7 +52,7 @@ get fun `test w5: Add an extension`() {
     };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     val ext = walletV5.getExtensions();
     val (_, extHash) = testExtension.getWorkchainAndHash();
@@ -68,10 +68,10 @@ get fun `test w5: Send two transfers`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
     val testReceiver1 = randomAddress("test-receiver-1");
-    val forwardValue1 = ton("0.001");
+    val forwardValue1 = grams("0.001");
 
     val testReceiver2 = testing.treasury("receiver-2");
-    val forwardValue2 = ton("0.002");
+    val forwardValue2 = grams("0.002");
 
     val receiver1BalanceBefore = testing.getAccountBalance(testReceiver1);
     val receiver2BalanceBefore = testing.getAccountBalance(testReceiver2.address);
@@ -86,7 +86,7 @@ get fun `test w5: Send two transfers`() {
     };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({
         from: walletV5.address,
@@ -117,7 +117,7 @@ get fun `test w5: Add two extensions and do a transfer`() {
     val testExtension1 = randomAddress("test-extension-1");
     val testExtension2 = randomAddress("test-extension-2");
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -130,7 +130,7 @@ get fun `test w5: Add two extensions and do a transfer`() {
     val actions = ActionsList { outActions, extraActions };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({
         from: walletV5.address,
@@ -165,7 +165,7 @@ get fun `test w5: Remove extension`() {
         extraActions: extraActions1,
     };
     val body1 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions1);
-    walletV5.sendSignedBody(deployer.address, body1, { value: ton("0.1") });
+    walletV5.sendSignedBody(deployer.address, body1, { value: grams("0.1") });
     seqno += 1;
 
     val ext1 = walletV5.getExtensions();
@@ -181,7 +181,7 @@ get fun `test w5: Remove extension`() {
         extraActions: extraActions2,
     };
     val body2 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions2);
-    walletV5.sendSignedBody(deployer.address, body2, { value: ton("0.1") });
+    walletV5.sendSignedBody(deployer.address, body2, { value: grams("0.1") });
 
     val ext2 = walletV5.getExtensions();
     expect(ext2).toBeEmpty();
@@ -211,7 +211,7 @@ get fun `test w5: Should fail SetData action`() {
     val signature = crypto.sign(keyPair.privateKey, payload);
     val body = beginCell().storeSlice(payload.beginParse()).storeSlice(signature).endCell();
 
-    val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendAny(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({ exitCode: Errors.UnsupportedAction });
 }
@@ -245,7 +245,7 @@ get fun `test w5: Should fail SetCode action`() {
     val signature = crypto.sign(keyPair.privateKey, payload);
     val body = beginCell().storeSlice(payload.beginParse()).storeSlice(signature).endCell();
 
-    val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendAny(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({ exitCode: Errors.InvalidC5 });
 }
@@ -265,7 +265,7 @@ get fun `test w5: Should fail adding existing extension`() {
         extraActions: extraActions1,
     };
     val body1 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions1);
-    walletV5.sendSignedBody(deployer.address, body1, { value: ton("0.1") });
+    walletV5.sendSignedBody(deployer.address, body1, { value: grams("0.1") });
     seqno += 1;
 
     val ext1 = walletV5.getExtensions();
@@ -282,7 +282,7 @@ get fun `test w5: Should fail adding existing extension`() {
     };
     val body2 = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions2);
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body2, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body2, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({ exitCode: Errors.AddExtension });
 
@@ -306,7 +306,7 @@ get fun `test w5: Should fail removing not existing extension`() {
     };
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({ exitCode: Errors.RemoveExtension });
 
@@ -319,7 +319,7 @@ get fun `test w5: Should fail if signature is invalid wrong payload signed`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -338,7 +338,7 @@ get fun `test w5: Should fail if signature is invalid wrong payload signed`() {
     val signature = crypto.sign(keyPair.privateKey, fakePayload.toCell()) as bytes64;
     val body = SignedBody { payload, signature };
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     // Invalid signature → wallet silently accepts (exit 0), no actions executed
     expect(receipt).toHaveSuccessfulTx({
@@ -362,7 +362,7 @@ get fun `test w5: Should fail if signature is invalid wrong private key used`() 
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -376,7 +376,7 @@ get fun `test w5: Should fail if signature is invalid wrong private key used`() 
     val fakeKeyPair = crypto.generateKeyPair();
     val body = createSignedBody(fakeKeyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveSuccessfulTx({
         from: deployer.address,
@@ -399,7 +399,7 @@ get fun `test w5: Should fail if seqno is invalid`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -412,7 +412,7 @@ get fun `test w5: Should fail if seqno is invalid`() {
     // Use wrong seqno (1 instead of 0)
     val body = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 1, actions);
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({ exitCode: Errors.InvalidSeqno });
 
@@ -431,7 +431,7 @@ get fun `test w5: Should fail if valid_until is expired`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -447,7 +447,7 @@ get fun `test w5: Should fail if valid_until is expired`() {
     val signature = crypto.sign(keyPair.privateKey, payload.toCell()) as bytes64;
     val body = SignedBody { payload, signature };
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({ exitCode: Errors.Expired });
 
@@ -460,7 +460,7 @@ get fun `test w5: Should fail if valid_until equals now`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -475,7 +475,7 @@ get fun `test w5: Should fail if valid_until equals now`() {
     val signature = crypto.sign(keyPair.privateKey, payload.toCell()) as bytes64;
     val body = SignedBody { payload, signature };
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({ exitCode: Errors.Expired });
 
@@ -488,7 +488,7 @@ get fun `test w5: Should fail if walletId is wrong`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -501,7 +501,7 @@ get fun `test w5: Should fail if walletId is wrong`() {
     // Use wrong walletId (1 instead of DEFAULT_SUBWALLET_ID)
     val body = createSignedBody(keyPair, 1, 0, actions);
 
-    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendSignedBody(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveTx({ exitCode: Errors.InvalidWalletId });
 
@@ -514,7 +514,7 @@ get fun `test w5: Should skip message if auth kind is wrong`() {
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
 
     var outActions: array<SendAction> = [];
     outActions.push(sendMsgAction(testReceiver, forwardValue));
@@ -534,7 +534,7 @@ get fun `test w5: Should skip message if auth kind is wrong`() {
     val signature = crypto.sign(keyPair.privateKey, payload.toCell()) as bytes64;
     val body = ExternalSignedBody { payload, signature };
 
-    walletV5.sendAny(deployer.address, body.toCell(), { value: ton("0.1") });
+    walletV5.sendAny(deployer.address, body.toCell(), { value: grams("0.1") });
 
     expect(walletV5.getSeqno()).toEqual(0);
 }
@@ -543,7 +543,7 @@ get fun `test w5: Should skip message if auth kind not given`() {
     val keyPair = crypto.generateKeyPair();
     val (walletV5, deployer) = deployWalletWithKey(keyPair);
 
-    walletV5.sendAny(deployer.address, createEmptyCell(), { value: ton("0.1") });
+    walletV5.sendAny(deployer.address, createEmptyCell(), { value: grams("0.1") });
 
     expect(walletV5.getSeqno()).toEqual(0);
 }
@@ -560,7 +560,7 @@ get fun `test w5: Should not revert on short sint messages`() {
 
     val body = beginCell().storeUint(0x73696E74, 32).endCell();
 
-    val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendAny(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveSuccessfulTx({
         from: deployer.address,
@@ -575,7 +575,7 @@ get fun `test w5: Should ignore sint messages shorter than signed header boundar
 
     val body = buildSignedInternalBodyWithPayloadBits(keyPair, 127);
 
-    val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendAny(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveSuccessfulTx({
         from: deployer.address,
@@ -597,7 +597,7 @@ get fun `test w5: Should not revert on long incorrect sint messages`() {
         .storeUint(0, 145) // total 657 zero bits after opcode
         .endCell();
 
-    val receipt = walletV5.sendAny(deployer.address, body, { value: ton("0.1") });
+    val receipt = walletV5.sendAny(deployer.address, body, { value: grams("0.1") });
 
     expect(receipt).toHaveSuccessfulTx({
         from: deployer.address,
@@ -612,7 +612,7 @@ get fun `test w5: Should skip message with simple text comment`() {
 
     val body: string = "Hello";
 
-    val receipt = walletV5.sendAny(deployer.address, body.toCell(), { value: ton("0.1") });
+    val receipt = walletV5.sendAny(deployer.address, body.toCell(), { value: grams("0.1") });
 
     expect(receipt).toHaveSuccessfulTx({
         from: deployer.address,
@@ -627,7 +627,7 @@ get fun `test w5: Should skip message with longer text comment`() {
 
     val body: string = "Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world Hello world";
 
-    val receipt = walletV5.sendAny(deployer.address, body.toCell(), { value: ton("0.1") });
+    val receipt = walletV5.sendAny(deployer.address, body.toCell(), { value: grams("0.1") });
 
     expect(receipt).toHaveSuccessfulTx({
         from: deployer.address,
@@ -658,7 +658,7 @@ get fun `test w5: Should fail disallowing signature auth with no exts`() {
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt).toHaveTx({ exitCode: Errors.DisableSignatureWhenExtensionsIsEmpty });
@@ -687,7 +687,7 @@ get fun `test w5: Should fail allowing signature auth when allowed`() {
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt).toHaveTx({ exitCode: Errors.ThisSignatureModeAlreadySet });
@@ -719,7 +719,7 @@ get fun `test w5: Should add ext and disallow signature auth`() {
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt).toHaveSuccessfulTx({
@@ -760,7 +760,7 @@ get fun `test w5: Should add ext and disallow signature auth in separate txs`() 
         deployer.address,
         actionsBody1,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt1).toHaveSuccessfulTx({
@@ -788,7 +788,7 @@ get fun `test w5: Should add ext and disallow signature auth in separate txs`() 
         deployer.address,
         actionsBody2,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt2).toHaveSuccessfulTx({
@@ -827,7 +827,7 @@ get fun `test w5: Should add ext disallow sign allow sign remove ext in one tx t
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt).toHaveSuccessfulTx({
@@ -841,7 +841,7 @@ get fun `test w5: Should add ext disallow sign allow sign remove ext in one tx t
 
     // Now do a signed transfer
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -852,7 +852,7 @@ get fun `test w5: Should add ext disallow sign allow sign remove ext in one tx t
     };
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions2);
 
-    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: ton("0.1") });
+    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: grams("0.1") });
 
     expect(receipt2).toHaveTx({
         from: walletV5.address,
@@ -891,7 +891,7 @@ get fun `test w5: Should fail removing last extension with signature auth disabl
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt).toHaveTx({ exitCode: Errors.RemoveLastExtensionWhenSignatureDisabled });
@@ -924,7 +924,7 @@ get fun `test w5: Should fail disallowing signature auth twice in tx`() {
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt).toHaveTx({ exitCode: Errors.ThisSignatureModeAlreadySet });
@@ -956,7 +956,7 @@ get fun `test w5: Should add ext disallow sig auth then fail different signed tx
         deployer.address,
         actionsBody,
         0,
-        { value: ton("0.1") },
+        { value: grams("0.1") },
     );
 
     expect(receipt1).toHaveSuccessfulTx({
@@ -970,7 +970,7 @@ get fun `test w5: Should add ext disallow sig auth then fail different signed tx
 
     // Try signed transfer → error 132 (signature disabled)
     val testReceiver = randomAddress("test-receiver");
-    val forwardValue = ton("0.001");
+    val forwardValue = grams("0.001");
     val receiverBalanceBefore = testing.getAccountBalance(testReceiver);
 
     var outActions: array<SendAction> = [];
@@ -981,7 +981,7 @@ get fun `test w5: Should add ext disallow sig auth then fail different signed tx
     };
     val signedBody = createSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions2);
 
-    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: ton("0.1") });
+    val receipt2 = walletV5.sendSignedBody(deployer.address, signedBody, { value: grams("0.1") });
 
     expect(receipt2).toHaveTx({ exitCode: Errors.SignatureDisabled });
 

@@ -17,7 +17,7 @@ const FEE_BASE_EXPIRATION = 2000000000
 // Past the storage-prices segment split (config 18 splits at 1777500000) so
 // last_paid and now stay inside the latest segment.
 const FEE_TEST_NOW = 1800000000
-const FEE_DEFAULT_CREATE_VALUE = ton("10")
+const FEE_DEFAULT_CREATE_VALUE = grams("10")
 
 struct FeeContext {
     wallet: Multisig
@@ -44,7 +44,7 @@ fun setupFeeContext(): FeeContext {
     );
     val walletDeploy = wallet.deployWithInitBody(
         deployer.address,
-        { value: ton("20"), bounce: false },
+        { value: grams("20"), bounce: false },
     );
     expect(walletDeploy).toHaveSuccessfulDeploy({ to: wallet.address });
 
@@ -66,7 +66,7 @@ fun setupFeeContext(): FeeContext {
     );
     val jumboDeploy = jumboWallet.deployWithInitBody(
         deployer.address,
-        { value: ton("200"), bounce: false },
+        { value: grams("200"), bounce: false },
     );
     expect(jumboDeploy).toHaveSuccessfulDeploy({ to: jumboWallet.address });
 
@@ -88,7 +88,7 @@ fun buildTransferActions(count: int, markerBase: int = 1000): DirectOrderActions
         actionCells.push(
             makeTransferAction(
                 sink,
-                ton("0.015"),
+                grams("0.015"),
                 markerBase + i,
                 SEND_MODE_PAY_FEES_SEPARATELY,
                 false,
@@ -144,7 +144,7 @@ fun executeEstimatedOrder(
     secondSigner: address,
     order: DirectOrderActionsMap,
     expirationDate: int,
-    extraValue: coins = ton("1"),
+    extraValue: coins = grams("1"),
 ): (coins, SendResultList, SendResultList) {
     val estimate = wallet.getOrderEstimateForOrder(order, expirationDate);
     val seqno = wallet.getData().nextOrderSeqno;
@@ -169,7 +169,7 @@ fun executeEstimatedOrder(
         secondSigner,
         1,
         1,
-        { value: ton("0.2"), bounce: true },
+        { value: grams("0.2"), bounce: true },
     );
 
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({
@@ -355,7 +355,7 @@ fun runCommonCase(
     );
     val deployRes = wallet.deployWithInitBody(
         deployer.address,
-        { value: ton("100"), bounce: false },
+        { value: grams("100"), bounce: false },
     );
     expect(deployRes).toHaveSuccessfulDeploy({ to: wallet.address });
 
@@ -388,7 +388,7 @@ fun runCommonCase(
             signers.get(signerIdx),
             signerIdx,
             signerIdx,
-            { value: ton("0.2"), bounce: true },
+            { value: grams("0.2"), bounce: true },
         );
         signerIdx += 1;
     }
@@ -439,7 +439,7 @@ get fun `test fee: should be enough for 75 years`() {
             0,
             MAX_ORDER_SEQNO,
             0,
-            { value: (estimate + ton("5")), bounce: true },
+            { value: (estimate + grams("5")), bounce: true },
         );
 
     val orderContract = Order.fromAddress(ctx.wallet.getOrderAddress(seqno));
@@ -451,7 +451,7 @@ get fun `test fee: should be enough for 75 years`() {
         ctx.second.address,
         1,
         1,
-        { value: ton("0.2"), bounce: true },
+        { value: grams("0.2"), bounce: true },
     );
 
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({

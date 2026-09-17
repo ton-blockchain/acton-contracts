@@ -16,10 +16,10 @@ const NFT_E2E_STATIC_QUERY_ID = 7304
 const NFT_E2E_BATCH_QUERY_ID = 7305
 const NFT_E2E_CHANGE_ADMIN_QUERY_ID = 7306
 
-const NFT_E2E_DEPLOY_ATTACH = ton("0.02")
-const NFT_E2E_SINGLE_DEPLOY_VALUE = ton("0.05")
-const NFT_E2E_TRANSFER_VALUE = ton("0.12")
-const NFT_E2E_FORWARD_AMOUNT = ton("0.01")
+const NFT_E2E_DEPLOY_ATTACH = grams("0.02")
+const NFT_E2E_SINGLE_DEPLOY_VALUE = grams("0.05")
+const NFT_E2E_TRANSFER_VALUE = grams("0.12")
+const NFT_E2E_FORWARD_AMOUNT = grams("0.01")
 const NFT_E2E_BATCH_COUNT = 4
 const NFT_E2E_FORWARD_MARKER = 0x4e465431
 
@@ -80,7 +80,7 @@ fun deployCollectionStage(): NftE2eContext {
         royaltyParams: royaltyParams.toCell(),
     });
 
-    val deploy = collection.deploy(deployer.address, { value: ton("1"), bounce: false });
+    val deploy = collection.deploy(deployer.address, { value: grams("1"), bounce: false });
     expect(deploy).toHaveSuccessfulDeploy({ to: collection.address });
 
     val data = collection.getCollectionData();
@@ -108,7 +108,7 @@ fun reportRoyaltyParamsStage(ctx: NftE2eContext) {
         .sendRequestRoyaltyParams(
             ctx.royaltyReader.address,
             NFT_E2E_ROYALTY_QUERY_ID,
-            { value: ton("0.05"), bounce: true },
+            { value: grams("0.05"), bounce: true },
         );
 
     expect(report).toHaveSuccessfulTx<RequestRoyaltyParams>({
@@ -213,7 +213,7 @@ fun requestStaticDataStage(fixture: NftE2eItemFixture) {
         .sendRequestStaticData(
             fixture.ctx.staticReader.address,
             NFT_E2E_STATIC_QUERY_ID,
-            { value: ton("0.05"), bounce: true },
+            { value: grams("0.05"), bounce: true },
         );
 
     expect(report).toHaveSuccessfulTx<RequestStaticData>({
@@ -258,7 +258,7 @@ fun batchDeployAndChangeAdminStage(ctx: NftE2eContext) {
             ctx.deployer.address,
             NFT_E2E_BATCH_QUERY_ID,
             deployList,
-            { value: ton("0.5"), bounce: true },
+            { value: grams("0.5"), bounce: true },
         );
     expect(batch).toHaveSuccessfulTx<BatchDeployNfts>({
         from: ctx.deployer.address,
@@ -285,7 +285,7 @@ fun batchDeployAndChangeAdminStage(ctx: NftE2eContext) {
             ctx.deployer.address,
             NFT_E2E_CHANGE_ADMIN_QUERY_ID,
             ctx.newAdmin.address,
-            { value: ton("0.05"), bounce: true },
+            { value: grams("0.05"), bounce: true },
         );
     expect(changeAdmin).toHaveSuccessfulTx<ChangeCollectionAdmin>({
         from: ctx.deployer.address,

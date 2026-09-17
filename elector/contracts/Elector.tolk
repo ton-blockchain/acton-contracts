@@ -164,7 +164,7 @@ fun processNewStake(msg: NewStakeMessage): void {
     }
 
     var elect = storage.currentElections.load();
-    var msgValue = InMessage.value() - ton("1"); // Deduct 1 ton for sending confirmation
+    var msgValue = InMessage.value() - grams("1"); // Deduct 1 ton for sending confirmation
     if ((msgValue << 12) < elect.totalStake) {
         return returnStake(InMessage.source(), msg.queryId, StakeReason.StakeTooSmall);
     }

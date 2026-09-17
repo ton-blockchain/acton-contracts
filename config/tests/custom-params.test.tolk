@@ -29,7 +29,7 @@ get fun `test custom params: should set custom slot -1024`() {
                 CUSTOM_SLOT_1,
                 ctx.deployer.address,
                 testCell,
-                { value: ton("10"), bounce: true },
+                { value: grams("10"), bounce: true },
             );
 
         expect(res).toHaveSuccessfulTx<SetCustomParamRequest>({
@@ -70,7 +70,7 @@ get fun `test custom params: should set custom slot -1025`() {
                 CUSTOM_SLOT_2,
                 ctx.deployer.address,
                 testCell,
-                { value: ton("10"), bounce: true },
+                { value: grams("10"), bounce: true },
             );
 
         expect(res).toHaveSuccessfulTx<SetCustomParamRequest>({
@@ -119,7 +119,7 @@ get fun `test custom params: only admin should be able to set slots`() {
                 .sendAny(
                     sender,
                     setCustomSlotBody(slot, testCell, ctx.deployer.address),
-                    { value: ton("10"), bounce: true },
+                    { value: grams("10"), bounce: true },
                 );
 
             if (sender.getWorkchain() == MASTERCHAIN) {
@@ -199,7 +199,7 @@ get fun `test custom params: should bounce set_custom_slot when response address
         val msgBody = payloads.get(payloadIdx);
         val res = ctx
             .contract
-            .sendAny(ADMIN_ADDRESS_FOR_CUSTOM_PARAMS, msgBody, { value: ton("10"), bounce: true });
+            .sendAny(ADMIN_ADDRESS_FOR_CUSTOM_PARAMS, msgBody, { value: grams("10"), bounce: true });
 
         expect(res).toHaveTx({
             from: ADMIN_ADDRESS_FOR_CUSTOM_PARAMS,
@@ -237,7 +237,7 @@ get fun `test custom params: should not allow more than a single cell payload`()
                 slot,
                 ctx.deployer.address,
                 nestedCell,
-                { value: ton("10"), bounce: true },
+                { value: grams("10"), bounce: true },
             );
 
         expect(res).toHaveTx({
@@ -282,7 +282,7 @@ get fun `test custom params: should not allow setting other parameters`() {
                     .storeAddress(ctx.deployer.address)
                     .storeRef(testCell)
                     .endCell(),
-                { value: ton("10"), bounce: true },
+                { value: grams("10"), bounce: true },
             );
 
         expect(res).toHaveTx({
@@ -339,7 +339,7 @@ get fun `test custom params: should reject exotic cells for custom slots`() {
                     slot,
                     ctx.deployer.address,
                     payload,
-                    { value: ton("10"), bounce: true },
+                    { value: grams("10"), bounce: true },
                 );
 
             expect(res).toHaveTx({
@@ -370,7 +370,7 @@ get fun `test custom params invariant: accepted updates should not mutate propos
             CUSTOM_SLOT_1,
             ctx.deployer.address,
             value,
-            { value: ton("10"), bounce: true },
+            { value: grams("10"), bounce: true },
         );
 
     expect(res).toHaveTx({

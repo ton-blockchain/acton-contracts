@@ -8,8 +8,8 @@ const AUCTION_START_DURATION = 60 * 60 * 24 * 7
 const AUCTION_END_DURATION = 60 * 60
 const AUCTION_PROLONGATION = 60 * 60
 
-const MIN_TONS_FOR_STORAGE = ton("1")
-const ONE_TON = ton("1")
+const MIN_TONS_FOR_STORAGE = grams("1")
+const ONE_TON = grams("1")
 
 // https://github.com/ton-blockchain/ton/blob/7e3df93ca2ab336716a230fceb1726d81bac0a06/crypto/block/block.tlb#L819
 const DNS_NEXT_RESOLVER_PREFIX = 0xba93

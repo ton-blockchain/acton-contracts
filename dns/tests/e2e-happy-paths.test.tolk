@@ -9,8 +9,8 @@ import "../wrappers/DnsCollection.gen"
 import "../wrappers/DnsItem.gen"
 
 const E2E_DOMAIN = "benchflow"
-const E2E_INITIAL_BID = ton("1000")
-const E2E_NEXT_BID = ton("1050")
+const E2E_INITIAL_BID = grams("1000")
+const E2E_NEXT_BID = grams("1050")
 const E2E_GOVERNANCE_QUERY_ID = 7001
 
 fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL_BID): (
@@ -21,7 +21,7 @@ fun deployDnsDomainStage(domain: string = E2E_DOMAIN, value: coins = E2E_INITIAL
     Treasury,
 ) {
     val (collection, deployer, bidder) = deployCollectionContract();
-    val governanceCaller = newActor("dns_e2e_governance_caller", ton("100000"));
+    val governanceCaller = newActor("dns_e2e_governance_caller", grams("100000"));
     testing.setNow((AUCTION_START_TIME + 1));
 
     val deploy = collection.sendDeployDnsDomain(
@@ -84,7 +84,7 @@ fun processGovernanceDecisionStage(
     val governance = item.sendProcessGovernanceDecision(
         callerAddress,
         E2E_GOVERNANCE_QUERY_ID,
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(governance).toHaveSuccessfulTx<ProcessGovernanceDecision>({
         from: callerAddress,
@@ -124,7 +124,7 @@ get fun `test dns e2e bench: stage 3 apply ownership`() {
 
 get fun `test dns e2e bench: stage 4 full flow with governance decision`() {
     val (item, collection, deployer, bidder, governanceCaller) = deployDnsDomainStage();
-    val governmentOwner = newActor("dns_e2e_government_owner", ton("100000"));
+    val governmentOwner = newActor("dns_e2e_government_owner", grams("100000"));
 
     processNewBidStage(item, deployer.address, bidder.address);
     applyOwnershipStage(item, collection.address, bidder.address);

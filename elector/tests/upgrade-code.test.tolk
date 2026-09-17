@@ -29,12 +29,12 @@ get fun `test upgrade code not mc`() {
         .endCell()
         .beginParse()
         .loadAddress();
-    testing.topUp(bcAddr, ton("10"));
+    testing.topUp(bcAddr, grams("10"));
 
     val body = buildUpgradeCodeBody(1);
 
     // From basechain — should be rejected (0xffffffff response)
-    val res1 = elector.sendAny(bcAddr, body, { value: ton("1") });
+    val res1 = elector.sendAny(bcAddr, body, { value: grams("1") });
     expect(res1).toHaveTx({
         from: elector.address,
         to: bcAddr,
@@ -42,8 +42,8 @@ get fun `test upgrade code not mc`() {
     });
 
     // From masterchain config address — should succeed (0xce436f64 response)
-    testing.topUp(setup.configAddr, ton("10"));
-    val res2 = elector.sendAny(setup.configAddr, body, { value: ton("1") });
+    testing.topUp(setup.configAddr, grams("10"));
+    val res2 = elector.sendAny(setup.configAddr, body, { value: grams("1") });
     expect(res2).toHaveTx({
         from: elector.address,
         to: setup.configAddr,
@@ -57,12 +57,12 @@ get fun `test upgrade code not config`() {
     val elector = setup.elector;
 
     val otherAddr = randomAddress("not-config", MASTERCHAIN);
-    testing.topUp(otherAddr, ton("10"));
+    testing.topUp(otherAddr, grams("10"));
 
     val body = buildUpgradeCodeBody(1);
 
     // From wrong masterchain address — should be rejected (0xffffffff response)
-    val res1 = elector.sendAny(otherAddr, body, { value: ton("1") });
+    val res1 = elector.sendAny(otherAddr, body, { value: grams("1") });
     expect(res1).toHaveTx({
         from: elector.address,
         to: otherAddr,
@@ -70,8 +70,8 @@ get fun `test upgrade code not config`() {
     });
 
     // From correct config address — should succeed (0xce436f64 response)
-    testing.topUp(setup.configAddr, ton("10"));
-    val res2 = elector.sendAny(setup.configAddr, body, { value: ton("1") });
+    testing.topUp(setup.configAddr, grams("10"));
+    val res2 = elector.sendAny(setup.configAddr, body, { value: grams("1") });
     expect(res2).toHaveTx({
         from: elector.address,
         to: setup.configAddr,

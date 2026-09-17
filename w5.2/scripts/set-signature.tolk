@@ -59,7 +59,7 @@ fun main() {
         extensionSender.address,
         actionsBody,
         0,
-        { value: ton("0.03") },
+        { value: grams("0.03") },
     );
     if (res.waitForFirstTransaction() == null) {
         println("Set-signature extension request was not confirmed");

@@ -44,7 +44,7 @@ fun setupOrderFixture(threshold: int = 5, signerCount: int = 10): OrderFixture {
         orderBody,
         null,
         0,
-        { value: ton("2"), bounce: true },
+        { value: grams("2"), bounce: true },
     );
     expect(deploy).toHaveSuccessfulDeploy({ to: order.address });
 
@@ -116,7 +116,7 @@ get fun `test order: should only accept init message from multisig`() {
         fixture.orderBody,
         null,
         0,
-        { value: ton("2"), bounce: true },
+        { value: grams("2"), bounce: true },
     );
 
     expect(fail).toHaveFailedTx<InitOrderRequest>({
@@ -137,7 +137,7 @@ get fun `test order: should only accept init message from multisig`() {
         fixture.orderBody,
         null,
         0,
-        { value: ton("2"), bounce: true },
+        { value: grams("2"), bounce: true },
     );
     expect(ok).toHaveSuccessfulTx<InitOrderRequest>({
         from: fixture.multisig.address,
@@ -161,7 +161,7 @@ get fun `test order: should reject already expired init message`() {
         fixture.orderBody,
         null,
         0,
-        { value: ton("2"), bounce: true },
+        { value: grams("2"), bounce: true },
     );
     expect(fail).toHaveFailedTx<InitOrderRequest>({
         from: fixture.multisig.address,
@@ -180,7 +180,7 @@ get fun `test order: should reject already expired init message`() {
         fixture.orderBody,
         null,
         0,
-        { value: ton("2"), bounce: true },
+        { value: grams("2"), bounce: true },
     );
     expect(ok).toHaveSuccessfulTx<InitOrderRequest>({
         from: fixture.multisig.address,
@@ -204,7 +204,7 @@ get fun `test order: order contract should accept init message only once if appr
             fixture.orderBody,
             null,
             0,
-            { value: ton("2"), bounce: true },
+            { value: grams("2"), bounce: true },
         );
 
     expect(fail).toHaveFailedTx<InitOrderRequest>({
@@ -240,7 +240,7 @@ get fun `test order: order contract should reject secondary init vote if any ord
             fixture.orderBody,
             signerIndex,
             1,
-            { value: ton("2"), bounce: true },
+            { value: grams("2"), bounce: true },
         );
     expect(failSigners).toHaveFailedTx<InitOrderRequest>({
         from: fixture.multisig.address,
@@ -258,7 +258,7 @@ get fun `test order: order contract should reject secondary init vote if any ord
             fixture.orderBody,
             signerIndex,
             2,
-            { value: ton("2"), bounce: true },
+            { value: grams("2"), bounce: true },
         );
     expect(failExpiration).toHaveFailedTx<InitOrderRequest>({
         from: fixture.multisig.address,
@@ -276,7 +276,7 @@ get fun `test order: order contract should reject secondary init vote if any ord
             changedOrder,
             signerIndex,
             3,
-            { value: ton("2"), bounce: true },
+            { value: grams("2"), bounce: true },
         );
     expect(failOrder).toHaveFailedTx<InitOrderRequest>({
         from: fixture.multisig.address,
@@ -294,7 +294,7 @@ get fun `test order: order contract should reject secondary init vote if any ord
             fixture.orderBody,
             signerIndex,
             4,
-            { value: ton("2"), bounce: true },
+            { value: grams("2"), bounce: true },
         );
     expect(failThreshold).toHaveFailedTx<InitOrderRequest>({
         from: fixture.multisig.address,
@@ -312,7 +312,7 @@ get fun `test order: order contract should reject secondary init vote if any ord
             fixture.orderBody,
             signerIndex,
             5,
-            { value: ton("2"), bounce: true },
+            { value: grams("2"), bounce: true },
         );
     expect(ok).toHaveSuccessfulTx<InitOrderRequest>({
         from: fixture.multisig.address,
@@ -339,7 +339,7 @@ get fun `test order: order contract should treat multiple init messages as votes
                 fixture.orderBody,
                 i,
                 i,
-                { value: ton("2"), bounce: true },
+                { value: grams("2"), bounce: true },
             );
 
         expect(res).toHaveSuccessfulTx<InitOrderRequest>({
@@ -376,7 +376,7 @@ get fun `test order: should not be possible to use multiple init msg to approve 
             fixture.orderBody,
             signerIndex,
             100,
-            { value: ton("2"), bounce: true },
+            { value: grams("2"), bounce: true },
         );
     expect(first).toHaveSuccessfulTx<InitOrderRequest>({
         from: fixture.multisig.address,
@@ -397,7 +397,7 @@ get fun `test order: should not be possible to use multiple init msg to approve 
             fixture.orderBody,
             signerIndex,
             101,
-            { value: ton("2"), bounce: true },
+            { value: grams("2"), bounce: true },
         );
 
     assertApproveRejected(
@@ -455,7 +455,7 @@ get fun `test order: should approve order with plain approve comment`() {
 
     val res = fixture
         .order
-        .sendAny(signer, makeApproveCommentBody("approve"), { value: ton("1"), bounce: true });
+        .sendAny(signer, makeApproveCommentBody("approve"), { value: grams("1"), bounce: true });
     expect(res).toHaveTx<ApproveAccepted>({ from: fixture.order.address, to: signer });
 }
 
@@ -467,7 +467,7 @@ get fun `test order: should approve order with approve comment in first ref`() {
         .storeUint(0, 32)
         .storeRef(beginCell().storeSlice("approve".beginParse()).endCell())
         .endCell();
-    val res = fixture.order.sendAny(signer, body, { value: ton("1"), bounce: true });
+    val res = fixture.order.sendAny(signer, body, { value: grams("1"), bounce: true });
     expect(res).toHaveTx<ApproveAccepted>({ from: fixture.order.address, to: signer });
 }
 
@@ -510,7 +510,7 @@ get fun `test order: should approve order with approve comment split in refs`() 
         .endCell();
 
     val body = beginCell().storeUint(0, 32).storeSlice(chain.beginParse()).endCell();
-    val res = fixture.order.sendAny(signer, body, { value: ton("1"), bounce: true });
+    val res = fixture.order.sendAny(signer, body, { value: grams("1"), bounce: true });
     expect(res).toHaveTx<ApproveAccepted>({ from: fixture.order.address, to: signer });
 }
 
@@ -526,7 +526,7 @@ get fun `test order: should approve order with approve comment and empty refs in
         )
         .endCell();
 
-    val res = fixture.order.sendAny(signer, body, { value: ton("1"), bounce: true });
+    val res = fixture.order.sendAny(signer, body, { value: grams("1"), bounce: true });
     expect(res).toHaveTx<ApproveAccepted>({ from: fixture.order.address, to: signer });
 }
 
@@ -539,7 +539,7 @@ get fun `test order: should reject non-approve comment payload`() {
         .sendAny(
             signer,
             makeApproveCommentBody("approve not given"),
-            { value: ton("1"), bounce: true },
+            { value: grams("1"), bounce: true },
         );
     expect(res).toHaveFailedTx<TextComment>({
         from: signer,
@@ -557,7 +557,7 @@ get fun `test order: should reject order with comment from not signer`() {
         .sendAny(
             fixture.notSigner.address,
             makeApproveCommentBody("approve"),
-            { value: ton("1"), bounce: true },
+            { value: grams("1"), bounce: true },
         );
 
     expect(res).toHaveFailedTx<TextComment>({
@@ -670,7 +670,7 @@ get fun `test order: should reject execution when executed once`() {
         val signer = fixture.signers.get(i);
         val qid = (5000 + i);
 
-        val res = fixture.order.sendApprove(signer, i, qid, { value: ton("1"), bounce: true });
+        val res = fixture.order.sendApprove(signer, i, qid, { value: grams("1"), bounce: true });
         assertApproveAccepted(res, fixture.order.address, signer, qid);
 
         if (i + 1 == fixture.threshold) {
@@ -691,7 +691,7 @@ get fun `test order: should reject execution when executed once`() {
 
     val late = fixture
         .order
-        .sendApprove(lateSigner, lateSignerIndex, 6000, { value: ton("1"), bounce: true });
+        .sendApprove(lateSigner, lateSignerIndex, 6000, { value: grams("1"), bounce: true });
 
     assertApproveRejected(late, fixture.order.address, lateSigner, 6000, ERROR_ALREADY_EXECUTED);
     expect(late).toNotHaveTx<ExecuteOrderRequest>({
@@ -725,7 +725,7 @@ get fun `test order: should handle 255 signers`() {
         orderBody,
         null,
         0,
-        { value: ton("20"), bounce: true },
+        { value: grams("20"), bounce: true },
     );
 
     expect(deploy).toHaveSuccessfulDeploy({ to: jumboOrder.address });

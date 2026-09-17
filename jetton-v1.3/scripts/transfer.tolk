@@ -20,12 +20,12 @@ fun main() {
         "JETTON_TRANSFER_RECIPIENT",
         scripts.wallet("jetton-recipient-1").address,
     );
-    val transferAmount = envOr("JETTON_TRANSFER_AMOUNT", ton("0.1"));
-    val value = envOr("JETTON_TRANSFER_VALUE", ton("0.08"));
-    val forwardTonAmount = envOr("JETTON_FORWARD_TON_AMOUNT", ton("0.01"));
-    val prefundMintAmount = envOr("JETTON_PREFUND_MINT_AMOUNT", ton("0.5"));
-    val prefundMintTonAmount = envOr("JETTON_PREFUND_MINT_TON_AMOUNT", ton("0.08"));
-    val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
+    val transferAmount = envOr("JETTON_TRANSFER_AMOUNT", grams("0.1"));
+    val value = envOr("JETTON_TRANSFER_VALUE", grams("0.08"));
+    val forwardTonAmount = envOr("JETTON_FORWARD_TON_AMOUNT", grams("0.01"));
+    val prefundMintAmount = envOr("JETTON_PREFUND_MINT_AMOUNT", grams("0.5"));
+    val prefundMintTonAmount = envOr("JETTON_PREFUND_MINT_TON_AMOUNT", grams("0.08"));
+    val deployValue = envOr("JETTON_DEPLOY_VALUE", grams("0.05"));
 
     val expectedMinter = NotcoinMinter.fromStorage({
         totalSupply: initialSupply,

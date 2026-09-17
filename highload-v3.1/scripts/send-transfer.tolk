@@ -9,9 +9,9 @@ import "../wrappers/utils"
 
 const HIGHLOAD_DEFAULT_SUBWALLET_ID = 239
 const HIGHLOAD_DEFAULT_TIMEOUT = 128
-const HIGHLOAD_DEFAULT_BATCH_VALUE = ton("0.03")
-const HIGHLOAD_DEFAULT_ACTION_VALUE = ton("0.01")
-const HIGHLOAD_DEFAULT_RECIPIENT_2_VALUE = ton("0.005")
+const HIGHLOAD_DEFAULT_BATCH_VALUE = grams("0.03")
+const HIGHLOAD_DEFAULT_ACTION_VALUE = grams("0.01")
+const HIGHLOAD_DEFAULT_RECIPIENT_2_VALUE = grams("0.005")
 
 fun main() {
     val walletAddress: address? = env("HIGHLOAD_WALLET_ADDRESS");

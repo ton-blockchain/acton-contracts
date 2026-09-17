@@ -5,7 +5,7 @@ import "@acton/emulation/scripts"
 import "../wrappers/Multisig.gen"
 import "../wrappers/utils"
 
-const DEFAULT_DEPLOY_VALUE = ton("0.1")
+const DEFAULT_DEPLOY_VALUE = grams("0.1")
 
 // Important: before deploying multisig contract, check that
 // order library is deployed and available:

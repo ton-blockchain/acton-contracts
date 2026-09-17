@@ -13,13 +13,13 @@ const W5_BENCH_KEY_SEED = 0x57550001
 const W5_BENCH_NOW = 1000
 const W5_BENCH_VALID_UNTIL = 2000
 
-const W5_BENCH_DEPLOY_VALUE = ton("0.05")
-const W5_BENCH_TOP_UP_VALUE = ton("10")
-const W5_BENCH_SIGNED_INTERNAL_VALUE = ton("0.1")
-const W5_BENCH_EXTENSION_CALL_VALUE = ton("0.1")
+const W5_BENCH_DEPLOY_VALUE = grams("0.05")
+const W5_BENCH_TOP_UP_VALUE = grams("10")
+const W5_BENCH_SIGNED_INTERNAL_VALUE = grams("0.1")
+const W5_BENCH_EXTENSION_CALL_VALUE = grams("0.1")
 
-const W5_BENCH_TRANSFER_VALUE = ton("1")
-const W5_BENCH_EXTENSION_TRANSFER_VALUE = ton("0.001")
+const W5_BENCH_TRANSFER_VALUE = grams("1")
+const W5_BENCH_EXTENSION_TRANSFER_VALUE = grams("0.001")
 
 struct W5BenchFixture {
     wallet: WalletV5

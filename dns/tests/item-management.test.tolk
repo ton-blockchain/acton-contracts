@@ -24,7 +24,7 @@ fun setupGovernanceReadyItem(): (DnsItem, DnsCollection, Treasury, Treasury) {
     val higherBid = item.sendAny(
         bidder.address,
         createEmptyCell(),
-        { value: ton("1050"), bounce: true },
+        { value: grams("1050"), bounce: true },
     );
     expect(higherBid).toHaveSuccessfulTx<OutbidNotification>({
         from: item.address,
@@ -39,13 +39,13 @@ fun setupGovernanceReadyItem(): (DnsItem, DnsCollection, Treasury, Treasury) {
 
 get fun `test item management: ownership transfer updates editor and blocks old owner`() {
     val (item, _, owner, outsider) = setupCompletedItem();
-    val newOwner = newActor("item_transfer_new_owner", ton("100"));
+    val newOwner = newActor("item_transfer_new_owner", grams("100"));
 
     val transfer = item.sendTransferOwnership(
         owner.address,
         123,
-        makeTransferData(newOwner.address, null, ton("0.5"), createEmptyCell().beginParse()),
-        { value: ton("5"), bounce: true },
+        makeTransferData(newOwner.address, null, grams("0.5"), createEmptyCell().beginParse()),
+        { value: grams("5"), bounce: true },
     );
     expect(transfer).toHaveSuccessfulTx<OwnershipAssigned>({
         from: item.address,
@@ -58,7 +58,7 @@ get fun `test item management: ownership transfer updates editor and blocks old 
         owner.address,
         124,
         makeTransferData(outsider.address, null, 0, createEmptyCell().beginParse()),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(oldOwnerAttempt).toHaveFailedTx({
         from: owner.address,
@@ -69,8 +69,8 @@ get fun `test item management: ownership transfer updates editor and blocks old 
 
 get fun `test item management: ownership transfer covers payout branches and rejects invalid params`() {
     val (item, _, owner, _) = setupCompletedItem();
-    val newOwner = newActor("item_transfer_branch_owner", ton("100"));
-    val responseDestination = newActor("item_transfer_response_destination", ton("100"));
+    val newOwner = newActor("item_transfer_branch_owner", grams("100"));
+    val responseDestination = newActor("item_transfer_response_destination", grams("100"));
 
     val transferWithPayouts = item.sendTransferOwnership(
         owner.address,
@@ -78,10 +78,10 @@ get fun `test item management: ownership transfer covers payout branches and rej
         makeTransferData(
             newOwner.address,
             responseDestination.address,
-            ton("0.5"),
+            grams("0.5"),
             createEmptyCell().beginParse(),
         ),
-        { value: ton("5"), bounce: true },
+        { value: grams("5"), bounce: true },
     );
     expect(transferWithPayouts).toHaveSuccessfulTx<OwnershipAssigned>({
         from: item.address,
@@ -102,7 +102,7 @@ get fun `test item management: ownership transfer covers payout branches and rej
     val assignedBody = assignedTx!.loadBody<OwnershipAssigned>();
     expect(assignedBody.queryId).toEqual(321);
     expect(assignedBody.oldOwnerAddress).toEqual(owner.address);
-    expect(assignedTxValue.info.toInternal().value.grams).toEqual(ton("0.5"));
+    expect(assignedTxValue.info.toInternal().value.grams).toEqual(grams("0.5"));
 
     val excessTx = transferWithPayouts.findTransaction<Excesses>({
         from: item.address,
@@ -122,7 +122,7 @@ get fun `test item management: ownership transfer covers payout branches and rej
         newOwner.address,
         322,
         makeTransferData(invalidNewOwner, null, 0, createEmptyCell().beginParse()),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(wrongOwnerTransfer).toHaveFailedTx({
         from: newOwner.address,
@@ -142,7 +142,7 @@ get fun `test item management: ownership transfer covers payout branches and rej
             0,
             createEmptyCell().beginParse(),
         ),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(wrongResponseTransfer).toHaveFailedTx({
         from: newOwner.address,
@@ -156,10 +156,10 @@ get fun `test item management: ownership transfer covers payout branches and rej
         makeTransferData(
             owner.address,
             responseDestination.address,
-            ton("10000"),
+            grams("10000"),
             createEmptyCell().beginParse(),
         ),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(insufficientBalance).toHaveFailedTx({
         from: newOwner.address,
@@ -174,7 +174,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
     val (item, _, owner, outsider) = setupCompletedItem();
 
     val edited = makeRecordMapWithName("alice-edited.ton");
-    val editTx = item.sendEditContent(owner.address, 1, edited, { value: ton("1"), bounce: true });
+    val editTx = item.sendEditContent(owner.address, 1, edited, { value: grams("1"), bounce: true });
     expect(editTx).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
     val nftData = item.getNftData();
@@ -185,7 +185,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
         outsider.address,
         2,
         edited,
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(forbiddenEdit).toHaveFailedTx({
         from: outsider.address,
@@ -201,7 +201,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
         3,
         DNS_WALLET_CATEGORY,
         beginCell().storeRef(walletRecord).endCell().beginParse(),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(addRecord).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
@@ -215,7 +215,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
         4,
         DNS_WALLET_CATEGORY,
         createEmptyCell().beginParse(),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(removeRecord).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
@@ -227,7 +227,7 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
         5,
         DNS_WALLET_CATEGORY,
         beginCell().storeRef(walletRecord).endCell().beginParse(),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(forbiddenChange).toHaveFailedTx({
         from: outsider.address,
@@ -246,7 +246,7 @@ get fun `test item management: dnsresolve follows TEP-81 category and next-resol
         11,
         DNS_NEXT_RESOLVER_CATEGORY,
         beginCell().storeRef(nextResolverCell).endCell().beginParse(),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(setNextResolver).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
@@ -270,7 +270,7 @@ get fun `test item management: governance is blocked while auction is active`() 
     val governanceDuringAuction = item.sendProcessGovernanceDecision(
         caller.address,
         900,
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(governanceDuringAuction).toHaveFailedTx({
         from: caller.address,
@@ -281,7 +281,7 @@ get fun `test item management: governance is blocked while auction is active`() 
 
 get fun `test item management: governance requires an existing config entry`() {
     val (item, _, owner, _) = setupGovernanceReadyItem();
-    val caller = newActor("item_governance_missing_entry_caller", ton("100000"));
+    val caller = newActor("item_governance_missing_entry_caller", grams("100000"));
 
     setGovernanceDecision(
         domainIndex("othergov"),
@@ -295,7 +295,7 @@ get fun `test item management: governance requires an existing config entry`() {
     val missingEntry = item.sendProcessGovernanceDecision(
         caller.address,
         901,
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(missingEntry).toHaveFailedTx({
         from: caller.address,
@@ -306,7 +306,7 @@ get fun `test item management: governance requires an existing config entry`() {
 
 get fun `test item management: governance release destroys the item and refunds collection`() {
     val (item, collection, _, _) = setupGovernanceReadyItem();
-    val caller = newActor("item_governance_release_caller", ton("100000"));
+    val caller = newActor("item_governance_release_caller", grams("100000"));
 
     val collectionBalanceBefore = testing.getAccountBalance(collection.address);
     val nftData = item.getNftData();
@@ -315,7 +315,7 @@ get fun `test item management: governance release destroys the item and refunds 
     val governanceRelease = item.sendProcessGovernanceDecision(
         caller.address,
         902,
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(governanceRelease).toHaveSuccessfulTx<ProcessGovernanceDecision>({
         from: caller.address,
@@ -344,7 +344,7 @@ get fun `test item management: release boundaries, refunds, and unknown op handl
     val unknownOp = item.sendAny(
         owner.address,
         beginCell().storeUint(0x7FFFFFFF, 32).storeUint(1, 64).endCell(),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(unknownOp).toHaveFailedTx({
         from: owner.address,
@@ -355,7 +355,7 @@ get fun `test item management: release boundaries, refunds, and unknown op handl
     val ownerTopUp = item.sendAny(
         owner.address,
         createEmptyCell(),
-        { value: ton("2"), bounce: true },
+        { value: grams("2"), bounce: true },
     );
     expect(ownerTopUp).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
@@ -365,7 +365,7 @@ get fun `test item management: release boundaries, refunds, and unknown op handl
     val releaseAtExactYear = item.sendDnsRecordRelease(
         bidder.address,
         700,
-        { value: ton("20000"), bounce: true },
+        { value: grams("20000"), bounce: true },
     );
     expect(releaseAtExactYear).toHaveFailedTx({
         from: bidder.address,
@@ -439,7 +439,7 @@ get fun `test item management: static data, governance guard, and release flow i
     val staticData = item.sendGetStaticData(
         requester.address,
         555,
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(staticData).toHaveSuccessfulTx<ReportStaticData>({
         from: item.address,
@@ -462,7 +462,7 @@ get fun `test item management: static data, governance guard, and release flow i
     val governance = item.sendProcessGovernanceDecision(
         requester.address,
         42,
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(governance).toHaveFailedTx({
         from: requester.address,
@@ -470,12 +470,12 @@ get fun `test item management: static data, governance guard, and release flow i
         exitCode: ERROR_CONFIG_ENTRY_NOT_FOUND,
     });
 
-    val bidder = newActor("item_release_bidder", ton("100000"));
+    val bidder = newActor("item_release_bidder", grams("100000"));
 
     val earlyRelease = item.sendDnsRecordRelease(
         bidder.address,
         1,
-        { value: ton("20000"), bounce: true },
+        { value: grams("20000"), bounce: true },
     );
     expect(earlyRelease).toHaveFailedTx({
         from: bidder.address,
@@ -489,7 +489,7 @@ get fun `test item management: static data, governance guard, and release flow i
     val release = item.sendDnsRecordRelease(
         bidder.address,
         2,
-        { value: ton("20000"), bounce: true },
+        { value: grams("20000"), bounce: true },
     );
     expect(release).toHaveSuccessfulTx<DnsRecordRelease>({
         from: bidder.address,
@@ -500,6 +500,6 @@ get fun `test item management: static data, governance guard, and release flow i
 
     val restartedAuction = item.getAuctionInfo();
     expect(restartedAuction.maxBidAddress).toEqual(bidder.address);
-    expect(restartedAuction.maxBidAmount).toEqual(ton("20000"));
+    expect(restartedAuction.maxBidAmount).toEqual(grams("20000"));
     expect(restartedAuction.auctionEndTime).toEqual((testing.getNow() + AUCTION_START_DURATION));
 }

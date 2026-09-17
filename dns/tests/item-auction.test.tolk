@@ -11,8 +11,8 @@ import "../wrappers/utils"
 
 get fun `test item auction: initializes only from collection and handles repeated init`() {
     val collection = newActor("item_init_collection");
-    val owner = newActor("item_init_owner", ton("100000"));
-    val outsider = newActor("item_init_outsider", ton("100000"));
+    val owner = newActor("item_init_owner", grams("100000"));
+    val outsider = newActor("item_init_outsider", grams("100000"));
 
     testing.setNow((AUCTION_START_TIME + 1));
     val itemTemplate = DnsItem.fromNotInitializedStorage(
@@ -25,7 +25,7 @@ get fun `test item auction: initializes only from collection and handles repeate
         outsider.address,
         createMessage({
             bounce: true,
-            value: ton("1000"),
+            value: grams("1000"),
             dest: { stateInit: itemTemplate.stateInit! },
             body: initBody,
         }),
@@ -40,7 +40,7 @@ get fun `test item auction: initializes only from collection and handles repeate
         collection.address,
         createMessage({
             bounce: true,
-            value: ton("1000"),
+            value: grams("1000"),
             dest: { stateInit: itemTemplate.stateInit! },
             body: initBody,
         }),
@@ -56,7 +56,7 @@ get fun `test item auction: initializes only from collection and handles repeate
 
     val auctionInfo = item.getAuctionInfo();
     expect(auctionInfo.maxBidAddress).toEqual(owner.address);
-    expect(auctionInfo.maxBidAmount).toEqual(ton("1000"));
+    expect(auctionInfo.maxBidAmount).toEqual(grams("1000"));
     expect(auctionInfo.auctionEndTime).toEqual(
         (AUCTION_START_TIME + 1 + expectedAuctionDurationAt(AUCTION_START_TIME + 1)),
     );
@@ -64,13 +64,13 @@ get fun `test item auction: initializes only from collection and handles repeate
     val repeatedInit = item.sendAny(
         collection.address,
         initBody,
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(repeatedInit).toHaveSuccessfulTx({ from: collection.address, to: item.address });
 
     val auctionAfterRepeat = item.getAuctionInfo();
     expect(auctionAfterRepeat.maxBidAddress).toEqual(owner.address);
-    expect(auctionAfterRepeat.maxBidAmount).toEqual(ton("1000"));
+    expect(auctionAfterRepeat.maxBidAmount).toEqual(grams("1000"));
 }
 
 get fun `test item auction: bids require 5 percent and notify previous bidder`() {
@@ -80,7 +80,7 @@ get fun `test item auction: bids require 5 percent and notify previous bidder`()
     val lowBid = item.sendAny(
         bidder.address,
         createEmptyCell(),
-        { value: ton("1000"), bounce: true },
+        { value: grams("1000"), bounce: true },
     );
     expect(lowBid).toHaveFailedTx({
         from: bidder.address,
@@ -91,7 +91,7 @@ get fun `test item auction: bids require 5 percent and notify previous bidder`()
     val validBid = item.sendAny(
         bidder.address,
         createEmptyCell(),
-        { value: ton("1050"), bounce: true },
+        { value: grams("1050"), bounce: true },
     );
     expect(validBid).toHaveSuccessfulTx<OutbidNotification>({
         from: item.address,
@@ -108,7 +108,7 @@ get fun `test item auction: bids require 5 percent and notify previous bidder`()
 
     val auctionAfterBid = item.getAuctionInfo();
     expect(auctionAfterBid.maxBidAddress).toEqual(bidder.address);
-    expect(auctionAfterBid.maxBidAmount).toEqual(ton("1050"));
+    expect(auctionAfterBid.maxBidAmount).toEqual(grams("1050"));
 }
 
 get fun `test item auction: prolongs end time when bid arrives in prolongation window`() {
@@ -118,7 +118,7 @@ get fun `test item auction: prolongs end time when bid arrives in prolongation w
     val nowAt = auctionBefore.auctionEndTime - AUCTION_PROLONGATION / 2;
     testing.setNow(nowAt);
 
-    val bid = item.sendAny(bidder.address, createEmptyCell(), { value: ton("2000"), bounce: true });
+    val bid = item.sendAny(bidder.address, createEmptyCell(), { value: grams("2000"), bounce: true });
     expect(bid).toHaveSuccessfulTx<OutbidNotification>({ from: item.address, to: owner.address });
 
     val auctionAfter = item.getAuctionInfo();
@@ -134,7 +134,7 @@ get fun `test item auction: exact end time still accepts bids before completion`
     val edgeBid = item.sendAny(
         bidder.address,
         createEmptyCell(),
-        { value: ton("1050"), bounce: true },
+        { value: grams("1050"), bounce: true },
     );
     expect(edgeBid).toHaveSuccessfulTx<OutbidNotification>({
         from: item.address,
@@ -143,7 +143,7 @@ get fun `test item auction: exact end time still accepts bids before completion`
 
     val auctionAfter = item.getAuctionInfo();
     expect(auctionAfter.maxBidAddress).toEqual(bidder.address);
-    expect(auctionAfter.maxBidAmount).toEqual(ton("1050"));
+    expect(auctionAfter.maxBidAmount).toEqual(grams("1050"));
     expect(item.getEditor()).toBeNull();
 }
 
@@ -170,7 +170,7 @@ get fun `test item auction: completion sets owner and enforces top-up permission
     val ownerTopUp = item.sendAny(
         owner.address,
         createEmptyCell(),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(ownerTopUp).toHaveSuccessfulTx({ from: owner.address, to: item.address });
     expect(item.getLastFillUpTime()).toEqual(ownerTopUpNow);
@@ -178,7 +178,7 @@ get fun `test item auction: completion sets owner and enforces top-up permission
     val outsiderTopUp = item.sendAny(
         outsider.address,
         createEmptyCell(),
-        { value: ton("1"), bounce: true },
+        { value: grams("1"), bounce: true },
     );
     expect(outsiderTopUp).toHaveFailedTx({
         from: outsider.address,

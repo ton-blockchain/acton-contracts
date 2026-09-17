@@ -10,7 +10,7 @@ import "../contracts/types"
 import "../wrappers/Elector.gen"
 
 const ELECTOR_E2E_EXTRA_VALIDATORS = 6
-const ELECTOR_E2E_COMPLAINT_FINE = ton("100")
+const ELECTOR_E2E_COMPLAINT_FINE = grams("100")
 const ELECTOR_E2E_COMPLAINT_FINE_PART = 1 << 30
 const ELECTOR_E2E_VOTE_THRESHOLD = 4
 const ELECTOR_E2E_KEY_SEED_BASE = 0xE1EC70A
@@ -27,13 +27,13 @@ fun submitE2eStake(elector: Elector, totalStake: coins, validatorIndex: int, cus
 
     val stakeLimits = defaultStakeLimits();
     val minStake = max(stakeLimits.minStake, totalStake >> 12);
-    val stake: coins = customStake > 0 ? customStake : minStake + ton("1000");
+    val stake: coins = customStake > 0 ? customStake : minStake + grams("1000");
 
     val stakeAt = elector.activeElectionId();
     assert (stakeAt != 0) throw 999;
 
     val srcAddr = randomAddress("elector-e2e-staker", MASTERCHAIN);
-    testing.topUp(srcAddr, stake + ton("100"));
+    testing.topUp(srcAddr, stake + grams("100"));
 
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
 
@@ -62,13 +62,13 @@ fun submitE2eStake(elector: Elector, totalStake: coins, validatorIndex: int, cus
 
 fun submitE2eKnownValidatorStake(elector: Elector, kp: KeyPair): (address, uint256, coins) {
     val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + grams("10000");
 
     val stakeAt = elector.activeElectionId();
     assert (stakeAt != 0) throw 999;
 
     val srcAddr = randomAddress("elector-e2e-known-staker", MASTERCHAIN);
-    testing.topUp(srcAddr, stakePerValidator + ton("100"));
+    testing.topUp(srcAddr, stakePerValidator + grams("100"));
 
     val (_, srcHash) = srcAddr.getWorkchainAndHash();
     val adnlAddr: uint256 = 12345;
@@ -105,7 +105,7 @@ fun conductE2eElections(elector: Elector): int {
 
     var totalStake: coins = 0;
     val numValidators = max(validatorLimits.minValidators, 5);
-    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + grams("10000");
     var i = 0;
     while (i < numValidators) {
         val (_, _, _, _, stake) = submitE2eStake(elector, totalStake, i, stakePerValidator);
@@ -133,7 +133,7 @@ fun conductE2eElectionsWithKnownValidator(elector: Elector): (int, uint256) {
     val stakeAt = elector.activeElectionId();
 
     val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + grams("10000");
 
     val (_, knownPubkey, knownStake) = submitE2eKnownValidatorStake(elector, kp);
     var totalStake = knownStake;
@@ -172,7 +172,7 @@ fun conductE2eElectionsAndGetVset(
 
     var totalStake: coins = 0;
     val numValidators = max(validatorLimits.minValidators, 5);
-    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / numValidators + grams("10000");
     var firstStakerHash: uint256 = 0;
     var i = 0;
     while (i < numValidators) {
@@ -268,7 +268,7 @@ fun recoverStakeStage(setup: ElectorSetup) {
     testing.setConfig(config);
 
     val stakeLimits = defaultStakeLimits();
-    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakePerValidator: coins = stakeLimits.minTotalStake / 5 + grams("10000");
     var totalStake: coins = 0;
     var extraSrcAddr = randomAddress("placeholder", MASTERCHAIN);
     var i = 0;
@@ -298,7 +298,7 @@ fun recoverStakeStage(setup: ElectorSetup) {
     testing.setNow(closeAt + 1);
     testing.runTickTock(elector.address, true);
 
-    val res = elector.sendRecoverStakeRequest(extraSrcAddr, 1, { value: ton("1") });
+    val res = elector.sendRecoverStakeRequest(extraSrcAddr, 1, { value: grams("1") });
     expect(res).toHaveTx<PayStake>({ from: elector.address, to: extraSrcAddr });
 }
 
@@ -313,9 +313,9 @@ fun submitComplaintStage(setup: ElectorSetup) {
         ELECTOR_E2E_COMPLAINT_FINE_PART,
     );
     val sender = randomAddress("complainer", MASTERCHAIN);
-    testing.topUp(sender, ton("1000"));
+    testing.topUp(sender, grams("1000"));
 
-    val res = elector.sendNewComplaint(sender, 1, stakeAt, complaint, { value: ton("500") });
+    val res = elector.sendNewComplaint(sender, 1, stakeAt, complaint, { value: grams("500") });
     expect(res).toHaveTx({ from: elector.address, to: sender });
 }
 
@@ -424,8 +424,8 @@ fun registerTestComplaint(
 ): uint256 {
     val complaint = createComplaint(frozenPubkey, fine, 0);
     val sender = randomAddress("complainer", MASTERCHAIN);
-    testing.topUp(sender, ton("1000"));
-    elector.sendNewComplaint(sender, 1, stakeAt, complaint, { value: ton("500") });
+    testing.topUp(sender, grams("1000"));
+    elector.sendNewComplaint(sender, 1, stakeAt, complaint, { value: grams("500") });
 
     val complaints = elector.getPastComplaints(stakeAt);
     val first = complaints.findFirst();
@@ -451,6 +451,6 @@ fun sendVote(
     val sig = crypto.sign(privateKey, vote.toCell()).loadBits(512) as bits512;
 
     val voter = randomAddress("voter", MASTERCHAIN);
-    testing.topUp(voter, ton("10"));
-    return elector.sendSignedVoteForComplaint(voter, queryId, sig, vote, { value: ton("1") });
+    testing.topUp(voter, grams("10"));
+    return elector.sendSignedVoteForComplaint(voter, queryId, sig, vote, { value: grams("1") });
 }

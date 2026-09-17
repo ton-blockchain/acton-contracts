@@ -40,7 +40,7 @@ fun sendConfirmation(to: address, queryId: uint64, comment: StakeReason): void {
     val returnMsg = createMessage({
         dest: to,
         bounce: BounceMode.Only256BitsOfBody,
-        value: ton("1"),
+        value: grams("1"),
         body: ReturnMsg {
             op: 0xf374484c,
             queryId,

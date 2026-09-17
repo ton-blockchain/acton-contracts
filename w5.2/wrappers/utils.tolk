@@ -213,7 +213,7 @@ fun deployWallet(storage: Storage): (WalletV5, Treasury) {
     val deployer = testing.treasury("deployer");
     val walletV5 = WalletV5.fromLibraryStorage(storage);
 
-    val deployResult = walletV5.deploy(deployer.address, { value: ton("5"), bounce: false });
+    val deployResult = walletV5.deploy(deployer.address, { value: grams("5"), bounce: false });
 
     expect(deployResult).toHaveSuccessfulDeploy({ to: walletV5.address });
 
@@ -295,5 +295,5 @@ fun addExtensionSigned(
             extraActions,
         },
     );
-    return walletV5.sendSignedBody(sender, signedBody, { value: ton("0.1") });
+    return walletV5.sendSignedBody(sender, signedBody, { value: grams("0.1") });
 }

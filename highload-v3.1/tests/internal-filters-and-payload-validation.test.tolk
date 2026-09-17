@@ -12,14 +12,14 @@ import "../wrappers/utils"
 fun messageWithInternalSource(src: address, dest: address): cell {
     var msg = (createMessage({
         bounce: false,
-        value: ton("0.1"),
+        value: grams("0.1"),
         dest,
     }).messageCell as Cell<TlbMessageRelaxedGeneric>).load();
     msg.info.src = src as any_address;
     return msg.toCell();
 }
 
-fun messageWithStateInit(stateInit: ContractState, value: coins = ton("0.1")): cell {
+fun messageWithStateInit(stateInit: ContractState, value: coins = grams("0.1")): cell {
     return createMessage({
         bounce: false,
         value,
@@ -27,7 +27,7 @@ fun messageWithStateInit(stateInit: ContractState, value: coins = ton("0.1")): c
     }).messageCell;
 }
 
-fun messageWithTrailingDataAfterBodyRef(dest: address, value: coins = ton("0.1")): cell {
+fun messageWithTrailingDataAfterBodyRef(dest: address, value: coins = grams("0.1")): cell {
     var msg = (createMessage({
         bounce: false,
         value,
@@ -61,7 +61,7 @@ get fun `test ignore internal transfer from non-self address`() {
 
     var actions = array<TlbOutAction> [];
     actions.push(
-        sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
+        sendAction(testAddr, grams("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
     val transferBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
 
@@ -70,7 +70,7 @@ get fun `test ignore internal transfer from non-self address`() {
         outsider.address,
         createMessage({
             bounce: false,
-            value: ton("1"),
+            value: grams("1"),
             dest: ctx.wallet.address,
             body: transferBody,
         }),
@@ -78,14 +78,14 @@ get fun `test ignore internal transfer from non-self address`() {
     expect(res1).toNotHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
-        value: ton("1000"),
+        value: grams("1000"),
     });
 
     val res2 = net.send(
         ctx.wallet.address,
         createMessage({
             bounce: false,
-            value: ton("1"),
+            value: grams("1"),
             dest: ctx.wallet.address,
             body: transferBody,
         }),
@@ -93,7 +93,7 @@ get fun `test ignore internal transfer from non-self address`() {
     expect(res2).toHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
-        value: ton("1000"),
+        value: grams("1000"),
     });
 }
 
@@ -104,7 +104,7 @@ get fun `test ignore malformed internal transfer body from self`() {
 
     var actions = array<TlbOutAction> [];
     actions.push(
-        sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
+        sendAction(testAddr, grams("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
     val validBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
     var validSlice = validBody.beginParse();
@@ -123,7 +123,7 @@ get fun `test ignore malformed internal transfer body from self`() {
         ctx.wallet.address,
         createMessage({
             bounce: false,
-            value: ton("1"),
+            value: grams("1"),
             dest: ctx.wallet.address,
             body: malformedBody,
         }),
@@ -134,7 +134,7 @@ get fun `test ignore malformed internal transfer body from self`() {
     expect(res).toNotHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
-        value: ton("1000"),
+        value: grams("1000"),
     });
 }
 
@@ -145,7 +145,7 @@ get fun `test ignore internal transfer with wrong opcode from self`() {
 
     var actions = array<TlbOutAction> [];
     actions.push(
-        sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
+        sendAction(testAddr, grams("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
     val validBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
     var validSlice = validBody.beginParse();
@@ -157,7 +157,7 @@ get fun `test ignore internal transfer with wrong opcode from self`() {
         ctx.wallet.address,
         createMessage({
             bounce: false,
-            value: ton("1"),
+            value: grams("1"),
             dest: ctx.wallet.address,
             body: wrongOpcodeBody,
         }),
@@ -168,7 +168,7 @@ get fun `test ignore internal transfer with wrong opcode from self`() {
     expect(res).toNotHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
-        value: ton("1000"),
+        value: grams("1000"),
     });
 }
 
@@ -179,13 +179,13 @@ get fun `test ignore bounced messages`() {
 
     var actions = array<TlbOutAction> [];
     actions.push(
-        sendAction(testAddr, ton("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
+        sendAction(testAddr, grams("1000"), createEmptyCell(), SEND_MODE_PAY_FEES_SEPARATELY),
     );
     val transferBody = HighloadWalletV3.createInternalTransferBody(queryId, actions);
 
     val bounced = createMessage({
         bounce: false,
-        value: ton("1"),
+        value: grams("1"),
         dest: ctx.wallet.address,
         body: transferBody,
     }).bounced();
@@ -193,12 +193,12 @@ get fun `test ignore bounced messages`() {
     expect(res1).toNotHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
-        value: ton("1000"),
+        value: grams("1000"),
     });
 
     val normal = createMessage({
         bounce: false,
-        value: ton("1"),
+        value: grams("1"),
         dest: ctx.wallet.address,
         body: transferBody,
     });
@@ -206,7 +206,7 @@ get fun `test ignore bounced messages`() {
     expect(res2).toHaveTx({
         from: ctx.wallet.address,
         to: testAddr,
-        value: ton("1000"),
+        value: grams("1000"),
     });
 }
 
@@ -283,7 +283,7 @@ get fun `test accept outgoing message with inline body payload`() {
     val inlineBody = beginCell().storeUint(0xfeedbeef, 32).endCell().beginParse();
     val payload = createMessage({
         bounce: false,
-        value: ton("0.1"),
+        value: grams("0.1"),
         dest: recipient,
         body: UnsafeBodyNoRef { forceInline: inlineBody },
     }).messageCell;
@@ -327,7 +327,7 @@ get fun `test ignore bounced outgoing message in payload`() {
     val queryId = HighloadQueryId.fromShiftAndBitNumber(5, 504).toInt();
     val bouncedPayload = createMessage({
         bounce: false,
-        value: ton("0.1"),
+        value: grams("0.1"),
         dest: randomAddress("bounced-outgoing-dest"),
     })
         .bounced()

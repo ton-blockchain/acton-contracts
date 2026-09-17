@@ -15,8 +15,8 @@ import "../wrappers/Config.gen"
 const CUSTOM_SLOT_1 = -1024
 const CUSTOM_SLOT_2 = -1025
 const DEFAULT_QUERY_ID = 0
-const DEFAULT_PROPOSAL_VALUE = ton("100")
-const DEFAULT_VOTE_VALUE = ton("10")
+const DEFAULT_PROPOSAL_VALUE = grams("100")
+const DEFAULT_VOTE_VALUE = grams("10")
 
 const VOTE_HASH_CODE_PROPOSAL = 0x1001
 const VOTE_HASH_REGULAR_PARAM = 0x1002
@@ -230,10 +230,10 @@ fun setupConfigTest(): ConfigTestContext {
 
     val electorAddress = getElectorAddress(config);
 
-    testing.topUp(ADMIN_ADDRESS_FOR_CUSTOM_PARAMS, ton("1000"));
-    testing.topUp(electorAddress, ton("1000"));
-    testing.topUp(proposer, ton("1000"));
-    testing.topUp(validatorSender, ton("1000"));
+    testing.topUp(ADMIN_ADDRESS_FOR_CUSTOM_PARAMS, grams("1000"));
+    testing.topUp(electorAddress, grams("1000"));
+    testing.topUp(proposer, grams("1000"));
+    testing.topUp(validatorSender, grams("1000"));
 
     var storageConfig = createMapFromLowLevelDict<int32, cell>(config.toLowLevelDict());
     // The default emulator config seeds entries at high uint32 indices that,
@@ -253,7 +253,7 @@ fun setupConfigTest(): ConfigTestContext {
         voteDict: [],
     });
 
-    val deploy = contract.deploy(deployer.address, { value: ton("1000"), bounce: false });
+    val deploy = contract.deploy(deployer.address, { value: grams("1000"), bounce: false });
     expect(deploy).toHaveSuccessfulDeploy({ to: contract.address });
 
     return ConfigTestContext {

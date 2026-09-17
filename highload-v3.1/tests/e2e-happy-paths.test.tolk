@@ -7,8 +7,8 @@ import "../contracts/messages"
 import "../wrappers/HighloadWalletV3.gen"
 import "../wrappers/utils"
 
-const HIGHLOAD_E2E_DIRECT_SEND_VALUE = ton("1")
-const HIGHLOAD_E2E_BATCH_SEND_VALUE = ton("0.015")
+const HIGHLOAD_E2E_DIRECT_SEND_VALUE = grams("1")
+const HIGHLOAD_E2E_BATCH_SEND_VALUE = grams("0.015")
 const HIGHLOAD_E2E_INLINE_BATCH_COUNT = 254
 const HIGHLOAD_E2E_CHAINED_BATCH_COUNT = 300
 const HIGHLOAD_E2E_CHAIN_CUT = 253

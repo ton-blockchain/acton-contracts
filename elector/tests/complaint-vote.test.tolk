@@ -59,13 +59,13 @@ fun registerTestComplaintFull(
 ): ComplaintRegistration {
     val complaint = createComplaint(frozenPubkey, fine, finePart);
     val sender = randomAddress("complainer", MASTERCHAIN);
-    testing.topUp(sender, ton("1000"));
+    testing.topUp(sender, grams("1000"));
     elector.sendNewComplaint(
         sender,
         1,
         stakeAt,
         complaint,
-        { value: ton("500") },
+        { value: grams("500") },
     );
 
     val complaints = elector.getPastComplaints(stakeAt);
@@ -105,13 +105,13 @@ fun sendVote(
     val sig = crypto.sign(privateKey, vote.toCell()).loadBits(512) as bits512;
 
     val voter = randomAddress("voter", MASTERCHAIN);
-    testing.topUp(voter, ton("10"));
+    testing.topUp(voter, grams("10"));
     return elector.sendSignedVoteForComplaint(
         voter,
         queryId,
         sig,
         vote,
-        { value: ton("1") },
+        { value: grams("1") },
     );
 }
 
@@ -123,7 +123,7 @@ get fun `test vote wrong tag`() {
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
     val kps = setupVsetWithKnownValidators(5);
-    registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
+    registerTestComplaint(elector, stakeAt, frozenPubkey, grams("100"));
 
     val wrongVote = VoteForComplaint {
         signTag: 0xDEADBEEF,
@@ -134,13 +134,13 @@ get fun `test vote wrong tag`() {
     val sig = crypto.sign(kps.get(0).privateKey, wrongVote.toCell()).loadBits(512) as bits512;
 
     val voter = randomAddress("voter", MASTERCHAIN);
-    testing.topUp(voter, ton("10"));
+    testing.topUp(voter, grams("10"));
     val res = elector.sendSignedVoteForComplaint(
         voter,
         1,
         sig,
         wrongVote,
-        { value: ton("1") },
+        { value: grams("1") },
     );
     expect(res).toHaveFailedTx({ to: elector.address, exitCode: 37 });
 }
@@ -153,7 +153,7 @@ get fun `test vote invalid signature`() {
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
     val _kps = setupVsetWithKnownValidators(5);
-    registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
+    registerTestComplaint(elector, stakeAt, frozenPubkey, grams("100"));
 
     val wrongKp = crypto.generateKeyPair();
     val vote = VoteForComplaint {
@@ -165,13 +165,13 @@ get fun `test vote invalid signature`() {
     val sig = crypto.sign(wrongKp.privateKey, vote.toCell()).loadBits(512) as bits512; // wrong key
 
     val voter = randomAddress("voter", MASTERCHAIN);
-    testing.topUp(voter, ton("10"));
+    testing.topUp(voter, grams("10"));
     val res = elector.sendSignedVoteForComplaint(
         voter,
         1,
         sig,
         vote,
-        { value: ton("1") },
+        { value: grams("1") },
     );
     expect(res).toHaveFailedTx({ to: elector.address, exitCode: 34 });
 }
@@ -184,7 +184,7 @@ get fun `test vote no such elections`() {
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
     val kps = setupVsetWithKnownValidators(5);
-    registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
+    registerTestComplaint(elector, stakeAt, frozenPubkey, grams("100"));
 
     val wrongElectId: uint32 = (stakeAt + 999);
     val res = sendVote(
@@ -230,7 +230,7 @@ get fun `test vote success`() {
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
     val kps = setupVsetWithKnownValidators(5);
 
-    val fine: coins = ton("100");
+    val fine: coins = grams("100");
     val finePart: uint32 = 1 << 30; // 1/4 of stake as additional fine
     val reg = registerTestComplaintFull(elector, stakeAt, frozenPubkey, fine, finePart);
     val chash = reg.chash;
@@ -241,7 +241,7 @@ get fun `test vote success`() {
 
     // Known frozen stake from setup: conductElectionsWithKnownValidator uses this amount
     val stakeLimits = defaultStakeLimits();
-    val stakeBefore: coins = stakeLimits.minTotalStake / 5 + ton("10000");
+    val stakeBefore: coins = stakeLimits.minTotalStake / 5 + grams("10000");
 
     // Vote with validators idx 1-4 to collect 2/3 weight
     // Each has weight 100, total weight 500, need muldiv(500,2,3) = 333
@@ -292,7 +292,7 @@ get fun `test vote already voted`() {
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
     val kps = setupVsetWithKnownValidators(5);
-    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
+    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, grams("100"));
 
     // First vote — should succeed
     val res1 = sendVote(
@@ -326,7 +326,7 @@ get fun `test vote old vset finished`() {
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
     val kps = setupVsetWithKnownValidators(5);
-    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
+    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, grams("100"));
 
     // Vote with validators idx 1-4 to collect 2/3 weight
     // Each has weight 100, total weight 500, need muldiv(500,2,3) = 333
@@ -402,7 +402,7 @@ get fun `test vote old vset reset`() {
     announceElections(elector);
     val (stakeAt, frozenPubkey) = conductElectionsWithKnownValidator(elector);
     val kps = setupVsetWithKnownValidators(5);
-    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, ton("100"));
+    val chash = registerTestComplaint(elector, stakeAt, frozenPubkey, grams("100"));
 
     // Vote with only 1 validator (idx 1, weight 100 < 333) — not enough for 2/3
     val res1 = sendVote(

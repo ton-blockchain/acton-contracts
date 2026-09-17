@@ -42,7 +42,7 @@ get fun `test voting int: should reject malformed signed-vote payload tag`() {
 
     val res = ctx
         .contract
-        .sendAny(ctx.validatorSender, malformed, { value: ton("10"), bounce: true });
+        .sendAny(ctx.validatorSender, malformed, { value: grams("10"), bounce: true });
 
     expect(res).toHaveTx({
         from: ctx.validatorSender,
@@ -76,7 +76,7 @@ get fun `test voting int: should reject bad signature`() {
         .storeSlice(payload.beginParse())
         .endCell();
 
-    val res = ctx.contract.sendAny(ctx.validatorSender, bad, { value: ton("10"), bounce: true });
+    val res = ctx.contract.sendAny(ctx.validatorSender, bad, { value: grams("10"), bounce: true });
 
     expect(res).toHaveTx({
         from: ctx.validatorSender,

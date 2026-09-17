@@ -17,10 +17,10 @@ fun main() {
         "https://ton-blockchain.github.io/acton/logo.png",
     );
     val mintRecipient = envOr("JETTON_MINT_RECIPIENT", deployer.address);
-    val mintAmount = envOr("JETTON_MINT_AMOUNT", ton("0.5"));
-    val forwardTonAmount = envOr("JETTON_FORWARD_TON_AMOUNT", ton("0.01"));
-    val totalTonAmount = envOr("JETTON_MINT_TON_AMOUNT", ton("0.08"));
-    val deployValue = envOr("JETTON_DEPLOY_VALUE", ton("0.05"));
+    val mintAmount = envOr("JETTON_MINT_AMOUNT", grams("0.5"));
+    val forwardTonAmount = envOr("JETTON_FORWARD_TON_AMOUNT", grams("0.01"));
+    val totalTonAmount = envOr("JETTON_MINT_TON_AMOUNT", grams("0.08"));
+    val deployValue = envOr("JETTON_DEPLOY_VALUE", grams("0.05"));
 
     val expectedMinter = NotcoinMinter.fromStorage({
         totalSupply: initialSupply,

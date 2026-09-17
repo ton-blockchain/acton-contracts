@@ -50,8 +50,8 @@ get fun `test credits accumulate across two rounds`() {
 
     // === RECOVER ALL AT ONCE ===
     val stakerAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(stakerAddr, ton("10000"));
-    val res = elector.sendRecoverStakeRequest(stakerAddr, 42, { value: ton("1") });
+    testing.topUp(stakerAddr, grams("10000"));
+    val res = elector.sendRecoverStakeRequest(stakerAddr, 42, { value: grams("1") });
     expect(res).toHaveTx<PayStake>({ from: elector.address, to: stakerAddr });
     expect(stakerCredits(elector)).toEqual(0);
 }
@@ -81,8 +81,8 @@ get fun `test credits accumulate across three rounds`() {
     }
 
     val stakerAddr = randomAddress("staker", MASTERCHAIN);
-    testing.topUp(stakerAddr, ton("10000"));
-    val res = elector.sendRecoverStakeRequest(stakerAddr, 99, { value: ton("1") });
+    testing.topUp(stakerAddr, grams("10000"));
+    val res = elector.sendRecoverStakeRequest(stakerAddr, 99, { value: grams("1") });
     expect(res).toHaveTx<PayStake>({ from: elector.address, to: stakerAddr });
     expect(stakerCredits(elector)).toEqual(0);
 }
@@ -101,8 +101,8 @@ get fun `test partial recovery between rounds`() {
     doInstallPromoteUnfreeze(elector, vset1);
     expect(stakerCredits(elector)).toNotEqual(0);
 
-    testing.topUp(stakerAddr, ton("10000"));
-    val res1 = elector.sendRecoverStakeRequest(stakerAddr, 1, { value: ton("1") });
+    testing.topUp(stakerAddr, grams("10000"));
+    val res1 = elector.sendRecoverStakeRequest(stakerAddr, 1, { value: grams("1") });
     expect(res1).toHaveTx<PayStake>({ from: elector.address, to: stakerAddr });
     expect(stakerCredits(elector)).toEqual(0);
 
@@ -112,8 +112,8 @@ get fun `test partial recovery between rounds`() {
     doInstallPromoteUnfreeze(elector, vset2);
     expect(stakerCredits(elector)).toNotEqual(0);
 
-    testing.topUp(stakerAddr, ton("10000"));
-    val res2 = elector.sendRecoverStakeRequest(stakerAddr, 2, { value: ton("1") });
+    testing.topUp(stakerAddr, grams("10000"));
+    val res2 = elector.sendRecoverStakeRequest(stakerAddr, 2, { value: grams("1") });
     expect(res2).toHaveTx<PayStake>({ from: elector.address, to: stakerAddr });
     expect(stakerCredits(elector)).toEqual(0);
 }
