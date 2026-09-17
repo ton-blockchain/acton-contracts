@@ -48,7 +48,11 @@ get fun `test w5: should receive basic transfer`() {
         .storeUint(0xdeadbeef, 32)
         .storeUint(blockchain.now(), 64)
         .endCell();
-    val receipt3 = walletV5.sendAny(sender.address, randomBody, { value: grams("1"), bounce: false });
+    val receipt3 = walletV5.sendAny(
+        sender.address,
+        randomBody,
+        { value: grams("1"), bounce: false },
+    );
     expect(receipt3).toHaveSuccessfulTx({
         from: sender.address,
         to: walletV5.address,

@@ -499,7 +499,13 @@ get fun `test mutation: direct wallet should reject overburning jettons`() {
         owner.address,
     );
 
-    val res = wallet.sendBurn(owner.address, DEFAULT_BURN_MSG_VALUE, grams("5"), owner.address, null);
+    val res = wallet.sendBurn(
+        owner.address,
+        DEFAULT_BURN_MSG_VALUE,
+        grams("5"),
+        owner.address,
+        null,
+    );
     expect(res).toHaveFailedTx<AskToBurn>({
         from: owner.address,
         to: wallet.address,

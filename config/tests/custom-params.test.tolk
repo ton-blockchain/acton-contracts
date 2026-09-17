@@ -199,7 +199,11 @@ get fun `test custom params: should bounce set_custom_slot when response address
         val msgBody = payloads.get(payloadIdx);
         val res = ctx
             .contract
-            .sendAny(ADMIN_ADDRESS_FOR_CUSTOM_PARAMS, msgBody, { value: grams("10"), bounce: true });
+            .sendAny(
+                ADMIN_ADDRESS_FOR_CUSTOM_PARAMS,
+                msgBody,
+                { value: grams("10"), bounce: true },
+            );
 
         expect(res).toHaveTx({
             from: ADMIN_ADDRESS_FOR_CUSTOM_PARAMS,

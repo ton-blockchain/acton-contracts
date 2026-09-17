@@ -879,7 +879,9 @@ get fun `test multisig: chained execution should work`() {
     val ctx = setupMultisig();
 
     val chainedRecipient = randomAddress("chained_recipient");
-    val innerOrder = singleActionOrder(makeTransferAction(chainedRecipient, grams("0.01"), 0x22222));
+    val innerOrder = singleActionOrder(
+        makeTransferAction(chainedRecipient, grams("0.01"), 0x22222),
+    );
 
     val triggerBody = ExecuteInternalRequest {
         queryId: 0,
@@ -986,7 +988,12 @@ get fun `test multisig: multisig should invalidate previous orders if signers ch
     expect(updateRes).toHaveSuccessfulTx<ExecuteOrderRequest>({ to: ctx.multisig.address });
 
     val order = Order.fromAddress(pendingOrderAddress);
-    val approveOld = order.sendApprove(ctx.signers.get(0), 0, 9, { value: grams("1"), bounce: true });
+    val approveOld = order.sendApprove(
+        ctx.signers.get(0),
+        0,
+        9,
+        { value: grams("1"), bounce: true },
+    );
 
     expect(approveOld).toHaveFailedTx<ExecuteOrderRequest>({
         from: pendingOrderAddress,

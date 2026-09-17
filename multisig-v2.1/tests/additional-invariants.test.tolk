@@ -141,7 +141,12 @@ get fun `test invariants: less than threshold compromised signers can be removed
     val seqno = ctx.multisig.getData().nextOrderSeqno - 1;
     val order = Order.fromAddress(ctx.multisig.getOrderAddress(seqno));
 
-    val approve = order.sendApprove(ctx.signers.get(2), 2, 77, { value: grams("0.2"), bounce: true });
+    val approve = order.sendApprove(
+        ctx.signers.get(2),
+        2,
+        77,
+        { value: grams("0.2"), bounce: true },
+    );
     expect(approve).toHaveSuccessfulTx<ExecuteOrderRequest>({
         from: order.address,
         to: ctx.multisig.address,

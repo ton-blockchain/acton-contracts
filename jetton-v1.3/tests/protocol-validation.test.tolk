@@ -201,7 +201,13 @@ get fun `test validation: minter cannot force burn tokens`() {
     });
     expect(wallet.getJettonBalance()).toEqual(balanceBefore);
 
-    val ok = wallet.sendBurn(notDeployer.address, grams("0.2"), grams("1"), notDeployer.address, null);
+    val ok = wallet.sendBurn(
+        notDeployer.address,
+        grams("0.2"),
+        grams("1"),
+        notDeployer.address,
+        null,
+    );
     expect(ok).toHaveSuccessfulTx<AskToBurn>({ from: notDeployer.address, to: wallet.address });
 }
 

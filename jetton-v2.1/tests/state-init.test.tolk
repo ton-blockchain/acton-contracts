@@ -43,7 +43,13 @@ get fun `test state: wallet storage and init-state bounds should match fee const
     val recipient = randomAddress();
     val recipientWallet = userWallet(minter, recipient);
 
-    val mintResult = minter.sendMint(deployer.address, recipient, TEST_JETTON_UNIT, 0, grams("0.3"));
+    val mintResult = minter.sendMint(
+        deployer.address,
+        recipient,
+        TEST_JETTON_UNIT,
+        0,
+        grams("0.3"),
+    );
     expect(mintResult).toHaveSuccessfulTx<InternalTransferStep>({
         from: minter.address,
         to: recipientWallet.address,

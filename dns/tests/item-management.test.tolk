@@ -174,7 +174,12 @@ get fun `test item management: owner can edit content and mutate DNS records`() 
     val (item, _, owner, outsider) = setupCompletedItem();
 
     val edited = makeRecordMapWithName("alice-edited.ton");
-    val editTx = item.sendEditContent(owner.address, 1, edited, { value: grams("1"), bounce: true });
+    val editTx = item.sendEditContent(
+        owner.address,
+        1,
+        edited,
+        { value: grams("1"), bounce: true },
+    );
     expect(editTx).toHaveSuccessfulTx({ from: owner.address, to: item.address });
 
     val nftData = item.getNftData();

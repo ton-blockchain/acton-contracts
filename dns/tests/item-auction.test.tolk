@@ -118,7 +118,11 @@ get fun `test item auction: prolongs end time when bid arrives in prolongation w
     val nowAt = auctionBefore.auctionEndTime - AUCTION_PROLONGATION / 2;
     testing.setNow(nowAt);
 
-    val bid = item.sendAny(bidder.address, createEmptyCell(), { value: grams("2000"), bounce: true });
+    val bid = item.sendAny(
+        bidder.address,
+        createEmptyCell(),
+        { value: grams("2000"), bounce: true },
+    );
     expect(bid).toHaveSuccessfulTx<OutbidNotification>({ from: item.address, to: owner.address });
 
     val auctionAfter = item.getAuctionInfo();

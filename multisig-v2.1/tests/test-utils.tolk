@@ -87,7 +87,10 @@ fun setupMultisig(
 
     val multisig = Multisig.fromConfig(threshold, signers, proposers, allowArbitraryOrderSeqno);
 
-    val deploy = multisig.deployWithInitBody(deployer.address, { value: grams("10"), bounce: false });
+    val deploy = multisig.deployWithInitBody(
+        deployer.address,
+        { value: grams("10"), bounce: false },
+    );
     expect(deploy).toHaveSuccessfulDeploy({ to: multisig.address });
 
     return {

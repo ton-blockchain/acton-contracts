@@ -324,7 +324,12 @@ get fun `test mutation: ownership transfer should fail one nanotone below forwar
     val owner = testing.treasury("mutation-threshold-owner");
     val nftItem = nftFixture(nftCollection, owner.address);
     val nextOwner = randomAddress();
-    val transferBody = makeOwnershipTransferBody(nextOwner, null, grams("0.01"), createEmptySlice());
+    val transferBody = makeOwnershipTransferBody(
+        nextOwner,
+        null,
+        grams("0.01"),
+        createEmptySlice(),
+    );
 
     val balanceBefore = testing.getAccountBalance(nftItem.address);
     val minimalValue = calculateMinimalTransferValue(nftItem.address, transferBody, balanceBefore);
