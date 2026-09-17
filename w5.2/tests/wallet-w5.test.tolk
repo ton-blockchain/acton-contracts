@@ -1,7 +1,6 @@
 import "@acton/crypto"
 import "@acton/emulation/network"
 import "@acton/emulation/testing"
-import "@acton/testing/assert"
 import "@acton/testing/expect"
 import "@acton/types/big_array"
 import "../contracts/errors"
@@ -90,7 +89,7 @@ get fun `test w5: ext should send up to 255 messages`() {
     };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     // 1 wallet tx + 255 message txs
     expect(receipt.size()).toEqual(256);
@@ -122,7 +121,7 @@ get fun `test w5: ext should reject send modes without IGNORE_ERRORS`() {
 
     // External message with mode without IGNORE_ERRORS should be rejected
     // The error happens after accept, so tx is included
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt).toHaveTx({
         exitCode: Errors.ExternalSendMessageMustHaveIgnoreErrorsSendMode,
@@ -162,7 +161,7 @@ get fun `test w5: ext should add remove send in one go`() {
     val actions = ActionsList { outActions, extraActions };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt).toHaveTx({
         from: walletV5.address,
@@ -190,7 +189,7 @@ get fun `test w5: ext only_extension_can_change_signature_mode`() {
     };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt).toHaveTx({ exitCode: Errors.OnlyExtensionCanChangeSignatureMode });
 
@@ -221,7 +220,7 @@ get fun `test w5: ext should be able to send external-out message`() {
     };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt).toHaveTx({ exitCode: 0 });
 
@@ -254,7 +253,7 @@ get fun `test w5: ext should not be able to install extension from different cha
     };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt).toHaveTx({ exitCode: Errors.ExtensionWrongWorkchain });
 
@@ -699,10 +698,8 @@ get fun `test w5: action list exceeding 255 elements should be rejected`() {
         .storeSlice(extSignature)
         .endCell();
     val extReceipt = walletV5.sendExternalRaw(extRawBody);
-    if (extReceipt == null) {
-        Assert.fail("External message was not accepted");
-    }
-    expect(extReceipt).toHaveTx({ exitCode: Errors.InvalidC5 });
+    expect(extReceipt).toBeAccepted();
+    expect(extReceipt.unwrap()).toHaveTx({ exitCode: Errors.InvalidC5 });
     seqno += 1;
 
     // Via internal: should bounce
@@ -845,7 +842,7 @@ get fun `test w5: should not accept signed external when sig auth is disabled`()
 
     // External with disabled sig should be rejected (no tx)
     val receipt = walletV5.sendExternalSigned(extBody);
-    expect(receipt == null).toEqual(true);
+    expect(receipt).toBeNotAccepted();
     expect(walletV5.getSeqno()).toEqual(seqno);
 }
 
@@ -1021,7 +1018,7 @@ get fun `test w5: withdraw funds on deploy with sig auth disabled`() {
 
     // Via external signed
     val extBody = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions);
-    val extReceipt = walletV5.sendExternalSigned(extBody)!;
+    val extReceipt = walletV5.sendExternalSigned(extBody).unwrap();
     expect(extReceipt).toHaveTx({ exitCode: 0 });
     seqno += 1;
 
@@ -1134,10 +1131,8 @@ get fun `test w5: should reject action list with extra data or refs`() {
         // Via external (error after accept, tx included, seqno increments)
         val extBody = buildRawExternalRequest(keyPair, DEFAULT_SUBWALLET_ID, seqno, rawActionsCell);
         val extReceipt = walletV5.sendExternalRaw(extBody);
-        if (extReceipt == null) {
-            Assert.fail("External message was not accepted");
-        }
-        expect(extReceipt).toHaveTx({ exitCode: Errors.InvalidC5 });
+        expect(extReceipt).toBeAccepted();
+        expect(extReceipt.unwrap()).toHaveTx({ exitCode: Errors.InvalidC5 });
         seqno += 1;
 
         i += 1;
@@ -1228,7 +1223,7 @@ get fun `test w5: ext should be able to send message with init state`() {
     };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt).toHaveTx({ exitCode: 0 });
 

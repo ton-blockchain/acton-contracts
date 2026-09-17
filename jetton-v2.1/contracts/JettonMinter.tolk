@@ -10,8 +10,8 @@ contract JettonMinter {
     author: "The Tolk Team"
     version: "2.1"
     description: "Standard Jetton Minter. TEP-74 and TEP-89 compliant"
-    incomingMessages: AllowedMessageToMinter
     storage: MinterStorage
+    incomingMessages: AllowedMessageToMinter
 }
 
 type AllowedMessageToMinter =
@@ -23,7 +23,7 @@ type AllowedMessageToMinter =
     | DropMinterAdmin
     | ChangeMinterMetadata
     | UpgradeMinterCode
-    | TopUpTons
+    | TopUpGrams
 
 fun onBouncedMessage(in: InMessageBounced) {
     in.bouncedBody.skipBouncedPrefix();
@@ -36,14 +36,9 @@ fun onBouncedMessage(in: InMessageBounced) {
 }
 
 fun assertSenderIsAdmin(senderAddress: address, adminAddress: address?) {
-    // theoretically, minter's admin can be dropped and be `null`, so being precise, we should check:
-    // ```
-    // assert (adminAddress != null) throw ERROR_NOT_OWNER;
-    // ```
-    // but in practice, the above assertion is redundant, we just bypass the nullability check:
-    assert (
-        senderAddress == adminAddress!
-    ) throw ERROR_NOT_OWNER;                                       // then, if admin is `null`, error code 7 will be thrown (while executing operator `==`),// it's suitable for current implementation
+    // A dropped admin is null. Comparing it to a sender then fails with TVM
+    // error 7, preventing any further admin operations.
+    assert (senderAddress == adminAddress!) throw Errors.NotOwner;
 }
 
 fun onInternalMessage(in: InMessage) {
@@ -60,7 +55,7 @@ fun onInternalMessage(in: InMessage) {
                     contract.getAddress(),
                     jettonWalletCode,
                 )
-            ) throw ERROR_NOT_VALID_WALLET;
+            ) throw Errors.NotValidWallet;
             storage.totalSupply -= msg.jettonAmount;
             storage.save();
 
@@ -110,11 +105,11 @@ fun onInternalMessage(in: InMessage) {
         MintNewJettons => {
             var storage = lazy MinterStorage.load();
             assertSenderIsAdmin(in.senderAddress, storage.adminAddress);
-            assert (msg.mintRecipient.getWorkchain() == MY_WORKCHAIN) throw ERROR_WRONG_WORKCHAIN;
+            assert (msg.mintRecipient.getWorkchain() == MY_WORKCHAIN) throw Errors.WrongWorkchain;
 
             val internalTransferMsg = lazy msg
                 .internalTransferMsg
-                .load({ throwIfOpcodeDoesNotMatch: ERROR_INVALID_OP });
+                .load({ throwIfOpcodeDoesNotMatch: Errors.InvalidOp });
             val forwardTonAmount = internalTransferMsg.forwardTonAmount;
             internalTransferMsg.forwardPayload.checkIsCorrectTlbEither();
 
@@ -180,8 +175,8 @@ fun onInternalMessage(in: InMessage) {
             contract.setData(msg.newData);
         }
 
-        TopUpTons => {
-            // just accept tons
+        TopUpGrams => {
+            // just accept grams
         }
 
         else => throw 0xFFFF,

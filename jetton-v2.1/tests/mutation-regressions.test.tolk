@@ -264,12 +264,12 @@ get fun `test mutation: direct wallet should accept sibling transfers and reject
     expect(bad).toHaveFailedTx<InternalTransferStep>({
         from: outsider.address,
         to: receiverWallet.address,
-        exitCode: ERROR_NOT_VALID_WALLET,
+        exitCode: Errors.NotValidWallet,
     });
     expect(receiverWallet.getJettonBalance()).toEqual(grams("2"));
 }
 
-get fun `test mutation: direct wallet zero forward ton should not notify owner`() {
+get fun `test mutation: direct wallet zero forward GRAM should not notify owner`() {
     val (wallet, owner, minter, _) = setupDirectWallet();
 
     val res = net.send(
@@ -340,7 +340,7 @@ get fun `test mutation: direct wallet should reject non-owner transfers`() {
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: outsider.address,
         to: wallet.address,
-        exitCode: ERROR_NOT_OWNER,
+        exitCode: Errors.NotOwner,
     });
 }
 
@@ -378,7 +378,7 @@ get fun `test mutation: direct wallet should reject overspending jettons`() {
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
         to: wallet.address,
-        exitCode: ERROR_BALANCE_ERROR,
+        exitCode: Errors.BalanceError,
     });
     expect(wallet.getJettonBalance()).toEqual(grams("2"));
     expect(recipientWallet.getJettonBalance()).toEqual(0);
@@ -401,7 +401,7 @@ get fun `test mutation: direct wallet should reject masterchain recipients`() {
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
         to: wallet.address,
-        exitCode: ERROR_WRONG_WORKCHAIN,
+        exitCode: Errors.WrongWorkchain,
     });
 }
 
@@ -483,7 +483,7 @@ get fun `test mutation: direct wallet should reject non-owner burns`() {
     expect(res).toHaveFailedTx<AskToBurn>({
         from: outsider.address,
         to: wallet.address,
-        exitCode: ERROR_NOT_OWNER,
+        exitCode: Errors.NotOwner,
     });
 }
 
@@ -509,7 +509,7 @@ get fun `test mutation: direct wallet should reject overburning jettons`() {
     expect(res).toHaveFailedTx<AskToBurn>({
         from: owner.address,
         to: wallet.address,
-        exitCode: ERROR_BALANCE_ERROR,
+        exitCode: Errors.BalanceError,
     });
     expect(wallet.getJettonBalance()).toEqual(grams("1"));
 }
@@ -601,7 +601,7 @@ get fun `test mutation: direct wallet transfer minimal value edge`() {
     expect(fail).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
         to: wallet.address,
-        exitCode: ERROR_NOT_ENOUGH_GAS,
+        exitCode: Errors.NotEnoughGas,
     });
 }
 
@@ -636,7 +636,7 @@ get fun `test mutation: direct wallet transfer with forward amount requires seco
     expect(missingFee).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
         to: wallet.address,
-        exitCode: ERROR_NOT_ENOUGH_GAS,
+        exitCode: Errors.NotEnoughGas,
     });
 
     val enough = net.send(
@@ -708,7 +708,7 @@ get fun `test mutation: direct wallet transfer gas and storage fees should follo
     expect(fail).toHaveFailedTx<AskToTransfer>({
         from: owner.address,
         to: wallet.address,
-        exitCode: ERROR_NOT_ENOUGH_GAS,
+        exitCode: Errors.NotEnoughGas,
     });
 }
 
@@ -735,7 +735,7 @@ get fun `test mutation: direct wallet burn minimal value edge`() {
     expect(fail).toHaveFailedTx<AskToBurn>({
         from: owner.address,
         to: wallet.address,
-        exitCode: ERROR_NOT_ENOUGH_GAS,
+        exitCode: Errors.NotEnoughGas,
     });
 }
 
@@ -778,7 +778,7 @@ get fun `test mutation: direct wallet burn fees should follow config`() {
     expect(fail).toHaveFailedTx<AskToBurn>({
         from: owner.address,
         to: wallet.address,
-        exitCode: ERROR_NOT_ENOUGH_GAS,
+        exitCode: Errors.NotEnoughGas,
     });
 }
 
@@ -838,7 +838,7 @@ get fun `test mutation: minter should reject masterchain mint recipients`() {
     expect(res).toHaveFailedTx<MintNewJettons>({
         from: deployer.address,
         to: minter.address,
-        exitCode: ERROR_WRONG_WORKCHAIN,
+        exitCode: Errors.WrongWorkchain,
     });
     expect(minter.getTotalSupply()).toEqual(supplyBefore);
 }
@@ -956,7 +956,7 @@ get fun `test mutation: minter mint minimal value edge and deploy mode`() {
     expect(fail).toHaveFailedTx<MintNewJettons>({
         from: deployer.address,
         to: minter.address,
-        exitCode: ERROR_NOT_ENOUGH_GAS,
+        exitCode: Errors.NotEnoughGas,
     });
 }
 
@@ -1031,6 +1031,6 @@ get fun `test mutation: minter mint fees should follow forward gas and storage c
     expect(fail).toHaveFailedTx<MintNewJettons>({
         from: deployer.address,
         to: minter.address,
-        exitCode: ERROR_NOT_ENOUGH_GAS,
+        exitCode: Errors.NotEnoughGas,
     });
 }

@@ -2,17 +2,18 @@ import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "@acton/types/message"
+
 import "test-utils"
 import "../contracts/messages"
 import "../wrappers/JettonMinter.gen"
 import "../wrappers/JettonWallet.gen"
 import "../wrappers/utils"
 
-get fun `test minter restores supply on internal_transfer bounce`() {
+get fun `test bounce: minter restores supply on internal_transfer bounce`() {
     val (minter, deployer, _) = setupTest();
     val supplyBefore = minter.getTotalSupply();
     val mintAmount = grams("2");
-    val forwardPayload = makeTinyForwardPayload();
+    val forwardPayload = beginCell().storeMaybeRef(null).endCell().beginParse();
 
     val mintMsg = createMessage({
         bounce: false,
@@ -54,11 +55,11 @@ get fun `test minter restores supply on internal_transfer bounce`() {
     expect(minter.getTotalSupply()).toEqual(supplyBefore);
 }
 
-get fun `test wallet restores balance on internal_transfer bounce`() {
+get fun `test bounce: wallet restores balance on internal_transfer bounce`() {
     val (minter, deployer, notDeployer) = setupTest();
     val senderWallet = mintTo(minter, deployer, deployer.address, grams("5"));
     val balanceBefore = senderWallet.getJettonBalance();
-    val forwardPayload = makeTinyForwardPayload();
+    val forwardPayload = beginCell().storeMaybeRef(null).endCell().beginParse();
 
     val transferMsg = createMessage({
         bounce: true,
@@ -96,7 +97,7 @@ get fun `test wallet restores balance on internal_transfer bounce`() {
     expect(senderWallet.getJettonBalance()).toEqual(balanceBefore);
 }
 
-get fun `test wallet restores balance on burn_notification bounce`() {
+get fun `test bounce: wallet restores balance on burn_notification bounce`() {
     val (minter, deployer, _) = setupTest();
     val wallet = mintTo(minter, deployer, deployer.address, grams("4"));
     val balanceBefore = wallet.getJettonBalance();

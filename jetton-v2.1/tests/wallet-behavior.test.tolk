@@ -2,6 +2,7 @@ import "@acton/emulation/network"
 import "@acton/emulation/testing"
 import "@acton/testing/expect"
 import "@acton/types/transaction"
+
 import "test-utils"
 import "../contracts/errors"
 import "../contracts/messages"
@@ -14,7 +15,7 @@ get fun `test wallet: owner can send jettons`() {
     val senderWallet = mintTo(minter, deployer, deployer.address, grams("20"));
     val receiverWallet = userWallet(minter, notDeployer.address);
 
-    val res = senderWallet.sendTransferPayloadInline(
+    val res = senderWallet.sendTransfer(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         transferAmount,
@@ -22,7 +23,7 @@ get fun `test wallet: owner can send jettons`() {
         deployer.address,
         null,
         DEFAULT_FORWARD_TON_AMOUNT,
-        createEmptySlice(),
+        null,
     );
     expect(res).toHaveSuccessfulTx<AskToTransfer>({
         from: deployer.address,
@@ -38,7 +39,7 @@ get fun `test wallet: non-owner cannot send jettons`() {
     val wallet = mintTo(minter, deployer, deployer.address, grams("7"));
     val balanceBefore = wallet.getJettonBalance();
 
-    val res = wallet.sendTransferPayloadInline(
+    val res = wallet.sendTransfer(
         notDeployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         grams("3"),
@@ -46,12 +47,12 @@ get fun `test wallet: non-owner cannot send jettons`() {
         deployer.address,
         null,
         DEFAULT_FORWARD_TON_AMOUNT,
-        createEmptySlice(),
+        null,
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: notDeployer.address,
         to: wallet.address,
-        exitCode: ERROR_NOT_OWNER,
+        exitCode: Errors.NotOwner,
     });
 
     expect(wallet.getJettonBalance()).toEqual(balanceBefore);
@@ -62,7 +63,7 @@ get fun `test wallet: cannot send more jettons than balance`() {
     val wallet = mintTo(minter, deployer, deployer.address, grams("2"));
     val balanceBefore = wallet.getJettonBalance();
 
-    val res = wallet.sendTransferPayloadInline(
+    val res = wallet.sendTransfer(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         grams("5"),
@@ -70,23 +71,23 @@ get fun `test wallet: cannot send more jettons than balance`() {
         deployer.address,
         null,
         DEFAULT_FORWARD_TON_AMOUNT,
-        createEmptySlice(),
+        null,
     );
     expect(res).toHaveFailedTx<AskToTransfer>({
         from: deployer.address,
         to: wallet.address,
-        exitCode: ERROR_BALANCE_ERROR,
+        exitCode: Errors.BalanceError,
     });
 
     expect(wallet.getJettonBalance()).toEqual(balanceBefore);
 }
 
-get fun `test wallet: zero forward ton means no transfer notification`() {
+get fun `test wallet: zero forward GRAM means no transfer notification`() {
     val (minter, deployer, notDeployer) = setupTest();
     val senderWallet = mintTo(minter, deployer, deployer.address, grams("2"));
     val receiverWallet = userWallet(minter, notDeployer.address);
 
-    val res = senderWallet.sendTransferPayloadInline(
+    val res = senderWallet.sendTransfer(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         grams("1"),
@@ -94,7 +95,7 @@ get fun `test wallet: zero forward ton means no transfer notification`() {
         deployer.address,
         null,
         0,
-        createEmptySlice(),
+        null,
     );
     expect(res).toHaveSuccessfulTx<AskToTransfer>({
         from: deployer.address,
@@ -113,7 +114,7 @@ get fun `test wallet: transfer notification should preserve forward payload`() {
     val sentAmount = grams("0.5");
     val forwardPayload = beginCell().storeUint(0x1234567890abcdef, 128).endCell();
 
-    val res = senderWallet.sendTransferPayloadInRef(
+    val res = senderWallet.sendTransfer(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         sentAmount,
@@ -163,7 +164,7 @@ get fun `test wallet: transfer to undeployed recipient wallet should still work`
     val recipientWallet = userWallet(minter, recipientOwner);
     val sentAmount = grams("0.5");
 
-    val res = senderWallet.sendTransferPayloadInline(
+    val res = senderWallet.sendTransfer(
         deployer.address,
         DEFAULT_TRANSFER_MSG_VALUE,
         sentAmount,
@@ -171,7 +172,7 @@ get fun `test wallet: transfer to undeployed recipient wallet should still work`
         deployer.address,
         null,
         0,
-        createEmptySlice(),
+        null,
     );
 
     expect(res).toHaveAllSuccessfulTxs();
@@ -188,14 +189,18 @@ get fun `test wallet: owner can burn jettons`() {
     val wallet = mintTo(minter, deployer, deployer.address, grams("10"));
     val supplyBefore = minter.getTotalSupply();
 
-    val res = wallet.sendBurn(
+    val res = wallet.sendAskToBurn(
         deployer.address,
-        DEFAULT_BURN_MSG_VALUE,
+        0,
         burnAmount,
         deployer.address,
         null,
+        { bounce: false, value: DEFAULT_BURN_MSG_VALUE },
     );
-    expect(res).toHaveSuccessfulTx<AskToBurn>({ from: deployer.address, to: wallet.address });
+    expect(res).toHaveSuccessfulTx<AskToBurn>({
+        from: deployer.address,
+        to: wallet.address,
+    });
 
     expect(wallet.getJettonBalance()).toEqual(grams("7"));
     expect(minter.getTotalSupply()).toEqual(supplyBefore - burnAmount);
@@ -207,17 +212,18 @@ get fun `test wallet: non-owner cannot burn jettons`() {
     val balanceBefore = wallet.getJettonBalance();
     val supplyBefore = minter.getTotalSupply();
 
-    val res = wallet.sendBurn(
+    val res = wallet.sendAskToBurn(
         notDeployer.address,
-        DEFAULT_BURN_MSG_VALUE,
+        0,
         grams("2"),
         deployer.address,
         null,
+        { bounce: false, value: DEFAULT_BURN_MSG_VALUE },
     );
     expect(res).toHaveFailedTx<AskToBurn>({
         from: notDeployer.address,
         to: wallet.address,
-        exitCode: ERROR_NOT_OWNER,
+        exitCode: Errors.NotOwner,
     });
 
     expect(wallet.getJettonBalance()).toEqual(balanceBefore);
@@ -230,17 +236,18 @@ get fun `test wallet: cannot burn more jettons than balance`() {
     val balanceBefore = wallet.getJettonBalance();
     val supplyBefore = minter.getTotalSupply();
 
-    val res = wallet.sendBurn(
+    val res = wallet.sendAskToBurn(
         deployer.address,
-        DEFAULT_BURN_MSG_VALUE,
+        0,
         grams("5"),
         deployer.address,
         null,
+        { bounce: false, value: DEFAULT_BURN_MSG_VALUE },
     );
     expect(res).toHaveFailedTx<AskToBurn>({
         from: deployer.address,
         to: wallet.address,
-        exitCode: ERROR_BALANCE_ERROR,
+        exitCode: Errors.BalanceError,
     });
 
     expect(wallet.getJettonBalance()).toEqual(balanceBefore);

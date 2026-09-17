@@ -146,7 +146,7 @@ get fun get_nft_content(
     // construct a response from "common content" and "individual content";
     // for example:
     // common content = "https://site.org/my-collection/"
-    // individual nft-v1.1 = "my-picture-123.png"  (probably, a long string, snake-encoded)
+    // individual nft = "my-picture-123.png"  (probably, a long string, snake-encoded)
     // result         = concatenation
     var b = StringBuilder.create();
     b.append(content.commonContent);

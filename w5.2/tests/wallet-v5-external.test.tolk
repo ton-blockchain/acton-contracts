@@ -25,7 +25,7 @@ get fun `test w5: Send a simple transfer`() {
     };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt.size()).toEqual(2);
 
@@ -55,7 +55,7 @@ get fun `test w5: Add an extension`() {
     };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt.size()).toEqual(1);
 
@@ -86,7 +86,7 @@ get fun `test w5: Send single transfer to a deployed wallet`() {
     };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt.size()).toEqual(2);
 
@@ -124,7 +124,7 @@ get fun `test w5: Send two transfers`() {
     };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt.size()).toEqual(3);
 
@@ -170,7 +170,7 @@ get fun `test w5: Add two extensions and do a transfer`() {
     val actions = ActionsList { outActions, extraActions };
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt.size()).toEqual(2);
 
@@ -257,8 +257,8 @@ get fun `test w5: Should fail SetData action`() {
 
     val receipt = walletV5.sendExternalRaw(body);
 
-    expect(receipt != null).toBeTrue();
-    expect(receipt!).toHaveTx({ exitCode: Errors.UnsupportedAction });
+    expect(receipt).toBeAccepted();
+    expect(receipt.unwrap()).toHaveTx({ exitCode: Errors.UnsupportedAction });
     expect(walletV5.getSeqno()).toEqual(1);
 }
 
@@ -293,8 +293,8 @@ get fun `test w5: Should fail SetCode action`() {
 
     val receipt = walletV5.sendExternalRaw(body);
 
-    expect(receipt != null).toBeTrue();
-    expect(receipt!).toHaveTx({ exitCode: Errors.InvalidC5 });
+    expect(receipt).toBeAccepted();
+    expect(receipt.unwrap()).toHaveTx({ exitCode: Errors.InvalidC5 });
     expect(walletV5.getSeqno()).toEqual(1);
 }
 
@@ -331,7 +331,7 @@ get fun `test w5: Should fail adding existing extension`() {
     };
     val body2 = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, seqno, actions2);
 
-    val receipt = walletV5.sendExternalSigned(body2)!;
+    val receipt = walletV5.sendExternalSigned(body2).unwrap();
 
     expect(receipt.size()).toEqual(1);
     expect(receipt).toHaveTx({ exitCode: Errors.AddExtension });
@@ -357,7 +357,7 @@ get fun `test w5: Should fail removing not existing extension`() {
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
     // Error happens after acceptExternalMessage, so tx is included
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt.size()).toEqual(1);
     expect(receipt).toHaveTx({ exitCode: Errors.RemoveExtension });
@@ -588,7 +588,7 @@ get fun `test w5: only_extension_can_change_signature_mode`() {
     val body = createExternalSignedBody(keyPair, DEFAULT_SUBWALLET_ID, 0, actions);
 
     // Error happens after acceptExternalMessage, so tx is included with exit_code
-    val receipt = walletV5.sendExternalSigned(body)!;
+    val receipt = walletV5.sendExternalSigned(body).unwrap();
 
     expect(receipt.size()).toEqual(1);
     expect(receipt).toHaveTx({ exitCode: Errors.OnlyExtensionCanChangeSignatureMode });

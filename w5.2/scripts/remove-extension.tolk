@@ -26,10 +26,6 @@ fun main() {
     val body = createExternalSignedBody(keyPair, subwalletId, seqno, actions);
 
     val res = wallet.sendExternalSigned(body);
-    if (res == null) {
-        println("Remove-extension external could not be submitted");
-        return;
-    }
     if (res.waitForFirstTransaction() == null) {
         println("Remove-extension was not confirmed");
         return;

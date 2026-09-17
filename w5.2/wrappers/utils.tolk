@@ -21,13 +21,14 @@ fun WalletV5.deployCodeLib(): cell {
 fun WalletV5.fromLibraryStorage(
     storage: Storage,
     toShard: AddressShardingOptions? = null,
+    workchain: int8 = BASECHAIN,
 ): WalletV5 {
     val stateInit = ContractState {
         code: WalletV5.deployCodeLib(),
         data: storage.toCell(),
     };
-    val address = AutoDeployAddress { stateInit, toShard }.calculateAddress();
-    return WalletV5 { address, stateInit };
+    val address = AutoDeployAddress { workchain, stateInit, toShard }.calculateAddress();
+    return WalletV5 { address, stateInit, toShard };
 }
 
 fun WalletV5.getSeqno(self): int {
@@ -267,14 +268,12 @@ fun createExternalSignedBody(
     return ExternalSignedBody { payload, signature };
 }
 
-fun WalletV5.sendExternalSigned(self, body: ExternalSignedBody): SendResultList? {
-    val msg = net.createExternalMessage(self.address, body);
-    return net.sendExternal(msg).transactions;
+fun WalletV5.sendExternalSigned(self, body: ExternalSignedBody): ExternalSendResult {
+    return self.sendAnyExternal(body.toCell());
 }
 
-fun WalletV5.sendExternalRaw(self, body: cell): SendResultList? {
-    val msg = net.createExternalMessage(self.address, body);
-    return net.sendExternal(msg).transactions;
+fun WalletV5.sendExternalRaw(self, body: cell): ExternalSendResult {
+    return self.sendAnyExternal(body);
 }
 
 fun addExtensionSigned(

@@ -3,38 +3,15 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 
-import "../contracts/types"
+import "utils/common"
 import "../wrappers/Counter.gen"
-
-fun counterDeployValue(): coins {
-    return env<coins>("COUNTER_DEPLOY_VALUE_NANOS") ?? 5000000;
-}
-
-fun explicitCounterAddress(): address? {
-    return env("COUNTER_ADDRESS");
-}
-
-fun targetCounter(): Counter {
-    val expected = Counter.fromStorage(Storage {
-        id: 0,
-        counter: 0,
-    });
-    val counterAddress = explicitCounterAddress();
-    if (counterAddress == null) {
-        return expected;
-    }
-    return Counter {
-        address: counterAddress,
-        stateInit: expected.stateInit,
-    };
-}
 
 fun main() {
     val delta = env<int>("COUNTER_DELTA") ?? 1;
     val deployer = scripts.wallet("deployer");
     val deployValue = counterDeployValue();
     val counterAddress = explicitCounterAddress();
-    val counter = targetCounter();
+    val counter = targetCounter(deployer.address);
     println("Deploy value: {}", deployValue);
     if (!scripts.isContractDeployed(counter.address)) {
         if (counterAddress != null) {
@@ -50,5 +27,6 @@ fun main() {
 
     println("Counter address: {}", counter.address);
     println("COUNTER_ADDRESS={}", counter.address);
+    println("Counter owner: {}", counter.owner());
     println("Current counter value: {}", counter.currentCounter());
 }

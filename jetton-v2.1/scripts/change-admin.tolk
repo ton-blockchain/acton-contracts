@@ -2,7 +2,7 @@ import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "utils/common"
-import "../wrappers/utils"
+import "../wrappers/JettonMinter.gen"
 
 fun main() {
     val admin = promptJettonWallet("JETTON_ADMIN", "Select Current Admin ActonWallet");
@@ -13,8 +13,13 @@ fun main() {
         admin.address,
     );
 
-    val res = minter.sendChangeAdmin(admin.address, nextAdmin);
-    res.waitForFirstTransaction();
+    val res = minter.sendChangeMinterAdmin(
+        admin.address,
+        0,
+        nextAdmin,
+        { bounce: false, value: grams("0.05") },
+    );
+    println(res.waitForTrace());
 
     println("JETTON NEXT_ADMIN_REQUESTED={}", nextAdmin);
     printJettonMinterInfo(minter, "JETTON");

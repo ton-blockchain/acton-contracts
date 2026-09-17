@@ -30,10 +30,6 @@ fun main() {
     val body = createExternalSignedBody(keyPair, subwalletId, seqno, actions);
 
     val res = wallet.sendExternalSigned(body);
-    if (res == null) {
-        println("W5 external transfer could not be submitted");
-        return;
-    }
     if (res.waitForFirstTransaction() == null) {
         println("W5 transfer was not confirmed");
         return;

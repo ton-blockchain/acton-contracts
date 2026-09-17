@@ -10,11 +10,11 @@ contract JettonWallet {
     author: "The Tolk Team"
     version: "2.1"
     description: "Standard Jetton Wallet. TEP-74 and TEP-89 compliant"
-    incomingMessages: AllowedMessageToWallet
     storage: WalletStorage
+    incomingMessages: AllowedMessageToWallet
 }
 
-type AllowedMessageToWallet = AskToTransfer | AskToBurn | InternalTransferStep | TopUpTons
+type AllowedMessageToWallet = AskToTransfer | AskToBurn | InternalTransferStep | TopUpGrams
 
 type BounceOpToHandle = InternalTransferStep | BurnNotificationForMinter
 
@@ -46,7 +46,7 @@ fun onInternalMessage(in: InMessage) {
                         storage.minterAddress,
                         contract.getCode(),
                     )
-                ) throw ERROR_NOT_VALID_WALLET;
+                ) throw Errors.NotValidWallet;
             }
             storage.jettonBalance += msg.jettonAmount;
             storage.save();
@@ -91,7 +91,7 @@ fun onInternalMessage(in: InMessage) {
             msg.forwardPayload.checkIsCorrectTlbEither();
             assert (
                 msg.transferRecipient.getWorkchain() == MY_WORKCHAIN
-            ) throw ERROR_WRONG_WORKCHAIN;
+            ) throw Errors.WrongWorkchain;
             checkAmountIsEnoughToTransfer(
                 in.valueCoins,
                 msg.forwardTonAmount,
@@ -99,8 +99,8 @@ fun onInternalMessage(in: InMessage) {
             );
 
             var storage = lazy WalletStorage.load();
-            assert (in.senderAddress == storage.ownerAddress) throw ERROR_NOT_OWNER;
-            assert (storage.jettonBalance >= msg.jettonAmount) throw ERROR_BALANCE_ERROR;
+            assert (in.senderAddress == storage.ownerAddress) throw Errors.NotOwner;
+            assert (storage.jettonBalance >= msg.jettonAmount) throw Errors.BalanceError;
             storage.jettonBalance -= msg.jettonAmount;
             storage.save();
 
@@ -130,8 +130,8 @@ fun onInternalMessage(in: InMessage) {
             checkAmountIsEnoughToBurn(in.valueCoins);
 
             var storage = lazy WalletStorage.load();
-            assert (in.senderAddress == storage.ownerAddress) throw ERROR_NOT_OWNER;
-            assert (storage.jettonBalance >= msg.jettonAmount) throw ERROR_BALANCE_ERROR;
+            assert (in.senderAddress == storage.ownerAddress) throw Errors.NotOwner;
+            assert (storage.jettonBalance >= msg.jettonAmount) throw Errors.BalanceError;
             storage.jettonBalance -= msg.jettonAmount;
             storage.save();
 
@@ -151,8 +151,8 @@ fun onInternalMessage(in: InMessage) {
             );
         }
 
-        TopUpTons => {
-            // just accept tons
+        TopUpGrams => {
+            // just accept grams
         }
 
         else => throw 0xFFFF,

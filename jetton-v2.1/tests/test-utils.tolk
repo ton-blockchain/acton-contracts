@@ -1,4 +1,5 @@
 import "@stdlib/gas-payments"
+import "@stdlib/strings"
 import "@acton/build"
 import "@acton/emulation/config"
 import "@acton/emulation/network"
@@ -18,17 +19,17 @@ import "../wrappers/utils"
 
 fun buildTestMetadata(uri: string): cell {
     var metadata: OnchainMetadataReply = { contentDict: [] };
-    metadata.contentDict.set("uri".sha256(), SnakeDataReply { string: uri }.toCell());
+    metadata.contentDict.set("uri".sha256(), uri.prefixWith00());
     return metadata.toCell();
 }
 
-// Common values used across tests (nanotons for TON amounts)
+// Common values used across tests (nanograms for GRAM amounts)
 const TEST_JETTON_UNIT = 1
-const DEFAULT_MINTED_JETTONS = grams("5") // 5 TON in jetton units
-const DEFAULT_TRANSFER_MSG_VALUE = 300000000 // 0.3 TON
-const LOW_TRANSFER_MSG_VALUE = 200000000 // 0.2 TON
-const DEFAULT_BURN_MSG_VALUE = 200000000 // 0.2 TON
-const DEFAULT_FORWARD_TON_AMOUNT = 50000000 // 0.05 TON
+const DEFAULT_MINTED_JETTONS = grams("5") // 5 whole jetton units
+const DEFAULT_TRANSFER_MSG_VALUE = 300000000 // 0.3 GRAM
+const LOW_TRANSFER_MSG_VALUE = 200000000 // 0.2 GRAM
+const DEFAULT_BURN_MSG_VALUE = 200000000 // 0.2 GRAM
+const DEFAULT_FORWARD_TON_AMOUNT = 50000000 // 0.05 GRAM
 const MIN_EDGE_DELTA = 1
 const CONFIG_SCALE_X10 = 10
 const GAS_SCALE_X3 = 3
@@ -72,6 +73,7 @@ fun estimateMessageForwardFee<T>(body: T, dest: address, bounce: bool, value: co
         bounce,
         value,
     });
+
     val totalForwardFee = estMsg.estimateFeeWithoutSending(SEND_MODE_REGULAR);
     val prices = testing.getConfig().getMsgForwardPrices(BASECHAIN);
     val firstPart = (totalForwardFee * prices.firstFrac) / 65536;
@@ -132,10 +134,12 @@ fun deployWalletFromStorage(
             bounce: false,
             value,
             dest: init,
-            body: TopUpTons {},
+            body: TopUpGrams {},
         }),
     );
-    expect(deployResult).toHaveSuccessfulDeploy({ to: address });
+    expect(deployResult).toHaveSuccessfulDeploy({
+        to: address,
+    });
 
     return JettonWallet { address };
 }
@@ -212,9 +216,9 @@ fun hasSetCodeAction(res: SendResultList, account: address): bool {
 
 fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
     val deployer = testing.treasury("deployer");
-    val notDeployer = testing.treasury("not-deployer");
+    val notDeployer = testing.treasury("notDeployer");
 
-    val minter = JettonMinter.fromStorage(MinterStorage {
+    val minter = JettonMinter.fromStorage({
         totalSupply: initialSupply,
         adminAddress: deployer.address,
         metadata: buildTestMetadata("link"),
@@ -222,7 +226,9 @@ fun setupTest(initialSupply: int = 0): (JettonMinter, Treasury, Treasury) {
     });
 
     val transactions = minter.sendDeploy(deployer.address, { value: grams("10") });
-    expect(transactions).toHaveSuccessfulDeploy({ to: minter.address });
+    expect(transactions).toHaveSuccessfulDeploy({
+        to: minter.address,
+    });
 
     return (minter, deployer, notDeployer);
 }

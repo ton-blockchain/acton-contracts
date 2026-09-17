@@ -432,7 +432,7 @@ get fun `test nft: bench should deploy 100 nfts via batch deploy`() {
         0,
         deployList,
         {
-            value: grams("5"), // more TON for 100 NFTs
+            value: grams("5"), // more GRAM for 100 NFTs
             bounce: true,
         },
     );

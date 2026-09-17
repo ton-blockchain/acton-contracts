@@ -1,3 +1,4 @@
+import "@acton/io"
 import "@acton/emulation/network"
 import "@acton/emulation/scripts"
 import "utils/common"
@@ -8,7 +9,7 @@ import "../wrappers/utils"
 fun main() {
     val sender = promptJettonWallet("JETTON_SENDER", "Select Jetton Sender ActonWallet");
     val minter = promptJettonMinter("Enter Jetton Minter address");
-    val recipient = promptJettonAddressRequired(
+    val recipient = promptJettonAddress(
         "JETTON_TRANSFER_RECIPIENT",
         "Enter transfer recipient",
     );
@@ -19,7 +20,7 @@ fun main() {
     );
 
     val senderWallet = JettonWallet { address: minter.getWalletAddress(sender.address) };
-    val res = senderWallet.sendTransferPayloadInline(
+    val res = senderWallet.sendTransfer(
         sender.address,
         grams("0.08"),
         transferAmount,
@@ -27,9 +28,9 @@ fun main() {
         sender.address,
         null,
         1,
-        createEmptySlice(),
+        null,
     );
-    res.waitForFirstTransaction();
+    println(res.waitForTrace());
 
     printJettonMinterInfo(minter, "JETTON");
     printJettonWalletInfo(minter, sender.address, "JETTON_SENDER");

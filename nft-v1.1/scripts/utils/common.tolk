@@ -1,5 +1,6 @@
 import "@stdlib/strings"
 import "@acton/build"
+import "@acton/env"
 import "@acton/io"
 import "@acton/prompts"
 import "@acton/emulation/network"
@@ -10,11 +11,10 @@ import "../../wrappers/NftCollection.gen"
 import "../../wrappers/NftItem.gen"
 
 const ONCHAIN_CONTENT_PREFIX = 0x00
-const SNAKE_PREFIX = 0x00
 
 const NFT_DEFAULT_COLLECTION_NAME = "SomeNFT"
 const NFT_DEFAULT_COLLECTION_DESCRIPTION = "Some NFT collection"
-const NFT_DEFAULT_COLLECTION_IMAGE = "https://acton-blockchain.github.io/acton/logo.png"
+const NFT_DEFAULT_COLLECTION_IMAGE = "https://ton.org/download/ton_symbol.svg"
 const NFT_DEFAULT_COMMON_CONTENT = "https://example.com/nft/"
 const NFT_DEFAULT_ITEM_CONTENT = "item-0.json"
 const NFT_DEFAULT_BATCH_CONTENT_PREFIX = "batch-"
@@ -37,8 +37,8 @@ fun buildOnchainMetadata(info: NftCollectionInfo): cell {
         .endCell();
 }
 
-fun promptNftWallet(message: string): ActonWallet {
-    return scripts.wallet(promptWallet(message));
+fun promptNftWallet(envName: string, message: string): ActonWallet {
+    return scripts.wallet(env<string>(envName) ?? promptWallet(message));
 }
 
 fun promptNftAddress(message: string, default: address? = null): address {

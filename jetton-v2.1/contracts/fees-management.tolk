@@ -4,7 +4,7 @@ import "sharding"
 
 // Storage costs
 // these constants are used to estimate storage fee (how much we should pay for storing a wallet contract);
-// actual storage state (desired value of these constants) is printed to console in StateInit.spec.ts
+// the bounds are checked in tests/state-init.test.tolk
 
 const STORAGE_SIZE_MAX_WALLET_BITS = 1026
 const STORAGE_SIZE_MAX_WALLET_CELLS = 3
@@ -17,7 +17,7 @@ const MESSAGE_SIZE_BURN_NOTIFICATION_CELLS = 1 // body always in ref
 const MIN_STORAGE_DURATION = 5 * 365 * 24 * 3600 // 5 years
 
 // Gas costs
-// these constants are used to estimate gas fee (how much we should remain on balance for a swap to succeed);
+// these constants are used to estimate gas fee (how much we should retain on balance for a transfer to succeed);
 // they must be absolutely equal to consumed gas; if not, tests fail;
 // actual consumed gas (desired value of these constants) is printed to console after tests run
 
@@ -73,7 +73,7 @@ fun calcMinimalTransferAmount(forwardTonAmount: int, fwdFee: int): int {
 
 fun checkAmountIsEnoughToTransfer(msgValue: int, forwardTonAmount: int, fwdFee: int) {
     val minTransferAmount = calcMinimalTransferAmount(forwardTonAmount, fwdFee);
-    assert (msgValue > minTransferAmount) throw ERROR_NOT_ENOUGH_GAS;
+    assert (msgValue > minTransferAmount) throw Errors.NotEnoughGas;
 }
 
 fun calcMinimalBurnAmount(): coins {
@@ -93,5 +93,5 @@ fun calcMinimalBurnAmount(): coins {
 
 fun checkAmountIsEnoughToBurn(msgValue: int) {
     val minBurnAmount = calcMinimalBurnAmount();
-    assert (msgValue > minBurnAmount) throw ERROR_NOT_ENOUGH_GAS;
+    assert (msgValue > minBurnAmount) throw Errors.NotEnoughGas;
 }
