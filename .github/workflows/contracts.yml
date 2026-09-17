@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Acton
-        uses: ton-blockchain/setup-acton@2d38fd579e1bf8753a3e0cff9ad695612b98a676 # v1.0.0
+        uses: ton-blockchain/setup-acton@bb2ab218f0e71bf293f3b2e4c85c5abcf2a312ae # v1.1.0
 
       - name: Version
         run: acton --version
